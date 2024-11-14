@@ -64,7 +64,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - HullcamVDS - [guthub](https://github.com/linuxgurugamer/HullcamVDSContinued/releases)
 ### Recommended:
 - HangarExtender - [github](https://github.com/linuxgurugamer/FShangarExtender/releases)
-- **Of Course I Still Love You** (for multiple Camera View on your Screen using HullcamVDS) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
+- **Of Course I Still Love You** (for multiple Camera Views on your Screen using HullcamVDS) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 ### Incompatible:
 - TweakableEverything
 - FerramAerospaceResearch (FAR)
