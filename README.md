@@ -9,6 +9,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ## Current State:
 - Ship landings/catches don't work reliably anymore due to the many changes in SEP dev.
 - This fork is currently worked on by Nubro.
+- When launching empty Starships it is recommended to reduce Booster Fuel load by one stop in the VAB
 
 ### Known Issues:
 - **Kraken:**
