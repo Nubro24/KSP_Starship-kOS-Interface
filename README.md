@@ -10,6 +10,20 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Ship landings/catches don't work reliably anymore due to the many changes in SEP dev.
 - This fork is currently worked on by Nubro.
 
+### Known Issues:
+- **Kraken:**
+    - The scripts have been designed for stock Kerbin, and it functions most reliably on a stock install. If you use planet mods that increase the size of the planet (e.g. KSRSS,RSS) the chances of a wobbly tower or other problems are significantly higher.
+- **Multiple ships/towers of the same name:**
+    - Can cause issues where the wrong ship gets loaded during launch.
+- **Booster crashes into the Orbital Launch Mount on landing:**
+    - Stock Kerbin: You may need to install the optional _SEPkOS patch for stock Kerbin with Kopernicus.cfg_ patch.
+- **Hotstaging for Version 1 Ships (SEP_24) not working properly**
+    - Ship and HSR are not seperating leading to the destruction of the HSR (the script should continue to run on both ship and booster)
+- **On non-stock Kerbin the tower may be glitching upon booster-catch due to the Kraken**.
+- **Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands**.
+- **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulate orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
+
+
 ## Installation:
 - Download and install all requirements listed below.
 - If you update: first delete the _StarshipInterface_ folder!
@@ -50,16 +64,6 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Realism Overhaul (RO)
 
 
-### Known Issues:
-- **Kraken:**
-    - The scripts have been designed for stock Kerbin, and it functions most reliably on a stock install. If you use planet mods that increase the size of the planet (e.g. KSRSS,RSS) the chances of a wobbly tower or other problems are significantly higher.
-- **Multiple ships/towers of the same name:**
-    - Can cause issues where the wrong ship gets loaded during launch.
-- **Booster crashes into the Orbital Launch Mount on landing:**
-    - Stock Kerbin: You may need to install the optional _SEPkOS patch for stock Kerbin with Kopernicus.cfg_ patch.
-- **On non-stock Kerbin the tower may be glitching upon booster-catch due to the Kraken**.
-- **Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands**.
-- **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulate orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
 
 
 ### Bug support guide:
