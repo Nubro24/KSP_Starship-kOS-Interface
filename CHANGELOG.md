@@ -1,9 +1,15 @@
+# V3.0.1 (2024-11-14)
+- Added new Craft Files for Real Sie Starships (Stock Size will come in a later Patch)
+- Added Cameras to the Craft File mimicking some seen in SpaceX Streams 
+  (the OLM-Cam looking at the engines is upside down, will be fixed in the next Patch)
+
 # V3.0.0 (2024-11-14)
 - First Fixes to restore functionality
 - Refueling on OLM is deactivated
 - Fuelcheck is deactivated to avoid problems with new SEP-versions
 - Added HSR Jettison after Boostback-shutdown
 - Changed the Roll direction during Ascent and Booster descent
+_________________________________
 
 # V2.4.9 (2024-08-06)
 - The project is currently on hold indefinitely until I feel like returning to it.
