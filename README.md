@@ -61,6 +61,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - KSP Community Fixes - [github](https://github.com/KSPModdingLibs/KSPCommunityFixes/releases) - [Forum](https://forum.kerbalspaceprogram.com/topic/204002-18-112-kspcommunityfixes-bugfixes-and-qol-tweaks/)
 ### Recommended:
 - HangarExtender - [github](https://github.com/linuxgurugamer/FShangarExtender/releases)
+- **Of Course I Still Love You (for multiple Camera View on your Screen using HullcamHDV)**
 ### Incompatible:
 - TweakableEverything
 - FerramAerospaceResearch (FAR)
