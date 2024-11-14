@@ -7,8 +7,8 @@
 User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 ## Current State:
-- Ship landings/catches don't work anymore due to the many changes in SEP dev.
-- The project is currently on hold indefinitely until I feel like returning to it.
+- Ship landings/catches don't work reliably anymore due to the many changes in SEP dev.
+- This fork is currently worked on by Nubro.
 
 ## Installation:
 - Download and install all requirements listed below.
@@ -53,21 +53,13 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ### Known Issues:
 - **Kraken:**
     - The scripts have been designed for stock Kerbin, and it functions most reliably on a stock install. If you use planet mods that increase the size of the planet (e.g. KSRSS,RSS) the chances of a wobbly tower or other problems are significantly higher.
-- **Tank mismatch error:**
-    - This is a feature that stops launches _before they fail_ in-flight, and generally an indication that the fuel tanks are the wrong size and something got messed up along the way.
-    - **Kopernicus**: If you use stock Kerbin with _Kopernicus_ (it's a requirement for using _Parallax_) installed, please install the optional _SEPkOS patch for stock Kerbin with Kopernicus.cfg_ patch.
-    - Your .craft may also be messed up, so load a fresh one from the stock category in the VAB.
-    - Check that you don't have multiple planet mods installed simultaneously, like Rescale 2.5 and OPM.
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
 - **Booster crashes into the Orbital Launch Mount on landing:**
     - Stock Kerbin: You may need to install the optional _SEPkOS patch for stock Kerbin with Kopernicus.cfg_ patch.
-- **Booster runs out of fuel on return to the launch site:**
-    - Load a fresh .craft from the stock category in the VAB.
-    - Mechjeb Q or G Limiter could cause launch/catch failures.
 - **On non-stock Kerbin the tower may be glitching upon booster-catch due to the Kraken**.
 - **Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands**.
-- **Occasionally there may be glitches in the script, like not finding a suitable trajectory or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
+- **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulate orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
 
 
 ### Bug support guide:
@@ -77,8 +69,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Keep the kOS CPUs open (right hand side) and screenshot any errors.
 - Either:
     - File an issue on github, or
-    - Write me on: [KSP forum SEP thread](https://forum.kerbalspaceprogram.com/topic/206555-112x-starship-expansion-project-sep-v2031-november-20th-2023/), or
-    - Write me on: SEP Discord
+    - Write Nubro on: SEP Discord
 - Be sure to describe the problem as accurately as possible and add screenshots/videos.
 - Looking forward to your bugs!
 
@@ -86,3 +77,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 > [!NOTE]
 > ### By the author:
 > This has been a pet project of mine since around May 2021, and I had a lot of fun making and using this Interface. I hope you will too! Let me know what you think! I thank all the mod makers whose work I have been able to rely on, and without whom none of this would have been possible. Especially I want to thank Kari, Sofie, all others that have contributed to SEP and SAMCG14 for his work on SLE.
+>
+> ### By the editor:
+> This work has mostly been done by Janus in the original script. My Edits mainly focus on bringing functionallity back, while not rewriting the script.
+> Some fixes could be achieved by changing the value of some variables.
