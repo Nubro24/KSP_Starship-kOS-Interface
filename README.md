@@ -59,9 +59,10 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - TundraExploration - [github](https://github.com/TundraMods/TundraExploration/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/166915-112x-tundra-exploration-v600-january-23rd-restockalike-spacex-falcon-9-crew-dragon-xl/)
 - Kerbal Joint Reinforcement Continued - [github](https://github.com/KSP-RO/Kerbal-Joint-Reinforcement-Continued) - [Forum](https://forum.kerbalspaceprogram.com/topic/184019-131-14x-15x-16x-17x-kerbal-joint-reinforcement-continued-v340-25-04-2019/)
 - KSP Community Fixes - [github](https://github.com/KSPModdingLibs/KSPCommunityFixes/releases) - [Forum](https://forum.kerbalspaceprogram.com/topic/204002-18-112-kspcommunityfixes-bugfixes-and-qol-tweaks/)
+- HullcamVDS - [guthub](https://github.com/linuxgurugamer/HullcamVDSContinued/releases)
 ### Recommended:
 - HangarExtender - [github](https://github.com/linuxgurugamer/FShangarExtender/releases)
-- **Of Course I Still Love You (for multiple Camera View on your Screen using HullcamHDV)**
+- **Of Course I Still Love You** (for multiple Camera View on your Screen using HullcamVDS) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 ### Incompatible:
 - TweakableEverything
 - FerramAerospaceResearch (FAR)
