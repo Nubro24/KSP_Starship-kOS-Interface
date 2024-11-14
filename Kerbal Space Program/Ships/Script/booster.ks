@@ -272,7 +272,7 @@ function Boostback {
 
     if verticalspeed > 0 {
         set SeparationTime to time:seconds.
-        if vang(facing:topvector, north:vector) < 90 {
+        if vang(facing:topvector, north:vector) < 270 {
             set ship:control:pitch to -2.
         }
         else {
@@ -302,7 +302,7 @@ function Boostback {
             SetLoadDistances(350000).
         }
 
-        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), facing:topvector).
+        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -facing:topvector).
         lock steering to SteeringVector.
 
         wait 0.001.
@@ -412,12 +412,11 @@ function Boostback {
         unlock throttle.
         lock throttle to 0.
         set BoostBackComplete to true.
-        stage.
         BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
         wait 0.01.
         KUniverse:forceactive(vessel("Booster Ship")).
         set turnTime to time:seconds.
-        HUDTEXT("Rotating Booster for re-entry and landing..", 20, 2, 20, green, false).
+        HUDTEXT("HSR-Jettison confirmed.. Rotating Booster for re-entry and landing..", 20, 2, 20, green, false).
         BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
         set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
         set SteeringManager:pitchtorquefactor to 1.
@@ -544,7 +543,7 @@ function Boostback {
     lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     lock steering to SteeringVector.
 
-    until landingRatio > 1 and alt:radar < 2000 {
+    until alt:radar < 1600 {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         if altitude > 26000 {
@@ -625,7 +624,7 @@ function Boostback {
         }
     }
 
-    when verticalspeed > -50 and (stopDist3 / RadarAlt) < 1 and LngError < 10 or verticalspeed > -40 then {
+    when verticalspeed > -50 and (stopDist3 / RadarAlt) < 1 and LngError < 20 or verticalspeed > -40 then {
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
 
@@ -818,11 +817,11 @@ FUNCTION SteeringCorrections {
                 set LatCtrl to -LatCtrl.
             }
 
-            set maxDecel to max((ship:availablethrust / ship:mass) - 9.805, 0.000001).
-            set maxDecel3 to (3 * BoosterRaptorThrust / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
+            set maxDecel to max((ship:availablethrust / ship:mass) - 2.805, 0.000001).
+            set maxDecel3 to (3 * BoosterRaptorThrust / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 2.805.
 
             if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 50) / min(maxDecel, 50).
+                set stopTime9 to (airspeed - 50) / min(maxDecel, 60).
                 set stopDist9 to ((airspeed + 50) / 2) * stopTime9.
                 set stopTime3 to min(50, airspeed) / min(maxDecel3, FinalDeceleration).
                 set stopDist3 to (min(50, airspeed) / 2) * stopTime3.

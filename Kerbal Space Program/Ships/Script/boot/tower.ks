@@ -51,6 +51,7 @@ set NrforOpenClosePushers to 0.
 set NrforStabilizers to 0.
 set NrforFueling to 0.
 set NrforDelugeRefill to 0.
+set NrforLandingRails to 0.
 
 for x in range(0, Mechazilla:modules:length) {
     if Mechazilla:getmodulebyindex(x):hasaction("stop trolley") {
@@ -116,6 +117,14 @@ for x in range(0, Mechazilla:modules:length) {
 }
 print "Stabilizers: " + NrforStabilizers.
 
+for x in range(0, Mechazilla:modules:length) {
+    if Mechazilla:getmodulebyindex(x):hasaction("lower Landings rails") {
+        set NrforLandingRails to x.
+        break.
+    }
+}
+print "Landing Rails: " + NrforLandingRails.
+
 for x in range(0, OLM:modules:length) {
     if OLM:getmodulebyindex(x):hasaction("toggle fueling") {
         set NrforFueling to x.
@@ -176,6 +185,7 @@ until False {
             set command to RECEIVED:CONTENT.
         }
         print timestamp(time:seconds):full + "   " + received:content.
+        print command.
         if command = "MechazillaHeight" {
             MechazillaHeight(parameter1, parameter2).
         }
@@ -190,6 +200,15 @@ until False {
         }
         else if command = "MechazillaStabilizers" {
             MechazillaStabilizers(parameter1).
+        }
+        else if command = "MechazillaRails" {
+            MechazillaRails(parameter1).
+        }
+        else if command = "ExtendMechazillaRails" {
+            ExtendMechazillaRails().
+        }
+        else if command = "RetractMechazillaRails" {
+            RetractMechazillaRails().
         }
         else if command = "EmergencyStop" {
             EmergencyStop().
@@ -311,6 +330,29 @@ function MechazillaPushers {
 function MechazillaStabilizers {
     parameter StabilizerPercent.
     Mechazilla:getmodulebyindex(NrforStabilizers):SetField("target extension", StabilizerPercent:toscalar(0)).
+}
+
+function MechazillaRails {
+    parameter RailsPercent.
+    Mechazilla:getmodulebyindex(NrforLandingRails):SetField("Landing Rail extension", RailsPercent:toscalar(0)).
+}
+
+function ExtendMechazillaRails {
+    for x in range(0, Mechazilla:modules:length) {
+        if Mechazilla:getmodulebyindex(x):hasaction("Raise Landing Rails") {
+            Mechazilla:getmodulebyindex(x):doaction("Raise Landing Rails").
+            break.
+        }
+    }    
+}
+
+function RetractMechazillaRails {
+    for x in range(0, Mechazilla:modules:length) {
+        if Mechazilla:getmodulebyindex(x):hasaction("Lower Landing Rails") {
+            Mechazilla:getmodulebyindex(x):doaction("Lower Landing Rails").
+            break.
+        }
+    }
 }
 
 
