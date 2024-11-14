@@ -1,3 +1,9 @@
+# V3.0.0 (2024-11-14)
+- First Fixes to restore functionality
+- Refueling on OLM is deactivated
+- Fuelcheck is deactivated to avoid problems with new SEP-versions
+- Added HSR Jettison after Boostback-shutdown
+
 # V2.4.9 (2024-08-06)
 - The project is currently on hold indefinitely until I feel like returning to it.
 
