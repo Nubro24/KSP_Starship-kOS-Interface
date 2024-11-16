@@ -5,7 +5,7 @@
   - Improved booster behaviour after Hotstaging
   - HSR-Jettison delayed to two seconds after boostback-shutdown
   - Booster Landing fixed (maybe?)
-    - had a lot of kraken while testing so fixes probably necesary
+    - had a lot of kraken while testing so fixes probably necessary
     - Booster Landing beetween the arms again (RSS)
     - Booster swinging in while Landing burn
 
