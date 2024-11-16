@@ -1,3 +1,14 @@
+# V3.0.2 (2024-11-15)  -  Booster Rework
+- upsidedown Camera on OLM fixed
+- Booster Updates
+  - New Ignition Timings at Lift-Off
+  - Improved booster behaviour after Hotstaging
+  - HSR-Jettison delayed to two seconds after boostback-shutdown
+  - Booster Landing fixed (maybe?)
+    - had a lot of kraken while testing so fixes probably necesary
+    - Booster Landing beetween the arms again (RSS)
+    - Booster swinging in while Landing burn 
+
 # V3.0.1 (2024-11-14)
 - Added new Craft Files for Real Sie Starships (Stock Size will come in a later Patch)
 - Added Cameras to the Craft File mimicking some seen in SpaceX Streams 
