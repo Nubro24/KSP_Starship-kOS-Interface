@@ -6644,7 +6644,6 @@ function Launch {
                 print "Actual Distance: " + round((target:position - ship:position):mag / 1000, 1).
             }
             BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
-            BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
             sendMessage(Vessel(TargetOLM), "LandingRails,100").
             for fin in GridFins {
                 if fin:hasmodule("ModuleControlSurface") {
@@ -6662,12 +6661,13 @@ function Launch {
             set EngineStartTime to time:seconds.
             set message3:text to "".
             wait 0.2. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
-            wait 0.3. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
+            wait 0.5. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
+            wait 0.7. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
             
-            until time:seconds - EngineStartTime > 1.5 or cancelconfirmed {
+            until time:seconds - EngineStartTime > 2.4 or cancelconfirmed {
                 set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
                 set message2:text to "<b>Clamps Release in:  </b>" + round(2.5 - time:seconds + EngineStartTime, 1) + "<b> seconds</b>".
-                lock throttle to 0.33 + 0.67 * (time:seconds - EngineStartTime) / 1.5.
+                lock throttle to 0.33 + 0.67 * (time:seconds - EngineStartTime - 1.4) / 1.2.
                 
                 BackGroundUpdate().
             }
