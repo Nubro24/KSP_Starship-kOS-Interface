@@ -1,3 +1,6 @@
+# V3.0.3 (2024-11-15)
+- Attempt to fix Booster landing for Stock and KSRSS (pls feedback)
+
 # V3.0.2 (2024-11-15)  -  Booster Rework
 - upsidedown Camera on OLM fixed
 - Booster Updates
