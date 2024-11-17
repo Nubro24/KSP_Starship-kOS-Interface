@@ -21,7 +21,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
     - Stock Kerbin: You may need to install the optional _SEPkOS patch for stock Kerbin with Kopernicus.cfg_ patch.
 - **Hotstaging for Version 1 Ships (SEP_24) not working properly**
     - Ship and HSR are not seperating leading to the destruction of the HSR (the script should continue to run on both ship and booster)
-- **The acheived orbit by Starship is currently non-circular**
+- **The acheived orbit by Starship is currently non-circular (RSS)**
 - **Booster and Ship Landings are broken (may work, may not work)**
 - **On non-stock Kerbin the tower may be glitching upon booster-catch due to the Kraken**.
 - **Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands**.
