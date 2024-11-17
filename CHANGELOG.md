@@ -1,3 +1,11 @@
+# V3.0.5 (2024-11-17)
+- **Added Support for the new SEP24 Parts**
+- Booster won't empty out during boostback anymore
+- **SEP24 Hotstaging fixed**
+- Script should not crash on HSR destruction during hotstaging anymore
+- updated Interface Backgrounds
+- **added Craftfiles for SEP24_Cargo (Stock and Real Size)** and updated Stock Size files with Stage 0 Cams
+
 # V3.0.4 (2024-11-17)
 - **Fueling before Lift-Off activated again**
 - Booster Landing should work better (still off target on Stock Size)
