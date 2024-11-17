@@ -412,6 +412,7 @@ set tLZ to time:seconds.
 set CancelTime to 1.
 set CancelDist to 1.
 set Dist2LandProc to 1.
+set LowCargoMass to false.
 
 
 
@@ -635,8 +636,19 @@ if OnOrbitalMount {
         sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,0.2,0.7,false").
         sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
     }
-    if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
-        SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
+    if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
+        set OnOrbitalMount to True.
+        set OLM to ship:partstitled("Starship Orbital Launch Mount")[0].
+        set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+        set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
+        set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
+        set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
+        set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+        set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+        Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
+        if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
+            SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
+        }
     }
 }
 set ship:type to "Ship".
@@ -2505,8 +2517,10 @@ set quickengine1:onclick to {
     for eng in SLEngines {eng:shutdown.}.
     for eng in VACEngines {eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Cargo") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Cargo") and not (ShipType = "Block1") {
         Nose:shutdown.
+    } else if (ShipType = "Block1") {
+        HeaderTank:shutdown.
     }
     Tank:shutdown.
     SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
@@ -4569,7 +4583,7 @@ set launchbutton:ontoggle to {
                         set message3:text to "".
                         set execute:text to "<b>EXECUTE</b>".
                         InhibitButtons(0, 1, 1).
-                        //Refuel().
+                        Refuel().
                     }
                     else {
                         set message3:style:textcolor to white.
@@ -6402,9 +6416,21 @@ if addons:tr:available and not startup {
                     BackGroundUpdate().
                     wait 0.001.
                 }
-                if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
-                    SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
+                if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
+                    set OnOrbitalMount to True.
+                    set OLM to ship:partstitled("Starship Orbital Launch Mount")[0].
+                    set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+                    set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
+                    set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
+                    set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
+                    set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+                    set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+                    Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
+                    if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
+                        SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
+                    }
                 }
+                
                 HUDTEXT("Starship Re-stacked! Rebooting..", 5, 2, 20, green, false).
                 wait 1.
                 reboot.
@@ -6561,14 +6587,14 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,20,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,5,0.6").
-                //sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaRails,255").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
             else {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,12.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,8,0.5").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,2.2,0.5").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
             set x to time:seconds + 15.
             until x < time:seconds or cancelconfirmed {
@@ -6696,6 +6722,7 @@ function Launch {
                 ClearInterfaceAndSteering().
                 return.
             }
+            wait 0.2.
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.25 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {
                 set message1:text to "<b>Launch Abort: </b>Thrust anomaly!".
@@ -6888,7 +6915,6 @@ function Launch {
                     print "Block 1".
                     if defined HSR {
                         HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                        //HSR[0]:getmodule("ModuleDecoupler"):doaction("Decouple", true).
                         print "test".
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
@@ -6897,6 +6923,7 @@ function Launch {
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
+                    //HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
                     wait 0.001.
                 } else {
                     if defined HSR {
@@ -6922,6 +6949,7 @@ function Launch {
                 //    if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                 //        Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                 //    }
+                
                 wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0.
                 set ship:name to ("Starship " + ShipType).
                 set Boosterconnected to false.
@@ -6947,7 +6975,7 @@ function Launch {
                     SetLoadDistances(ship, 1000000).
                 }
                 else {
-                    SetLoadDistances(ship, 500000).
+                    SetLoadDistances(ship, 1000000).
                 }
                 LogToFile("Hot-Staging Complete").
                 set HotStageTime to time:seconds.
@@ -6972,10 +7000,10 @@ function Launch {
         }
 
         when StageSepComplete then {
-            when time:seconds > HotStageTime + 2 then {
+            when time:seconds > HotStageTime + 1.8 then {
                 lock throttle to LaunchThrottle().
             }
-            when time:seconds > HotStageTime + 5 then {
+            when time:seconds > HotStageTime + 3.5 then {
                 for eng in SLEngines {
                     eng:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
                 }
@@ -6983,6 +7011,13 @@ function Launch {
             when deltav < 50 and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
+
+            when time:seconds > HotStageTime + 243 or (vessel("Booster"):altitude - landingzone:terrainheight < 33333 and not (RSS) and HotStageTime > 60)  or (vessel("Booster"):altitude - landingzone:terrainheight < 69420 and (RSS) and HotStageTime > 60) then {                                                         
+                if kuniverse:activevessel = vessel("Booster") {} else {
+                    KUniverse:forceactive(vessel("Booster")).
+                }
+            }
+
             if ShipType = "Depot" {
                 set steeringmanager:yawtorquefactor to 0.1.
             }
@@ -7719,11 +7754,15 @@ function ReEntryAndLand {
 
         if LFShip > max(FuelVentCutOffValue, MaxFuel) and ship:body:atm:sealevelpressure > 0.5 {
             ToggleHeaderTank(0).
-            //Nose:activate.
+            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+                Nose:activate.
+            }
             Tank:activate.
             when LFShip < max(FuelVentCutOffValue, MaxFuel) then {
                 Tank:shutdown.
-                //Nose:shutdown.
+                if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+                    Nose:shutdown.
+                }
                 ToggleHeaderTank(1).
             }
         }
@@ -8296,6 +8335,7 @@ function ReEntryData {
                 }
                 wait 0.001.
                 Tank:shutdown.
+                sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
                 SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
@@ -8322,7 +8362,7 @@ function ReEntryData {
             set LandingLateralDirection to facing:starvector.
             set LandingBurnStarted to false.
             set landingRatio to 0.
-            set LandingFlipTime to 3.
+            set LandingFlipTime to 4.
             set maxDecel to 0.
             set maxG to 4.
             set DesiredDecel to 0.
@@ -8354,17 +8394,17 @@ function ReEntryData {
                     when RadarAlt < 0.88 * ShipHeight then {
                         setflaps(0, 85, 1, 0).
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",10,30,true")).
-                        sendMessage(Vessel(TargetOLM), "LandingRails,100").
                         when RadarAlt < 0.22 * ShipHeight then {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",10,5,true")).
-                            sendMessage(Vessel(TargetOLM), "LandingRails,100").
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",7,5,true")).
                             if RadarAlt > 1 * Scale {
                                 set t to time:seconds.
                                 until time:seconds > t + 0.1 {}
                                 preserve.
                             }
                             else {
-                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",5,60,false")).
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",4,60,false")).
+                                sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,2,60,false")).
                             }
                         }
                         if LandSomewhereElse {
@@ -8382,7 +8422,11 @@ function ReEntryData {
                     }
                 }
                 else {
-                    when groundspeed > 44 and not (TargetOLM = "false") then {if Nose:name:contains("SEP.23.SHIP.FLAPS") {set LandSomewhereElse to true.}}
+                    when groundspeed > 44 and not (TargetOLM = "false") then {
+                        if Nose:name:contains("SEP.23.SHIP.FLAPS") {
+                            set LandSomewhereElse to true.
+                        }
+                    }
                     when verticalspeed > -20 then {
                         GEAR on.
                         SLEngines[2]:shutdown.
@@ -8402,12 +8446,12 @@ function ReEntryData {
             }
 
             
-            when verticalspeed > -30 and throttle < ThrottleMin + 0.001 and groundspeed < 3 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G then {
+            when verticalspeed > -42 and throttle < ThrottleMin + 0.005 and groundspeed < 5 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G then {
                 SLEngines[1]:shutdown.
                 SLEngines[1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                 LogToFile("3rd engine shutdown; performing a 2-engine landing..").
                 set ThrottleMin to 0.33.
-                when ThrottleMin * 2 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and throttle < ThrottleMin + 0.001 and groundspeed < 0.5 and verticalspeed > -3 then {
+                when ThrottleMin * 2 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and throttle < ThrottleMin + 0.001 and groundspeed < 0.5 and verticalspeed > -8 then {
                     SLEngines[2]:shutdown.
                     SLEngines[2]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                     LogToFile("2nd engine shutdown; performing a single engine landing..").
@@ -8488,16 +8532,16 @@ function ReEntryData {
 
 
 function LandingThrottle {
-    set minDecel to (Planet1G - 0.025) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
+    set minDecel to (Planet1G - 0.025) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
     if LandSomewhereElse {
-        set minDecel to (Planet1G - 2.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
+        set minDecel to (Planet1G - 2.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
     }
     if verticalspeed > CatchVS or Hover {
         set Hover to true.
         return minDecel.
     }
     set maxDecel to max(ship:availablethrust, 0.000001) / ship:mass - Planet1G.
-    set DesiredDecel to 0.5 * maxDecel.
+    set DesiredDecel to 0.4 * maxDecel.
     set stopTime to airspeed / DesiredDecel.
     set stopDist to 0.5 * airspeed * stopTime.
     if not (TargetOLM = "False") {
@@ -8531,7 +8575,7 @@ function LandingVector {
         set LatError to vdot(LandingLateralDirection, ErrorVector).
 
         if ship:body:atm:sealevelpressure > 0.5 {
-            //rcs off.
+            rcs off.
             if ErrorVector:mag > max(min(RadarAlt / 20, 10), min(RadarAlt / 2, 10)) {
                 set ErrorVector to ErrorVector:normalized * max(min(RadarAlt / 20, 10), min(RadarAlt / 2, 10)).
             }
@@ -10722,14 +10766,14 @@ function ClearInterfaceAndSteering {
     wait 0.001.
     if ShipType = "Cargo" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_cargo".
-        if Nose:name:contains("SEP.23.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_cargoFLAPS".}
+        //if Nose:name:contains("SEP.23.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_cargoFLAPS".}
     }
     if ShipType = "Crew" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_crew".
     }
     if ShipType = "Block1" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block1".
-        if Nose:name:contains("SEP.24.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_block1FLAPS".}
+        //if Nose:name:contains("SEP.24.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_block1FLAPS".}
     }
     if ShipType = "Tanker" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_tanker".
@@ -13079,6 +13123,7 @@ function Timewarp {
 
 function CheckFullTanks {
     if Boosterconnected {
+        set LowCargoMass to false.
         set FullTanks to true.
         local amount to 0.
         local cap to 0.
@@ -13103,25 +13148,68 @@ function CheckFullTanks {
         if ShipType = "Block1" {
             for res in HeaderTank:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
-                    set FullTanks to true.
-                    set amount to amount + res:amount.
-                    set cap to cap + res:capacity.
-                }
-            }
-        }
-        for res in Tank:resources {
-            if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
-                set FullTanks to false.
-                set amount to amount + res:amount.
-                set cap to cap + res:capacity.
-            }
-        }
-        if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
-            for res in BoosterCore[0]:resources {
-                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                     set FullTanks to false.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
+                } 
+            }
+        }
+        for res in Tank:resources {
+            if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not ShipType = "Block1" and not ShipType = "Cargo" {
+                set FullTanks to false.
+                set amount to amount + res:amount.
+                set cap to cap + res:capacity.
+            } else {
+                for res in BoosterCore[0]:resources {
+                    if res:name = "Oxidizer" or res:name = "LqdMethane" {
+                        set res:enabled to true.
+                    }
+                }
+            }
+        }
+
+        
+
+        if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
+            for res in BoosterCore[0]:resources {
+                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass > 24 {
+                    set FullTanks to false.
+                    set amount to amount + res:amount.
+                    set cap to cap + res:capacity.
+                } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass <= 24 {
+                    set FullTanks to false.
+                    set LowCargoMass to true.
+                    set amount to amount + res:amount.
+                    set cap to cap + res:capacity.
+                } else if ShipType = "Block1" or ShipType = "Cargo" {
+                    for res in Tank:resources {
+                        if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass > 12 {
+                            for res in BoosterCore[0]:resources {
+                                if res:name = "Oxidizer" or res:name = "LqdMethane" {
+                                    set res:enabled to false.
+                                }
+                            }
+                            set FullTanks to false.
+                            set amount to amount + res:amount.
+                            set cap to cap + res:capacity.
+                        } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass <= 12 {
+                            for res in BoosterCore[0]:resources {
+                                if res:name = "Oxidizer" or res:name = "LqdMethane" {
+                                    set res:enabled to false.
+                                }
+                            }
+                            set FullTanks to false.
+                            set LowCargoMass to true.
+                            set amount to amount + res:amount.
+                            set cap to cap + res:capacity.
+                        } else {
+                            for res in BoosterCore[0]:resources {
+                                if res:name = "Oxidizer" or res:name = "LqdMethane" {
+                                    set res:enabled to true.
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -13147,6 +13235,7 @@ function Refuel {
             Until CheckFullTanks() or not (Refueling) {
                 set message1:text to "<b>Loading LqdMethane and Lqd Oxygen..</b>".
                 set message2:text to "<b>Progress: </b>" + round(100 * (totalfuel / totalcap), 1) + "%".
+                set message3:text to "Low Cargo mass detected, Loading to 90%...".
                 BackGroundUpdate().
             }
             set Refueling to false.
