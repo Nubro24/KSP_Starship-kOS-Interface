@@ -9,7 +9,6 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ## Current State:
 - Ship landings/catches don't work reliably anymore due to the many changes in SEP dev.
 - This fork is currently worked on by Nubro.
-- When launching empty Starships it is recommended to reduce Booster Fuel load by one stop in the VAB
 
 ### Known Issues:
 - **Kraken:**
@@ -64,6 +63,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ### Recommended:
 - HangarExtender - [github](https://github.com/linuxgurugamer/FShangarExtender/releases)
 - **Of Course I Still Love You** (for multiple Camera Views on your Screen using HullcamVDS) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
+- When launching empty Starships it is recommended to reduce Booster Fuel load by one stop in the VAB
 ### Incompatible:
 - TweakableEverything
 - FerramAerospaceResearch (FAR)
