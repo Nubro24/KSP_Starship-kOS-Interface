@@ -293,7 +293,11 @@ function MechazillaArms {
     //print targetspeed.
     //print armsopenangle.
     //print ArmsOpen.
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle:toscalar).
+    if targetangle = 999 {
+        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle"):toscalar).
+    } else {
+        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle:toscalar).
+    }
     Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed:toscalar).
     Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle:toscalar).
     if ArmsOpen = "true" and Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("open arms") {
@@ -340,7 +344,7 @@ function MechazillaRails {
 function ExtendMechazillaRails {
     for x in range(0, Mechazilla:modules:length) {
         if Mechazilla:getmodulebyindex(x):hasaction("Raise Landing Rails") {
-            Mechazilla:getmodulebyindex(x):doaction("Raise Landing Rails").
+            Mechazilla:getmodulebyindex(x):doaction("Raise Landing Rails", true).
             break.
         }
     }    
@@ -349,7 +353,7 @@ function ExtendMechazillaRails {
 function RetractMechazillaRails {
     for x in range(0, Mechazilla:modules:length) {
         if Mechazilla:getmodulebyindex(x):hasaction("Lower Landing Rails") {
-            Mechazilla:getmodulebyindex(x):doaction("Lower Landing Rails").
+            Mechazilla:getmodulebyindex(x):doaction("Lower Landing Rails", false).
             break.
         }
     }
