@@ -1,3 +1,10 @@
+# V3.0.4 (2024-11-17)
+- **Fueling before Lift-Off activated again**
+- Booster Landing should work better (still off target on Stock Size)
+- HSR-Jettison delayed by another two seconds to prevent contact after seperation
+- Fixed some Error Messages
+- **Added Stock Size Craft Files**
+
 # V3.0.3 (2024-11-15)
 - Attempt to fix Booster landing for Stock and KSRSS (pls feedback)
 
