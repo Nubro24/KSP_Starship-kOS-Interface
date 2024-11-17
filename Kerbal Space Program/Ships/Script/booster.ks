@@ -72,6 +72,7 @@ set BoosterHeight to 0.
 set stopTime9 to 0.
 set TimeStabilized to 0.
 set LFBooster to 0.
+set LFBoosterCap to 0.
 set LiftingPointToGridFinDist to 0.
 set MiddleEnginesShutdown to false.
 set StarshipExists to false.
@@ -97,6 +98,10 @@ set KSRSS to false.
 set STOCK to false.
 set Rescale to false.
 set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
+set Block1 to false.
+set Block1HSR to false.
+set VentCutOff to false.
+
 
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
@@ -113,7 +118,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 2500.
-        set LngCtrlPID:setpoint to 76.
+        set LngCtrlPID:setpoint to 80.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -159,7 +164,7 @@ else {
         }
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.5.
-        set LFBoosterFuelCutOff to 1600.
+        set LFBoosterFuelCutOff to 1800.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -183,7 +188,7 @@ else {
         set LaunchSites to lexicon("KSC", "-0.0972,-74.5577", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.5.
-        set LFBoosterFuelCutOff to 1600.
+        set LFBoosterFuelCutOff to 1700.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -259,8 +264,8 @@ until False {
 
 function Boostback {
     wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
-    set ship:name to "Booster".
     wait 0.001.
+    set ship:name to "Booster".
     rcs on.
 
     setLandingZone().
@@ -279,6 +284,7 @@ function Boostback {
             set ship:control:pitch to 2.
         }
         unlock steering.
+        set ship:name to "Booster".
         rcs on.
         lock throttle to 0.43.
         sas off.
@@ -286,6 +292,7 @@ function Boostback {
         set SteeringManager:rollts to 5.
         wait 0.1.
         HUDTEXT("Performing Boostback Burn..", 30, 2, 20, green, false).
+        set ship:name to "Booster".
         clearscreen.
         print "Starting Boostback".
         set CurrentTime to time:seconds.
@@ -332,12 +339,16 @@ function Boostback {
                 }
             }
         }
+        until time:seconds > SeparationTime + 5 {
+            if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
+                set ship:name to "Booster".
+                set Block1HSR to true.
+            }
+        }
 
         set flipStartTime to time:seconds.
-        BoosterCore:activate.
-        when time:seconds - flipStartTime > 55 then {
-            BoosterCore:shutdown.
-        }
+        
+        
 
         when time:seconds > flipStartTime + 4 and verticalspeed > 0 then {
             BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
@@ -366,13 +377,16 @@ function Boostback {
                 HUDTEXT("FAR failure! Please restart KSP..", 30, 2, 22, red, false).
                 set FailureMessage to true.
             }
-            SetBoosterActive().
+            if not Block1 and time:seconds > flipStartTime + 5 {
+                wait 0.01.
+                SetBoosterActive().
+            }
             rcs on.
             wait 0.1.
         }
 
         set steeringmanager:maxstoppingtime to 3.
-        when time:seconds > flipStartTime + 5 then {
+        when time:seconds > flipStartTime + 10 then {
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
         }
 
@@ -388,10 +402,11 @@ function Boostback {
         print "Available Thrust: " + round(max(ship:availablethrust, 0.000001)) + "kN".
         wait 0.1.
 
-        when verticalSpeed < 800 then {
-            //sas on.
-            //wait 5.
-            sas off.
+        when time:seconds > flipStartTime + 15 then {
+            CheckFuel().
+            if LFBooster > LFBoosterCap * 0.2 {
+                BoosterCore:activate.
+            }
         }
 
 
@@ -406,6 +421,12 @@ function Boostback {
         lock SteeringVector to lookdirup(CurrentVec, ApproachVector:normalized - 0.5 * up:vector:normalized).
         lock steering to SteeringVector.
         BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
+        CheckFuel().
+        if LFBooster > LFBoosterCap * 0.05 {
+            BoosterCore:activate.
+        } else {
+            BoosterCore:shutdown.
+        }
 
         until LngError + 50 > -BoosterGlideDistance or verticalspeed < -250 {
             SteeringCorrections().
@@ -416,12 +437,13 @@ function Boostback {
         unlock throttle.
         lock throttle to 0.
         set BoostBackComplete to true.
+        wait 0.01.
         
         set turnTime to time:seconds.
         BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
         set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
         set SteeringManager:pitchtorquefactor to 1.
-        set SteeringManager:yawtorquefactor to 1.
+        set SteeringManager:yawtorquefactor to 0.
 
         CheckFuel().
         if LFBooster > LFBoosterFuelCutOff {
@@ -431,11 +453,13 @@ function Boostback {
         when time:seconds - turnTime > 4 and defined HSR then {
             BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
             wait 0.01.
-            //if kuniverse:activevessel:partsnamed:contains("Hotstage") {
-                KUniverse:forceactive(vessel("Booster Ship")).
-            //}
+            if not Block1HSR {
+                kuniverse:forceactive(vessel("Booster Ship")).
+            } 
             HUDTEXT("HSR-Jettison confirmed.. Rotating Booster for re-entry and landing..", 20, 2, 20, green, false).
-            set vessel("Booster"):name to "Booster HSR".
+            if not Block1HSR {
+                set vessel("Booster"):name to "Booster HSR".
+            }
             set kuniverse:activevessel:name to "Booster".
         }
 
@@ -552,6 +576,7 @@ function Boostback {
         wait 0.1.
     }
     SetBoosterActive().
+    set SteeringManager:yawtorquefactor to 1.
 
     BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
@@ -608,6 +633,7 @@ function Boostback {
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
                     when RadarAlt < 1.5 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",10,8,true")).
+                        rcs off.
                         if RadarAlt > 6 * Scale {
                             set t to time:seconds.
                             until time:seconds > t + 0.1 {}
@@ -616,7 +642,7 @@ function Boostback {
                         else {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1.1) + ",5,60,false")).
                         }
-                        when RadarAlt < 2.4 * Scale then {
+                        when RadarAlt < 3.4 * Scale and RSS or RadarAlt < 2.4 * Scale and not (RSS) then {
                             sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
                         }
                         when RadarAlt < 1.6 * Scale then {
@@ -824,9 +850,11 @@ FUNCTION SteeringCorrections {
         }
         set LatError to vdot(AngleAxis(-90, ApproachUPVector) * ApproachVector, ErrorVector).
         set LngError to vdot(ApproachVector, ErrorVector).
+        set steeringmanager:yawtorquefactor to 0.1.
 
-        if altitude < 42000 or KUniverse:activevessel = vessel(ship:name) {
+        if altitude < 30000 * Scale or KUniverse:activevessel = vessel(ship:name) {
             set GS to groundspeed.
+            set steeringmanager:yawtorquefactor to 1.
 
             if InitialError = -9999 and addons:tr:hasimpact {
                 set InitialError to LngError.
@@ -982,14 +1010,25 @@ function sendMessage{
 
 
 function SetBoosterActive {
-    if KUniverse:activevessel = vessel("Booster") {}
-    else if time:seconds > lastVesselChange + 2 {
-        if not (vessel("Booster"):isdead) {
-            HUDTEXT("Setting focus to Booster..", 3, 2, 20, yellow, false).
-            KUniverse:forceactive(vessel("Booster")).
-            set lastVesselChange to time:seconds.
+    //if not Block1 {
+        if KUniverse:activevessel = vessel("Booster") {}
+        else if time:seconds > lastVesselChange + 2 {
+            if not (vessel("Booster"):isdead) {
+                HUDTEXT("Setting focus to Booster..", 3, 2, 20, yellow, false).
+                KUniverse:forceactive(vessel("Booster")).
+                set lastVesselChange to time:seconds.
+            }
         }
-    }
+    //} else if Block1 {
+    //    if KUniverse:activevessel = vessel("Booster Ship") {}
+    //    else if time:seconds > lastVesselChange + 2 {
+    //        if not (vessel("Booster Ship"):isdead) {
+    //            HUDTEXT("Setting focus to Booster..", 3, 2, 20, yellow, false).
+    //            KUniverse:forceactive(vessel("Booster Ship")).
+    //            set lastVesselChange to time:seconds.
+    //        }
+    //    }
+    //}
 }
 
 
@@ -1052,12 +1091,14 @@ function CheckFuel {
     for res in BoosterCore:resources {
         if res:name = "LiquidFuel" {
             set LFBooster to res:amount.
+            set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff {
                 BoosterCore:shutdown.
             }
         }
         if res:name = "LqdMethane" {
             set LFBooster to res:amount.
+            set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff {
                 BoosterCore:shutdown.
             }

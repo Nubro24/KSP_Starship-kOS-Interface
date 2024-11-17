@@ -123,6 +123,7 @@ else {
     set FARValue to 0.
 }
 set aoa to 60.
+set BoosterAp to 35000.
 
 
 
@@ -512,6 +513,16 @@ function FindParts {
 				else if x:name:contains("SEP.24.SHIP.NOSECONE") or x:name:contains("SEP.24.SHIP.FLAPS") {
                     set Nose to x.
                     set ShipType to "Block1".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.24.SHIP.CARGO") {
+                    set Nose to x.
+                    set ShipType to "Block1Cargo".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.24.SHIP.CARGO.EXP") {
+                    set Nose to x.
+                    set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.23.SHIP.CREW") {
@@ -2517,7 +2528,7 @@ set quickengine1:onclick to {
     for eng in SLEngines {eng:shutdown.}.
     for eng in VACEngines {eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Cargo") and not (ShipType = "Block1") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Cargo") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") {
         Nose:shutdown.
     } else if (ShipType = "Block1") {
         HeaderTank:shutdown.
@@ -6283,16 +6294,13 @@ if addons:tr:available and not startup {
                 else {
                     set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
                 }
-            } else {
-                if Nose:name:contains("SEP.23.SHIP.FLAPS") 
-                {
+            } else if Nose:name:contains("SEP.23.SHIP.FLAPS") {
                 set Watchdog to nose:PARTSNAMED("SEP.23.SHIP.FLAPS").
                 if Watchdog:length = 0 {
                     set Watchdog to nose:PARTSNAMED(("SEP.23.SHIP.FLAPS (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
                 }
                 else {
                     set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
-                }
                 }
             }
             Watchdog:activate().
@@ -6302,6 +6310,17 @@ if addons:tr:available and not startup {
             set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.NOSECONE").
             if Watchdog:length = 0 {
                 set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.NOSECONE (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+            }
+            else {
+                set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
+            }
+            Watchdog:activate().
+        }
+        if ShipType = "Block1Cargo" {
+            set cargo1text:text to "Closed".
+            set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.CARGO").
+            if Watchdog:length = 0 {
+                set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.CARGO (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
             }
             else {
                 set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
@@ -6335,6 +6354,17 @@ if addons:tr:available and not startup {
             set Watchdog to SHIP:PARTSNAMED("SEP.23.SHIP.CARGO.EXP").
             if Watchdog:length = 0 {
                 set Watchdog to SHIP:PARTSNAMED(("SEP.23.SHIP.CARGO.EXP (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+            }
+            else {
+                set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
+            }
+            Watchdog:activate().
+        }
+        if ShipType = "Block1CargoExp" {
+            set cargo1text:text to "Closed".
+            set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.CARGO.EXP").
+            if Watchdog:length = 0 {
+                set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.CARGO.EXP (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
             }
             else {
                 set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
@@ -6530,8 +6560,10 @@ function Launch {
             if ShipType = "Depot" {
                 set BoosterAp to 124000 + (cos(targetincl) * 3000).
                 set turnAltitude to 750.
-            }
-            else {
+            } else if CargoMass > 20000 {
+                set BoosterAp to 114000 + (cos(targetincl) * 3000).
+                set turnAltitude to 280.
+            } else {
                 set BoosterAp to 124000 + (cos(targetincl) * 3000).
                 set turnAltitude to 280.
             }
@@ -6543,11 +6575,11 @@ function Launch {
         else if KSRSS {
             set LaunchElev to altitude - 67.74.
             if ShipType = "Depot" {
-                set BoosterAp to 78000 + (cos(targetincl) * 1500).
+                set BoosterAp to 78500 + (cos(targetincl) * 1500).
                 set TimeFromLaunchToOrbit to 360.
             }
             else {
-                set BoosterAp to 78000 + (cos(targetincl) * 1500).
+                set BoosterAp to 75000 + (cos(targetincl) * 1500).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 10.
             }
             set PitchIncrement to 0 + 2.5 * CargoMass / MaxCargoToOrbit.
@@ -6557,12 +6589,12 @@ function Launch {
         else {
             set LaunchElev to altitude - 67.74.
             if ShipType = "Depot" {
-                set BoosterAp to 40000 + (cos(targetincl) * 1000).
+                set BoosterAp to 60000 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to 285.
                 set PitchIncrement to 5.
             }
             else {
-                set BoosterAp to 46500 + (cos(targetincl) * 1000).
+                set BoosterAp to 56500 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 10.
                 set PitchIncrement to 0.
             }
@@ -6627,7 +6659,6 @@ function Launch {
                     }
                 }
             }
-            sendMessage(Vessel(TargetOLM), "LandingRails,100").
             if cancelconfirmed {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
@@ -6693,7 +6724,7 @@ function Launch {
             until time:seconds - EngineStartTime > 2.4 or cancelconfirmed {
                 set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
                 set message2:text to "<b>Clamps Release in:  </b>" + round(2.5 - time:seconds + EngineStartTime, 1) + "<b> seconds</b>".
-                lock throttle to 0.33 + 0.67 * (time:seconds - EngineStartTime - 1.4) / 1.2.
+                lock throttle to 0.33 + 0.67 * (time:seconds - EngineStartTime - 1.4) / 1.15.
                 
                 BackGroundUpdate().
             }
@@ -6724,6 +6755,7 @@ function Launch {
             }
             wait 0.2.
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.25 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            //if 1=1 {}
             else {
                 set message1:text to "<b>Launch Abort: </b>Thrust anomaly!".
                 set message2:text to "<b>Thrust Range: </b>" + round(StackMass * Planet1G * 1.25) + "kN - " + round(StackMass * Planet1G * 2) + "kN".
@@ -6753,7 +6785,7 @@ function Launch {
                 return.
             }
             set SteeringManager:rollts to 5.
-            if ShipType = "Cargo" or ShipType = "Tanker" {
+            if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" {
                 InhibitButtons(1, 1, 1).
             }
             if OnOrbitalMount {
@@ -6911,19 +6943,18 @@ function Launch {
                 }
                 set quickengine3:pressed to true.
                 set quickengine2:pressed to true.
-                if ShipType="Block1" {
+                if ShipType:contains("Block1") {
                     print "Block 1".
                     if defined HSR {
                         HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                        HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
                         print "test".
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                    //Tank:getmodule("ModuleSepPartSwitchAction"):DoAction("next docking system", true).
                     wait 0.001.
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
-                    //HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
                     wait 0.001.
                 } else {
                     if defined HSR {
@@ -6938,19 +6969,11 @@ function Launch {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
                 }
-                //if defined HSR {
-                //        HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                //    }
-                //    else {
-                //        BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                //    }
-                //    Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                //    wait 0.001.
-                //    if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
-                //        Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                //    }
                 
+                print "1".
                 wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0.
+                set StageSepComplete to true.
+                print "2".
                 set ship:name to ("Starship " + ShipType).
                 set Boosterconnected to false.
                 set CargoAfterSeparation to CargoMass.
@@ -6958,9 +6981,11 @@ function Launch {
                 set cancel:text to "<b>CANCEL</b>".
                 rcs on.
                 lock steering to LaunchSteering().
-                wait 0.01.
-                if not (Vessel("Booster"):isdead) {
+                wait 0.1.
+                if not ShipType:contains("Block1") {
                     set Booster to Vessel("Booster").
+                } else if ShipType:contains("Block1") and time:seconds < HotStageTime + 0.001 {
+                    set Booster to Vessel("Booster Ship").
                 }
                 set kuniverse:activevessel to vessel(ship:name).
                 HideEngineToggles(1).
@@ -6972,10 +6997,10 @@ function Launch {
                     SetLoadDistances(ship, 1650000).
                 }
                 else if KSRSS {
-                    SetLoadDistances(ship, 1000000).
+                    SetLoadDistances(ship, 1100000).
                 }
                 else {
-                    SetLoadDistances(ship, 1000000).
+                    SetLoadDistances(ship, 900000).
                 }
                 LogToFile("Hot-Staging Complete").
                 set HotStageTime to time:seconds.
@@ -6991,9 +7016,6 @@ function Launch {
             rcs on.
             set quickengine2:pressed to true.
             set quickengine3:pressed to true.
-            if BoosterExists() {
-                set Booster to Vessel("Booster").
-            }
             lock throttle to 1.
             set cancel:text to "<b>CANCEL</b>".
             InhibitButtons(1, 1, 1).
@@ -7003,7 +7025,8 @@ function Launch {
             when time:seconds > HotStageTime + 1.8 then {
                 lock throttle to LaunchThrottle().
             }
-            when time:seconds > HotStageTime + 3.5 then {
+            when time:seconds > HotStageTime + 2.4 then {
+                KUniverse:forceactive(vessel("Booster")).
                 for eng in SLEngines {
                     eng:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
                 }
@@ -7012,10 +7035,21 @@ function Launch {
                 set quickengine3:pressed to false.
             }
 
-            when time:seconds > HotStageTime + 243 or (vessel("Booster"):altitude - landingzone:terrainheight < 33333 and not (RSS) and HotStageTime > 60)  or (vessel("Booster"):altitude - landingzone:terrainheight < 69420 and (RSS) and HotStageTime > 60) then {                                                         
-                if kuniverse:activevessel = vessel("Booster") {} else {
-                    KUniverse:forceactive(vessel("Booster")).
-                }
+            //if not ShipType = "Block1" {
+            //    when time:seconds > HotStageTime + 243 or (vessel("Booster"):altitude - landingzone:terrainheight < 33333 and not (RSS) and HotStageTime > 60)  or (vessel("Booster"):altitude - landingzone:terrainheight < 69420 and (RSS) and HotStageTime > 60) then {                                                         
+            //        if kuniverse:activevessel = vessel("Booster") {} else {
+            //           KUniverse:forceactive(vessel("Booster")).
+            //        }
+            //    }
+            //} else if ShipType = "Block1" {
+            //    when time:seconds > HotStageTime + 243 or (vessel("Booster Ship"):altitude - landingzone:terrainheight < 33333 and not (RSS) and HotStageTime > 60)  or (vessel("Booster Ship"):altitude - landingzone:terrainheight < 69420 and (RSS) and HotStageTime > 60) then {                                                         
+            //        if kuniverse:activevessel = vessel("Booster Ship") {} else {
+            //            KUniverse:forceactive(vessel("Booster Ship")).
+            //        }
+            //    }
+            //}
+            when time:seconds > HotStageTime + 185 and RSS or time:seconds > HotStageTime + 125 and not (RSS) then {
+                KUniverse:forceactive(vessel("Booster")).
             }
 
             if ShipType = "Depot" {
@@ -7214,36 +7248,36 @@ Function LaunchSteering {
     else if Boosterconnected {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
         }
         else if KSRSS {
             if RESCALE {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (10.125 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                    set targetpitch to 90 - (10.125 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
                 }
                 else {
-                    set targetpitch to 90 - (10.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                    set targetpitch to 90 - (10.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
                 }
             }
             else {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (10.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                    set targetpitch to 90 - (10.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
                 }
                 else {
-                    set targetpitch to 90 - (10.625 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                    set targetpitch to 90 - (10.625 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
                 }
             }
         }
         else {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
@@ -10766,14 +10800,16 @@ function ClearInterfaceAndSteering {
     wait 0.001.
     if ShipType = "Cargo" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_cargo".
-        //if Nose:name:contains("SEP.23.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_cargoFLAPS".}
+        if Nose:name:contains("SEP.23.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_cargoFLAPS".}
     }
     if ShipType = "Crew" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_crew".
     }
     if ShipType = "Block1" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block1".
-        //if Nose:name:contains("SEP.24.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_block1FLAPS".}
+    }
+    if ShipType = "Block1Cargo" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block1cargo".
     }
     if ShipType = "Tanker" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_tanker".
@@ -10808,7 +10844,11 @@ function BackGroundUpdate {
         if prevCalcTime + 0.1 < time:seconds {
             SendPing().
             updatestatusbar().
-            FindParts().
+            if time:seconds < LiftOffTime + 90*Scale {
+                FindParts().
+            } else if time:seconds < HotStageTime + 12 and apoapsis > BoosterAp {
+                FindParts().
+            }
             SetPlanetData().
             if ShipIsDocked {
                 if Tank:getmodule("ModuleDockingNode"):hasevent("undock") {
@@ -13181,7 +13221,7 @@ function CheckFullTanks {
                     set LowCargoMass to true.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } else if ShipType = "Block1" or ShipType = "Cargo" {
+                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp"{
                     for res in Tank:resources {
                         if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass > 12 {
                             for res in BoosterCore[0]:resources {
@@ -13235,7 +13275,10 @@ function Refuel {
             Until CheckFullTanks() or not (Refueling) {
                 set message1:text to "<b>Loading LqdMethane and Lqd Oxygen..</b>".
                 set message2:text to "<b>Progress: </b>" + round(100 * (totalfuel / totalcap), 1) + "%".
-                set message3:text to "Low Cargo mass detected, Loading to 90%...".
+                if CargoMass < 24 {
+                    set message3:text to "Low Cargo mass detected, Loading to 90%...".
+                }
+                
                 BackGroundUpdate().
             }
             set Refueling to false.
