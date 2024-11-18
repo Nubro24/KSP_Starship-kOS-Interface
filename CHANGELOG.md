@@ -1,8 +1,8 @@
 # V3.0.6 (2024-11-18)
-- Added Support, Craftfiles and Interfacebackgrounds for SEP24_Expendable Ships
-- Third Line on the Interface doesn't get stuck on "Downrange" anymore
+- **Added Support, Craftfiles and Interfacebackgrounds for SEP24_Expendable Ships**
+- Third Line on the Interface shouldn't get stuck on "Downrange" anymore
 - Attempt on fixing issues with Booster Landing in RSS
-(Note: I had a huge FPS drop after Hotstaging, pls report if that is a script issue)
+- *(Note: I had a huge FPS drop after Hotstaging, pls report if that is a script issue)*
 
 # V3.0.5 (2024-11-17)
 - **Added Support for the new SEP24 Parts**
