@@ -345,12 +345,24 @@ function Boostback {
                 set Block1HSR to true.
             }
         }
+        
+        when flipStartTime + 1 < time:seconds and flipStartTime + 2 > time:seconds then {
+            set steeringmanager:yawtorquefactor to 1.
+        }
+
+        when BoostBackComplete then {
+            set steeringmanager:yawtorquefactor to 0.1.
+        }
+
+        when time:seconds > flipStartTime + 150 then { 
+            set steeringmanager:yawtorquefactor to 0.6.
+        }
 
         set flipStartTime to time:seconds.
         
         
 
-        when time:seconds > flipStartTime + 4 and verticalspeed > 0 then {
+        when (time:seconds > flipStartTime + 4 and verticalspeed > 0 and not (RSS)) or (time:seconds > flipStartTime + 6 and verticalspeed > 0 and (RSS)) then {
             BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
             set ship:control:neutralize to true.
         }
@@ -376,10 +388,6 @@ function Boostback {
             if ErrorVector = v(0,0,0) and not FailureMessage and time:seconds > flipStartTime + 1 {
                 HUDTEXT("FAR failure! Please restart KSP..", 30, 2, 22, red, false).
                 set FailureMessage to true.
-            }
-            if not Block1 and time:seconds > flipStartTime + 5 {
-                wait 0.01.
-                SetBoosterActive().
             }
             rcs on.
             wait 0.1.
@@ -860,18 +868,6 @@ FUNCTION SteeringCorrections {
         set LatError to vdot(AngleAxis(-90, ApproachUPVector) * ApproachVector, ErrorVector).
         set LngError to vdot(ApproachVector, ErrorVector).
 
-        when flipStartTime > 0 then {
-            set steeringmanager:yawtorquefactor to 2.
-        }
-
-        when BoostBackComplete then {
-            set steeringmanager:yawtorquefactor to 0.1.
-        }
-
-        when time:seconds > flipStartTime + 150 then {
-            set steeringmanager:yawtorquefactor to 0.6.
-        }
-        
 
         if altitude < 30000 * Scale or KUniverse:activevessel = vessel(ship:name) {
             set GS to groundspeed.
