@@ -7,7 +7,7 @@
 User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 ## Current State:
-- Ship landings/catches don't work reliably anymore due to the many changes in SEP dev.
+- Ship landings/catches don't work reliably anymore due to the many changes in SEP & SLE dev.
 - This fork is currently worked on by Nubro.
 
 ### Known Issues:
