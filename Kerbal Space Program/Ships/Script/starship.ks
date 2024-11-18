@@ -515,9 +515,14 @@ function FindParts {
                     set ShipType to "Block1".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
-                else if x:name:contains("SEP.24.SHIP.CARGO") {
+                else if x:name:contains("SEP.24.SHIP.CARGO") and not x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
                     set ShipType to "Block1Cargo".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.24.SHIP.EXP") {
+                    set Nose to x.
+                    set ShipType to "Block1Exp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO.EXP") {
@@ -6327,6 +6332,17 @@ if addons:tr:available and not startup {
             }
             Watchdog:activate().
         }
+        if ShipType = "Block1CargoExp" {
+            set cargo1text:text to "Closed".
+            set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.CARGO.EXP").
+            if Watchdog:length = 0 {
+                set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.CARGO.EXP (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+            }
+            else {
+                set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
+            }
+            Watchdog:activate().
+        }
         if ShipType = "Crew" {
             cargobutton:show().
             set Watchdog to SHIP:PARTSNAMED("SEP.23.SHIP.CREW").
@@ -6569,7 +6585,7 @@ function Launch {
             }
             set PitchIncrement to 0 + 2.4 * CargoMass / MaxCargoToOrbit.
             set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0, 0, -30, PitchIncrement).
-            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 60.
+            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 120.
             set BoosterThrottleDownAlt to 1500.
         }
         else if KSRSS {
@@ -6982,11 +6998,7 @@ function Launch {
                 rcs on.
                 lock steering to LaunchSteering().
                 wait 0.1.
-                if not ShipType:contains("Block1") {
-                    set Booster to Vessel("Booster").
-                } else if ShipType:contains("Block1") and time:seconds < HotStageTime + 0.001 {
-                    set Booster to Vessel("Booster Ship").
-                }
+                set Booster to Vessel("Booster").
                 set kuniverse:activevessel to vessel(ship:name).
                 HideEngineToggles(1).
                 //if Tank:getmodule("ModuleSepPartSwitchAction"):getfield("current docking system") = "BTB" {
@@ -7299,7 +7311,7 @@ Function LaunchSteering {
 
         //print "Desired Accel: " + round(DesiredAccel / 9.81, 2) + "G".
         //print "Ratio: " + round(DesiredAccel / MaxAccel, 2).
-        //print "Time to Orbit Completion: " + round(TimeToOrbitCompletion) + "s".
+        print "Time to Orbit Completion: " + round(TimeToOrbitCompletion) + "s".
 
         rcs on.
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, ProgradeAngle + OrbitBurnPitchCorrection):vector, LaunchRollVector).
@@ -8977,7 +8989,7 @@ function LngLatError {
 
 function setflaps {
     parameter angleFwd, angleAft, deploy, authority.
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") {
         if FLflap:hasmodule("ModuleSEPControlSurface") {
             FLflap:getmodule("ModuleSEPControlSurface"):SetField("Deploy", deploy).
         }
@@ -9049,7 +9061,7 @@ function ActivateEngines {
         }
         LogToFile("VAC Engine Start Successful!").
     }
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Cargo") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") {
         Nose:shutdown.
     }
     Tank:shutdown.
@@ -9681,7 +9693,7 @@ function updatestatusbar {
                 }
             }
         }
-        if ShipType = "Tanker" or ShipType = "Depot" or ShipType = "Expendable" {
+        if ShipType = "Tanker" or ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
             cargobutton:hide().
         }
         else {
@@ -9721,7 +9733,7 @@ function updatestatusbar {
 function updateStatus {
     if not StatusPageIsRunning {
         set StatusPageIsRunning to true.
-        if not (ShipType = "Expendable") and not (ShipType = "Depot") {
+        if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") {
             if FLflap:getmodule("ModuleSEPControlSurface"):GetField("Deploy") {
                 if defined FL {}
                 else {
@@ -9812,7 +9824,7 @@ function updateStatus {
         }
         set PrevUpdateTime to time:seconds.
 
-        if ShipType = "Depot" or ShipType = "Expendable" {
+        if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
             set status2label2:style:bg to "starship_img/starship_symbol_no_flaps".
         }
         else if FLflap:getmodule("ModuleSEPControlSurface"):GetField("Deploy") = true {
@@ -10002,7 +10014,7 @@ function updateEnginePage {
             set engine2label5:tooltip to "Thrust in kN of the Vacuum Raptor Engines".
             if SLEngines[0]:ignition = false and VACEngines[0]:ignition = false and not (FourVacBrakingBurn) and not (TwoVacEngineLanding) {
                 if ship:control:translation:z > 0 or ship:control:pilottranslation:z > 0 {
-                    if ShipType = "Depot" or ShipType = "Expendable" {
+                    if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_rcs".
                     }
                     else if NrOfVacEngines = 6 {
@@ -10013,7 +10025,7 @@ function updateEnginePage {
                     }
                 }
                 else {
-                    if ShipType = "Depot" or ShipType = "Expendable" {
+                    if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_none_active".
                     }
                     else if NrOfVacEngines = 6 {
@@ -10052,7 +10064,7 @@ function updateEnginePage {
             if SLEngines[0]:ignition = true and VACEngines[0]:ignition = false {
                 if SLEngines[0]:thrust > 0 {
                     if SLEngines[1]:ignition = true and SLEngines[2]:ignition = true {
-                        if ShipType = "Depot" or ShipType = "Expendable" {
+                        if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                             set engine2label3:style:bg to "starship_img/starship_noflaps_sl_active".
                         }
                         else if NrOfVacEngines = 6 {
@@ -10080,7 +10092,7 @@ function updateEnginePage {
                     }
                 }
                 else {
-                    if ShipType = "Depot" or ShipType = "Expendable" {
+                    if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_sl_ready".
                     }
                     else if NrOfVacEngines = 6 {
@@ -10126,7 +10138,7 @@ function updateEnginePage {
             }
             if SLEngines[0]:ignition = false and VACEngines[0]:ignition = true or FourVacBrakingBurn or TwoVacEngineLanding {
                 if throttle > 0 {
-                    if ShipType = "Depot" or ShipType = "Expendable" {
+                    if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_vac_active".
                     }
                     else if NrOfVacEngines = 6 {
@@ -10145,7 +10157,7 @@ function updateEnginePage {
                     }
                 }
                 else {
-                    if ShipType = "Depot" or ShipType = "Expendable" {
+                    if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_vac_ready".
                     }
                     else if NrOfVacEngines = 6 {
@@ -10199,7 +10211,7 @@ function updateEnginePage {
             }
             if SLEngines[0]:ignition = true and VACEngines[0]:ignition = true {
                 if SLEngines[0]:thrust > 0 {
-                    if ShipType = "Depot" or ShipType = "Expendable" {
+                    if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_all_active".
                     }
                     else if NrOfVacEngines = 6 {
@@ -10210,7 +10222,7 @@ function updateEnginePage {
                     }
                 }
                 else {
-                    if ShipType = "Depot" or ShipType = "Expendable" {
+                    if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_all_ready".
                     }
                     else if NrOfVacEngines = 6 {
@@ -10811,6 +10823,12 @@ function ClearInterfaceAndSteering {
     if ShipType = "Block1Cargo" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block1cargo".
     }
+    if ShipType = "Block1CargoExp" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block1cargoexp".
+    }
+    if ShipType = "Block1Exp" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block1exp".
+    }
     if ShipType = "Tanker" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_tanker".
     }
@@ -11196,7 +11214,7 @@ function updateCargoPage {
                     }
                 }
             }
-            if ShipType = "Crew" or ShipType = "Cargo" or ShipType = "Expendable" {
+            if ShipType = "Crew" or ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                 for x in range(0, Nose:modules:length) {
                     if ShipType = "Crew" {
                         if Nose:getmodulebyindex(x):hasaction("toggle airlock") {
@@ -11218,7 +11236,7 @@ function updateCargoPage {
                             }
                         }
                     }
-                    if ShipType = "Cargo" or ShipType = "Expendable" {
+                    if ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" {
                         if Nose:getmodulebyindex(x):hasaction("toggle cargo door") {
                             set DockingHatchStatus to Nose:getmodulebyindex(x):getfield("status").
                         }
@@ -12382,7 +12400,7 @@ function DisengageYawRCS {
 function VehicleSelfCheck {
     set FuelFail to false.
     if STOCK and 1=2{
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -12424,7 +12442,7 @@ function VehicleSelfCheck {
                 }
             }
         }
-        if ShipType = "Tanker"  and not (ShipType = "Block1") {
+        if ShipType = "Tanker" {
             for res in Nose:resources {
                 if Methane {
                     if res:name = "LqdMethane" {
@@ -12464,8 +12482,7 @@ function VehicleSelfCheck {
                 }
             }
         }
-        if  not (ShipType = "Block1")
-        {for res in Tank:resources {
+        for res in Tank:resources {
             if Methane {
                 if res:name = "LqdMethane" {
                     if ShipType = "Depot" {
@@ -12544,7 +12561,7 @@ function VehicleSelfCheck {
                     }
                 }
             }
-        }}
+        }
         if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
             for res in BoosterCore[0]:resources {
                 if Methane {
@@ -12589,7 +12606,7 @@ function VehicleSelfCheck {
         }
     }
     if KSRSS and 1=2{
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -12794,9 +12811,8 @@ function VehicleSelfCheck {
             }
         }
     }
-    if RSS {
-        if 1=2 {
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") {
+    if RSS and 1=2 {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -12889,7 +12905,7 @@ function VehicleSelfCheck {
                         }
                     }
                     else {
-                        if round(res:capacity) = 573538 and res:amount < res:capacity + 1 {}
+                        if round(res:capacity) = 450000 and res:amount < res:capacity + 1 {}
                         else {
                             set FuelFail to true.
                             print res:amount.
@@ -12907,7 +12923,7 @@ function VehicleSelfCheck {
                         }
                     }
                     else {
-                        if round(res:capacity) = 191179 and res:amount < res:capacity + 1 {}
+                        if round(res:capacity) = 450000 and res:amount < res:capacity + 1 {}
                         else {
                             set FuelFail to true.
                             print res:amount.
@@ -12999,7 +13015,7 @@ function VehicleSelfCheck {
             }
         }
     }
-    }
+    
     if FuelFail {
         print "Fuel Tanks mismatch detected!".
         print "Planet Pack: " + planetpack.
@@ -13167,7 +13183,7 @@ function CheckFullTanks {
         set FullTanks to true.
         local amount to 0.
         local cap to 0.
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") {
             for res in HeaderTank:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                     set FullTanks to false.
@@ -13324,7 +13340,15 @@ function SetShipBGPage {
     }
     if ShipType = "Block1" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block1".
-        if Nose:name:contains("SEP.24.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_block1FLAPS".}
+    }
+    if ShipType = "Block1Cargo" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block1cargo".
+    }
+    if ShipType = "Block1CargoExp" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block1cargoexp".
+    }
+    if ShipType = "Block1Exp" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block1exp".
     }
     if ShipType = "Crew" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_crew".

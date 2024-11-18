@@ -670,28 +670,31 @@ function Boostback {
     }
 
     when ((verticalspeed > -120 and RSS) or (verticalspeed > -40 and not RSS)) and (stopDist3 / RadarAlt) < 1.5 and LngError < 200 or ((verticalspeed > -50 and RSS) or (verticalspeed > -20 and not RSS)) then {
-        lock SteeringVector to heading(ship:direction:yaw,90,ship:direction:roll).
+        set SwingTime to time:seconds.
+        lock SteeringVector to lookDirUp(up:vector, RollVector).
         lock steering to SteeringVector.
-        wait 1.5.
-        set MiddleEnginesShutdown to true.
-        BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
-        set LngCtrlPID:setpoint to 0.
+        when time:seconds > SwingTime + 1 then {
+            set MiddleEnginesShutdown to true.
+            BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
+            set LngCtrlPID:setpoint to 0.
 
-        setTowerHeadingVector().
+            setTowerHeadingVector().
 
-        if RSS {
-            lock SteeringVector to lookdirup(up:vector - 0.02 * velocity:surface - 0.005 * ErrorVector, RollVector).
-        }
-        else if KSRSS {
-            lock SteeringVector to lookdirup(up:vector - 0.01 * velocity:surface - 0.002 * ErrorVector, RollVector).
-        }
-        else {
-            lock SteeringVector to lookdirup(up:vector - 0.01 * velocity:surface - 0.002 * ErrorVector, RollVector).
-        }
-        lock steering to SteeringVector.
+            if RSS {
+                lock SteeringVector to lookdirup(up:vector - 0.02 * velocity:surface - 0.005 * ErrorVector, RollVector).
+            }
+            else if KSRSS {
+                lock SteeringVector to lookdirup(up:vector - 0.01 * velocity:surface - 0.002 * ErrorVector, RollVector).
+            }
+            else {
+                lock SteeringVector to lookdirup(up:vector - 0.01 * velocity:surface - 0.002 * ErrorVector, RollVector).
+            }
+            lock steering to SteeringVector.
 
-        set steeringmanager:rolltorquefactor to 0.75.
-        SetGridFinAuthority(2.5).
+            set steeringmanager:rolltorquefactor to 0.75.
+            SetGridFinAuthority(2.5).
+        }
+        
     }
 
 
@@ -700,9 +703,15 @@ function Boostback {
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         if RadarAlt > 500 {
             rcs off.
+            set Once to false.
         }
         else {
-            rcs on.
+            if Once = false {
+                rcs on.
+                set Once to true.
+            } else {
+                rcs off.
+            }
         }
         SetBoosterActive().
         CheckFuel().
@@ -850,7 +859,19 @@ FUNCTION SteeringCorrections {
         }
         set LatError to vdot(AngleAxis(-90, ApproachUPVector) * ApproachVector, ErrorVector).
         set LngError to vdot(ApproachVector, ErrorVector).
-        set steeringmanager:yawtorquefactor to 0.1.
+
+        when flipStartTime > 0 then {
+            set steeringmanager:yawtorquefactor to 2.
+        }
+
+        when BoostBackComplete then {
+            set steeringmanager:yawtorquefactor to 0.1.
+        }
+
+        when time:seconds > flipStartTime + 150 then {
+            set steeringmanager:yawtorquefactor to 0.6.
+        }
+        
 
         if altitude < 30000 * Scale or KUniverse:activevessel = vessel(ship:name) {
             set GS to groundspeed.
