@@ -2,7 +2,7 @@ ship = Starship-Crew-StockSize
 version = 1.12.5
 description = 
 type = VAB
-size = 37.1144028,91.7445984,17.2979774
+size = 37.1144104,91.7445984,17.2979774
 steamPublishedFileId = 0
 persistentId = 2984330865
 rot = 0,0,0,0
@@ -929,7 +929,7 @@ PART
 	part = SEP.23.SHIP.AFT.RIGHT_4290506634
 	partName = Part
 	persistentId = 180659718
-	pos = 0.000276342907,62.9335327,-3.19165349
+	pos = 0.000276342907,62.9335327,-3.1916554
 	attPos = 0,0,0
 	attPos0 = 3.19153166,-5.02599525,1.07913888E-06
 	rot = 0.511428058,0.511428118,0.488304675,0.488304615
@@ -1170,7 +1170,7 @@ PART
 	part = SEP.23.SHIP.AFT.LEFT_4290506298
 	partName = Part
 	persistentId = 1707642522
-	pos = 0.000275389233,62.9335327,3.19142056
+	pos = 0.000275389233,62.9335327,3.19142246
 	attPos = 0,0,0
 	attPos0 = -3.1915319,-5.02599525,-6.53332563E-07
 	rot = -0.488304555,0.488304257,-0.511428475,0.511428177
@@ -1411,7 +1411,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4290501560
 	partName = Part
 	persistentId = 3909890306
-	pos = 1.9324851,60.9861717,-0.00011632275
+	pos = 1.93248606,60.9861717,-0.00011632275
 	attPos = 0,0,0
 	attPos0 = -5.57975E-07,-6.97335434,1.93220687
 	rot = 0,0.707106829,0,0.707106829
@@ -1627,6 +1627,21 @@ PART
 	}
 	MODULE
 	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -1719,7 +1734,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4290500226
 	partName = Part
 	persistentId = 3869684999
-	pos = -0.965831876,60.9861717,-1.67345715
+	pos = -0.965832591,60.9861717,-1.67345834
 	attPos = 0,0,0
 	attPos0 = 1.67333758,-6.97335434,-0.966105521
 	rot = 0,0.965925932,0,-0.258819133
@@ -1927,6 +1942,21 @@ PART
 	}
 	MODULE
 	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -2019,7 +2049,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4290499692
 	partName = Part
 	persistentId = 2960461096
-	pos = -0.965831578,60.9861717,1.6732235
+	pos = -0.965832055,60.9861717,1.67322445
 	attPos = 0,0,0
 	attPos0 = -1.67333746,-6.97335434,-0.966106117
 	rot = 0,0.258819014,0,-0.965925932
@@ -2227,6 +2257,21 @@ PART
 	}
 	MODULE
 	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -2319,7 +2364,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4290498170
 	partName = Part
 	persistentId = 551419009
-	pos = -0.585528195,60.1377335,0.00336274086
+	pos = -0.585528433,60.1377335,0.00336274086
 	attPos = 0,0,0
 	attPos0 = -0.00347936712,-7.8217926,-0.585803151
 	rot = 0,0.707106829,0,0.707106829
@@ -2658,6 +2703,21 @@ PART
 	}
 	MODULE
 	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -2767,7 +2827,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4290495110
 	partName = Part
 	persistentId = 4075834127
-	pos = 0.296191752,60.1377335,0.50546515
+	pos = 0.296191871,60.1377335,0.505465388
 	attPos = 0,0,0
 	attPos0 = -0.5055812,-7.8217926,0.295915693
 	rot = 0,0.965925932,0,-0.258819133
@@ -3098,6 +3158,21 @@ PART
 	}
 	MODULE
 	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -3207,7 +3282,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4290494564
 	partName = Part
 	persistentId = 1510253073
-	pos = 0.290165186,60.1377335,-0.509177923
+	pos = 0.290165305,60.1377335,-0.509178162
 	attPos = 0,0,0
 	attPos0 = 0.509060562,-7.8217926,0.289889276
 	rot = 0,0.258819014,0,-0.965925932
@@ -3531,6 +3606,21 @@ PART
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
 			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
 		}
 		UPGRADESAPPLIED
 		{
@@ -3987,6 +4077,21 @@ PART
 	MODULE
 	{
 		name = tjs_DecouplerLight
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = EngineLightEffect
 		isEnabled = True
 		stagingEnabled = True
 		EVENTS
@@ -6470,6 +6575,21 @@ PART
 	}
 	MODULE
 	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -6607,7 +6727,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4290800194
 	partName = Part
 	persistentId = 353742123
-	pos = 1.84658146,57.1012497,3.19792199
+	pos = 1.84658432,57.1012497,3.19792676
 	attPos = 0,0,0
 	attPos0 = -3.1980257,22.3105087,1.84629416
 	rot = 0.50000006,-5.45420491E-08,-0.866025507,5.45420349E-08
@@ -6842,7 +6962,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4290799736
 	partName = Part
 	persistentId = 914372794
-	pos = -1.84602451,57.1012497,3.19792008
+	pos = -1.84602642,57.1012497,3.1979239
 	attPos = 0,0,0
 	attPos0 = -3.1980257,22.3105087,-1.84629893
 	rot = 0.866025507,4.8696247E-08,-0.50000006,-4.86962399E-08
@@ -7069,7 +7189,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4290799422
 	partName = Part
 	persistentId = 2301473799
-	pos = -1.84603024,57.1012497,-3.19815612
+	pos = -1.8460331,57.1012497,-3.19816089
 	attPos = 0,0,0
 	attPos0 = 3.1980269,22.3105087,-1.84630144
 	rot = -0.866025507,-4.86962435E-08,-0.49999994,-4.86962506E-08
@@ -7296,7 +7416,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4290799118
 	partName = Part
 	persistentId = 975639528
-	pos = 1.84657836,57.1012497,-3.19815469
+	pos = 1.84658027,57.1012497,-3.1981585
 	attPos = 0,0,0
 	attPos0 = 3.19802713,22.3105087,1.84629393
 	rot = -0.500000119,5.45420384E-08,-0.866025448,5.45420527E-08
@@ -7523,7 +7643,7 @@ PART
 	part = DC.smallCam.Wide_4290798550
 	partName = Part
 	persistentId = 222292650
-	pos = -2.70584488,57.2462502,-0.000116680378
+	pos = -2.70584679,57.2462502,-0.000116680378
 	attPos = 0,-0.290931702,0.0322146416
 	attPos0 = 2.39902874E-07,22.7437286,-2.7441256
 	rot = 0.12409094,-0.696133256,0.12409094,0.696133256
@@ -7736,7 +7856,7 @@ PART
 	part = DC.smallCam_4290797338
 	partName = Part
 	persistentId = 4112652259
-	pos = -2.33884788,28.7638168,-2.41009784
+	pos = -2.33884978,28.7638168,-2.41009974
 	attPos = 0,0.0471763611,0.0708539486
 	attPos0 = 2.41001129,-6.07604218,-2.41001105
 	rot = 0.263506234,-0.669965506,0.636160195,0.277508795
@@ -7949,7 +8069,7 @@ PART
 	part = DC.smallCam.Wide_4290337284
 	partName = Part
 	persistentId = 720423777
-	pos = -2.81919813,59.4739494,-0.000116680378
+	pos = -2.81920004,59.4739494,-0.000116680378
 	attPos = 8.93123797E-08,0.250808716,0.0278718472
 	attPos0 = 1.49106199E-07,-8.73638535,-2.84734154
 	rot = 0.612372339,-0.353553414,0.612372458,0.353553474
@@ -8986,6 +9106,21 @@ PART
 	}
 	MODULE
 	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -9414,7 +9549,7 @@ PART
 	part = SEP.23.SHIP.FWD.RIGHT_4290507838
 	partName = Part
 	persistentId = 4047563749
-	pos = 0.000437275448,84.2249069,-2.81054258
+	pos = 0.000437275448,84.2249069,-2.81054354
 	attPos = 0,0,0
 	attPos0 = 2.81042385,6.71759033,0.000163674355
 	rot = 0.556381404,0.455661833,0.54245919,0.434223652
@@ -9655,7 +9790,7 @@ PART
 	part = SEP.23.SHIP.FWD.LEFT_4290509548
 	partName = Part
 	persistentId = 1314495013
-	pos = 0.00043870596,84.2249069,2.81031084
+	pos = 0.00043870596,84.2249069,2.81031179
 	attPos = 0,0,0
 	attPos0 = -2.81042528,6.71759033,0.000164628029
 	rot = -0.542459369,0.434223801,-0.556381226,0.455661684
@@ -10130,7 +10265,7 @@ PART
 	pos = 0.000284226029,0.765060425,-0.000120158911
 	attPos = 0,0,0
 	attPos0 = 3.47853393E-06,-13.1699448,1.93010874E-06
-	rot = 0.000768063532,0,-8.5372827E-05,0.999999821
+	rot = 0.00076806359,0,-8.53727979E-05,0.999999821
 	attRot = 0,0,0,0.999999881
 	attRot0 = 0.000603470602,-0.70710659,0.000482735195,0.70710659
 	mir = 1,1,1
@@ -10733,6 +10868,21 @@ PART
 	}
 	MODULE
 	{
+		name = EngineLightEffect
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -10919,10 +11069,10 @@ PART
 	part = SLE.SS.SteelPlate_4290861004
 	partName = Part
 	persistentId = 2459977574
-	pos = 0.000283666188,1.17713165,-0.000120043187
+	pos = 0.000283666304,1.17713165,-0.00012004342
 	attPos = 0,0,0
 	attPos0 = -7.09201267E-05,0.412070721,-0.000632877112
-	rot = -1.64636138E-10,0,-1.64636138E-10,1
+	rot = -1.44056614E-10,0,-2.26374683E-10,1
 	attRot = 0,-0.707106769,0,0.707106769
 	attRot0 = -0.00076806359,0,8.53727615E-05,0.999999702
 	mir = 1,1,1
@@ -11249,10 +11399,10 @@ PART
 	part = SLE.SS.OLIT.Base_4290860846
 	partName = Part
 	persistentId = 3438818118
-	pos = -20.8382187,4.66506577,-0.56921804
+	pos = -20.8382263,4.66506577,-0.569214225
 	attPos = 0,0,0
 	attPos0 = -20.8391418,3.89556837,-0.57510376
-	rot = -1.64636138E-10,0,-1.64636138E-10,1
+	rot = -1.44056614E-10,0,-2.26374683E-10,1
 	attRot = 0,0,0,1
 	attRot0 = -0.00076806359,0,8.53727615E-05,0.999999702
 	mir = 1,1,1
@@ -11652,10 +11802,10 @@ PART
 	part = SLE.SS.OLIT.Core_4290857914
 	partName = Part
 	persistentId = 2615484290
-	pos = -20.83741,8.18400955,-0.594269156
+	pos = -20.8374176,8.18400955,-0.594265342
 	attPos = 0,0,0
 	attPos0 = 0.000808741606,3.51894403,-0.0250510331
-	rot = -1.64636138E-10,0,-1.64636138E-10,1
+	rot = -1.44056614E-10,0,-2.26374683E-10,1
 	attRot = 0,0,0,1
 	attRot0 = 0,0,0,1
 	mir = 1,1,1
@@ -12090,10 +12240,10 @@ PART
 	part = SLE.SS.OLIT.Top_4290851594
 	partName = Part
 	persistentId = 1250513018
-	pos = -20.837122,81.6629105,-0.61586988
+	pos = -20.8371296,81.6629105,-0.615866065
 	attPos = 0,0,0
 	attPos0 = -0.00478140078,10.4799986,0.0271975007
-	rot = -1.64636138E-10,0,-1.64636138E-10,1
+	rot = -1.44056614E-10,0,-2.26374683E-10,1
 	attRot = 0,0,0,1
 	attRot0 = 0,0,0,1
 	mir = 1,1,1
@@ -12279,7 +12429,7 @@ PART
 	part = hc.launchcam_4290966898
 	partName = Part
 	persistentId = 4095060350
-	pos = -19.8576736,92.0921555,-5.69256258
+	pos = -19.8576851,92.0921555,-5.69256258
 	attPos = -0.380829453,-0.0707550049,-4.76837158E-07
 	attPos0 = 1.3602879,10.5,-5.07668638
 	rot = -0.103553414,-0.603553593,0.0794594437,-0.786566198
@@ -12499,10 +12649,10 @@ PART
 	part = SLE.SS.OLIT.SQD_4290851420
 	partName = Part
 	persistentId = 3732445468
-	pos = -19.5160198,57.6998596,-1.38273084
+	pos = -19.5160275,57.6998596,-1.38273084
 	attPos = 0,0,0
 	attPos0 = 1.32140291,49.5158501,-0.788443983
-	rot = 1.03422366E-07,-0.997030318,-1.16377166E-08,-0.077011764
+	rot = 1.03442943E-07,-0.997030318,-1.16582939E-08,-0.077011764
 	attRot = 0,-0.99999994,0,0
 	attRot0 = 1.03616912E-07,-0.997030199,-1.18743628E-08,-0.0770118162
 	mir = 1,1,1
@@ -12588,7 +12738,7 @@ PART
 		AnimatePosition = 0
 		AnimationLength = 5.00000048
 		ExtensionLimit = 0
-		ExtensionSpeed = 1
+		ExtensionSpeed = 2.04999995
 		stagingEnabled = True
 		EVENTS
 		{
@@ -12706,7 +12856,7 @@ PART
 		AnimatePosition = 0
 		AnimationLength = 12
 		ExtensionLimit = 0
-		ExtensionSpeed = 5
+		ExtensionSpeed = 7.19999981
 		stagingEnabled = True
 		EVENTS
 		{
@@ -12851,7 +13001,7 @@ PART
 	part = SLE.SS.OLIT.MZ_4290846692
 	partName = Part
 	persistentId = 866506595
-	pos = -13.309761,80.4616547,0.374356896
+	pos = -13.3097687,80.4616547,0.374356896
 	attPos = 0,0,0
 	attPos0 = 7.52765656,72.2776489,0.968643427
 	rot = 0.707082331,-0.00588271022,-0.00588274002,-0.707082391
@@ -13688,12 +13838,12 @@ PART
 	part = DC.smallCam.Wide_4290958602
 	partName = Part
 	persistentId = 1516637751
-	pos = -1.70575547,7.0533905,2.93066025
+	pos = -1.72912109,7.10398102,2.98085976
 	attPos = -0.12176156,-0.149756908,0.523369551
 	attPos0 = -1.58534837,6.44228983,2.39774179
-	rot = 0.198213845,0.393892974,-0.893308282,0.0869499445
-	attRot = 0.361757994,-1.22498456E-10,-8.17792412E-09,0.932272136
-	attRot0 = 0.198113471,0.393223584,-0.893602908,0.0871784166
+	rot = 0.393892944,-0.198213786,0.0869499743,0.893308163
+	attRot = -1.48753799E-07,-0.361757964,0.932272196,8.34789375E-08
+	attRot0 = 0.393223614,-0.198113322,0.0871784762,0.893602967
 	mir = 1,1,1
 	symMethod = Radial
 	autostrutMode = Off
@@ -13901,10 +14051,10 @@ PART
 	part = kerbpro_4290957576
 	partName = Part
 	persistentId = 4189515255
-	pos = 0.451244473,14.6193466,-4.4635973
+	pos = 0.451244473,14.6193466,-4.46359921
 	attPos = 0.470120043,0.07289505,0.270808697
 	attPos0 = -0.0215261225,13.7745943,-4.75555992
-	rot = -0.308308065,-0.636353791,0.63635391,-0.308308184
+	rot = -0.308308005,-0.636353791,0.63635391,-0.308308184
 	attRot = 8.1479552E-09,-1.17374569E-07,-0.874399066,0.485208035
 	attRot0 = -0.308016896,-0.635891259,0.636815965,-0.308599174
 	mir = 1,1,1
