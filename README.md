@@ -88,4 +88,3 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 >
 > ### By the editor:
 > This work has mostly been done by Janus in the original script. My Edits mainly focus on bringing functionallity back, while not rewriting the script.
-> Some fixes could be achieved by changing the value of some variables.
