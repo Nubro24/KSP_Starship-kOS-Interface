@@ -13,18 +13,16 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ### Known Issues:
 - **Kraken:**
     - The scripts have been designed for stock Kerbin, and it functions most reliably on a stock install. If you use planet mods that increase the size of the planet (e.g. KSRSS,RSS) the chances of a wobbly tower or other problems are significantly higher.
-- Note by Nubro: I'm mostly editing the script in RSS, so Stock and KSRSS patches/fixes take longer
+- Note by Nubro: I'm mostly editing the script in RSS and Stock, so KSRSS patches/fixes may take longer
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
 - **Booster crashes into the Orbital Launch Mount on landing:**
-    - Stock Kerbin: (You may need to install the optional _SEPkOS patch for stock Kerbin with Kopernicus.cfg_ patch.) **seems to be completly broken at the moment**
+    - Stock Kerbin: (You may need to install the optional _SEPkOS patch(...).cfg_ patch.)
+    - **Booster krakens due to SLE changes on contact with Chopsticks**
 - **The achieved orbit by Starship is currently non-circular in RSS**
-- **Thrust-Error at Lift-Off**
-    - might happen due to low cpu performance
-- **Booster and Ship Landings are broken (may work, may not work)**
-- **On non-stock Kerbin the tower may be glitching upon booster-catch due to the Kraken**.
+- **Ship Landings are broken (may work, may not work)**
 - **Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands**.
-- **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulate orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
+- **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
 
 
 ## Installation:
