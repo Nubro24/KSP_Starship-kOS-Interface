@@ -510,7 +510,7 @@ function FindParts {
                     set ShipType to "Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
-				else if x:name:contains("SEP.24.SHIP.NOSECONE") or x:name:contains("SEP.24.SHIP.FLAPS") {
+				else if x:name:contains("SEP.24.SHIP.NOSECONE") and not x:name:contains("SEP.24.SHIP.NOSECONE.EXP") {
                     set Nose to x.
                     set ShipType to "Block1".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
@@ -520,7 +520,7 @@ function FindParts {
                     set ShipType to "Block1Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
-                else if x:name:contains("SEP.24.SHIP.EXP") {
+                else if x:name:contains("SEP.24.SHIP.NOSECONE.EXP") {
                     set Nose to x.
                     set ShipType to "Block1Exp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
@@ -554,6 +554,7 @@ function FindParts {
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
                 }
+                
                 set ShipMassStep to ShipMassStep + (x:mass).
                 PartListStep:add(x).
                 Treewalking(x).
@@ -675,8 +676,9 @@ FindParts().
 if ship:name:contains("OrbitalLaunchMount") {
     set ship:name to ("Starship " + ShipType).
 }
-
+print ShipType.
 print "Starship Interface startup complete!".
+
 
 
 //-------------Start Graphic User Interface-------------//
@@ -2533,9 +2535,9 @@ set quickengine1:onclick to {
     for eng in SLEngines {eng:shutdown.}.
     for eng in VACEngines {eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Cargo") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1Exp") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") {
         Nose:shutdown.
-    } else if (ShipType = "Block1") {
+    } else if (ShipType = "Block1" or ShipType = "Block1Cargo") {
         HeaderTank:shutdown.
     }
     Tank:shutdown.
@@ -6323,6 +6325,7 @@ if addons:tr:available and not startup {
         }
         if ShipType = "Block1Cargo" {
             set cargo1text:text to "Closed".
+            cargobutton:show().
             set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.CARGO").
             if Watchdog:length = 0 {
                 set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.CARGO (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
@@ -6334,6 +6337,7 @@ if addons:tr:available and not startup {
         }
         if ShipType = "Block1CargoExp" {
             set cargo1text:text to "Closed".
+            cargobutton:show().
             set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.CARGO.EXP").
             if Watchdog:length = 0 {
                 set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.CARGO.EXP (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
@@ -6376,11 +6380,11 @@ if addons:tr:available and not startup {
             }
             Watchdog:activate().
         }
-        if ShipType = "Block1CargoExp" {
+        if ShipType = "Block1Exp" {
             set cargo1text:text to "Closed".
-            set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.CARGO.EXP").
+            set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.NOSECONE.EXP").
             if Watchdog:length = 0 {
-                set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.CARGO.EXP (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+                set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.NOSECONE.EXP (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
             }
             else {
                 set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
@@ -6670,9 +6674,7 @@ function Launch {
                             }
                         }
                     }
-                    if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
-                        SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
-                    }
+                    
                 }
             }
             if cancelconfirmed {
@@ -6800,6 +6802,9 @@ function Launch {
                 ClearInterfaceAndSteering().
                 return.
             }
+            if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
+                SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
+            }
             set SteeringManager:rollts to 5.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" {
                 InhibitButtons(1, 1, 1).
@@ -6893,6 +6898,9 @@ function Launch {
             Droppriority().
             abort().
         }
+        when apoapsis > BoosterAp and not AbortLaunchInProgress then {
+            if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+        }
 
         if Boosterconnected {
             when apoapsis > BoosterAp - 7500 * Scale and ShipType = "Crew" then {
@@ -6919,7 +6927,6 @@ function Launch {
                 lock throttle to 0.5.
                 unlock steering.
                 LogToFile("Starting stage-separation").
-                if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
                 set message1:text to "<b>Hot staging..</b>".
                 set message2:text to "".
                 set message3:text to "".
@@ -7331,7 +7338,9 @@ function LaunchLabelData {
             set kuniverse:timewarp:warp to 4.
         }
         else if apoapsis > BoosterAp - 5000 {
-            if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+            if not StageSepComplete {
+                if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+            }
         }
         set DownRange to landingzone:distance / 1000.
         if altitude - LaunchElev < 500 {
@@ -12404,7 +12413,7 @@ function VehicleSelfCheck {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
-                        if round(res:capacity) = 3824 {}
+                        if round(res:capacity) = 4200 {}
                         else {
                             set FuelFail to true.
                             print res:amount.
@@ -12413,7 +12422,7 @@ function VehicleSelfCheck {
                         }
                     }
                     if res:name = "Oxidizer" and res:amount < res:capacity + 1 {
-                        if round(res:capacity) = 1275 {}
+                        if round(res:capacity) = 1400 {}
                         else {
                             set FuelFail to true.
                             print res:amount.
@@ -12494,7 +12503,7 @@ function VehicleSelfCheck {
                         }
                     }
                     else {
-                        if round(res:capacity) = 32978 and res:amount < res:capacity + 1 {}
+                        if round(res:capacity) = 80625 and res:amount < res:capacity + 1 {}
                         else {
                             set FuelFail to true.
                             print res:amount.
@@ -12513,7 +12522,7 @@ function VehicleSelfCheck {
                         }
                     }
                     else {
-                        if round(res:capacity) = 10993 and res:amount < res:capacity + 1 {}
+                        if round(res:capacity) = 26875 and res:amount < res:capacity + 1 {}
                         else {
                             set FuelFail to true.
                             print res:amount.
@@ -12566,7 +12575,7 @@ function VehicleSelfCheck {
             for res in BoosterCore[0]:resources {
                 if Methane {
                     if res:name = "LqdMethane" {
-                        if round(res:capacity) = 175885 and res:amount < res:capacity + 1 {}
+                        if round(res:capacity) = 393000 and res:amount < res:capacity + 1 {}
                          else {
                             set FuelFail to true.
                             print res:amount.
@@ -12575,7 +12584,7 @@ function VehicleSelfCheck {
                         }
                     }
                     if res:name = "Oxidizer" {
-                        if round(res:capacity) = 58628 and res:amount < res:capacity + 1 {}
+                        if round(res:capacity) = 131000 and res:amount < res:capacity + 1 {}
                         else {
                             set FuelFail to true.
                             print res:amount.
