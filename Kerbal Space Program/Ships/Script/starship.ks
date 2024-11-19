@@ -414,6 +414,8 @@ set CancelTime to 1.
 set CancelDist to 1.
 set Dist2LandProc to 1.
 set LowCargoMass to false.
+set GfC to false.
+set HSRJet to false.
 
 
 
@@ -4739,12 +4741,28 @@ set launchbutton:ontoggle to {
                             else {
                                 set message1:text to "<b>Launch to Parking Orbit</b>  (± " + (targetap / 1000) + "km, " + round(target:orbit:inclination, 2) + "°)".
                             }
-                            set message2:text to "<b>Booster Return to Launch Site</b>".
+                            //set message2:text to "<b>Booster Return to Launch Site</b>".
                         }
                         else {
                             set message1:text to "<b>Launch to Parking Orbit</b>  (± " + (targetap / 1000) + "km, " + round(setting3:text:split("°")[0]:toscalar(0), 2) + "°)".
-                            set message2:text to "<b>Booster Return to Launch Site</b>".
+                            //set message2:text to "<b>Booster Return to Launch Site</b>".
                         }
+                        set message1:text to "<b><color=yellow>Go for Catch?</color></b>".
+                        set message3:text to "<b>Confirm (Catch) <color=white>or</color> Deny (Splashdown)?</b>".
+                        set execute:text to "<b>CONFIRM</b>".
+                        set cancel:text to "<b>DENY</b>".
+                        if confirm() {
+                            set GfC to true.
+                        }
+                        set message1:text to "<b>HSR Jettison after Boostback?</b>".
+                        set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
+                        set execute:text to "<b>CONFIRM</b>".
+                        set cancel:text to "<b>DENY</b>".
+                        if confirm() {
+                            set HSRJet to true.
+                        }
+
+                        set message1:text to "".
                         set message3:text to "<b>Launch <color=white>or</color> Cancel?</b>".
                         set message1:style:textcolor to white.
                         set message2:style:textcolor to white.
@@ -6933,8 +6951,8 @@ function Launch {
                 ShowHomePage().
                 wait 0.36.
                 set CargoBeforeSeparation to CargoMass.
-                //if Tank:getmodule("ModuleSepPartSwitchAction"):getfield("current docking system") = "QD" {
-                //    Tank:getmodule("ModuleSepPartSwitchAction"):DoAction("next docking system", true).
+                //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
+                //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
                 //}
                 BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
                 set t to time:seconds.
@@ -7008,8 +7026,8 @@ function Launch {
                 set Booster to Vessel("Booster").
                 set kuniverse:activevessel to vessel(ship:name).
                 HideEngineToggles(1).
-                //if Tank:getmodule("ModuleSepPartSwitchAction"):getfield("current docking system") = "BTB" {
-                //    Tank:getmodule("ModuleSepPartSwitchAction"):DoAction("next docking system", true).
+                //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "BTB" {
+                //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
                 //}
                 set StageSepComplete to true.
                 if RSS {
@@ -7050,23 +7068,26 @@ function Launch {
                     eng:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
                 }
             }
+
+            when (time:seconds > HotStageTime + 65 and RSS) or (time:seconds > HotStageTime + 35 and not (RSS)) then {
+                if GfC and HSRJet {
+                    sendMessage(vessel("Booster"), "GoForCatch,HSRJet").
+                } 
+                else if not GfC and HSRJet {
+                    sendMessage(vessel("Booster"), "NoGoForCatch,HSRJet").
+                } 
+                else if GfC and not HSRJet {
+                    sendMessage(vessel("Booster"), "GoForCatch,NoHSRJet").
+                } 
+                else if not GfC and not HSRJet {
+                    sendMessage(vessel("Booster"), "NoGoForCatch,NoHSRJet").
+                } 
+            }
+
             when deltav < 50 and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
 
-            //if not ShipType = "Block1" {
-            //    when time:seconds > HotStageTime + 243 or (vessel("Booster"):altitude - landingzone:terrainheight < 33333 and not (RSS) and HotStageTime > 60)  or (vessel("Booster"):altitude - landingzone:terrainheight < 69420 and (RSS) and HotStageTime > 60) then {                                                         
-            //        if kuniverse:activevessel = vessel("Booster") {} else {
-            //           KUniverse:forceactive(vessel("Booster")).
-            //        }
-            //    }
-            //} else if ShipType = "Block1" {
-            //    when time:seconds > HotStageTime + 243 or (vessel("Booster Ship"):altitude - landingzone:terrainheight < 33333 and not (RSS) and HotStageTime > 60)  or (vessel("Booster Ship"):altitude - landingzone:terrainheight < 69420 and (RSS) and HotStageTime > 60) then {                                                         
-            //        if kuniverse:activevessel = vessel("Booster Ship") {} else {
-            //            KUniverse:forceactive(vessel("Booster Ship")).
-            //        }
-            //    }
-            //}
             when time:seconds > HotStageTime + 185 and RSS or time:seconds > HotStageTime + 125 and not (RSS) then {
                 KUniverse:forceactive(vessel("Booster")).
             }
