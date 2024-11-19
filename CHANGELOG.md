@@ -1,3 +1,9 @@
+# V3.0.7 (2024-11-19)
+- Fixed some Errors with SEP_24 on Interface Startup
+- Booster Landing in Stock Size now on target, **Make sure to put the kOS config from Optional into your GameData**
+- Booster Coast Phase is now time warped
+- SQD Retraction now after Engine Ignition on time with Lift-Off
+
 # V3.0.6 (2024-11-18)
 - **Added Support, Craftfiles and Interfacebackgrounds for SEP24_Expendable Ships**
 - Third Line on the Interface shouldn't get stuck on "Downrange" anymore
