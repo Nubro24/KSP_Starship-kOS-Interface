@@ -2,7 +2,7 @@ ship = Starship-Block1CargoExpendable-RealSize
 version = 1.12.5
 description = 
 type = VAB
-size = 59.3747253,146.406799,27.6766815
+size = 59.3747253,146.406799,27.6766701
 steamPublishedFileId = 0
 persistentId = 3165336139
 rot = 0,0,0,0
@@ -12,7 +12,7 @@ OverrideDefault = False,False,False,False
 OverrideActionControl = 0,0,0,0
 OverrideAxisControl = 0,0,0,0
 OverrideGroupNames = ,,,
-_modVersions = Scale_Redist=2.4.8|ModuleManager=4.1.4|ModuleManager=4.1.4|ClickThroughBlocker=2.1.10|0Harmony=2.2.1|HarmonyInstallChecker=2.2.1|KSPBurst=1.5.5|Microsoft.Extensions.FileSystemGlobbing=6.0.21|System.IO.Compression=4.6.57|System.IO.Compression.FileSystem=4.6.57|System.Runtime.CompilerServices.Unsafe=4.700.20|System.Runtime=4.0.0|Unity.Burst=0.0.0|Unity.Burst.Unsafe=1.0.0|Unity.Collections=0.0.0|Unity.Jobs=0.0.0|Unity.Mathematics=1.0.0|BlendshapeModelLoader=1.6.2|TexturesUnlimited=1.6.2|ToolbarControl=0.1.9|AnimatedDecouplers=1.4.2|ASETPropsIdentifier=1.5.0|Astrogator=1.0.2|AtmosphericFx=1.0.0|B9PartSwitch=2.20.0|BoosterGuidance=1.2.0|CameraTools=1.35.0|Chatterer=0.9.99|CCK=5.1.0|ConformalDecals=0.2.14|ContractConfigurator=2.11.0|CustomPreLaunchChecks=1.8.1|KerbalKonstructs=1.8.10|KerKonConConExt=2.0.0|SimpleBoiloff=0.2.1|DeployableEngines=2.2.0|DepthMask=1.1.3|DistantObject=0.0.0|KSPe.Light.DOE=2.5.4|DMModuleScienceAnimateGeneric=0.23.0|DynamicBatteryStorage=1.0.0|EditorExtensionsRedux=3.4.5|EngineLightRelit=1.6.3|Atmosphere=2.3.0|CelestialShadows=2.3.0|CityLights=2.3.0|EVEManager=2.3.0|PartFX=2.3.0|PQSManager=2.3.0|ShaderLoader=2.3.0|Terrain=2.3.0|TextureConfig=2.3.0|Utils=2.3.0|_BuildManager=2.3.0|FMRSContinued=1.2.9|FossilizedPlugin=1.0.0|FreeIva=0.2.19|StarshipFrost=1.0.0|HangerExtenderExtended=3.6.0|HullcamVDSContinued=0.2.2|JSIAdvTransparentPods=0.1.24|RasterPropMonitor=1.0.2|KerbalEngineer.Unity=1.0.0|KerbalEngineer=1.1.9|KerbalismBootstrap=3.19.0|KerbalJointReinforcement=3.8.3|Renamer=1.7.0|DeployableAeroSurfaces=1.0.0|Kopernicus.Parser=1.0.0|ModularFlightIntegrator=1.2.10|Kopernicus=1.12.214|ICSharpCode.SharpZipLib=0.86.0|kOS=1.4.0|kOS.Safe=1.4.0|kOS-KerbalEngineer=0.1.1|JsonFx=2.0.1209|kOSPropMonitor=1.7.3|KSCSwitcher=2.2.0|0_MultipleModuleInPartAPI=1.0.0|KSPCommunityFixes=1.36.1|LunarTransferPlanner=0.0.0|MechJeb2=2.14.3|System.Buffers=4.6.28619|DockingPortAlignmentIndicator=6.10.0|DPAI_RPM=1.0.0|ModuleDockingNodeNamed=1.0.0|NFPropUtils=1.0.0|NeptuneCamera=1.0.0|Google.Protobuf=3.8.0|Grpc.Core.Api=2.24.0|OfCourseIStillLoveYou.Client=1.0.0|OfCourseIStillLoveYou=1.0.0|OfCourseIStillLoveYou.TUFX=1.0.0|Grass=0.0.0|ParallaxQualityLibrary=1.0.0|ParallaxOptimized=1.0.0|PatchManager=0.0.17|PersistentRotationUpgraded=1.9.1|ProbeControlRoomRecontrolled=1.4.0|ProceduralFairings=6.6.2|RealChute=1.4.9059|RealHeat=5.1.0|TilingHeightmap=1.0.0|RealSolarSystem=20.1.3|RecoveryController=0.0.4|Restock=1.0.0|Reviva=1.0.0|RocketSoundEnhancement.Unity=1.0.0|RocketSoundEnhancement=0.9.11|ROLoadingImages=1.0.0|RSSTimeFormatter=1.12.0|RSSVE=1.8.1|scatterer=0.870.0|Shabby=0.4.0|ShipEffectsContinued=1.0.11|SimpleAdjustableFairings=1.12.0|SmartParts=1.10.0|SmokeScreen=2.8.14|KSP_Log=1.2.0|ButtonManager=1.0.1|KSP_ColorPicker=1.1.0|KSP_PartHighlighter=1.1.0|SpaceTuxUtility=1.0.1|VesselModuleSave=1.0.1|KSPSteamCtrlr=0.0.1|StagedAnimation=1.0.0|HabUtils=1.0.0|StarshipExpansionProject=1.0.0|StarshipLaunchExpansion=1.0.0|SystemHeat=0.1.0|TestFlightAPI=2.2.0|TestFlight=2.2.0|TestFlightContracts=2.2.0|TestFlightCore=2.2.0|TextureReplacer=4.5.3|Trajectories=2.4.5|TUFX=1.1.0|TundraExploration=1.0.0|VesselView=0.8.9|VesselViewRPM=0.8.9|VVDiscoDisplay=0.8.9|VVPartSelector=0.8.9|Waterfall=0.10.2|Deferred=1.2.6|Kerbalism=3.19.0
+_modVersions = Scale_Redist=2.4.8|ModuleManager=4.1.4|ModuleManager=4.1.4|ClickThroughBlocker=2.1.10|0Harmony=2.2.1|HarmonyInstallChecker=2.2.1|KSPBurst=1.5.5|Microsoft.Extensions.FileSystemGlobbing=6.0.21|System.IO.Compression=4.6.57|System.IO.Compression.FileSystem=4.6.57|System.Runtime.CompilerServices.Unsafe=4.700.20|System.Runtime=4.0.0|Unity.Burst=0.0.0|Unity.Burst.Unsafe=1.0.0|Unity.Collections=0.0.0|Unity.Jobs=0.0.0|Unity.Mathematics=1.0.0|BlendshapeModelLoader=1.6.2|TexturesUnlimited=1.6.2|ToolbarControl=0.1.9|AnimatedDecouplers=1.4.2|ASETPropsIdentifier=1.5.0|Astrogator=1.0.2|AtmosphericFx=1.0.0|B9PartSwitch=2.20.0|BoosterGuidance=1.2.0|CameraTools=1.35.0|Chatterer=0.9.99|CCK=5.1.0|ConformalDecals=0.2.14|ContractConfigurator=2.11.0|CustomPreLaunchChecks=1.8.1|KerbalKonstructs=1.8.10|KerKonConConExt=2.0.0|SimpleBoiloff=0.2.1|DeployableEngines=2.2.0|DepthMask=1.1.3|DistantObject=0.0.0|KSPe.Light.DOE=2.5.4|DMModuleScienceAnimateGeneric=0.23.0|DynamicBatteryStorage=1.0.0|EditorExtensionsRedux=3.4.5|EngineLightRelit=1.6.3|Atmosphere=2.3.0|CelestialShadows=2.3.0|CityLights=2.3.0|EVEManager=2.3.0|PartFX=2.3.0|PQSManager=2.3.0|ShaderLoader=2.3.0|Terrain=2.3.0|TextureConfig=2.3.0|Utils=2.3.0|_BuildManager=2.3.0|FMRSContinued=1.2.9|FossilizedPlugin=1.0.0|FreeIva=0.2.19|StarshipFrost=1.0.0|HangerExtenderExtended=3.6.0|HullcamVDSContinued=0.2.2|JSIAdvTransparentPods=0.1.24|RasterPropMonitor=1.0.2|KerbalEngineer.Unity=1.0.0|KerbalEngineer=1.1.9|KerbalismBootstrap=3.19.0|KerbalJointReinforcement=3.8.3|Renamer=1.7.0|DeployableAeroSurfaces=1.0.0|Kopernicus.Parser=1.0.0|ModularFlightIntegrator=1.2.10|Kopernicus=1.12.214|ICSharpCode.SharpZipLib=0.86.0|kOS=1.4.0|kOS.Safe=1.4.0|kOS-KerbalEngineer=0.1.1|JsonFx=2.0.1209|kOSPropMonitor=1.7.3|KSCSwitcher=2.2.0|0_MultipleModuleInPartAPI=1.0.0|KSPCommunityFixes=1.36.1|LunarTransferPlanner=0.0.0|MechJeb2=2.14.3|System.Buffers=4.6.28619|AvionicsSystems=1.3.7|MoonSharp.Interpreter=2.0.0|DockingPortAlignmentIndicator=6.10.0|DPAI_RPM=1.0.0|ModuleDockingNodeNamed=1.0.0|NFPropUtils=1.0.0|NeptuneCamera=1.0.0|Google.Protobuf=3.8.0|Grpc.Core.Api=2.24.0|OfCourseIStillLoveYou.Client=1.0.0|OfCourseIStillLoveYou=1.0.0|OfCourseIStillLoveYou.TUFX=1.0.0|Grass=0.0.0|ParallaxQualityLibrary=1.0.0|ParallaxOptimized=1.0.0|PatchManager=0.0.17|PersistentRotationUpgraded=1.9.1|ProbeControlRoomRecontrolled=1.4.0|ProceduralFairings=6.6.2|RealChute=1.4.9059|RealHeat=5.1.0|TilingHeightmap=1.0.0|RealSolarSystem=20.1.3|RecoveryController=0.0.4|Restock=1.0.0|Reviva=1.0.0|RocketSoundEnhancement.Unity=1.0.0|RocketSoundEnhancement=0.9.11|ROLoadingImages=1.0.0|RSSTimeFormatter=1.12.0|RSSVE=1.8.1|scatterer=0.870.0|Shabby=0.4.0|ShipEffectsContinued=1.0.11|SimpleAdjustableFairings=1.12.0|SmartParts=1.10.0|SmokeScreen=2.8.14|KSP_Log=1.2.0|ButtonManager=1.0.1|KSP_ColorPicker=1.1.0|KSP_PartHighlighter=1.1.0|SpaceTuxUtility=1.0.1|VesselModuleSave=1.0.1|KSPSteamCtrlr=0.0.1|StagedAnimation=1.0.0|HabUtils=1.0.0|StarshipExpansionProject=1.0.0|StarshipLaunchExpansion=1.0.0|SystemHeat=0.1.0|TestFlightAPI=2.2.0|TestFlight=2.2.0|TestFlightContracts=2.2.0|TestFlightCore=2.2.0|TextureReplacer=4.5.3|Trajectories=2.4.5|TUFX=1.1.0|TundraExploration=1.0.0|VesselView=0.8.9|VesselViewRPM=0.8.9|VVDiscoDisplay=0.8.9|VVPartSelector=0.8.9|Waterfall=0.10.2|Deferred=1.2.6|Kerbalism=3.19.0
 PART
 {
 	part = SEP.24.SHIP.CORE.EXP_4291546490
@@ -530,6 +530,23 @@ PART
 		{
 		}
 		PERSISTENT_VARS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MASFlightComputer
+		isEnabled = True
+		flightComputerId = 
+		shipDescription = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
 		{
 		}
 		UPGRADESAPPLIED
@@ -1399,7 +1416,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 53639.011205745199
+		LastUpdateTime = 60244.216466351914
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -1571,7 +1588,7 @@ PART
 		baseModuleMass = 0
 		additionalCost = 18677
 		MaxPartId = 100
-		RequiredPower = 0.0399999991
+		RequiredPower = 0.400000006
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -1653,6 +1670,22 @@ PART
 	{
 		name = ModuleB9PartInfo
 		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -2067,7 +2100,7 @@ PART
 		baseModuleMass = 0
 		additionalCost = 0
 		MaxPartId = 100
-		RequiredPower = 0.0399999991
+		RequiredPower = 0.400000006
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -2117,6 +2150,22 @@ PART
 	}
 	MODULE
 	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -2151,7 +2200,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4291439186
 	partName = Part
 	persistentId = 3310966832
-	pos = -0.881024897,101.945068,0.000639140664
+	pos = -0.881025612,101.945068,0.000639140664
 	attPos = 0,0,0
 	attPos0 = 1.39986514E-06,-12.6394882,-0.880770743
 	rot = 0,0.707106829,0,0.707106829
@@ -2611,6 +2660,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -2628,7 +2693,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4291436186
 	partName = Part
 	persistentId = 1336786264
-	pos = 0.440134317,101.945068,0.763414085
+	pos = 0.440134853,101.945068,0.763414979
 	attPos = 0,0,0
 	attPos0 = -0.762772083,-12.6394882,0.440386146
 	rot = 0,0.965925932,0,-0.258819133
@@ -3080,6 +3145,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3097,7 +3178,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4291435638
 	partName = Part
 	persistentId = 925384136
-	pos = 0.44013682,101.945068,-0.762131691
+	pos = 0.440137178,101.945068,-0.762132406
 	attPos = 0,0,0
 	attPos0 = 0.762770712,-12.6394882,0.440389156
 	rot = 0,0.258819014,0,-0.965925932
@@ -3549,6 +3630,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3566,7 +3663,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4291428046
 	partName = Part
 	persistentId = 1357071127
-	pos = 3.0149672,103.389908,0.000639915525
+	pos = 3.01497006,103.389908,0.000639915525
 	attPos = 0,0,0
 	attPos0 = -8.95961421E-08,-11.1946487,3.01521492
 	rot = 0,0.707106829,0,0.707106829
@@ -3886,6 +3983,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3903,7 +4016,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4291426204
 	partName = Part
 	persistentId = 1955175683
-	pos = -1.50786078,103.389908,-2.61061502
+	pos = -1.50786221,103.389908,-2.61061645
 	attPos = 0,0,0
 	attPos0 = 2.61125278,-11.1946487,-1.50760508
 	rot = 0,0.965925932,0,-0.258819133
@@ -4215,6 +4328,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -4232,7 +4361,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4291425668
 	partName = Part
 	persistentId = 1408213789
-	pos = -1.5078603,103.389908,2.61189604
+	pos = -1.50786173,103.389908,2.61189747
 	attPos = 0,0,0
 	attPos0 = -2.61125278,-11.1946487,-1.50760508
 	rot = 0,0.258819014,0,-0.965925932
@@ -4533,6 +4662,22 @@ PART
 	{
 		name = ModuleB9PartInfo
 		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -5023,6 +5168,22 @@ PART
 	{
 		name = ModuleB9PartInfo
 		isEnabled = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -5646,6 +5807,23 @@ PART
 	}
 	MODULE
 	{
+		name = MASFlightComputer
+		isEnabled = True
+		flightComputerId = 
+		shipDescription = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = MechJebCore
 		isEnabled = True
 		running = True
@@ -6040,7 +6218,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 53639.011205745199
+		LastUpdateTime = 60244.216466351914
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -6212,7 +6390,7 @@ PART
 		baseModuleMass = 0
 		additionalCost = 0
 		MaxPartId = 100
-		RequiredPower = 0.0399999991
+		RequiredPower = 0.400000006
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -6294,6 +6472,22 @@ PART
 	{
 		name = ModuleB9PartInfo
 		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -7209,6 +7403,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -7931,7 +8141,7 @@ PART
 		baseModuleMass = 0
 		additionalCost = 0
 		MaxPartId = 100
-		RequiredPower = 0.0399999991
+		RequiredPower = 0.400000006
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -8063,6 +8273,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -8080,7 +8306,7 @@ PART
 	part = SLE.SS.OLIT.Base_4287348244
 	partName = Part
 	persistentId = 3445695800
-	pos = -33.3420296,13.3134232,-0.90985918
+	pos = -33.3420525,13.3134232,-0.909847736
 	attPos = 0,0,0
 	attPos0 = -33.3426247,6.23290634,-0.92016995
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -8342,6 +8568,23 @@ PART
 		{
 		}
 		PERSISTENT_VARS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MASFlightComputer
+		isEnabled = True
+		flightComputerId = 
+		shipDescription = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
 		{
 		}
 		UPGRADESAPPLIED
@@ -8650,7 +8893,7 @@ PART
 	part = SLE.SS.OLIT.Core_4287331592
 	partName = Part
 	persistentId = 2645644202
-	pos = -33.3407364,18.9437332,-0.949944019
+	pos = -33.3407593,18.9437332,-0.949932575
 	attPos = 0,0,0
 	attPos0 = 0.00129322417,5.63031054,-0.0400839373
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -9100,6 +9343,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -9117,7 +9376,7 @@ PART
 	part = SLE.SS.OLIT.Top_4287315974
 	partName = Part
 	persistentId = 2177457772
-	pos = -33.3403664,136.509979,-0.984508991
+	pos = -33.3404007,136.509979,-0.984497547
 	attPos = 0,0,0
 	attPos0 = -0.00765405223,16.7680054,0.0435114279
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -9323,7 +9582,7 @@ PART
 	part = hc.launchcam_4286995820
 	partName = Part
 	persistentId = 214967654
-	pos = -31.5403271,153.309967,-9.38461494
+	pos = -31.54035,153.309967,-9.38461494
 	attPos = -0.305088162,0,-0.543728352
 	attPos0 = 2.10506725,16.7999878,-7.85627127
 	rot = 0.103553273,0.603553593,-0.079459317,0.786566079
@@ -9485,6 +9744,29 @@ PART
 	}
 	MODULE
 	{
+		name = MASCamera
+		isEnabled = True
+		goalFov = 50
+		currentFov = 50
+		goalPan = 0
+		currentPan = 0
+		goalTilt = 0
+		currentTilt = 0
+		cameraName = Launchpad Camera
+		activeMode = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -9537,7 +9819,7 @@ PART
 	part = SLE.SS.OLIT.MZ_4287297256
 	partName = Part
 	persistentId = 3017305513
-	pos = -21.2963657,134.588013,0.599841595
+	pos = -21.2963772,134.588013,0.599847317
 	attPos = 0,0,0
 	attPos0 = 12.0442562,115.644241,1.54983258
 	rot = 0.707082331,-0.00588271022,-0.00588274002,-0.707082391
@@ -10391,7 +10673,7 @@ PART
 	part = SLE.SS.OLIT.SQD_4287271022
 	partName = Part
 	persistentId = 1017487170
-	pos = -31.2264938,98.1690903,-2.21145487
+	pos = -31.2265167,98.1690903,-2.21144342
 	attPos = 0,0,0
 	attPos0 = 2.11424112,79.2253571,-1.26150656
 	rot = -1.03623009E-07,0.997030318,1.2003003E-08,0.077011764
@@ -10480,7 +10762,7 @@ PART
 		AnimatePosition = 0
 		AnimationLength = 5.00000048
 		ExtensionLimit = 0
-		ExtensionSpeed = 1
+		ExtensionSpeed = 1.53999996
 		stagingEnabled = True
 		EVENTS
 		{
@@ -10598,7 +10880,7 @@ PART
 		AnimatePosition = 0
 		AnimationLength = 12
 		ExtensionLimit = 0
-		ExtensionSpeed = 5
+		ExtensionSpeed = 8.10999966
 		stagingEnabled = True
 		EVENTS
 		{
@@ -10760,7 +11042,7 @@ PART
 	part = SLE.SS.SteelPlate_4287250170
 	partName = Part
 	persistentId = 4167505965
-	pos = -0.000241167989,7.73273468,0.000635002099
+	pos = -0.000241167872,7.73273468,0.00063500175
 	attPos = 0,0,0
 	attPos0 = -0.000113472823,0.659316242,-0.00101260806
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -11135,6 +11417,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -11152,7 +11450,7 @@ PART
 	part = kerbpro_4287004298
 	partName = Part
 	persistentId = 1883096177
-	pos = 1.11693931,29.2391586,-7.74487925
+	pos = 1.11694074,29.2391586,-7.74488926
 	attPos = -1.90928936,0.138744354,1.21252298
 	attPos0 = 3.02267027,22.0152626,-8.99198818
 	rot = -0.405758053,-0.57910341,0.579102755,-0.40575844
@@ -11315,6 +11613,29 @@ PART
 	}
 	MODULE
 	{
+		name = MASCamera
+		isEnabled = True
+		goalFov = 50
+		currentFov = 50
+		goalPan = 0
+		currentPan = 0
+		goalTilt = 0
+		currentTilt = 0
+		cameraName = KerbPro
+		activeMode = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -11367,7 +11688,7 @@ PART
 	part = DC.smallCam.Wide_4287003278
 	partName = Part
 	persistentId = 132393620
-	pos = -2.80853105,17.151329,4.73384047
+	pos = -2.80853462,17.151329,4.73385
 	attPos = -0.318912268,-3.05199051,0.77094388
 	attPos0 = -2.46479249,13.095293,3.89035249
 	rot = 0.421194166,-0.195444643,0.0930080712,0.880764782
@@ -11597,7 +11918,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4287238350
 	partName = Part
 	persistentId = 3328011181
-	pos = -2.95436811,97.2113037,-5.11625242
+	pos = -2.95437288,97.2113037,-5.11625719
 	attPos = 0,0,0
 	attPos0 = 5.11684418,35.6968117,-2.95408344
 	rot = 0.866025448,4.86962328E-08,0.49999997,4.86962328E-08
@@ -11849,7 +12170,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4287237920
 	partName = Part
 	persistentId = 2400802303
-	pos = 2.95384884,97.2113037,-5.11625147
+	pos = 2.95385122,97.2113037,-5.11625624
 	attPos = 0,0,0
 	attPos0 = 5.11684418,35.6968117,2.95407033
 	rot = 0.500000179,-5.45420349E-08,0.866025507,-5.45420349E-08
@@ -12093,7 +12414,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4287237634
 	partName = Part
 	persistentId = 580182108
-	pos = -2.95435095,97.2113037,5.11753035
+	pos = -2.95435333,97.2113037,5.11753511
 	attPos = 0,0,0
 	attPos0 = -5.11684227,35.6968117,-2.95407891
 	rot = 0.866025507,4.8696247E-08,-0.500000179,-4.86962257E-08
@@ -12337,7 +12658,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4287237358
 	partName = Part
 	persistentId = 1381138937
-	pos = 2.95386219,97.2113037,5.1175313
+	pos = 2.95386696,97.2113037,5.11753607
 	attPos = 0,0,0
 	attPos0 = -5.11684227,35.6968117,2.95407104
 	rot = 0.499999881,-5.45420598E-08,-0.866025567,5.45420313E-08
@@ -12581,7 +12902,7 @@ PART
 	part = DC.smallCam.Wide_4287007452
 	partName = Part
 	persistentId = 4193132277
-	pos = -4.3270545,97.668457,-0.318438053
+	pos = -4.32705927,97.668457,-0.318438053
 	attPos = 0.00283139944,-0.105514526,-0.0367350578
 	attPos0 = 0.316836923,36.2570686,-4.29601383
 	rot = -0.098037377,0.73301369,-0.108167723,-0.66436404
@@ -12811,7 +13132,7 @@ PART
 	part = DC.smallCam_4287005724
 	partName = Part
 	persistentId = 2974067888
-	pos = -3.83540559,51.6563568,-3.9581008
+	pos = -3.83541036,51.6563568,-3.95810556
 	attPos = 9.53674316E-07,0.018573761,0.12358284
 	attPos0 = 3.9587903,-9.87991714,-3.9587903
 	rot = -0.25879097,0.680593669,-0.624776661,-0.281911135

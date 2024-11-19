@@ -2,7 +2,7 @@ ship = Starship-Block1Cargo-RealSize
 version = 1.12.5
 description = 
 type = VAB
-size = 59.3747253,146.406799,27.6767044
+size = 59.3747253,146.406799,27.6766815
 steamPublishedFileId = 0
 persistentId = 3165336139
 rot = 0,0,0,0
@@ -12,7 +12,7 @@ OverrideDefault = False,False,False,False
 OverrideActionControl = 0,0,0,0
 OverrideAxisControl = 0,0,0,0
 OverrideGroupNames = ,,,
-_modVersions = Scale_Redist=2.4.8|ModuleManager=4.1.4|ModuleManager=4.1.4|ClickThroughBlocker=2.1.10|0Harmony=2.2.1|HarmonyInstallChecker=2.2.1|KSPBurst=1.5.5|Microsoft.Extensions.FileSystemGlobbing=6.0.21|System.IO.Compression=4.6.57|System.IO.Compression.FileSystem=4.6.57|System.Runtime.CompilerServices.Unsafe=4.700.20|System.Runtime=4.0.0|Unity.Burst=0.0.0|Unity.Burst.Unsafe=1.0.0|Unity.Collections=0.0.0|Unity.Jobs=0.0.0|Unity.Mathematics=1.0.0|BlendshapeModelLoader=1.6.2|TexturesUnlimited=1.6.2|ToolbarControl=0.1.9|AnimatedDecouplers=1.4.2|ASETPropsIdentifier=1.5.0|Astrogator=1.0.2|AtmosphericFx=1.0.0|B9PartSwitch=2.20.0|BoosterGuidance=1.2.0|CameraTools=1.35.0|Chatterer=0.9.99|CCK=5.1.0|ConformalDecals=0.2.14|ContractConfigurator=2.11.0|CustomPreLaunchChecks=1.8.1|KerbalKonstructs=1.8.10|KerKonConConExt=2.0.0|SimpleBoiloff=0.2.1|DeployableEngines=2.2.0|DepthMask=1.1.3|DistantObject=0.0.0|KSPe.Light.DOE=2.5.4|DMModuleScienceAnimateGeneric=0.23.0|DynamicBatteryStorage=1.0.0|EditorExtensionsRedux=3.4.5|EngineLightRelit=1.6.3|Atmosphere=2.3.0|CelestialShadows=2.3.0|CityLights=2.3.0|EVEManager=2.3.0|PartFX=2.3.0|PQSManager=2.3.0|ShaderLoader=2.3.0|Terrain=2.3.0|TextureConfig=2.3.0|Utils=2.3.0|_BuildManager=2.3.0|FMRSContinued=1.2.9|FossilizedPlugin=1.0.0|FreeIva=0.2.19|StarshipFrost=1.0.0|HangerExtenderExtended=3.6.0|HullcamVDSContinued=0.2.2|JSIAdvTransparentPods=0.1.24|RasterPropMonitor=1.0.2|KerbalEngineer.Unity=1.0.0|KerbalEngineer=1.1.9|KerbalismBootstrap=3.19.0|KerbalJointReinforcement=3.8.3|Renamer=1.7.0|DeployableAeroSurfaces=1.0.0|Kopernicus.Parser=1.0.0|ModularFlightIntegrator=1.2.10|Kopernicus=1.12.214|ICSharpCode.SharpZipLib=0.86.0|kOS=1.4.0|kOS.Safe=1.4.0|kOS-KerbalEngineer=0.1.1|JsonFx=2.0.1209|kOSPropMonitor=1.7.3|KSCSwitcher=2.2.0|0_MultipleModuleInPartAPI=1.0.0|KSPCommunityFixes=1.36.1|LunarTransferPlanner=0.0.0|MechJeb2=2.14.3|System.Buffers=4.6.28619|DockingPortAlignmentIndicator=6.10.0|DPAI_RPM=1.0.0|ModuleDockingNodeNamed=1.0.0|NFPropUtils=1.0.0|NeptuneCamera=1.0.0|Google.Protobuf=3.8.0|Grpc.Core.Api=2.24.0|OfCourseIStillLoveYou.Client=1.0.0|OfCourseIStillLoveYou=1.0.0|OfCourseIStillLoveYou.TUFX=1.0.0|Grass=0.0.0|ParallaxQualityLibrary=1.0.0|ParallaxOptimized=1.0.0|PatchManager=0.0.17|PersistentRotationUpgraded=1.9.1|ProbeControlRoomRecontrolled=1.4.0|ProceduralFairings=6.6.2|RealChute=1.4.9059|RealHeat=5.1.0|TilingHeightmap=1.0.0|RealSolarSystem=20.1.3|RecoveryController=0.0.4|Restock=1.0.0|Reviva=1.0.0|RocketSoundEnhancement.Unity=1.0.0|RocketSoundEnhancement=0.9.11|ROLoadingImages=1.0.0|RSSTimeFormatter=1.12.0|RSSVE=1.8.1|scatterer=0.870.0|Shabby=0.4.0|ShipEffectsContinued=1.0.11|SimpleAdjustableFairings=1.12.0|SmartParts=1.10.0|SmokeScreen=2.8.14|KSP_Log=1.2.0|ButtonManager=1.0.1|KSP_ColorPicker=1.1.0|KSP_PartHighlighter=1.1.0|SpaceTuxUtility=1.0.1|VesselModuleSave=1.0.1|KSPSteamCtrlr=0.0.1|StagedAnimation=1.0.0|HabUtils=1.0.0|StarshipExpansionProject=1.0.0|StarshipLaunchExpansion=1.0.0|SystemHeat=0.1.0|TestFlightAPI=2.2.0|TestFlight=2.2.0|TestFlightContracts=2.2.0|TestFlightCore=2.2.0|TextureReplacer=4.5.3|Trajectories=2.4.5|TUFX=1.1.0|TundraExploration=1.0.0|VesselView=0.8.9|VesselViewRPM=0.8.9|VVDiscoDisplay=0.8.9|VVPartSelector=0.8.9|Waterfall=0.10.2|Deferred=1.2.6|Kerbalism=3.19.0
+_modVersions = Scale_Redist=2.4.8|ModuleManager=4.1.4|ModuleManager=4.1.4|ClickThroughBlocker=2.1.10|0Harmony=2.2.1|HarmonyInstallChecker=2.2.1|KSPBurst=1.5.5|Microsoft.Extensions.FileSystemGlobbing=6.0.21|System.IO.Compression=4.6.57|System.IO.Compression.FileSystem=4.6.57|System.Runtime.CompilerServices.Unsafe=4.700.20|System.Runtime=4.0.0|Unity.Burst=0.0.0|Unity.Burst.Unsafe=1.0.0|Unity.Collections=0.0.0|Unity.Jobs=0.0.0|Unity.Mathematics=1.0.0|BlendshapeModelLoader=1.6.2|TexturesUnlimited=1.6.2|ToolbarControl=0.1.9|AnimatedDecouplers=1.4.2|ASETPropsIdentifier=1.5.0|Astrogator=1.0.2|AtmosphericFx=1.0.0|B9PartSwitch=2.20.0|BoosterGuidance=1.2.0|CameraTools=1.35.0|Chatterer=0.9.99|CCK=5.1.0|ConformalDecals=0.2.14|ContractConfigurator=2.11.0|CustomPreLaunchChecks=1.8.1|KerbalKonstructs=1.8.10|KerKonConConExt=2.0.0|SimpleBoiloff=0.2.1|DeployableEngines=2.2.0|DepthMask=1.1.3|DistantObject=0.0.0|KSPe.Light.DOE=2.5.4|DMModuleScienceAnimateGeneric=0.23.0|DynamicBatteryStorage=1.0.0|EditorExtensionsRedux=3.4.5|EngineLightRelit=1.6.3|Atmosphere=2.3.0|CelestialShadows=2.3.0|CityLights=2.3.0|EVEManager=2.3.0|PartFX=2.3.0|PQSManager=2.3.0|ShaderLoader=2.3.0|Terrain=2.3.0|TextureConfig=2.3.0|Utils=2.3.0|_BuildManager=2.3.0|FMRSContinued=1.2.9|FossilizedPlugin=1.0.0|FreeIva=0.2.19|StarshipFrost=1.0.0|HangerExtenderExtended=3.6.0|HullcamVDSContinued=0.2.2|JSIAdvTransparentPods=0.1.24|RasterPropMonitor=1.0.2|KerbalEngineer.Unity=1.0.0|KerbalEngineer=1.1.9|KerbalismBootstrap=3.19.0|KerbalJointReinforcement=3.8.3|Renamer=1.7.0|DeployableAeroSurfaces=1.0.0|Kopernicus.Parser=1.0.0|ModularFlightIntegrator=1.2.10|Kopernicus=1.12.214|ICSharpCode.SharpZipLib=0.86.0|kOS=1.4.0|kOS.Safe=1.4.0|kOS-KerbalEngineer=0.1.1|JsonFx=2.0.1209|kOSPropMonitor=1.7.3|KSCSwitcher=2.2.0|0_MultipleModuleInPartAPI=1.0.0|KSPCommunityFixes=1.36.1|LunarTransferPlanner=0.0.0|MechJeb2=2.14.3|System.Buffers=4.6.28619|AvionicsSystems=1.3.7|MoonSharp.Interpreter=2.0.0|DockingPortAlignmentIndicator=6.10.0|DPAI_RPM=1.0.0|ModuleDockingNodeNamed=1.0.0|NFPropUtils=1.0.0|NeptuneCamera=1.0.0|Google.Protobuf=3.8.0|Grpc.Core.Api=2.24.0|OfCourseIStillLoveYou.Client=1.0.0|OfCourseIStillLoveYou=1.0.0|OfCourseIStillLoveYou.TUFX=1.0.0|Grass=0.0.0|ParallaxQualityLibrary=1.0.0|ParallaxOptimized=1.0.0|PatchManager=0.0.17|PersistentRotationUpgraded=1.9.1|ProbeControlRoomRecontrolled=1.4.0|ProceduralFairings=6.6.2|RealChute=1.4.9059|RealHeat=5.1.0|TilingHeightmap=1.0.0|RealSolarSystem=20.1.3|RecoveryController=0.0.4|Restock=1.0.0|Reviva=1.0.0|RocketSoundEnhancement.Unity=1.0.0|RocketSoundEnhancement=0.9.11|ROLoadingImages=1.0.0|RSSTimeFormatter=1.12.0|RSSVE=1.8.1|scatterer=0.870.0|Shabby=0.4.0|ShipEffectsContinued=1.0.11|SimpleAdjustableFairings=1.12.0|SmartParts=1.10.0|SmokeScreen=2.8.14|KSP_Log=1.2.0|ButtonManager=1.0.1|KSP_ColorPicker=1.1.0|KSP_PartHighlighter=1.1.0|SpaceTuxUtility=1.0.1|VesselModuleSave=1.0.1|KSPSteamCtrlr=0.0.1|StagedAnimation=1.0.0|HabUtils=1.0.0|StarshipExpansionProject=1.0.0|StarshipLaunchExpansion=1.0.0|SystemHeat=0.1.0|TestFlightAPI=2.2.0|TestFlight=2.2.0|TestFlightContracts=2.2.0|TestFlightCore=2.2.0|TextureReplacer=4.5.3|Trajectories=2.4.5|TUFX=1.1.0|TundraExploration=1.0.0|VesselView=0.8.9|VesselViewRPM=0.8.9|VVDiscoDisplay=0.8.9|VVPartSelector=0.8.9|Waterfall=0.10.2|Deferred=1.2.6|Kerbalism=3.19.0
 PART
 {
 	part = SEP.24.SHIP.CORE_4286287862
@@ -775,6 +775,23 @@ PART
 		{
 		}
 		PERSISTENT_VARS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MASFlightComputer
+		isEnabled = True
+		flightComputerId = 
+		shipDescription = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
 		{
 		}
 		UPGRADESAPPLIED
@@ -1644,7 +1661,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 45509.468866726289
+		LastUpdateTime = 60244.216466351914
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -1816,7 +1833,7 @@ PART
 		baseModuleMass = 0
 		additionalCost = 18677
 		MaxPartId = 100
-		RequiredPower = 0.0399999991
+		RequiredPower = 0.400000006
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -1909,6 +1926,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -1923,7 +1956,7 @@ PART
 	RESOURCE
 	{
 		name = LqdMethane
-		amount = 404999.98927116394
+		amount = 450000
 		maxAmount = 450000
 		flowState = True
 		isTweakable = True
@@ -1934,7 +1967,7 @@ PART
 	RESOURCE
 	{
 		name = Oxidizer
-		amount = 134999.99642372131
+		amount = 150000
 		maxAmount = 150000
 		flowState = True
 		isTweakable = True
@@ -1948,7 +1981,7 @@ PART
 	part = SEP.24.SHIP.AFT.LEFT.FLAP_4286225562
 	partName = Part
 	persistentId = 2866208561
-	pos = 0.000144568505,104.585869,5.13374853
+	pos = 0.000144568505,104.585869,5.13375425
 	attPos = 0,0,0
 	attPos0 = -5.13387156,-8.57698059,1.52587745E-06
 	rot = -0.50000006,0.50000006,-0.50000006,0.50000006
@@ -2287,7 +2320,7 @@ PART
 	part = SEP.24.SHIP.AFT.RIGHT.FLAP_4286224368
 	partName = Part
 	persistentId = 2381983426
-	pos = 0.00014361483,104.585869,-5.13402414
+	pos = 0.00014361483,104.585869,-5.13402987
 	attPos = 0,0,0
 	attPos0 = 5.13387156,-8.57698059,1.52587745E-06
 	rot = 0.50000006,0.50000006,0.50000006,0.50000006
@@ -2626,7 +2659,7 @@ PART
 	part = DC.smallCam.Wide_4286208346
 	partName = Part
 	persistentId = 2898780469
-	pos = -2.59987712,103.962852,-3.66720676
+	pos = -2.59988499,103.962852,-3.66721988
 	attPos = -0.185312271,-0.068939209,-0.33254385
 	attPos0 = 3.85234857,-9.13105774,-2.26745629
 	rot = -0.0922958255,-0.0922958255,0.701057434,0.701057434
@@ -2856,7 +2889,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4286207348
 	partName = Part
 	persistentId = 3535573616
-	pos = -0.880631804,100.523361,-0.000139291849
+	pos = -0.880633235,100.523361,-0.000139291849
 	attPos = 0,0,0
 	attPos0 = 1.3998615E-06,-12.6394882,-0.880770743
 	rot = 0,0.707106829,0,0.707106829
@@ -3316,6 +3349,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3333,7 +3382,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4286204880
 	partName = Part
 	persistentId = 2498645612
-	pos = 0.440531641,100.523361,0.762638628
+	pos = 0.440532714,100.523361,0.762640417
 	attPos = 0,0,0
 	attPos0 = -0.762772083,-12.6394882,0.440386146
 	rot = 0,0.965925932,0,-0.258819133
@@ -3785,6 +3834,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3802,7 +3867,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4286204330
 	partName = Part
 	persistentId = 2239531928
-	pos = 0.440533549,100.523361,-0.762912512
+	pos = 0.440534264,100.523361,-0.762913942
 	attPos = 0,0,0
 	attPos0 = 0.762770712,-12.6394882,0.440389156
 	rot = 0,0.258819014,0,-0.965925932
@@ -4254,6 +4319,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -4271,7 +4352,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4286199384
 	partName = Part
 	persistentId = 1039224451
-	pos = 3.01537228,101.968201,-0.000138516989
+	pos = 3.015378,101.968201,-0.000138516989
 	attPos = 0,0,0
 	attPos0 = -8.95888661E-08,-11.1946487,3.01521492
 	rot = 0,0.707106829,0,0.707106829
@@ -4591,6 +4672,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -4608,7 +4705,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4286197518
 	partName = Part
 	persistentId = 2896303042
-	pos = -1.50747001,101.968201,-2.61139822
+	pos = -1.50747287,101.968201,-2.61140108
 	attPos = 0,0,0
 	attPos0 = 2.61125278,-11.1946487,-1.50760508
 	rot = 0,0.965925932,0,-0.258819133
@@ -4920,6 +5017,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -4937,7 +5050,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4286196980
 	partName = Part
 	persistentId = 1692279435
-	pos = -1.50746953,101.968201,2.61112237
+	pos = -1.5074724,101.968201,2.61112523
 	attPos = 0,0,0
 	attPos0 = -2.61125278,-11.1946487,-1.50760508
 	rot = 0,0.258819014,0,-0.965925932
@@ -5249,6 +5362,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -5266,7 +5395,7 @@ PART
 	part = DC.smallCam.Wide_4286191194
 	partName = Part
 	persistentId = 2566801288
-	pos = -4.296381,101.318733,0.00578189315
+	pos = -4.29639149,101.318733,0.00578189315
 	attPos = -0.000177268405,0.0943908691,0.100436687
 	attPos0 = -0.00574231707,-11.9385071,-4.39693403
 	rot = -0.227248371,-0.671879828,-0.229014099,0.666699588
@@ -5495,7 +5624,7 @@ PART
 {
 	part = SEP.23.BOOSTER.HSR_4287633448
 	partName = Part
-	persistentId = 4214103000
+	persistentId = 927882649
 	pos = 0.000144544669,96.6928024,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = -2.27373675E-13,-16.470047,1.88350555E-06
@@ -5969,6 +6098,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = SolidFuel
@@ -5985,7 +6130,7 @@ PART
 {
 	part = SEP.23.BOOSTER.INTEGRATED_4287621798
 	partName = Part
-	persistentId = 2581140307
+	persistentId = 370378184
 	pos = 0.000148359366,60.0927887,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = -2.27373675E-13,-36.6000137,3.81469727E-06
@@ -6581,6 +6726,23 @@ PART
 	}
 	MODULE
 	{
+		name = MASFlightComputer
+		isEnabled = True
+		flightComputerId = 
+		shipDescription = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = MechJebCore
 		isEnabled = True
 		running = True
@@ -6975,7 +7137,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 45509.468866726289
+		LastUpdateTime = 60244.216466351914
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -7147,7 +7309,7 @@ PART
 		baseModuleMass = 0
 		additionalCost = 0
 		MaxPartId = 100
-		RequiredPower = 0.0399999991
+		RequiredPower = 0.400000006
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -7242,6 +7404,22 @@ PART
 	}
 	MODULE
 	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -7273,7 +7451,7 @@ PART
 	RESOURCE
 	{
 		name = LqdMethane
-		amount = 1457324.9613940716
+		amount = 1619250
 		maxAmount = 1619250
 		flowState = True
 		isTweakable = True
@@ -7284,7 +7462,7 @@ PART
 	RESOURCE
 	{
 		name = Oxidizer
-		amount = 485774.98713135719
+		amount = 539750
 		maxAmount = 539750
 		flowState = True
 		isTweakable = True
@@ -7297,7 +7475,7 @@ PART
 {
 	part = SEP.23.BOOSTER.CLUSTER_4287605498
 	partName = Part
-	persistentId = 206917552
+	persistentId = 3506457118
 	pos = 0.000152174078,26.7236176,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 0,-33.369175,4.58955765E-06
@@ -8144,6 +8322,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -8160,7 +8354,7 @@ PART
 {
 	part = SLE.SS.OLM_4287433086
 	partName = Part
-	persistentId = 3557377098
+	persistentId = 637761941
 	pos = 0.000155262358,5.65171051,-0.000143613652
 	attPos = 0,0,0
 	attPos0 = 5.5736632E-06,-21.071907,3.08752442E-06
@@ -8866,7 +9060,7 @@ PART
 		baseModuleMass = 0
 		additionalCost = 0
 		MaxPartId = 100
-		RequiredPower = 0.0399999991
+		RequiredPower = 0.400000006
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -8998,6 +9192,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -9014,8 +9224,8 @@ PART
 {
 	part = SLE.SS.OLIT.Base_4287348244
 	partName = Part
-	persistentId = 4197699221
-	pos = -33.3415833,11.891716,-0.910660505
+	persistentId = 1184215619
+	pos = -33.341629,11.891716,-0.910637617
 	attPos = 0,0,0
 	attPos0 = -33.3426247,6.23290634,-0.92016995
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -9277,6 +9487,23 @@ PART
 		{
 		}
 		PERSISTENT_VARS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MASFlightComputer
+		isEnabled = True
+		flightComputerId = 
+		shipDescription = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
 		{
 		}
 		UPGRADESAPPLIED
@@ -9584,8 +9811,8 @@ PART
 {
 	part = SLE.SS.OLIT.Core_4287331592
 	partName = Part
-	persistentId = 2440990658
-	pos = -33.3402901,17.5220261,-0.950745344
+	persistentId = 3178538119
+	pos = -33.3403358,17.5220261,-0.950722456
 	attPos = 0,0,0
 	attPos0 = 0.00129322417,5.63031054,-0.0400839373
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -10035,6 +10262,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -10051,8 +10294,8 @@ PART
 {
 	part = SLE.SS.OLIT.Top_4287315974
 	partName = Part
-	persistentId = 3167656424
-	pos = -33.3398972,135.088257,-0.985310316
+	persistentId = 3224069621
+	pos = -33.3399658,135.088257,-0.985287428
 	attPos = 0,0,0
 	attPos0 = -0.00765405223,16.7680054,0.0435114279
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -10257,8 +10500,8 @@ PART
 {
 	part = hc.launchcam_4286995820
 	partName = Part
-	persistentId = 6178915
-	pos = -31.5398731,151.888245,-9.38539028
+	persistentId = 2890295277
+	pos = -31.5399189,151.888245,-9.38539028
 	attPos = -0.305088162,0,-0.543728352
 	attPos0 = 2.10506725,16.7999878,-7.85627127
 	rot = 0.103553273,0.603553593,-0.079459317,0.786566079
@@ -10420,6 +10663,29 @@ PART
 	}
 	MODULE
 	{
+		name = MASCamera
+		isEnabled = True
+		goalFov = 50
+		currentFov = 50
+		goalPan = 0
+		currentPan = 0
+		goalTilt = 0
+		currentTilt = 0
+		cameraName = Launchpad Camera
+		activeMode = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -10471,8 +10737,8 @@ PART
 {
 	part = SLE.SS.OLIT.MZ_4287297256
 	partName = Part
-	persistentId = 2195300201
-	pos = -21.2959423,133.16629,0.599051714
+	persistentId = 315149670
+	pos = -21.2959652,133.16629,0.599063158
 	attPos = 0,0,0
 	attPos0 = 12.0442562,115.644241,1.54983258
 	rot = 0.707082331,-0.00588271022,-0.00588274002,-0.707082391
@@ -11325,8 +11591,8 @@ PART
 {
 	part = SLE.SS.OLIT.SQD_4287271022
 	partName = Part
-	persistentId = 94498193
-	pos = -31.2260437,96.7473831,-2.21225619
+	persistentId = 374404452
+	pos = -31.2260895,96.7473831,-2.2122333
 	attPos = 0,0,0
 	attPos0 = 2.11424112,79.2253571,-1.26150656
 	rot = -1.03623009E-07,0.997030318,1.2003003E-08,0.077011764
@@ -11415,7 +11681,7 @@ PART
 		AnimatePosition = 0
 		AnimationLength = 5.00000048
 		ExtensionLimit = 0
-		ExtensionSpeed = 1
+		ExtensionSpeed = 1.49000001
 		stagingEnabled = True
 		EVENTS
 		{
@@ -11533,7 +11799,7 @@ PART
 		AnimatePosition = 0
 		AnimationLength = 12
 		ExtensionLimit = 0
-		ExtensionSpeed = 5
+		ExtensionSpeed = 8.14000034
 		stagingEnabled = True
 		EVENTS
 		{
@@ -11694,8 +11960,8 @@ PART
 {
 	part = SLE.SS.SteelPlate_4287250170
 	partName = Part
-	persistentId = 86406968
-	pos = 0.000154365494,6.31102753,-0.000143429716
+	persistentId = 1230514194
+	pos = 0.000154365844,6.31102753,-0.000143430414
 	attPos = 0,0,0
 	attPos0 = -0.000113472823,0.659316242,-0.00101260806
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -12070,6 +12336,22 @@ PART
 		{
 		}
 	}
+	MODULE
+	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -12086,8 +12368,8 @@ PART
 {
 	part = kerbpro_4287004298
 	partName = Part
-	persistentId = 3357741905
-	pos = 1.1173315,27.8174515,-7.74563599
+	persistentId = 3165430062
+	pos = 1.11733437,27.8174515,-7.74565601
 	attPos = -1.90928936,0.138744354,1.21252298
 	attPos0 = 3.02267027,22.0152626,-8.99198818
 	rot = -0.405758053,-0.57910341,0.579102755,-0.40575844
@@ -12250,6 +12532,29 @@ PART
 	}
 	MODULE
 	{
+		name = MASCamera
+		isEnabled = True
+		goalFov = 50
+		currentFov = 50
+		goalPan = 0
+		currentPan = 0
+		goalTilt = 0
+		currentTilt = 0
+		cameraName = KerbPro
+		activeMode = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -12301,8 +12606,8 @@ PART
 {
 	part = DC.smallCam.Wide_4287003278
 	partName = Part
-	persistentId = 2165988230
-	pos = -2.80812693,15.7296219,4.73304033
+	persistentId = 3361590132
+	pos = -2.80813479,15.7296219,4.73306131
 	attPos = -0.318912268,-3.05199051,0.77094388
 	attPos0 = -2.46479249,13.095293,3.89035249
 	rot = 0.421194166,-0.195444643,0.0930080712,0.880764782
@@ -12531,8 +12836,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287238350
 	partName = Part
-	persistentId = 18044651
-	pos = -2.95396304,95.7895966,-5.11701918
+	persistentId = 2988827574
+	pos = -2.95397353,95.7895966,-5.11702967
 	attPos = 0,0,0
 	attPos0 = 5.11684418,35.6968117,-2.95408344
 	rot = 0.866025448,4.86962328E-08,0.49999997,4.86962328E-08
@@ -12783,8 +13088,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237920
 	partName = Part
-	persistentId = 1215789488
-	pos = 2.95423841,95.7895966,-5.11701822
+	persistentId = 2864063219
+	pos = 2.95424366,95.7895966,-5.11702871
 	attPos = 0,0,0
 	attPos0 = 5.11684418,35.6968117,2.95407033
 	rot = 0.500000179,-5.45420349E-08,0.866025507,-5.45420349E-08
@@ -13027,8 +13332,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237634
 	partName = Part
-	persistentId = 3716058733
-	pos = -2.95394945,95.7895966,5.1167407
+	persistentId = 2255457864
+	pos = -2.9539547,95.7895966,5.11675119
 	attPos = 0,0,0
 	attPos0 = -5.11684227,35.6968117,-2.95407891
 	rot = 0.866025507,4.8696247E-08,-0.500000179,-4.86962257E-08
@@ -13271,8 +13576,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237358
 	partName = Part
-	persistentId = 328850183
-	pos = 2.95424819,95.7895966,5.11674166
+	persistentId = 1777746034
+	pos = 2.95425868,95.7895966,5.11675215
 	attPos = 0,0,0
 	attPos0 = -5.11684227,35.6968117,2.95407104
 	rot = 0.499999881,-5.45420598E-08,-0.866025567,5.45420313E-08
@@ -13515,8 +13820,8 @@ PART
 {
 	part = DC.smallCam.Wide_4287007452
 	partName = Part
-	persistentId = 4192646871
-	pos = -4.32664776,96.2467499,-0.31921649
+	persistentId = 2805407716
+	pos = -4.32665825,96.2467499,-0.31921649
 	attPos = 0.00283139944,-0.105514526,-0.0367350578
 	attPos0 = 0.316836923,36.2570686,-4.29601383
 	rot = -0.098037377,0.73301369,-0.108167723,-0.66436404
@@ -13745,8 +14050,8 @@ PART
 {
 	part = DC.smallCam_4287005724
 	partName = Part
-	persistentId = 1297075794
-	pos = -3.83499861,50.2346497,-3.95886779
+	persistentId = 3543580412
+	pos = -3.8350091,50.2346497,-3.95887828
 	attPos = 9.53674316E-07,0.018573761,0.12358284
 	attPos0 = 3.9587903,-9.87991714,-3.9587903
 	rot = -0.25879097,0.680593669,-0.624776661,-0.281911135
@@ -14000,11 +14305,12 @@ PART
 	link = SEP.24.SHIP.FWD.LEFT.FLAP_4286226646
 	link = SEP.24.SHIP.FWD.RIGHT.FLAP_4286227736
 	link = SEP.24.SHIP.HEADER_4286284348
+	link = Decoupler.1p5_4290906486
 	attN = node_fin_right,SEP.24.SHIP.FWD.RIGHT.FLAP_4286227736_4.36749029|0.158287078|-0.0507640354_0.978147745|0.207911611|-1.1920929E-07_4.36749029|0.158287078|-0.0507640354_0.978147745|0.207911611|-1.1920929E-07
 	attN = node_fin_left,SEP.24.SHIP.FWD.LEFT.FLAP_4286226646_-4.36749411|0.158287078|-0.0507640354_-0.978147745|0.207911611|-1.1920929E-07_-4.36749411|0.158287078|-0.0507640354_-0.978147745|0.207911611|-1.1920929E-07
 	attN = node_bottom,SEP.24.SHIP.CORE_4286287862_-4.76837272E-07|-12.0728636|3.05175786E-06_-1.50995831E-07|-1.00000012|-1.1920929E-07_-4.76837272E-07|-12.0728636|3.05175786E-06_-1.50995831E-07|-1.00000012|-1.1920929E-07
 	attN = node_top,SEP.24.SHIP.HEADER_4286284348_0|5.83310032|-7.62939464E-07_0|1.00000012|-1.1920929E-07_0|5.83310032|-7.62939464E-07_0|1.00000012|-1.1920929E-07
-	attN = node_cargo,Null_0_-9.93411131E-09|-11.4562836|1.52587893E-06_0|1.00000012|-1.1920929E-07_-9.93411131E-09|-11.4562836|1.52587893E-06_0|1.00000012|-1.1920929E-07
+	attN = node_cargo,Decoupler.1p5_4290906486_-9.93411131E-09|-11.4562836|1.52587893E-06_0|1.00000012|-1.1920929E-07_-9.93411131E-09|-11.4562836|1.52587893E-06_0|1.00000012|-1.1920929E-07
 	EVENTS
 	{
 	}
@@ -14538,7 +14844,7 @@ PART
 		baseModuleMass = 0
 		additionalCost = 0
 		MaxPartId = 100
-		RequiredPower = 0.0399999991
+		RequiredPower = 0.400000006
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -14603,6 +14909,22 @@ PART
 	}
 	MODULE
 	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -14637,7 +14959,7 @@ PART
 	part = SEP.24.SHIP.FWD.LEFT.FLAP_4286226646
 	partName = Part
 	persistentId = 3469516202
-	pos = -0.0506238155,139.024048,4.71705675
+	pos = -0.0506238155,139.024048,4.71706247
 	attPos = 0,0,0
 	attPos0 = -4.7171874,0.0124969482,-0.0507638939
 	rot = -0.549525142,0.444996834,-0.549525142,0.444996893
@@ -15066,7 +15388,7 @@ PART
 	part = SEP.24.SHIP.FWD.RIGHT.FLAP_4286227736
 	partName = Part
 	persistentId = 3405404027
-	pos = -0.050625246,139.024048,-4.71732855
+	pos = -0.050625246,139.024048,-4.71733427
 	attPos = 0,0,0
 	attPos0 = 4.71718359,0.0124969482,-0.0507643707
 	rot = 0.549525201,0.444996953,0.549525082,0.444996774
@@ -15584,7 +15906,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 45509.468866726289
+		LastUpdateTime = 60244.216466351914
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -15763,6 +16085,22 @@ PART
 	}
 	MODULE
 	{
+		name = MASIdEngineGroup
+		isEnabled = True
+		partId = 0
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -15797,6 +16135,514 @@ PART
 		amount = 3281.25
 		maxAmount = 3281.25
 		flowState = True
+		isTweakable = True
+		hideFlow = False
+		isVisible = True
+		flowMode = Both
+	}
+}
+PART
+{
+	part = Decoupler.1p5_4290906486
+	partName = Part
+	persistentId = 4138319723
+	pos = 0.000141135286,127.630264,-0.000138030213
+	attPos = 0,0,0
+	attPos0 = -9.93918636E-09,-11.3812866,1.52588495E-06
+	rot = 1.00000012,0,0,0
+	attRot = 0.99999994,0,0,0
+	attRot0 = 0.707106829,0,0.707106829,0
+	mir = 1,1,1
+	symMethod = Radial
+	autostrutMode = Off
+	rigidAttachment = False
+	istg = 1
+	resPri = 0
+	dstg = 1
+	sidx = 3
+	sqor = 1
+	sepI = 1
+	attm = 0
+	sameVesselCollision = False
+	modCost = 0
+	modMass = 0
+	modSize = 0,0,0
+	link = Size4.Tank.03_4290774000
+	attN = top,SEP.24.SHIP.CARGO_4288254814_0|0.075000003|0_0|1|0_0|0.075000003|0_0|1|0
+	attN = bottom,Size4.Tank.03_4290774000_0|-0.075000003|0_0|-1|0_0|-0.075000003|0_0|-1|0
+	EVENTS
+	{
+	}
+	ACTIONS
+	{
+		ToggleSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		SetSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		RemoveSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutOff
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutRoot
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutHeaviest
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutGrandparent
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		ResourcesEnableFlow
+		{
+			actionGroup = None
+			active = False
+			wasActiveBeforePartWasAdjusted = False
+		}
+		ResourcesDisableFlow
+		{
+			actionGroup = None
+			active = False
+			wasActiveBeforePartWasAdjusted = False
+		}
+	}
+	PARTDATA
+	{
+	}
+	MODULE
+	{
+		name = ModuleDecouple
+		isEnabled = True
+		ejectionForcePercent = 19
+		isDecoupled = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			DecoupleAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleToggleCrossfeed
+		isEnabled = True
+		crossfeedStatus = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ToggleAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			EnableAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DisableAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleTestSubject
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleCargoPart
+		isEnabled = True
+		packedVolume = 900
+		beingAttached = False
+		beingSettled = False
+		reinitResourcesOnStoreInVessel = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = FMRS_PM
+		isEnabled = True
+		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModulePartVariants
+		isEnabled = True
+		useVariantMass = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = tjs_DecouplerLight
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleFreeIva
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = KOSNameTag
+		isEnabled = True
+		nameTag = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = RSE_Coupler
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ShipEffectsCollisions
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+}
+PART
+{
+	part = Size4.Tank.03_4290774000
+	partName = Part
+	persistentId = 502378060
+	pos = 0.000141135286,131.455261,-0.000138030213
+	attPos = 0,0,0
+	attPos0 = 0,-3.82499886,0
+	rot = 0,0,0,1.00000012
+	attRot = 0,0,0,1
+	attRot0 = -1,0,0,0
+	mir = 1,1,1
+	symMethod = Radial
+	autostrutMode = Off
+	rigidAttachment = False
+	istg = 1
+	resPri = 0
+	dstg = 2
+	sidx = -1
+	sqor = -1
+	sepI = 1
+	attm = 0
+	sameVesselCollision = False
+	modCost = 16409.5996
+	modMass = -3.57627869E-07
+	modSize = 0,0,0
+	attN = top,Null_0_0|3.75|0_0|1|0_0|3.75|0_0|1|0
+	attN = bottom,Decoupler.1p5_4290906486_0|-3.75|0_0|-1|0_0|-3.75|0_0|-1|0
+	EVENTS
+	{
+	}
+	ACTIONS
+	{
+		ToggleSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		SetSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		RemoveSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutOff
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutRoot
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutHeaviest
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutGrandparent
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		ResourcesEnableFlow
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		ResourcesDisableFlow
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+	}
+	PARTDATA
+	{
+	}
+	MODULE
+	{
+		name = FMRS_PM
+		isEnabled = True
+		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModulePartVariants
+		isEnabled = True
+		useVariantMass = True
+		stagingEnabled = True
+		selectedVariant = Orange
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = KOSNameTag
+		isEnabled = True
+		nameTag = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ShipEffectsCollisions
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		isEnabled = True
+		stagingEnabled = True
+		moduleID = fuelSwitch
+		currentSubtype = LiquidFuel
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleCryoTank
+		isEnabled = True
+		LastUpdateTime = 60244.216466351914
+		CoolingAllowed = True
+		CoolingEnabled = False
+		BoiloffOccuring = False
+		DebugMode = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			EnableAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DisableAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ToggleAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleB9PartInfo
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	RESOURCE
+	{
+		name = LiquidFuel
+		amount = 25600
+		maxAmount = 25600
+		flowState = False
 		isTweakable = True
 		hideFlow = False
 		isVisible = True
