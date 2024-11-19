@@ -7276,27 +7276,27 @@ Function LaunchSteering {
         else if KSRSS {
             if RESCALE {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (10.125 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                    set targetpitch to 90 - (8.125 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
                 }
                 else {
-                    set targetpitch to 90 - (10.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                    set targetpitch to 90 - (8.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
                 }
             }
             else {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (10.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                    set targetpitch to 90 - (9.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
                 }
                 else {
-                    set targetpitch to 90 - (10.625 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                    set targetpitch to 90 - (9.625 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
                 }
             }
         }
         else {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
             }
             else {
-                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).

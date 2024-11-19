@@ -135,7 +135,7 @@ if bodyexists("Earth") {
         set LaunchSites to lexicon("KSC", "28.50895,-81.20396").
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 1600.
+        set LFBoosterFuelCutOff to 1800.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -166,7 +166,7 @@ else {
         }
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 1800.
+        set LFBoosterFuelCutOff to 1900.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -418,7 +418,7 @@ function Boostback {
 
         when time:seconds > flipStartTime + 30 then {
             CheckFuel().
-            if LFBooster > LFBoosterCap * 0.2 {
+            if LFBooster > LFBoosterCap * 0.24 {
                 BoosterCore:activate.
             }
         }
