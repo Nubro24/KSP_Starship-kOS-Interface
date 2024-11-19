@@ -1,3 +1,8 @@
+# V3.0.8 (2024-11-19) 
+- Reduced osscilation during Boostback
+- Timewarp on Booster Coast Phase now manual
+- Added Options for GoForCatch and HSR-Jettison before Lift-Off
+
 # V3.0.7 (2024-11-19) 
 - Fixed some Errors with SEP_24 on Interface Startup
 - Booster should not run out of Fuel in KSRSS anymore
