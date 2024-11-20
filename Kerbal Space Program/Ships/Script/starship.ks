@@ -414,7 +414,6 @@ set CancelTime to 1.
 set CancelDist to 1.
 set Dist2LandProc to 1.
 set LowCargoMass to false.
-set GfC to false.
 set HSRJet to false.
 
 
@@ -4721,6 +4720,17 @@ set launchbutton:ontoggle to {
                                 return.
                             }
                         }
+
+                        set message1:text to "<b>HSR Jettison after Boostback?</b>".
+                        set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
+                        set execute:text to "<b>CONFIRM</b>".
+                        set cancel:text to "<b>DENY</b>".
+                        if confirm() {
+                            set HSRJet to true.
+                        } else {
+                            set HSRJet to false.
+                        }
+
                         if not (TargetShip = 0) {
                             if RSS {
                                 set targetap to targetap - 10000.
@@ -4746,20 +4756,6 @@ set launchbutton:ontoggle to {
                         else {
                             set message1:text to "<b>Launch to Parking Orbit</b>  (± " + (targetap / 1000) + "km, " + round(setting3:text:split("°")[0]:toscalar(0), 2) + "°)".
                             //set message2:text to "<b>Booster Return to Launch Site</b>".
-                        }
-                        set message1:text to "<b><color=yellow>Go for Catch?</color></b>".
-                        set message3:text to "<b>Confirm (Catch) <color=white>or</color> Deny (Splashdown)?</b>".
-                        set execute:text to "<b>CONFIRM</b>".
-                        set cancel:text to "<b>DENY</b>".
-                        if confirm() {
-                            set GfC to true.
-                        }
-                        set message1:text to "<b>HSR Jettison after Boostback?</b>".
-                        set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
-                        set execute:text to "<b>CONFIRM</b>".
-                        set cancel:text to "<b>DENY</b>".
-                        if confirm() {
-                            set HSRJet to true.
                         }
 
                         set message1:text to "".
@@ -6757,17 +6753,21 @@ function Launch {
             wait 0.5. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
             wait 0.7. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
             
+            
             until time:seconds - EngineStartTime > 2.4 or cancelconfirmed {
                 set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
                 set message2:text to "<b>Clamps Release in:  </b>" + round(2.5 - time:seconds + EngineStartTime, 1) + "<b> seconds</b>".
-                lock throttle to 0.33 + 0.67 * (time:seconds - EngineStartTime - 1.4) / 1.15.
+                lock throttle to 0.33 + 0.57 * (time:seconds - EngineStartTime - 1.4) / 1.15.
                 
                 BackGroundUpdate().
+                if SQD:getmodule("ModuleSLEAnimate"):hasevent("Retract QD") {
+                    SQD:getmodule("ModuleSLEAnimate"):DOEVENT("Retract QD").
+                }
             }
             
             set message1:text to "<b>Engine throttle up: </b>100%".
             set message2:text to "<b>Clamps Releasing..</b>".
-            lock throttle to 1.
+            lock throttle to 0.9.
             if cancelconfirmed {
                 BoosterEngines[0]:shutdown.
                 for x in list(OLM,SteelPlate) {
@@ -6789,7 +6789,16 @@ function Launch {
                 ClearInterfaceAndSteering().
                 return.
             }
-            wait 0.2.
+            lock throttle to 0.77.
+            wait 0.1.
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.35 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            else {lock throttle to 0.85. wait 0.1.}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.35 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            else {lock throttle to 0.9. wait 0.1.}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.35 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            else {lock throttle to 0.95. wait 0.1.}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.3 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            else {lock throttle to 1. wait 0.1.}
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.25 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             //if 1=1 {}
             else {
@@ -6820,12 +6829,20 @@ function Launch {
                 ClearInterfaceAndSteering().
                 return.
             }
+            wait 0.01.
+            if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
+                SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
+            }
+            wait 0.01.
             if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
                 SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
             }
             set SteeringManager:rollts to 5.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" {
                 InhibitButtons(1, 1, 1).
+            }
+            if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
+                SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
             }
             if OnOrbitalMount {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "LiftOff").
@@ -6903,11 +6920,10 @@ function Launch {
             }
         }
         else if apoapsis < targetap {
-            lock throttle to 1.
             LogToFile("Launching").
         }.
 
-        lock throttle to LaunchThrottle().
+        when altitude-LaunchElev > 243 then {lock throttle to LaunchThrottle().}
         lock steering to LaunchSteering().
 
         //if not Vessel("Booster"):isdead {print "Booster alive".}
@@ -7069,20 +7085,15 @@ function Launch {
                 }
             }
 
-            when (time:seconds > HotStageTime + 65 and RSS) or (time:seconds > HotStageTime + 35 and not (RSS)) then {
-                if GfC and HSRJet {
-                    sendMessage(vessel("Booster"), "GoForCatch,HSRJet").
+
+            when time:seconds > HotStageTime + 25 then {
+                    if HSRJet {
+                        sendMessage(vessel("Booster"), "HSRJet").
+                    } 
+                    else {
+                        sendMessage(vessel("Booster"), "NoHSRJet").
+                    } 
                 } 
-                else if not GfC and HSRJet {
-                    sendMessage(vessel("Booster"), "NoGoForCatch,HSRJet").
-                } 
-                else if GfC and not HSRJet {
-                    sendMessage(vessel("Booster"), "GoForCatch,NoHSRJet").
-                } 
-                else if not GfC and not HSRJet {
-                    sendMessage(vessel("Booster"), "NoGoForCatch,NoHSRJet").
-                } 
-            }
 
             when deltav < 50 and deltav > 0 then {
                 set quickengine3:pressed to false.
@@ -7282,8 +7293,25 @@ Function LaunchSteering {
         set target to TargetShip.
     }
 
-    if altitude - LaunchElev < 250 {
+    if altitude - LaunchElev < 120 {
         set result to heading(myAzimuth + TargetError, 90).
+    } 
+    else if altitude - LaunchElev < 1000 {
+        if RSS {
+            set targetpitch to 90 - (7.5 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
+        }
+        else if KSRSS {
+            if RESCALE {
+                set targetpitch to 90 - (8.375 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
+            }
+            else {
+                set targetpitch to 90 - (9.625 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
+            }
+        }
+        else {
+            set targetpitch to 90 - (11 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
+        }
+        set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
     else if Boosterconnected {
         if RSS {

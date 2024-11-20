@@ -103,8 +103,117 @@ set Block1HSR to false.
 set VentCutOff to false.
 set command to "".
 set parameter1 to "".
+set GF to false.
+set GE to false.
+set GT to false.
+set GD to false.
 set GfC to false.
 set HSRJet to false.
+
+local PollGUI is GUI(380).
+    set PollGUI:style:bg to "starship_img/starship_background".
+    set PollGUI:style:border:h to 10.
+    set PollGUI:style:border:v to 10.
+    set PollGUI:style:padding:v to 0.
+    set PollGUI:style:padding:h to 0.
+    set PollGUI:x to 200.
+    set PollGUI:y to -1000.
+    set PollGUI:skin:button:bg to  "starship_img/starship_background".
+    set PollGUI:skin:button:on:bg to  "starship_img/starship_background_light".
+    set PollGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
+    set PollGUI:skin:button:hover_on:bg to  "starship_img/starship_background_light".
+    set PollGUI:skin:button:active:bg to  "starship_img/starship_background_light".
+    set PollGUI:skin:button:active_on:bg to  "starship_img/starship_background_light".
+    set PollGUI:skin:button:border:v to 10.
+    set PollGUI:skin:button:border:h to 10.
+    set PollGUI:skin:button:textcolor to white.
+    set PollGUI:skin:label:textcolor to white.
+    set PollGUI:skin:textfield:textcolor to white.
+
+local leftright is PollGUI:addhlayout().
+local GoNoGoPoll is leftright:addvlayout().
+    set GoNoGoPoll:style:bg to "starship_img/starship_background_dark".
+local Space is leftright:addvlayout().
+local FDDecision is leftright:addvlayout().
+local Space2 is leftright:addvlayout().
+
+local spaceLabel is Space:addlabel("").
+    set spaceLabel:style:width to 10.
+local spaceLabel2 is Space2:addlabel("").
+    set spaceLabel2:style:width to 10.
+
+local data1 is GoNoGoPoll:addlabel("Tower: ").
+    set data1:style:wordwrap to false.
+    set data1:style:margin:left to 10.
+    set data1:style:margin:top to 10.
+    set data1:style:width to 230.
+    set data1:style:fontsize to 16.
+local data2 is GoNoGoPoll:addlabel("Engines: ").
+    set data2:style:wordwrap to false.
+    set data2:style:margin:left to 10.
+    set data2:style:width to 230.
+    set data2:style:fontsize to 16.
+local data3 is GoNoGoPoll:addlabel("Fuel: ").
+    set data3:style:wordwrap to false.
+    set data3:style:margin:left to 10.
+    set data3:style:width to 230.
+    set data3:style:fontsize to 16.
+local data4 is GoNoGoPoll:addlabel("Flight Director: ").
+    set data4:style:wordwrap to false.
+    set data4:style:margin:left to 10.
+    set data4:style:width to 230.
+    set data4:style:fontsize to 16.
+local message0 is FDDecision:addlabel("<b>Flight Director:</b>").
+    set message0:style:wordwrap to false.
+    set message0:style:margin:left to 10.
+    set message0:style:margin:top to 15.
+    set message0:style:width to 250.
+    set message0:style:fontsize to 21.
+local message2 is FDDecision:addlabel("").
+    set message2:style:wordwrap to false.
+    set message2:style:margin:left to 10.
+    set message2:style:width to 250.
+    set message2:style:fontsize to 11.
+local message1 is FDDecision:addlabel("<color=yellow>Go for Catch?</color>").
+    set message1:style:wordwrap to false.
+    set message1:style:margin:left to 10.
+    set message1:style:margin:top to 15.
+    set message1:style:width to 250.
+    set message1:style:fontsize to 21.
+local buttonbox is FDDecision:addhlayout().
+local Go to buttonbox:addbutton("<b><color=green>Confirm</color></b>").
+    set Go:style:bg to "starship_img/starship_background_dark".
+    set Go:style:width to 125.
+    set Go:style:border:h to 10.
+    set Go:style:border:v to 10.
+    set Go:style:fontsize to 18.
+local NoGo to buttonbox:addbutton("<b><color=red>Deny</color></b>").
+    set NoGo:style:bg to "starship_img/starship_background_dark".
+    set NoGo:style:width to 125.
+    set NoGo:style:border:h to 10.
+    set NoGo:style:border:v to 10.
+    set NoGo:style:fontsize to 18.
+local message4 is GoNoGoPoll:addlabel("Current decision: ").
+    set message4:style:wordwrap to false.
+    set message4:style:margin:left to 10.
+    set message4:style:margin:top to 10.
+    set message4:style:width to 230.
+    set message4:style:fontsize to 16.
+local message3 is GoNoGoPoll:addlabel("Go-NoGo-Poll ending in: ??s").
+    set message3:style:wordwrap to false.
+    set message3:style:margin:left to 10.
+    set message3:style:margin:top to 10.
+    set message3:style:width to 230.
+    set message3:style:fontsize to 18.
+
+
+
+set Go:onclick to {
+    set GD to true.
+}.
+set NoGo:onclick to {
+    set GD to false.
+}.
 
 
 if bodyexists("Earth") {
@@ -139,15 +248,15 @@ if bodyexists("Earth") {
         set LaunchSites to lexicon("KSC", "28.50895,-81.20396").
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 1800.
+        set LFBoosterFuelCutOff to 2200.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        set BoosterGlideDistance to 1500.
-        set LngCtrlPID:setpoint to 100.
+        set BoosterGlideDistance to 1800.
+        set LngCtrlPID:setpoint to 110.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 135.
@@ -170,14 +279,14 @@ else {
         }
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 1900.
+        set LFBoosterFuelCutOff to 2100.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        set BoosterGlideDistance to 1500.
+        set BoosterGlideDistance to 1900.
         set LngCtrlPID:setpoint to 100.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -195,14 +304,14 @@ else {
         set LaunchSites to lexicon("KSC", "-0.0972,-74.5577", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 1700.
+        set LFBoosterFuelCutOff to 1900.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        set BoosterGlideDistance to 1500.
+        set BoosterGlideDistance to 1800.
         set LngCtrlPID:setpoint to 100.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -241,6 +350,7 @@ until False {
             set ShipConnectedToBooster to true.
         }
     }
+    //PollGUI:show().
     if ShipConnectedToBooster = "false" and BoostBackComplete = "false" and not (ship:status = "LANDED") and altitude > 10000 and verticalspeed < 0 {
         Boostback().
     }
@@ -271,7 +381,7 @@ until False {
 
 
 function Boostback {
-    wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
+    wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
     wait 0.001.
     set ship:name to "Booster".
     rcs on.
@@ -284,6 +394,10 @@ function Boostback {
     //set ApproachVectorDraw to vecdraw(v(0,0,0), 5 * ApproachVector, green, "ApproachVector", 20, true, 0.005, true, true).
 
     if verticalspeed > 0 {
+        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
+            set ship:name to "Booster".
+            set Block1HSR to true.
+        }
         set SeparationTime to time:seconds.
         if vang(facing:topvector, north:vector) < 90 {
             set ship:control:pitch to -2.
@@ -306,6 +420,9 @@ function Boostback {
         set CurrentTime to time:seconds.
         set kuniverse:timewarp:warp to 0.
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        
+        
+        
 
         if RSS {
             SetLoadDistances(1650000).
@@ -347,17 +464,29 @@ function Boostback {
                 }
             }
         }
-        until time:seconds > SeparationTime + 5 {
-            if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
-                set ship:name to "Booster".
-                set Block1HSR to true.
-            }
+
+        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
+            set ship:name to "Booster".
+            set Block1HSR to true.
         }
 
         
 
+        set flipStartTime to time:seconds.
+
+
         when time:seconds > flipStartTime + 2 then { 
             set steeringmanager:yawtorquefactor to 0.1.
+        }
+        when time:seconds > flipStartTime + 5 then {
+            PollGUI:show().
+            GUIupdate().
+        }
+        when time:seconds > flipStartTime + 15 then { 
+            set steeringmanager:yawtorquefactor to 0.3.
+        }
+        when time:seconds > flipStartTime + 18 then { 
+            set steeringmanager:yawtorquefactor to 0.7.
         }
         when time:seconds > flipStartTime + 20 then { 
             set steeringmanager:yawtorquefactor to 1.
@@ -365,11 +494,12 @@ function Boostback {
         when BoostBackComplete then {
             set steeringmanager:yawtorquefactor to 0.1.
         }
+        when (time:seconds > flipStartTime + 60 and RSS) or (time:seconds > flipStartTime + 45 and not (RSS)) then {
+            PollGUI:hide().
+        }
         when time:seconds > flipStartTime + 150 then { 
             set steeringmanager:yawtorquefactor to 1.
         }
-
-        set flipStartTime to time:seconds.
         
         
 
@@ -394,6 +524,10 @@ function Boostback {
 
         until vang(vxcl(up:vector, facing:forevector), vxcl(up:vector, -ErrorVector)) < 15 or verticalspeed < -50 {
             SteeringCorrections().
+            if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
+                set ship:name to "Booster".
+                set Block1HSR to true.
+            }
             //set ErrorVectorDraw to vecdraw(v(0,0,0), -40 * ErrorVector:normalized, blue, "ErrorVector", 20, true, 0.005, true, true).
             if (RadarAlt < 30000 and RSS) or (RadarAlt < 69000 and not (RSS)) {
                 if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
@@ -404,6 +538,8 @@ function Boostback {
             }
             rcs on.
             wait 0.1.
+            PollUpdate().
+            GUIupdate().
         }
 
         set steeringmanager:maxstoppingtime to 3.
@@ -425,14 +561,14 @@ function Boostback {
 
         when time:seconds > flipStartTime + 30 then {
             CheckFuel().
-            if LFBooster > LFBoosterCap * 0.24 {
+            if LFBooster > LFBoosterCap * 0.3 {
                 BoosterCore:activate.
             }
         }
         
 
 
-        until (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale and GfC) or verticalspeed < -50 or (ErrorVector:mag < BoosterGlideDistance + 20400 and RSS and not GfC) or (ErrorVector:mag < BoosterGlideDistance + 6400 and not RSS and not GfC) {
+        until (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale and GfC) or verticalspeed < -50 or (ErrorVector:mag < BoosterGlideDistance + 20400 and RSS and not GfC) or (ErrorVector:mag < BoosterGlideDistance + 14400 and KSRSS and not GfC) or (ErrorVector:mag < BoosterGlideDistance + 6400 and not RSS and not GfC) {
             SteeringCorrections().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             if CORE:MESSAGES:length > 0 or SHIP:MESSAGES:length > 0 {
@@ -456,43 +592,48 @@ function Boostback {
                 }
                 print command.
                 print parameter1.
-                if command = "GoForCatch" and parameter1 = "HSRJet" {
-                    set GfC to true.
+                if command = "HSRJet" {
                     set HSRJet to true.
-                    HUDTEXT("GO for Catch, HSR-Jettison", 8, 2, 20, green, false).
                 } 
-                else if command = "NoGoForCatch" and parameter1 = "HSRJet" {
-                    set GfC to false.
-                    set HSRJet to true.
-                    HUDTEXT("NOgo for Catch, HSR-Jettison", 8, 2, 20, yellow, false).
-                } 
-                else if command = "GoForCatch" and parameter1 = "NoHSRJet" {
-                    set GfC to true.
+                else if command = "NoHSRJet" {
                     set HSRJet to false.
-                    HUDTEXT("GO for Catch, NO HSR-Jettison", 8, 2, 20, green, false).
-                } 
-                else if command = "NoGoForCatch" and parameter1 = "NoHSRJet" {
-                    set GfC to false.
-                    set HSRJet to false.
-                    HUDTEXT("NOgo for Catch, NO HSR-Jettison", 8, 2, 20, yellow, false).
-                } 
+                }
             }
+            PollUpdate().
+            GUIupdate().
             SetBoosterActive().
             wait 0.1.
         }
+
+        if GD and GE and GF and GT {
+            set GfC to true.
+        } else {
+            set GfC to false.
+        }
+
+        if GfC and HSRJet {
+            HUDTEXT("GO for Catch, HSR-Jettison", 8, 2, 20, green, false).
+        } else if GfC and not HSRJet {
+            HUDTEXT("GO for Catch, NO HSR-Jettison", 8, 2, 20, green, false).
+        } else if not GfC and HSRJet {
+            HUDTEXT("Booster off-shore divert, NO HSR-Jettison", 8, 2, 20, yellow, false).
+        } else if not GfC and not HSRJet {
+            HUDTEXT("Booster off-shore divert, NO HSR-Jettison", 8, 2, 20, yellow, false).
+        }
+        
 
         set CurrentVec to facing:forevector.
         lock SteeringVector to lookdirup(CurrentVec, ApproachVector:normalized - 0.5 * up:vector:normalized).
         lock steering to SteeringVector.
         BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
         CheckFuel().
-        if LFBooster > LFBoosterCap * 0.05 {
+        if LFBooster > LFBoosterCap * 0.1 {
             BoosterCore:activate.
         } else {
             BoosterCore:shutdown.
         }
 
-        until (LngError + 50 > -BoosterGlideDistance and GfC) or verticalspeed < -250 or (LngError > -BoosterGlideDistance - 10000 and RSS and not GfC) or (LngError > -BoosterGlideDistance - 3000 and not (RSS) and not GfC){
+        until (LngError + 50 > -BoosterGlideDistance and GfC) or verticalspeed < -250 or (LngError > -BoosterGlideDistance - 10000 and RSS and not GfC) or (LngError > -BoosterGlideDistance - 8000 and KSRSS and not GfC) or (LngError > -BoosterGlideDistance - 3000 and not (RSS) and not GfC){
             SteeringCorrections().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             SetBoosterActive().
@@ -723,11 +864,11 @@ function Boostback {
                         else {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1.1) + ",5,60,false")).
                         }
-                        when (RadarAlt < 3.4 * Scale and RSS) or (RadarAlt < 2.0 * Scale and not (RSS)) then {
+                        when (RadarAlt < 3.0 * Scale and RSS) or (RadarAlt < 1.8 * Scale and not (RSS)) then {
                             sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
                         }
                         when RadarAlt < 1.6 * Scale then {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,5,60,false")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,0,60,false")).
                         }
                     }
                 }
@@ -750,11 +891,11 @@ function Boostback {
         }
     }
 
-    when ((verticalspeed > -120 and RSS) or (verticalspeed > -40 and not RSS)) and (stopDist3 / RadarAlt) < 1.5 and LngError < 200 or ((verticalspeed > -50 and RSS) or (verticalspeed > -20 and not RSS)) then {
+    when ((verticalspeed > -120 and RSS) or (verticalspeed > -85 and not RSS)) and (stopDist3 / RadarAlt) < 1.5 and LngError < 200 or ((verticalspeed > -50 and RSS) or (verticalspeed > -55 and not RSS)) then {
         set SwingTime to time:seconds.
         lock SteeringVector to lookDirUp(up:vector, RollVector).
         lock steering to SteeringVector.
-        when time:seconds > SwingTime + 1 then {
+        when (time:seconds > SwingTime + 1 and RSS) or (time:seconds > SwingTime + 1.5 and not RSS) then {
             set MiddleEnginesShutdown to true.
             BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
             set LngCtrlPID:setpoint to 0.
@@ -807,7 +948,7 @@ function Boostback {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
     }
     lock throttle to (Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
-    until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.4 or RadarAlt < -1 {
+    until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.2 or RadarAlt < -1 {
         SteeringCorrections().
         print "slowly lowering down booster..".
         rcs on.
@@ -827,6 +968,7 @@ function Boostback {
         BoosterEngines[0]:shutdown.
     } else if not GfC {
         lock throttle to 0.
+        rcs on.
         set ship:control:pilotmainthrottle to 0.
         set ship:control:pitch to 1.
         wait 5.
@@ -836,6 +978,7 @@ function Boostback {
         clearscreen.
         print "Booster Landed!".
         wait 0.01.
+        set ship:control:pitch to 0.
         BoosterEngines[0]:shutdown.
     }
     
@@ -1515,5 +1658,65 @@ function SetGridFinAuthority {
         if fin:hasmodule("SyncModuleControlSurface") {
             fin:getmodule("SyncModuleControlSurface"):SetField("authority limiter", x).
         }
+    }
+}
+
+function PollUpdate {
+    if not Vessel("OrbitalLaunchMount"):isdead {
+        set GT to true.
+    } else {set GT to false.}
+    if BoosterEngines[0]:hasphysics {
+        set GE to true.
+    } else {set GE to false.}
+    CheckFuel().
+    if LFBooster > LFBoosterFuelCutOff {
+        set GF to true.
+    } else {set GF to false.}
+
+}
+
+
+function GUIupdate {
+    if RSS {
+        set PollTimer to flipStartTime+60-time:seconds.    
+    } else {
+        set PollTimer to flipStartTime+45-time:seconds.
+    }
+    if GD and GE and GF and GT {
+        set GfC to true.
+    } else {
+        set GfC to false.
+    }
+    if GfC {
+        set message4:text to "Current decision: <b><color=green>GO</color></b>".
+    } else {
+        set message4:text to "Current decision: <b><color=red>NOGo</color></b>".
+    }
+    if GT {
+        set data1:text to "Tower: <b><color=green>GO</color></b>".
+    } else {
+        set data1:text to "Tower: <b><color=red>NOGo</color></b>".
+    }
+    if GE {
+        set data2:text to "Engines: <b><color=green>GO</color></b>".
+    } else {
+        set data2:text to "Engines: <b><color=red>NOGo</color></b>".
+    }
+    if GF {
+        set data3:text to "Fuel: <b><color=green>GO</color></b>".
+    } else {
+        set data3:text to "Fuel: <b><color=red>NOGo</color></b>".
+    }
+    if GD {
+        set data4:text to "Flight Director: <b><color=green>GO</color></b>".
+    } else {
+        set data4:text to "Flight Director: <b><color=red>NOGo</color></b>".
+    }
+    if PollTimer < 10 {
+        set message3:text to "Go-NoGo-Poll ending in: <color=red>" + round(PollTimer) + "</color>s".
+    } else if PollTimer < 20 {
+        set message3:text to "Go-NoGo-Poll ending in: <color=yellow>" + round(PollTimer) + "</color>s".
+    } else {
+        set message3:text to "Go-NoGo-Poll ending in: " + round(PollTimer) + "s".
     }
 }
