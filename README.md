@@ -13,15 +13,14 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ### Known Issues:
 - **Kraken:**
     - The scripts have been designed for stock Kerbin, and it functions most reliably on a stock install. If you use planet mods that increase the size of the planet (e.g. KSRSS,RSS) the chances of a wobbly tower or other problems are significantly higher.
-- Note by Nubro: I'm mostly editing the script in RSS and Stock, so KSRSS patches/fixes may take longer
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
 - **Booster crashes into the Orbital Launch Mount on landing:**
     - Stock Kerbin: (You may need to install the optional _SEPkOS patch(...).cfg_ patch.)
-    - **Booster krakens due to SLE changes on contact with Chopsticks**
+    - **Booster/Ship krakens due to SLE changes on contact with Chopsticks**
 - **The achieved orbit by Starship is currently non-circular in RSS**
 - **Ship Landings are broken (may work, may not work)**
-- **Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands**.
+- Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
 
 
@@ -37,7 +36,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
   - _Kerbal Space Program/Ships/Script_                  (here the kOS scripts are saved)
   - _Kerbal Space Program/Ships/VAB_                     (location of the .craft files)
 
-**Optional:** If you wish to use **_Kopernicus_** on a **_stock Kerbin_** (as required for _Parallax_), move the _SEPkOS patch for stock Kerbin with Kopernicus.cfg_ to the _StarshipInterface_ folder.
+**Optional:** If you are using **Stock**-size SEP, move the _SEPkOS patch for stock size booster landing.cfg_ to the _StarshipInterface_ folder.
 
 
 > [!IMPORTANT]
