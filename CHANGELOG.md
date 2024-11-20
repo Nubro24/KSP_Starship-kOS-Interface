@@ -1,3 +1,10 @@
+# V3.0.9 (2024-11-20) 
+- Implemented a Go-NoGo-Poll during Boostback
+- Changed NoGo-message to "Booster off-shore divert"
+- Made KSRSS off-shore location actually off-shore and increased KSRSS Landing precision
+- Pitching downrange after Lift-Off now ealier but more gentle
+- Adjusted Throttle at Lift-Off
+
 # V3.0.8 (2024-11-19) 
 - Reduced osscilation during Boostback
 - Timewarp on Booster Coast Phase now manual
