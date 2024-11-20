@@ -117,7 +117,7 @@ local PollGUI is GUI(380).
     set PollGUI:style:padding:v to 0.
     set PollGUI:style:padding:h to 0.
     set PollGUI:x to 200.
-    set PollGUI:y to -1000.
+    set PollGUI:y to -100.
     set PollGUI:skin:button:bg to  "starship_img/starship_background".
     set PollGUI:skin:button:on:bg to  "starship_img/starship_background_light".
     set PollGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
