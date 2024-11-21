@@ -1,4 +1,4 @@
-# V3.1.0 (2024-11-20) 
+# V3.1.0 (2024-11-21) 
 - Booster Rework complete (for the time being)
   - updated UI
   - UI wont dissapear after Poll is over
