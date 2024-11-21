@@ -415,6 +415,7 @@ set CancelDist to 1.
 set Dist2LandProc to 1.
 set LowCargoMass to false.
 set HSRJet to false.
+set Booster to "".
 
 
 
@@ -6753,21 +6754,20 @@ function Launch {
             wait 0.5. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
             wait 0.7. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
             
-            
+            if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
+                SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
+            }
             until time:seconds - EngineStartTime > 2.4 or cancelconfirmed {
                 set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
                 set message2:text to "<b>Clamps Release in:  </b>" + round(2.5 - time:seconds + EngineStartTime, 1) + "<b> seconds</b>".
                 lock throttle to 0.33 + 0.57 * (time:seconds - EngineStartTime - 1.4) / 1.15.
                 
                 BackGroundUpdate().
-                if SQD:getmodule("ModuleSLEAnimate"):hasevent("Retract QD") {
-                    SQD:getmodule("ModuleSLEAnimate"):DOEVENT("Retract QD").
-                }
             }
             
-            set message1:text to "<b>Engine throttle up: </b>100%".
+            
+            set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
             set message2:text to "<b>Clamps Releasing..</b>".
-            lock throttle to 0.9.
             if cancelconfirmed {
                 BoosterEngines[0]:shutdown.
                 for x in list(OLM,SteelPlate) {
@@ -6782,6 +6782,9 @@ function Launch {
                         }
                     }
                 }
+                if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
+                    SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
+                }
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
@@ -6791,11 +6794,11 @@ function Launch {
             }
             lock throttle to 0.77.
             wait 0.1.
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.35 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.4 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {lock throttle to 0.85. wait 0.1.}
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.35 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.4 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {lock throttle to 0.9. wait 0.1.}
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.35 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.4 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {lock throttle to 0.95. wait 0.1.}
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.3 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {lock throttle to 1. wait 0.1.}
@@ -6822,6 +6825,9 @@ function Launch {
                         }
                     }
                 }
+                if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
+                    SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
+                }
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
@@ -6830,19 +6836,9 @@ function Launch {
                 return.
             }
             wait 0.01.
-            if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
-                SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
-            }
-            wait 0.01.
-            if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
-                SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
-            }
             set SteeringManager:rollts to 5.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" {
                 InhibitButtons(1, 1, 1).
-            }
-            if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
-                SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
             }
             if OnOrbitalMount {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "LiftOff").
@@ -7410,7 +7406,8 @@ function LaunchLabelData {
                             set message3:text to "<b>Booster Landing Confirmed!</b>".
                         }
                         else {
-                            set message3:text to "<b>Booster Alt / Spd:</b> " + round((Booster:altitude - landingzone:terrainheight) / 1000, 1) + "km / " + round(Booster:airspeed) + "m/s".
+                            set message3:text to "".
+                            //set message3:text to "<b>Booster Alt / Spd:</b> " + round((Booster:altitude - landingzone:terrainheight) / 1000, 1) + "km / " + round(Booster:airspeed) + "m/s".
                         }
                     }
                     else {
@@ -7450,7 +7447,8 @@ function LaunchLabelData {
                                 set message3:text to "<b>Booster Landing Confirmed!</b>".
                             }
                             else {
-                                set message3:text to "<b>Booster Alt / Spd:</b>                " + round((Booster:altitude - landingzone:terrainheight) / 1000, 1) + "km / " + round(Booster:airspeed) + "m/s".
+                                set message3:text to "".
+                                //set message3:text to "<b>Booster Alt / Spd:</b>                " + round((Booster:altitude - landingzone:terrainheight) / 1000, 1) + "km / " + round(Booster:airspeed) + "m/s".
                             }
                         }
                         else {
@@ -12226,19 +12224,19 @@ function PerformBurn {
 
 
 function SetInterfaceLocation {
-    if KUniverse:activevessel = vessel(ship:name) {
+    if KUniverse:activevessel = vessel(ship:name) or BoosterExists() {
         if ShipIsDocked and ShipType = "Tanker" and not (LaunchButtonIsRunning) {
-            set g:y to 150 + 250.
+            set g:y to -200 - 250.
         }
         else {
-            set g:y to 150.
+            set g:y to -200.
         }
     }
-    else if LaunchButtonIsRunning or ship:status = "LANDED" or ship:status = "PRELAUNCH" {
-        set g:y to 150.
+    else if LaunchButtonIsRunning or ship:status = "LANDED" or ship:status = "PRELAUNCH" or ship:status = "SUB_ORBITAL" {
+        set g:y to -200.
     }
     else {
-        set g:y to 150 + 250.
+        set g:y to -200 - 250.
     }
 }
 

@@ -109,27 +109,56 @@ set GT to false.
 set GD to false.
 set GfC to false.
 set HSRJet to false.
+set flipStartTime to -2.
+set cAbort to false.
+list targets in shiplist.
 
-local PollGUI is GUI(380).
-    set PollGUI:style:bg to "starship_img/starship_background".
-    set PollGUI:style:border:h to 10.
-    set PollGUI:style:border:v to 10.
-    set PollGUI:style:padding:v to 0.
-    set PollGUI:style:padding:h to 0.
-    set PollGUI:x to 200.
-    set PollGUI:y to -100.
-    set PollGUI:skin:button:bg to  "starship_img/starship_background".
-    set PollGUI:skin:button:on:bg to  "starship_img/starship_background_light".
-    set PollGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
-    set PollGUI:skin:button:hover_on:bg to  "starship_img/starship_background_light".
-    set PollGUI:skin:button:active:bg to  "starship_img/starship_background_light".
-    set PollGUI:skin:button:active_on:bg to  "starship_img/starship_background_light".
-    set PollGUI:skin:button:border:v to 10.
-    set PollGUI:skin:button:border:h to 10.
-    set PollGUI:skin:button:textcolor to white.
-    set PollGUI:skin:label:textcolor to white.
-    set PollGUI:skin:textfield:textcolor to white.
+local bGUI is GUI(150).
+    set bGUI:style:bg to "starship_img/starship_background".
+    set bGUI:style:border:h to 10.
+    set bGUI:style:border:v to 10.
+    set bGUI:style:padding:v to 0.
+    set bGUI:style:padding:h to 0.
+    set bGUI:x to 180.
+    set bGUI:y to -200.
+    set bGUI:skin:button:bg to  "starship_img/starship_background".
+    set bGUI:skin:button:on:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:hover_on:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:active:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:active_on:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:border:v to 10.
+    set bGUI:skin:button:border:h to 10.
+    set bGUI:skin:button:textcolor to white.
+    set bGUI:skin:label:textcolor to white.
+    set bGUI:skin:textfield:textcolor to white.
 
+local bGUIBox is bGUI:addhlayout().
+local boosterStatus is bGUIBox:addvlayout().
+
+local bStatusLabel to boosterStatus:addlabel("<b>Booster </b>").
+    set bStatusLabel:style:wordwrap to false.
+    set bStatusLabel:style:margin:left to 10.
+    set bStatusLabel:style:margin:top to 10.
+    set bStatusLabel:style:width to 150.
+    set bStatusLabel:style:fontsize to 20.
+local bSpeed is boosterStatus:addlabel("<b>Speed: </b>").
+    set bSpeed:style:wordwrap to false.
+    set bSpeed:style:margin:left to 10.
+    set bSpeed:style:margin:top to 25.
+    set bSpeed:style:width to 150.
+    set bSpeed:style:fontsize to 16.
+local bAltitude is boosterStatus:addlabel("<b>Altitude: </b>").
+    set bAltitude:style:wordwrap to false.
+    set bAltitude:style:margin:left to 10.
+    set bAltitude:style:margin:top to 25.
+    set bAltitude:style:margin:bottom to 45.
+    set bAltitude:style:width to 150.
+    set bAltitude:style:fontsize to 16.
+
+
+local PollGUI is bGUIBox:addvlayout().
+    
 local leftright is PollGUI:addhlayout().
 local GoNoGoPoll is leftright:addvlayout().
     set GoNoGoPoll:style:bg to "starship_img/starship_background_dark".
@@ -167,29 +196,29 @@ local message0 is FDDecision:addlabel("<b>Flight Director:</b>").
     set message0:style:wordwrap to false.
     set message0:style:margin:left to 10.
     set message0:style:margin:top to 15.
-    set message0:style:width to 250.
+    set message0:style:width to 200.
     set message0:style:fontsize to 21.
-local message2 is FDDecision:addlabel("").
-    set message2:style:wordwrap to false.
-    set message2:style:margin:left to 10.
-    set message2:style:width to 250.
-    set message2:style:fontsize to 11.
+// local message2 is FDDecision:addlabel("").
+//     set message2:style:wordwrap to false.
+//     set message2:style:margin:left to 10.
+//     set message2:style:width to 200.
+//     set message2:style:fontsize to 11.
 local message1 is FDDecision:addlabel("<color=yellow>Go for Catch?</color>").
     set message1:style:wordwrap to false.
     set message1:style:margin:left to 10.
-    set message1:style:margin:top to 15.
-    set message1:style:width to 250.
+    set message1:style:margin:top to 25.
+    set message1:style:width to 200.
     set message1:style:fontsize to 21.
 local buttonbox is FDDecision:addhlayout().
 local Go to buttonbox:addbutton("<b><color=green>Confirm</color></b>").
     set Go:style:bg to "starship_img/starship_background_dark".
-    set Go:style:width to 125.
+    set Go:style:width to 100.
     set Go:style:border:h to 10.
     set Go:style:border:v to 10.
     set Go:style:fontsize to 18.
 local NoGo to buttonbox:addbutton("<b><color=red>Deny</color></b>").
     set NoGo:style:bg to "starship_img/starship_background_dark".
-    set NoGo:style:width to 125.
+    set NoGo:style:width to 100.
     set NoGo:style:border:h to 10.
     set NoGo:style:border:v to 10.
     set NoGo:style:fontsize to 18.
@@ -199,7 +228,7 @@ local message4 is GoNoGoPoll:addlabel("Current decision: ").
     set message4:style:margin:top to 10.
     set message4:style:width to 230.
     set message4:style:fontsize to 16.
-local message3 is GoNoGoPoll:addlabel("Go-NoGo-Poll ending in: ??s").
+local message3 is FDDecision:addlabel("Go-NoGo-Poll ending in: ??s").
     set message3:style:wordwrap to false.
     set message3:style:margin:left to 10.
     set message3:style:margin:top to 10.
@@ -221,6 +250,7 @@ if bodyexists("Earth") {
         set RSS to true.
         set Planet to "Earth".
         set LaunchSites to lexicon("KSC", "28.6117,-80.58647").
+        set offshoreSite to latlng(28.6117,-80.46).
         set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
         set LFBoosterFuelCutOff to 10600.
@@ -246,6 +276,7 @@ if bodyexists("Earth") {
         set KSRSS to true.
         set Planet to "Earth".
         set LaunchSites to lexicon("KSC", "28.50895,-81.20396").
+        set offshoreSite to latlng(28.50895,-80.4).
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 2200.
@@ -273,9 +304,11 @@ else {
         set KSRSS to true.
         set Planet to "Kerbin".
         set LaunchSites to lexicon("KSC", "28.50895,-81.20396").
+        set offshoreSite to latlng(28.50895,-80.4).
         if body("Kerbin"):radius < 1500001 {
             set RESCALE to true.
             set LaunchSites to lexicon("KSC", "-0.0970,-74.5833").
+            set offshoreSite to latlng(0,-74.3).
         }
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.3.
@@ -302,6 +335,7 @@ else {
         set STOCK to true.
         set Planet to "Kerbin".
         set LaunchSites to lexicon("KSC", "-0.0972,-74.5577", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
+        set offshoreSite to latlng(0,-74.3).
         set BoosterHeight to 45.4.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 1900.
@@ -351,6 +385,9 @@ until False {
         }
     }
     //PollGUI:show().
+    bGUI:show().
+    PollGUI:hide().
+    GUIupdate().
     if ShipConnectedToBooster = "false" and BoostBackComplete = "false" and not (ship:status = "LANDED") and altitude > 10000 and verticalspeed < 0 {
         Boostback().
     }
@@ -368,7 +405,9 @@ until False {
             }
         }
     }
-    WAIT UNTIL NOT CORE:MESSAGES:EMPTY.
+    UNTIL NOT CORE:MESSAGES:EMPTY {
+        GUIupdate().
+    }
     SET RECEIVED TO CORE:MESSAGES:POP.
     IF RECEIVED:CONTENT = "Boostback" {
         Boostback().
@@ -482,20 +521,21 @@ function Boostback {
             PollGUI:show().
             GUIupdate().
         }
-        when time:seconds > flipStartTime + 15 then { 
+        when time:seconds > flipStartTime + 12 then { 
             set steeringmanager:yawtorquefactor to 0.3.
         }
         when time:seconds > flipStartTime + 18 then { 
             set steeringmanager:yawtorquefactor to 0.7.
         }
-        when time:seconds > flipStartTime + 20 then { 
-            set steeringmanager:yawtorquefactor to 1.
-        }
         when BoostBackComplete then {
             set steeringmanager:yawtorquefactor to 0.1.
         }
-        when (time:seconds > flipStartTime + 60 and RSS) or (time:seconds > flipStartTime + 45 and not (RSS)) then {
-            PollGUI:hide().
+        when (time:seconds > flipStartTime + 60 and (RSS or KSRSS)) or (time:seconds > flipStartTime + 45 and not (RSS or KSRSS)) then {
+            Go:hide().
+            set NoGo:text to "<color=red>ABORT</color>".
+            if not GfC {
+                NoGo:hide().
+            }
         }
         when time:seconds > flipStartTime + 150 then { 
             set steeringmanager:yawtorquefactor to 1.
@@ -509,13 +549,13 @@ function Boostback {
         }
 
         if RSS {
-            set SteeringManager:pitchtorquefactor to 0.70.
+            set SteeringManager:pitchtorquefactor to 0.80.
             set SteeringManager:yawtorquefactor to 0.90.
 
         }
         else if KSRSS {
-            set SteeringManager:pitchtorquefactor to 0.65.
-            set SteeringManager:yawtorquefactor to 0.65.
+            set SteeringManager:pitchtorquefactor to 0.7.
+            set SteeringManager:yawtorquefactor to 0.7.
         }
         else {
             set SteeringManager:pitchtorquefactor to 0.75.
@@ -533,7 +573,7 @@ function Boostback {
                 if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             }
             if ErrorVector = v(0,0,0) and not FailureMessage and time:seconds > flipStartTime + 1 {
-                HUDTEXT("FAR failure! Please restart KSP..", 30, 2, 22, red, false).
+                //HUDTEXT("FAR failure! Please restart KSP..", 30, 2, 22, red, false).
                 set FailureMessage to true.
             }
             rcs on.
@@ -568,7 +608,11 @@ function Boostback {
         
 
 
-        until (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale and GfC) or verticalspeed < -50 or (ErrorVector:mag < BoosterGlideDistance + 20400 and RSS and not GfC) or (ErrorVector:mag < BoosterGlideDistance + 14400 and KSRSS and not GfC) or (ErrorVector:mag < BoosterGlideDistance + 6400 and not RSS and not GfC) {
+        until (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale) or verticalspeed < -50 {
+            if GfC {}
+            else if not GfC or cAbort {
+                set landingzone to offshoreSite.
+            }
             SteeringCorrections().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             if CORE:MESSAGES:length > 0 or SHIP:MESSAGES:length > 0 {
@@ -616,11 +660,24 @@ function Boostback {
         } else if GfC and not HSRJet {
             HUDTEXT("GO for Catch, NO HSR-Jettison", 8, 2, 20, green, false).
         } else if not GfC and HSRJet {
-            HUDTEXT("Booster off-shore divert, NO HSR-Jettison", 8, 2, 20, yellow, false).
+            HUDTEXT("Booster offshore divert, NO HSR-Jettison", 8, 2, 20, yellow, false).
         } else if not GfC and not HSRJet {
-            HUDTEXT("Booster off-shore divert, NO HSR-Jettison", 8, 2, 20, yellow, false).
+            HUDTEXT("Booster offshore divert, NO HSR-Jettison", 8, 2, 20, yellow, false).
         }
         
+        if GfC {
+            when not GfC then {
+                set cAbort to true.
+                set landingzone to offshoreSite.
+                addons:tr:settarget(landingzone).
+                NoGo:hide().
+                HUDTEXT("Booster offshore divert", 10, 2, 20, red, false).
+                set ApproachUPVector to (landingzone:position - body:position):normalized.
+                set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
+            }
+        } else {
+            addons:tr:settarget(landingzone).
+        }
 
         set CurrentVec to facing:forevector.
         lock SteeringVector to lookdirup(CurrentVec, ApproachVector:normalized - 0.5 * up:vector:normalized).
@@ -633,9 +690,15 @@ function Boostback {
             BoosterCore:shutdown.
         }
 
-        until (LngError + 50 > -BoosterGlideDistance and GfC) or verticalspeed < -250 or (LngError > -BoosterGlideDistance - 10000 and RSS and not GfC) or (LngError > -BoosterGlideDistance - 8000 and KSRSS and not GfC) or (LngError > -BoosterGlideDistance - 3000 and not (RSS) and not GfC){
+        until (LngError + 50 > -BoosterGlideDistance) or verticalspeed < -250 {
+            if GfC {}
+            else if not GfC or cAbort {
+                set landingzone to offshoreSite.
+            }
             SteeringCorrections().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+            PollUpdate().
+            GUIupdate().
             SetBoosterActive().
             wait 0.001.
         }
@@ -649,9 +712,8 @@ function Boostback {
         set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
         set SteeringManager:pitchtorquefactor to 1.
         set SteeringManager:yawtorquefactor to 0.
-        if not GfC {
-        set LandSomewhereElse to true.
-        set landingzone to ADDONS:TR:IMPACTPOS.
+        if not GfC and not cAbort{
+            set landingzone to ADDONS:TR:IMPACTPOS.
         }
 
         CheckFuel().
@@ -673,34 +735,40 @@ function Boostback {
         }
 
         set SteeringManager:maxstoppingtime to 5.
-        lock SteeringVector to lookdirup(CurrentVec * AngleAxis(-5 * min(time:seconds - turnTime, 27), lookdirup(CurrentVec, up:vector):starvector), -up:vector).
+        lock SteeringVector to lookdirup(up:vector, -up:vector).
         lock steering to SteeringVector.
         HUDTEXT("Booster Coast Phase - Timewarp unlocked", 15, 2, 20, green, false).
 
-        if vang(facing:forevector, lookdirup(CurrentVec * AngleAxis(-5 * 27, lookdirup(CurrentVec, up:vector):starvector), -up:vector):vector) > 10 {
-            until time:seconds - turnTime > 18 {
+        if vang(facing:forevector, lookdirup(CurrentVec * AngleAxis(-4 * 27, lookdirup(CurrentVec, up:vector):starvector), -up:vector):vector) > 10 {
+            until time:seconds - turnTime > 16 {
                 SteeringCorrections().
+                PollUpdate().
+                GUIupdate().
                 SetBoosterActive().
                 rcs on.
                 CheckFuel().
                 wait 0.1.
             }
 
-            lock SteeringVector to lookdirup(CurrentVec * AngleAxis(-5 * min(time:seconds - turnTime, 27), lookdirup(CurrentVec, up:vector):starvector), up:vector).
+            lock SteeringVector to lookdirup(CurrentVec * AngleAxis(-4 * min(time:seconds - turnTime, 27), lookdirup(CurrentVec, up:vector):starvector), up:vector).
             lock steering to SteeringVector.
 
-            until time:seconds - turnTime > 22 {
+            until time:seconds - turnTime > 22 or vang(facing:forevector, up:vector) > 5 {
                 SteeringCorrections().
                 SetBoosterActive().
+                PollUpdate().
+                GUIupdate().
                 rcs on.
                 CheckFuel().
                 wait 0.1.
             }
             set SteeringManager:maxstoppingtime to 2.
 
-            until time:seconds - turnTime > 35 {
+            until time:seconds - turnTime > 35 or vang(facing:forevector, up:vector) > 15 {
                 SteeringCorrections().
                 SetBoosterActive().
+                PollUpdate().
+                GUIupdate().
                 rcs on.
                 CheckFuel().
                 wait 0.1.
@@ -708,24 +776,28 @@ function Boostback {
         }
 
         set switchTime to time:seconds.
-        until time:seconds > switchTime + 2.5 {
-            SteeringCorrections().
-            rcs on.
-            SetBoosterActive().
-            CheckFuel().
-            wait 0.1.
-        }
+        // until time:seconds > switchTime + 2.5 {
+        //     SteeringCorrections().
+        //     rcs on.
+        //     SetBoosterActive().
+        //     PollUpdate().
+        //     GUIupdate().
+        //     CheckFuel().
+        //     wait 0.1.
+        // }
 
         HUDTEXT("Starship will continue its orbit insertion..", 10, 2, 20, green, false).
         ActivateGridFins().
 
-        until time:seconds > switchTime + 5 {
-            SteeringCorrections().
-            rcs on.
-            SetBoosterActive().
-            CheckFuel().
-            wait 0.1.
-        }
+        // until time:seconds > switchTime + 5 {
+        //     SteeringCorrections().
+        //     rcs on.
+        //     SetBoosterActive().
+        //     PollUpdate().
+        //     GUIupdate().
+        //     CheckFuel().
+        //     wait 0.1.
+        // }
 
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 5).
     }
@@ -762,10 +834,12 @@ function Boostback {
 
     
 
-    until altitude < 35000 and not (RSS) or altitude < 75000 and RSS {
+    until altitude < 35000 and not (RSS or KSRSS) or altitude < 75000 and RSS or altitude < 55000 and KSRSS {
         SteeringCorrections().
         rcs on.
         CheckFuel().
+        PollUpdate().
+        GUIupdate().
         
         if abs(steeringmanager:angleerror) > 10 {
             SetBoosterActive().
@@ -787,26 +861,51 @@ function Boostback {
         }
         wait 0.1.
     }
-    when (RadarAlt < 30000 and RSS) or (RadarAlt < 69000 and not (RSS)) then {
+    when (RadarAlt < 69000 and RSS) or (RadarAlt < 35000 and not (RSS)) then {
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
     }
     
     
     SetBoosterActive().
-    set SteeringManager:yawtorquefactor to 1.
+    set SteeringManager:yawtorquefactor to 0.8.
 
     BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    if not cAbort {
+        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    } else {
+        lock SteeringVector to lookdirup((ErrorVector:normalized + up:vector:normalized), ApproachVector * AngleAxis(2 * LatCtrl, -up:vector)).
+    }
+    
     lock steering to SteeringVector.
 
-    until alt:radar < 1800 {
+    until alt:radar < 7000 {
         SteeringCorrections().
-        if altitude > 26000 {
+        if altitude > 26000 and RSS or altitude > 20000 and not (RSS) {
             rcs on.
         }
         else {
             rcs off.
         }
+        PollUpdate().
+        GUIupdate().
+        SetBoosterActive().
+        CheckFuel().
+        wait 0.1.
+    }
+
+    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    lock steering to SteeringVector.
+
+    until alt:radar < 1800 {
+        SteeringCorrections().
+        if altitude > 26000 and RSS or altitude > 20000 and not (RSS) {
+            rcs on.
+        }
+        else {
+            rcs off.
+        }
+        PollUpdate().
+        GUIupdate().
         SetBoosterActive().
         CheckFuel().
         wait 0.1.
@@ -832,13 +931,17 @@ function Boostback {
     set LandingBurnStarted to true.
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
-    if abs(LngError - LngCtrlPID:setpoint) > 40 * Scale or abs(LatError) > 5 and GfC{
+    when cAbort then {
+        set LandSomewhereElse to true.
+        lock RadarAlt to alt:radar - BoosterHeight.
+    }
+
+    if (abs(LngError - LngCtrlPID:setpoint) > 40 * Scale or abs(LatError) > 5) and GfC and not cAbort {
         set LandSomewhereElse to true.
         lock RadarAlt to alt:radar - BoosterHeight.
         HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
         HUDTEXT("Landing somewhere else..", 10, 2, 20, red, false).
         lock SteeringVector to lookdirup(-1 * velocity:surface, ApproachVector).
-        
         lock steering to SteeringVector.
     }
 
@@ -903,7 +1006,7 @@ function Boostback {
             setTowerHeadingVector().
 
             if RSS {
-                lock SteeringVector to lookdirup(up:vector - 0.02 * velocity:surface - 0.005 * ErrorVector, RollVector).
+                lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.005 * ErrorVector, RollVector).
             }
             else if KSRSS {
                 lock SteeringVector to lookdirup(up:vector - 0.01 * velocity:surface - 0.002 * ErrorVector, RollVector).
@@ -935,6 +1038,8 @@ function Boostback {
                 rcs off.
             }
         }
+        PollUpdate().
+        GUIupdate().
         SetBoosterActive().
         CheckFuel().
         DetectWobblyTower().
@@ -1088,10 +1193,12 @@ FUNCTION SteeringCorrections {
         if not addons:tr:hastarget {
             ADDONS:TR:SETTARGET(landingzone).
         }
-        if altitude > 5000 and KUniverse:activevessel = vessel(ship:name) {
+        if altitude > 5000 and KUniverse:activevessel = vessel(ship:name) and not cAbort {
             set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
+        } 
+        else if altitude > 5000 and KUniverse:activevessel = vessel(ship:name) and cAbort {
+            set ApproachVector to vxcl(up:vector, landingzone:position + ship:position):normalized.
         }
-
         if addons:tr:hasimpact {
             set ErrorVector to ADDONS:TR:IMPACTPOS:POSITION - landingzone:POSITION.
         }
@@ -1099,7 +1206,7 @@ FUNCTION SteeringCorrections {
         set LngError to vdot(ApproachVector, ErrorVector).
 
 
-        if altitude < 30000 * Scale and GfC or KUniverse:activevessel = vessel(ship:name) and GfC {
+        if altitude < 30000 * Scale and GfC or KUniverse:activevessel = vessel(ship:name) and GfC and not cAbort {
             set GS to groundspeed.
 
             if InitialError = -9999 and addons:tr:hasimpact {
@@ -1156,7 +1263,7 @@ FUNCTION SteeringCorrections {
                 set RadarAlt to alt:radar - BoosterHeight.
             }
         } 
-        else if altitude < 30000 * Scale and not GfC or KUniverse:activevessel = vessel(ship:name) and not GfC{
+        else if altitude < 30000 * Scale and not GfC or KUniverse:activevessel = vessel(ship:name) and not GfC and not cAbort {
             set GS to groundspeed.
 
             if InitialError = -9999 and addons:tr:hasimpact {
@@ -1211,6 +1318,59 @@ FUNCTION SteeringCorrections {
             
             if LandSomewhereElse {
                 set RadarAlt to alt:radar - BoosterHeight.
+            }
+        } 
+        else if altitude < 30000 * Scale and not GfC or KUniverse:activevessel = vessel(ship:name) and cAbort {
+            set GS to groundspeed.
+            print "Abort".
+
+            if InitialError = -9999 and addons:tr:hasimpact {
+                set InitialError to LngError.
+            }
+            set LngCtrlPID:maxoutput to max(min(abs(LngError - LngCtrlPID:setpoint) / (PIDFactor), 10), 2.5).
+            set LngCtrlPID:minoutput to -LngCtrlPID:maxoutput.
+            set LatCtrlPID:maxoutput to max(min(abs(LatError) / (10 * Scale), 5), 0.5).
+            set LatCtrlPID:minoutput to -LatCtrlPID:maxoutput.
+
+            set LngCtrl to -LngCtrlPID:UPDATE(time:seconds, LngError).
+            set LatCtrl to -LatCtrlPID:UPDATE(time:seconds, LatError).
+            if LngCtrl > 0 {
+                set LatCtrl to -LatCtrl.
+            }
+
+            set maxDecel to max((ship:availablethrust / ship:mass) - 4.805, 0.000001).
+            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 8.805.
+
+            if not (MiddleEnginesShutdown) {
+                set stopTime9 to (airspeed - 50) / min(maxDecel, 50).
+                set stopDist9 to ((airspeed + 50) / 2) * stopTime9.
+                set stopTime3 to min(50, airspeed) / min(maxDecel3, FinalDeceleration).
+                set stopDist3 to (min(50, airspeed) / 2) * stopTime3.
+                set TotalstopTime to stopTime9 + stopTime3.
+                set TotalstopDist to (stopDist9 + stopDist3) * cos(vang(-velocity:surface, up:vector)).
+                set landingRatio to TotalstopDist / (RadarAlt - 2.5).
+            }
+            else {
+                set TotalstopTime to airspeed / min(maxDecel, FinalDeceleration).
+                set TotalstopDist to (airspeed / 2) * TotalstopTime.
+                set landingRatio to TotalstopDist / (RadarAlt - 2.5).
+                set LngCtrlPID:setpoint to 0.
+            }
+
+            if alt:radar < 1500 {
+                set magnitude to min(RadarAlt / 70, (ship:position - landingzone:position):mag / 12).
+                if ErrorVector:mag > magnitude and LandingBurnStarted {
+                    set ErrorVector to ErrorVector:normalized * magnitude.
+                }
+            }
+            if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 5000 {
+                set LngCtrlPID:setpoint to CorrFactor * groundspeed.
+
+            }
+            
+            if LandSomewhereElse {
+                set RadarAlt to alt:radar - BoosterHeight.
+                set BoosterRot to ship:facing.
             }
         }
 
@@ -1312,25 +1472,14 @@ function sendMessage{
 
 
 function SetBoosterActive {
-    //if not Block1 {
-        if KUniverse:activevessel = vessel("Booster") {}
-        else if time:seconds > lastVesselChange + 2 {
-            if not (vessel("Booster"):isdead) {
-                HUDTEXT("Setting focus to Booster..", 3, 2, 20, yellow, false).
-                KUniverse:forceactive(vessel("Booster")).
-                set lastVesselChange to time:seconds.
-            }
+    if KUniverse:activevessel = vessel("Booster") {}
+    else if time:seconds > lastVesselChange + 2 {
+        if not (vessel("Booster"):isdead) {
+            HUDTEXT("Setting focus to Booster..", 3, 2, 20, yellow, false).
+            KUniverse:forceactive(vessel("Booster")).
+            set lastVesselChange to time:seconds.
         }
-    //} else if Block1 {
-    //    if KUniverse:activevessel = vessel("Booster Ship") {}
-    //    else if time:seconds > lastVesselChange + 2 {
-    //        if not (vessel("Booster Ship"):isdead) {
-    //            HUDTEXT("Setting focus to Booster..", 3, 2, 20, yellow, false).
-    //            KUniverse:forceactive(vessel("Booster Ship")).
-    //            set lastVesselChange to time:seconds.
-    //        }
-    //    }
-    //}
+    }
 }
 
 
@@ -1662,26 +1811,56 @@ function SetGridFinAuthority {
 }
 
 function PollUpdate {
-    if not Vessel("OrbitalLaunchMount"):isdead {
+    if shiplist:length > 0 {
+        for x in shiplist {
+            if x:name:contains("OrbitalLaunchMount") or x:name:contains("orbitalLaunchmount") {
+                set PollOLM to x:name.
+            }
+        }
+    }
+    //if not Vessel(PollOLM):isdead {
         set GT to true.
-    } else {set GT to false.}
+    //} else {set GT to false.}
+
     if BoosterEngines[0]:hasphysics {
         set GE to true.
     } else {set GE to false.}
     CheckFuel().
-    if LFBooster > LFBoosterFuelCutOff {
+    if LFBooster > LFBoosterCap*0.16 and time:seconds < flipStartTime + 6 {
         set GF to true.
-    } else {set GF to false.}
-
+    } else if LFBooster > LFBoosterCap*0.10 and time:seconds < flipStartTime + 30 and time:seconds > flipStartTime + 5 {
+        set GF to true.
+    } else if LFBooster > LFBoosterCap*0.05 and time:seconds < flipStartTime + 45 and time:seconds > flipStartTime + 29 {
+        set GF to true.
+    } else if LFBooster > LFBoosterCap*0.015 and time:seconds > flipStartTime + 44 {
+        set GF to true.
+    } else {
+        if RadarAlt > 1900 {
+            set GF to false.
+        } else {
+            set GF to true.
+        }
+    }
 }
 
 
 function GUIupdate {
-    if RSS {
-        set PollTimer to flipStartTime+60-time:seconds.    
+    set boosterAltitude to RadarAlt.
+    set boosterSpeed to ship:airspeed.
+    
+    set bSpeed:text to "<b>Speed: </b>" + round(boosterSpeed*3.6) + "km/h".
+    set bAltitude:text to "<b>Altitude: </b>" + round(boosterAltitude/1000) + "km".
+
+    if flipStartTime > 0 {
+        if RSS or KSRSS {
+            set PollTimer to flipStartTime+60-time:seconds.    
+        } else {
+            set PollTimer to flipStartTime+45-time:seconds.
+        }
     } else {
-        set PollTimer to flipStartTime+45-time:seconds.
+        set PollTimer to 0.
     }
+    
     if GD and GE and GF and GT {
         set GfC to true.
     } else {
@@ -1692,31 +1871,51 @@ function GUIupdate {
     } else {
         set message4:text to "Current decision: <b><color=red>NOGo</color></b>".
     }
+
     if GT {
         set data1:text to "Tower: <b><color=green>GO</color></b>".
     } else {
         set data1:text to "Tower: <b><color=red>NOGo</color></b>".
     }
+
     if GE {
         set data2:text to "Engines: <b><color=green>GO</color></b>".
     } else {
         set data2:text to "Engines: <b><color=red>NOGo</color></b>".
     }
+
     if GF {
         set data3:text to "Fuel: <b><color=green>GO</color></b>".
     } else {
         set data3:text to "Fuel: <b><color=red>NOGo</color></b>".
     }
+
     if GD {
         set data4:text to "Flight Director: <b><color=green>GO</color></b>".
     } else {
         set data4:text to "Flight Director: <b><color=red>NOGo</color></b>".
     }
-    if PollTimer < 10 {
+
+    if PollTimer < 0 {
+        set message3:text to "".
+    } else if PollTimer < 10 {
         set message3:text to "Go-NoGo-Poll ending in: <color=red>" + round(PollTimer) + "</color>s".
     } else if PollTimer < 20 {
         set message3:text to "Go-NoGo-Poll ending in: <color=yellow>" + round(PollTimer) + "</color>s".
     } else {
         set message3:text to "Go-NoGo-Poll ending in: " + round(PollTimer) + "s".
+    }
+
+    if PollTimer < -1.5 {
+        set message0:text to "<b>Status:</b>".
+        if GfC {
+            set message1:text to "<color=green>GO</color> for Catch".
+        } else {
+            set message1:text to "<color=yellow>Offshore divert</color>".
+        }
+    }
+
+    if cAbort {
+        set message1:text to "<b><color=red>ABORT</color></b>".
     }
 }
