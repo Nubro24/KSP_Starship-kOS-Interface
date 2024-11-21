@@ -20,6 +20,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
     - **Booster/Ship krakens due to SLE changes on contact with Chopsticks**
 - **The achieved orbit by Starship is currently non-circular in RSS**
 - **Ship Landings are broken (may work, may not work)**
+- SQD may not rotate away, after reverting to launch
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
 
