@@ -1,3 +1,13 @@
+# V3.1.0 (2024-11-20) 
+- Booster Rework complete (for the time being)
+  - updated UI
+  - UI wont dissapear after Poll is over
+  - Added Speed and Altitude
+  - Added ABORT button after Poll is over
+  - Added abort criteria for automatic abort
+- Adjusted Thrust at Lift-Off
+- Adjusted UI positioning
+
 # V3.0.9 (2024-11-20) 
 - Implemented a Go-NoGo-Poll during Boostback
 - Changed NoGo-message to "Booster off-shore divert"
