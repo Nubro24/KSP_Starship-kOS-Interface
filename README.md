@@ -62,10 +62,12 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - HangarExtender - [github](https://github.com/linuxgurugamer/FShangarExtender/releases)
 - **Of Course I Still Love You** (for multiple Camera Views on your Screen using HullcamVDS) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 - When launching empty Starships it is recommended to reduce Booster Fuel load by one stop in the VAB
+
 ### Incompatible:
 - TweakableEverything
 - FerramAerospaceResearch (FAR)
 - Realism Overhaul (RO)
+- Xyphos Aerospace
 
 
 
