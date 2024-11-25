@@ -1,3 +1,11 @@
+# V3.1.1 (2024-11-25) 
+- Small patch for Booster Landing precision
+- Changed Ignition Sequence timing to match Real Life (of Fullstack and Ship Landingburn)
+- **Adjusted ** *SEPkOS Patch for stock size* **to fix Thrust Issues on LiftOff**
+- **Added Support and craftfiles** (only Stock size for now) **for the new PEZ parts**
+- Fixed Tower Error Message during Booster Landing
+- Fixed Cargo Door Button (works for all cargo/pez doors now)
+
 # V3.1.0 (2024-11-21) 
 - Booster Rework complete (for the time being)
   - updated UI
