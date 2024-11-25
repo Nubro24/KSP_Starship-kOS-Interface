@@ -106,7 +106,7 @@ set parameter1 to "".
 set GF to false.
 set GE to false.
 set GT to false.
-set GD to false.
+set GD to true.
 set GfC to false.
 set HSRJet to false.
 set flipStartTime to -2.
@@ -255,13 +255,13 @@ if bodyexists("Earth") {
         set LiftingPointToGridFinDist to 4.5.
         set LFBoosterFuelCutOff to 10600.
         if FAR {
-            set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
+            set LngCtrlPID to PIDLOOP(0.35, 0.5, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 2500.
-        set LngCtrlPID:setpoint to 80.
+        set LngCtrlPID:setpoint to 85.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -287,7 +287,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1800.
-        set LngCtrlPID:setpoint to 110.
+        set LngCtrlPID:setpoint to 80.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 135.
@@ -320,7 +320,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1900.
-        set LngCtrlPID:setpoint to 100.
+        set LngCtrlPID:setpoint to 80.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 135.
@@ -346,7 +346,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1800.
-        set LngCtrlPID:setpoint to 100.
+        set LngCtrlPID:setpoint to 50.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 135.
@@ -638,9 +638,11 @@ function Boostback {
                 print parameter1.
                 if command = "HSRJet" {
                     set HSRJet to true.
+                    set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 5*Scale.
                 } 
                 else if command = "NoHSRJet" {
                     set HSRJet to false.
+                    set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 5*Scale.
                 }
             }
             PollUpdate().
@@ -660,7 +662,7 @@ function Boostback {
         } else if GfC and not HSRJet {
             HUDTEXT("GO for Catch, NO HSR-Jettison", 8, 2, 20, green, false).
         } else if not GfC and HSRJet {
-            HUDTEXT("Booster offshore divert, NO HSR-Jettison", 8, 2, 20, yellow, false).
+            HUDTEXT("Booster offshore divert, HSR-Jettison", 8, 2, 20, yellow, false).
         } else if not GfC and not HSRJet {
             HUDTEXT("Booster offshore divert, NO HSR-Jettison", 8, 2, 20, yellow, false).
         }
@@ -953,9 +955,12 @@ function Boostback {
 
                 lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist.
 
+                sendMessage(Vessel(TargetOLM), ("RetractSQD")).
+
                 when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 20 * Scale and RadarAlt < 7.5 * BoosterHeight and not (WobblyTower) then {
-                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,10,90,true").
+                    sendMessage(Vessel(TargetOLM), "MechazillaArms,3.2,10,90,true").
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
+                    sendMessage(Vessel(TargetOLM), ("RetractSQDArm")).
                     when RadarAlt < 1.5 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",10,8,true")).
                         rcs off.
@@ -968,7 +973,8 @@ function Boostback {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1.1) + ",5,60,false")).
                         }
                         when (RadarAlt < 3.0 * Scale and RSS) or (RadarAlt < 1.8 * Scale and not (RSS)) then {
-                            sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1.1) + ",5,60,false")).
+                            //sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
                         }
                         when RadarAlt < 1.6 * Scale then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,0,60,false")).
@@ -994,10 +1000,16 @@ function Boostback {
         }
     }
 
+    if LandSomewhereElse {
+        lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), facing:topvector).
+    }
+
     when ((verticalspeed > -120 and RSS) or (verticalspeed > -85 and not RSS)) and (stopDist3 / RadarAlt) < 1.5 and LngError < 200 or ((verticalspeed > -50 and RSS) or (verticalspeed > -55 and not RSS)) then {
         set SwingTime to time:seconds.
-        lock SteeringVector to lookDirUp(up:vector, RollVector).
-        lock steering to SteeringVector.
+        if not cAbort {
+            lock SteeringVector to lookDirUp(up:vector, RollVector).
+            lock steering to SteeringVector.
+        }
         when (time:seconds > SwingTime + 1 and RSS) or (time:seconds > SwingTime + 1.5 and not RSS) then {
             set MiddleEnginesShutdown to true.
             BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
@@ -1759,7 +1771,7 @@ function DeactivateGridFins {
 
 function setTowerHeadingVector {
     if not (LandSomewhereElse) {
-        if not (TargetOLM = "false") {
+        if not (TargetOLM = "false") and not LandSomewhereElse {
             if homeconnection:isconnected {
                 if exists("0:/settings.json") {
                     set L to readjson("0:/settings.json").
