@@ -125,6 +125,14 @@ for x in range(0, Mechazilla:modules:length) {
 }
 print "Landing Rails: " + NrforLandingRails.
 
+for x in range(0, Mechazilla:modules:length) {
+    if SQD:getmodulebyindex(x):hasaction("Full Retraction") {
+        set NRforSQD to x.
+        break.
+    }
+}
+print "SQD: " + NrforSQD.
+
 for x in range(0, OLM:modules:length) {
     if OLM:getmodulebyindex(x):hasaction("toggle fueling") {
         set NrforFueling to x.
@@ -210,6 +218,12 @@ until False {
         else if command = "RetractMechazillaRails" {
             RetractMechazillaRails().
         }
+        else if command = "RetractSQD" {
+            RetractSQD().
+        }
+        else if command = "RetractSQDArm" {
+            RetractSQDArm().
+        }
         else if command = "EmergencyStop" {
             EmergencyStop().
         }
@@ -294,7 +308,7 @@ function MechazillaArms {
     //print armsopenangle.
     //print ArmsOpen.
     if targetangle = 999 {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle"):toscalar).
+        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
     } else {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle:toscalar).
     }
@@ -354,6 +368,23 @@ function RetractMechazillaRails {
     for x in range(0, Mechazilla:modules:length) {
         if Mechazilla:getmodulebyindex(x):hasaction("Lower Landing Rails") {
             Mechazilla:getmodulebyindex(x):doaction("Lower Landing Rails", false).
+            break.
+        }
+    }
+}
+
+function RetractSQD {
+    for x in range(0, SQD:modules:length) {
+        if SQD:getmodulebyindex(x):hasaction("Full Retraction") {
+            SQD:getmodulebyindex(x):doaction("Full Retraction", false).
+            break.
+        }
+    }
+}
+function RetractSQDArm {
+    for x in range(0, SQD:modules:length) {
+        if SQD:getmodulebyindex(x):hasaction("Extend Arm") {
+            SQD:getmodulebyindex(x):doaction("Extend Arm", false).
             break.
         }
     }
