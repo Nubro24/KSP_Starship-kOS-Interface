@@ -106,7 +106,7 @@ set parameter1 to "".
 set GF to false.
 set GE to false.
 set GT to false.
-set GD to true.
+set GD to false.
 set GfC to false.
 set HSRJet to false.
 set flipStartTime to -2.
@@ -120,7 +120,7 @@ local bGUI is GUI(150).
     set bGUI:style:padding:v to 0.
     set bGUI:style:padding:h to 0.
     set bGUI:x to 180.
-    set bGUI:y to -200.
+    set bGUI:y to -210.
     set bGUI:skin:button:bg to  "starship_img/starship_background".
     set bGUI:skin:button:on:bg to  "starship_img/starship_background_light".
     set bGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
@@ -152,9 +152,15 @@ local bAltitude is boosterStatus:addlabel("<b>Altitude: </b>").
     set bAltitude:style:wordwrap to false.
     set bAltitude:style:margin:left to 10.
     set bAltitude:style:margin:top to 25.
-    set bAltitude:style:margin:bottom to 45.
     set bAltitude:style:width to 150.
     set bAltitude:style:fontsize to 16.
+local bThrust is boosterStatus:addlabel("<b>Thrust: </b>").
+    set bThrust:style:wordwrap to false.
+    set bThrust:style:margin:left to 10.
+    set bThrust:style:margin:top to 25.
+    set bThrust:style:margin:bottom to 20.
+    set bThrust:style:width to 150.
+    set bThrust:style:fontsize to 16.
 
 
 local PollGUI is bGUIBox:addvlayout().
@@ -287,7 +293,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1800.
-        set LngCtrlPID:setpoint to 80.
+        set LngCtrlPID:setpoint to 95.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 135.
@@ -320,7 +326,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1900.
-        set LngCtrlPID:setpoint to 80.
+        set LngCtrlPID:setpoint to 95.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 135.
@@ -938,7 +944,7 @@ function Boostback {
         lock RadarAlt to alt:radar - BoosterHeight.
     }
 
-    if (abs(LngError - LngCtrlPID:setpoint) > 40 * Scale or abs(LatError) > 5) and GfC and not cAbort {
+    if (abs(LngError - LngCtrlPID:setpoint) > 50 * Scale or abs(LatError) > 5) and GfC and not cAbort {
         set LandSomewhereElse to true.
         lock RadarAlt to alt:radar - BoosterHeight.
         HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
@@ -962,7 +968,7 @@ function Boostback {
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
                     sendMessage(Vessel(TargetOLM), ("RetractSQDArm")).
                     when RadarAlt < 1.5 * BoosterHeight then {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",10,8,true")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",20,8,true")).
                         rcs off.
                         if RadarAlt > 6 * Scale {
                             set t to time:seconds.
@@ -970,14 +976,14 @@ function Boostback {
                             preserve.
                         }
                         else {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1.1) + ",5,60,false")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1.1) + ",10,60,false")).
                         }
-                        when (RadarAlt < 3.0 * Scale and RSS) or (RadarAlt < 1.8 * Scale and not (RSS)) then {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1.1) + ",5,60,false")).
+                        when (RadarAlt < 3.0 * Scale and RSS) or (RadarAlt < 2 * Scale and not (RSS)) then {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1.1) + ",10,60,false")).
                             //sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
                         }
                         when RadarAlt < 1.6 * Scale then {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,0,60,false")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,5,60,false")).
                         }
                     }
                 }
@@ -1035,7 +1041,7 @@ function Boostback {
     }
 
 
-    until verticalspeed > CatchVS and RadarAlt < 1 or verticalspeed > -0.01 and RadarAlt < 2000 or hover {
+    until verticalspeed > CatchVS and RadarAlt < 2 or verticalspeed > -0.01 and RadarAlt < 2000 or hover {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         if RadarAlt > 500 {
@@ -1859,9 +1865,11 @@ function PollUpdate {
 function GUIupdate {
     set boosterAltitude to RadarAlt.
     set boosterSpeed to ship:airspeed.
+    set boosterThrust to BoosterEngines[0]:thrust.
     
-    set bSpeed:text to "<b>Speed: </b>" + round(boosterSpeed*3.6) + "km/h".
-    set bAltitude:text to "<b>Altitude: </b>" + round(boosterAltitude/1000) + "km".
+    set bSpeed:text to "<b>Speed: </b> " + round(boosterSpeed*3.6) + " km/h".
+    set bAltitude:text to "<b>Altitude: </b> " + round(boosterAltitude/1000) + " km".
+    set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN".
 
     if flipStartTime > 0 {
         if RSS or KSRSS {

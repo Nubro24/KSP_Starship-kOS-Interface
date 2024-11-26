@@ -636,11 +636,14 @@ function FindParts {
         }
         //SaveToSettings("ArmsHeight", ArmsHeight).
         set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - TowerTop:mass - Mechazilla:mass.
+        print("Stack mass: " + StackMass).
+        print(ship:mass).
     }
     else {
         set OnOrbitalMount to False.
         set OLM to false.
         set StackMass to ship:mass.
+        print("Stack mass (no OLM found): " + StackMass).
     }
 }
 
@@ -4739,6 +4742,7 @@ set launchbutton:ontoggle to {
                         }
 
                         set message1:text to "<b>HSR Jettison after Boostback?</b>".
+                        set message2:text to "".
                         set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
                         set execute:text to "<b>CONFIRM</b>".
                         set cancel:text to "<b>DENY</b>".
@@ -4747,6 +4751,9 @@ set launchbutton:ontoggle to {
                         } else {
                             set HSRJet to false.
                         }
+                        set message1:text to "".
+                        set message2:text to "".
+                        set message3:text to "".
 
                         if not (TargetShip = 0) {
                             if RSS {
@@ -4775,7 +4782,6 @@ set launchbutton:ontoggle to {
                             //set message2:text to "<b>Booster Return to Launch Site</b>".
                         }
 
-                        set message1:text to "".
                         set message3:text to "<b>Launch <color=white>or</color> Cancel?</b>".
                         set message1:style:textcolor to white.
                         set message2:style:textcolor to white.
@@ -6741,6 +6747,7 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight,12,0.8")).
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 set message3:text to "".
                 if time:seconds > x - 1 {
                     set t to time:seconds.
@@ -6778,7 +6785,6 @@ function Launch {
                 print "Actual Distance: " + round((target:position - ship:position):mag / 1000, 1).
             }
             BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
-            sendMessage(Vessel(TargetOLM), "LandingRails,100").
             for fin in GridFins {
                 if fin:hasmodule("ModuleControlSurface") {
                     fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 3).
@@ -6805,8 +6811,8 @@ function Launch {
 
             until time:seconds - EngineStartTime > 3.8 or cancelconfirmed {
                 set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
-                set message2:text to "<b>Clamps Release in:  </b>" + round(2 - time:seconds + EngineStartTime, 1) + "<b> seconds</b>".
-                lock throttle to 0.33 + 0.44 * (time:seconds - EngineStartTime) / 1.8.
+                set message2:text to "<b>Clamps Release in:  </b>" + round(time:seconds - EngineStartTime - 2, 1) + "<b> seconds</b>".
+                lock throttle to 0.33 + 0.44 * (time:seconds - EngineStartTime - 2) / 1.8.
                 
                 BackGroundUpdate().
             }
@@ -6835,31 +6841,46 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight,12,0.8")).
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 ClearInterfaceAndSteering().
                 return.
             }
             lock throttle to 0.77.
             wait 0.1.
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.4 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
-            else {lock throttle to 0.85. wait 0.1.}
+            else {
+                lock throttle to 0.85. 
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.4, 2)).
+                wait 0.1.}
             set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.4 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
-            else {lock throttle to 0.9. wait 0.1.}
+            else {
+                lock throttle to 0.9. 
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.4, 2)).
+                wait 0.1.}
             set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.4 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
-            else {lock throttle to 0.95. wait 0.1.}
+            else {
+                lock throttle to 0.95. 
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.4, 2)).
+                wait 0.1.}
             set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.3 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
-            else {lock throttle to 1. wait 0.1.}
+            else {
+                lock throttle to 1. 
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.3, 2)).
+                wait 0.1.}
             set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.25 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             //if 1=1 {}
             else {
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.25, 2)).
                 set message1:text to "<b>Launch Abort: </b>Thrust anomaly!".
                 set message2:text to "<b>Thrust Range: </b>" + round(StackMass * Planet1G * 1.25) + "kN - " + round(StackMass * Planet1G * 2) + "kN".
                 set message3:text to "<b>Actual Thrust: </b>" + round(BoosterEngines[0]:thrust) + "kN".
                 lock throttle to 0.
                 BoosterEngines[0]:shutdown.
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 set message1:style:textcolor to yellow.
                 set textbox:style:bg to "starship_img/starship_main_square_bg".
                 wait 3.
@@ -6940,6 +6961,7 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight,12,0.8")).
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 OLM:getmodule("ModuleAnimateGeneric"):doevent("open clamps + qd").
                 ClearInterfaceAndSteering().
                 reboot.
