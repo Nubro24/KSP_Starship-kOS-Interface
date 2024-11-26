@@ -1,3 +1,8 @@
+# V3.1.2 (2024-11-26) 
+- Added Thrust Indicator to Booster HUD
+- Adjusted Booster Landing position in KSRSS
+- **Fixed Booster Thrust Anomaly** using *SEPkOS patch for stock size*
+
 # V3.1.1 (2024-11-25) 
 - Small patch for Booster Landing precision
 - Changed Ignition Sequence timing to match Real Life (of Fullstack and Ship Landingburn)
