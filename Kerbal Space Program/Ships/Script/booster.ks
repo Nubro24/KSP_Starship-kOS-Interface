@@ -550,7 +550,7 @@ function Boostback {
         
 
         when (time:seconds > flipStartTime + 4 and verticalspeed > 0 and not (RSS)) or (time:seconds > flipStartTime + 6 and verticalspeed > 0 and (RSS)) then {
-            BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
             set ship:control:neutralize to true.
         }
 
@@ -690,7 +690,7 @@ function Boostback {
         set CurrentVec to facing:forevector.
         lock SteeringVector to lookdirup(CurrentVec, ApproachVector:normalized - 0.5 * up:vector:normalized).
         lock steering to SteeringVector.
-        BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
+        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
         CheckFuel().
         if LFBooster > LFBoosterCap * 0.1 {
             BoosterCore:activate.
@@ -716,7 +716,7 @@ function Boostback {
         wait 0.01.
         
         set turnTime to time:seconds.
-        BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
+        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
         set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
         set SteeringManager:pitchtorquefactor to 1.
         set SteeringManager:yawtorquefactor to 0.
@@ -1018,7 +1018,7 @@ function Boostback {
         }
         when (time:seconds > SwingTime + 1 and RSS) or (time:seconds > SwingTime + 1.5 and not RSS) then {
             set MiddleEnginesShutdown to true.
-            BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             set LngCtrlPID:setpoint to 0.
 
             setTowerHeadingVector().
@@ -1109,7 +1109,7 @@ function Boostback {
     SetLoadDistances("default").
 
     DeactivateGridFins().
-    BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
+    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
     if not (LandSomewhereElse) {
         if not (TargetOLM = "false") {
@@ -1917,7 +1917,11 @@ function GUIupdate {
     }
 
     if PollTimer < 0 {
-        set message3:text to "".
+        if HSRJet {
+            set message3:text to "<size=13>HSR Jettison</size>".
+        } else {
+            set message3:text to "<size=13><b>NO</b> HSR Jettison</size>".
+        }
     } else if PollTimer < 10 {
         set message3:text to "Go-NoGo-Poll ending in: <color=red>" + round(PollTimer) + "</color>s".
     } else if PollTimer < 20 {

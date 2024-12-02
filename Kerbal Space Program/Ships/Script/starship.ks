@@ -6797,12 +6797,12 @@ function Launch {
                     fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", true).
                 }
             }
-            wait 0.02. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
+            wait 0.02. BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             lock throttle to 0.33.
             set EngineStartTime to time:seconds.
             set message3:text to "".
-            //wait 0.5. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true).
-            wait 1.0. BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("previous engine mode", true). 
+            //wait 0.5. BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+            wait 1.0. BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
             wait 1.0.
             
             if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
@@ -7025,7 +7025,7 @@ function Launch {
                         fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
                     }
                 }
-                BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
+                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 lock throttle to 0.5.
                 unlock steering.
                 LogToFile("Starting stage-separation").
@@ -7038,7 +7038,7 @@ function Launch {
                 //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
                 //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
                 //}
-                BoosterEngines[0]:getmodule("ModuleTundraEngineSwitch"):DOACTION("next engine mode", true).
+                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 set t to time:seconds.
                 until time:seconds > t + 1.5 {
                     clearscreen.
