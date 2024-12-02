@@ -1,3 +1,6 @@
+# V3.1.3 (2024-12-02) 
+- Fixed an error caused by SEP-changes
+
 # V3.1.2 (2024-11-26) 
 - Added Thrust Indicator to Booster HUD
 - Adjusted Booster Landing position in KSRSS
