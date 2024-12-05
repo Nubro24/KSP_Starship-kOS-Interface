@@ -1330,7 +1330,7 @@ FUNCTION SteeringCorrections {
                 }
                 if not (LandSomewhereElse) {
                     set BoosterRot to GetBoosterRotation().
-                    if TargetOLM and verticalspeed > -18 {
+                    if TargetOLM and verticalspeed > -18 and GfC {
                         set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - BoosterCore:position).
                     }
                 }
