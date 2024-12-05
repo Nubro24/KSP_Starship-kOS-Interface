@@ -444,15 +444,15 @@ function FindParts {
         set ShipType to "Depot".
         set CargoMassStep to CargoMassStep + Tank:mass - Tank:drymass.
         if stock {
-            set MaxCargoToOrbit to 251000.
+            set MaxCargoToOrbit to 291000.
             set RCSThrust to 80.
         }
         else if KSRSS {
-            set MaxCargoToOrbit to 481000.
+            set MaxCargoToOrbit to 521000.
             set RCSThrust to 140.
         }
         else if RSS {
-            set MaxCargoToOrbit to 1701000.
+            set MaxCargoToOrbit to 1710000.
             set RCSThrust to 200.
         }
     }
@@ -554,6 +554,10 @@ function FindParts {
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                     if RSS {
                         set MaxCargoToOrbit to 150000.
+                    } else if KSRSS {
+                        set MaxCargoToOrbit to 97000.
+                    } else {
+                        set MaxCargoToOrbit to 79000.
                     }
                 }
                 else if x:name:contains("SEP.23.SHIP.CARGO.EXP") {

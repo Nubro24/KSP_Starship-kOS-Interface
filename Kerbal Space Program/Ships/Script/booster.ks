@@ -266,13 +266,13 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        set BoosterGlideDistance to 2500.
+        set BoosterGlideDistance to 2403.
         set LngCtrlPID:setpoint to 85.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
-        set BoosterRaptorThrust to 2363.
-        set BoosterRaptorThrust3 to 2363.
+        set BoosterRaptorThrust to 2173.
+        set BoosterRaptorThrust3 to 2163.
         set Scale to 1.6.
         set CorrFactor to 0.7.
         set PIDFactor to 16.
@@ -298,7 +298,7 @@ if bodyexists("Earth") {
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 135.
         set BoosterRaptorThrust to 580.
-        set BoosterRaptorThrust3 to 580.
+        set BoosterRaptorThrust3 to 760.
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
@@ -331,7 +331,7 @@ else {
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 135.
         set BoosterRaptorThrust to 580.
-        set BoosterRaptorThrust3 to 580.
+        set BoosterRaptorThrust3 to 760.
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
@@ -356,8 +356,8 @@ else {
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 135.
-        set BoosterRaptorThrust to 580.
-        set BoosterRaptorThrust3 to 580.
+        set BoosterRaptorThrust to 400.
+        set BoosterRaptorThrust3 to 760.
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
@@ -615,7 +615,10 @@ function Boostback {
 
 
         until (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale) or verticalspeed < -50 {
-            if GfC {}
+            if GfC {
+                setLandingZone().
+                setTargetOLM().
+            }
             else if not GfC or cAbort {
                 set landingzone to offshoreSite.
             }
@@ -699,7 +702,10 @@ function Boostback {
         }
 
         until (LngError + 50 > -BoosterGlideDistance) or verticalspeed < -250 {
-            if GfC {}
+            if GfC {
+                setLandingZone().
+                setTargetOLM().
+            }
             else if not GfC or cAbort {
                 set landingzone to offshoreSite.
             }
@@ -904,7 +910,7 @@ function Boostback {
     lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     lock steering to SteeringVector.
 
-    until alt:radar < 1800 {
+    until alt:radar < 1600 {
         SteeringCorrections().
         if altitude > 26000 and RSS or altitude > 20000 and not (RSS) {
             rcs on.
@@ -1010,7 +1016,7 @@ function Boostback {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), facing:topvector).
     }
 
-    when ((verticalspeed > -120 and RSS) or (verticalspeed > -85 and not RSS)) and (stopDist3 / RadarAlt) < 1.5 and LngError < 200 or ((verticalspeed > -50 and RSS) or (verticalspeed > -55 and not RSS)) then {
+    when ((verticalspeed > -120 and RSS) or (verticalspeed > -100 and not RSS)) and (stopDist3 / RadarAlt) < 1.8 and LngError < 200 or ((verticalspeed > -100 and RSS) or (verticalspeed > -80 and not RSS)) then {
         set SwingTime to time:seconds.
         if not cAbort {
             lock SteeringVector to lookDirUp(up:vector, RollVector).
@@ -1444,7 +1450,7 @@ function LandingThrottle {
         return minDecel.
     }
     if RSS {
-        return max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.165).
+        return max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.29).
     }
     else {
         return max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.33).
