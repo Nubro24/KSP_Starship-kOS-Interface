@@ -11,6 +11,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - This fork is currently worked on by Nubro.
 
 ### Known Issues:
+- ***Booster Landing Burn currently broken***
 - **Kraken:**
     - The scripts have been designed for stock Kerbin, and it functions most reliably on a stock install. If you use planet mods that increase the size of the planet (e.g. KSRSS,RSS) the chances of a wobbly tower or other problems are significantly higher.
 - **Multiple ships/towers of the same name:**
