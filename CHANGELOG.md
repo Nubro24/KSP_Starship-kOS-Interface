@@ -1,3 +1,8 @@
+# V3.1.4 (2024-12-05) 
+**- Fixed Booster *not* Targeting OLM after giving the GO**
+- Adjusted Landing Burn **(not fixed yet)**
+**- Fixed Cargo-Mass-Error for Depot and Tanker**
+
 # V3.1.3 (2024-12-02) 
 - Fixed an error caused by SEP-changes
 
