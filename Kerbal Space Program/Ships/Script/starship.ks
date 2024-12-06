@@ -135,7 +135,7 @@ if RSS {         // Real Solar System
     set LandingAoA to 80.
     set MaxCargoToOrbit to 1510000.
     set MaxReEntryCargoThickAtmo to 2500.
-    set MaxIU to 200.
+    set MaxIU to 250.
     set MaxReEntryCargoThinAtmo to 151000.
     set LaunchTimeSpanInSeconds to 500.
     set ShipHeight to 49.7.
@@ -175,7 +175,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set LandingAoA to 75.
     set MaxCargoToOrbit to 126000.
     set MaxReEntryCargoThickAtmo to 1000.
-    set MaxIU to 100.
+    set MaxIU to 150.
     set MaxReEntryCargoThinAtmo to 126000.
     set LaunchTimeSpanInSeconds to 360.
     set ShipHeight to 31.0.
@@ -222,7 +222,7 @@ else {       // Stock Kerbin
     set LandingAoA to 75.
     set MaxCargoToOrbit to 77800.
     set MaxReEntryCargoThickAtmo to 1000.
-    set MaxIU to 100.
+    set MaxIU to 150.
     set MaxReEntryCargoThinAtmo to 77800.
     set LaunchTimeSpanInSeconds to 265.
     set ShipHeight to 31.0.
