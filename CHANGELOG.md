@@ -3,6 +3,7 @@
 - mostly on target now
 - (only stock size tested)
 - (note: kraken might still attack on contact with chopsticks)
+- **. *the SEPkOSpatch for stock size is not needed, unless ur thrust is still too low* .**
 
 # V3.1.4 (2024-12-05) 
 - **Fixed Booster *not* Targeting OLM after giving the GO**
