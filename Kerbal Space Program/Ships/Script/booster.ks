@@ -151,7 +151,7 @@ local bSpeed is boosterStatus:addlabel("<b>Speed: </b>").
 local bAltitude is boosterStatus:addlabel("<b>Altitude: </b>").
     set bAltitude:style:wordwrap to false.
     set bAltitude:style:margin:left to 10.
-    set bAltitude:style:margin:top to 25.
+    set bAltitude:style:margin:top to 20.
     set bAltitude:style:width to 150.
     set bAltitude:style:fontsize to 16.
 local bThrust is boosterStatus:addlabel("<b>Thrust: </b>").
@@ -175,7 +175,7 @@ local Space2 is leftright:addvlayout().
 local spaceLabel is Space:addlabel("").
     set spaceLabel:style:width to 10.
 local spaceLabel2 is Space2:addlabel("").
-    set spaceLabel2:style:width to 10.
+    set spaceLabel2:style:width to 8.
 
 local data1 is GoNoGoPoll:addlabel("Tower: ").
     set data1:style:wordwrap to false.
@@ -234,11 +234,11 @@ local message4 is GoNoGoPoll:addlabel("Current decision: ").
     set message4:style:margin:top to 10.
     set message4:style:width to 230.
     set message4:style:fontsize to 16.
-local message3 is FDDecision:addlabel("Go-NoGo-Poll ending in: ??s").
+local message3 is FDDecision:addlabel("Poll ending in: ??s").
     set message3:style:wordwrap to false.
     set message3:style:margin:left to 10.
     set message3:style:margin:top to 10.
-    set message3:style:width to 230.
+    set message3:style:width to 200.
     set message3:style:fontsize to 18.
 
 
@@ -293,16 +293,16 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1800.
-        set LngCtrlPID:setpoint to 105.
+        set LngCtrlPID:setpoint to 90.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
-        set BoosterReturnMass to 135.
-        set BoosterRaptorThrust to 580.
-        set BoosterRaptorThrust3 to 760.
+        set BoosterReturnMass to 125.
+        set BoosterRaptorThrust to 448.
+        set BoosterRaptorThrust3 to 733.
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
-        set CatchVS to -0.1.
+        set CatchVS to -0.2.
     }
 }
 else {
@@ -326,16 +326,16 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1900.
-        set LngCtrlPID:setpoint to 105.
+        set LngCtrlPID:setpoint to 90.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
-        set BoosterReturnMass to 135.
-        set BoosterRaptorThrust to 580.
-        set BoosterRaptorThrust3 to 760.
+        set BoosterReturnMass to 125.
+        set BoosterRaptorThrust to 448.
+        set BoosterRaptorThrust3 to 733.
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
-        set CatchVS to -0.1.
+        set CatchVS to -0.2.
     }
     else {
         set STOCK to true.
@@ -355,17 +355,17 @@ else {
         set LngCtrlPID:setpoint to 50.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
-        set BoosterReturnMass to 135.
-        set BoosterRaptorThrust to 400.
-        set BoosterRaptorThrust3 to 760.
+        set BoosterReturnMass to 125.
+        set BoosterRaptorThrust to 448.
+        set BoosterRaptorThrust3 to 733.
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
-        set CatchVS to -0.25.
+        set CatchVS to -0.26.
     }
 }
 lock RadarAlt to alt:radar - BoosterHeight.
-set FinalDeceleration to 6.5.
+set FinalDeceleration to 1.5.
 
 for res in BoosterCore:resources {
     if res:name = "LqdMethane" {
@@ -876,7 +876,7 @@ function Boostback {
         wait 0.1.
     }
     when (RadarAlt < 69000 and RSS) or (RadarAlt < 35000 and not (RSS)) then {
-        if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+        if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 1.}
     }
     
     
@@ -909,9 +909,17 @@ function Boostback {
 
     lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     lock steering to SteeringVector.
-
-    until alt:radar < 1600 {
+    
+    set once to false.
+    until alt:radar < 1469 {
         SteeringCorrections().
+        if kuniverse:timewarp:warp > 0 {
+            set once to true.
+        }
+        if alt:radar < 4000 and once {
+            set kuniverse:timewarp:warp to 0.
+            set once to false.
+        }
         if altitude > 26000 and RSS or altitude > 20000 and not (RSS) {
             rcs on.
         }
@@ -931,7 +939,8 @@ function Boostback {
     else {
         //set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 7.5.
     }
-    lock throttle to LandingThrottle().
+    lock throttle to (LandingThrottle() - 0.1).
+    hudtext(throttle, 3, 2, 5, red, false).
     if RSS {
         lock SteeringVector to lookdirup(-1*velocity:surface, ApproachVector).
     } else {
@@ -1016,14 +1025,16 @@ function Boostback {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), facing:topvector).
     }
 
-    when ((verticalspeed > -120 and RSS) or (verticalspeed > -100 and not RSS)) and (stopDist3 / RadarAlt) < 1.8 and LngError < 200 or ((verticalspeed > -100 and RSS) or (verticalspeed > -80 and not RSS)) then {
+    when ((verticalspeed > -120 and RSS) or (verticalspeed > -110 and not RSS)) and (stopDist3 / RadarAlt) < 1.8 and LngError < 200 or ((verticalspeed > -120 and RSS) or (verticalspeed > -105 and not RSS)) then {
         set SwingTime to time:seconds.
+        lock throttle to 0.66.
         if not cAbort {
             lock SteeringVector to lookDirUp(up:vector, RollVector).
             lock steering to SteeringVector.
         }
         when (time:seconds > SwingTime + 1 and RSS) or (time:seconds > SwingTime + 1.5 and not RSS) then {
             set MiddleEnginesShutdown to true.
+            lock throttle to LandingThrottle().
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             set LngCtrlPID:setpoint to 0.
 
@@ -1070,15 +1081,26 @@ function Boostback {
         wait 0.1.
     }
     set t to time:seconds.
-    if LandSomewhereElse {
+    if LandSomewhereElse or not GfC {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), facing:topvector).
     }
     else if not (TargetOLM = "False") {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
     }
-    lock throttle to (Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
+    //lock throttle to (Planet1G + (verticalspeed / CatchVS - 1) - 0.2) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
+    lock throttle to 0.5.
+    set once to false.
     until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.2 or RadarAlt < -1 {
+        if once {}
+        else {
+            set t2 to time:seconds.
+        }
         SteeringCorrections().
+        if time:seconds > t2 + 3 {
+            lock throttle to 0.7.
+        } else {
+            lock throttle to 0.5.
+        }
         print "slowly lowering down booster..".
         rcs on.
         wait 0.01.
@@ -1247,8 +1269,8 @@ FUNCTION SteeringCorrections {
                 set LatCtrl to -LatCtrl.
             }
 
-            set maxDecel to max((ship:availablethrust / ship:mass) - 4.805, 0.000001).
-            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 8.805.
+            set maxDecel to max((ship:availablethrust / ship:mass) - 9.805, 0.000001).
+            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
 
             if not (MiddleEnginesShutdown) {
                 set stopTime9 to (airspeed - 50) / min(maxDecel, 50).
@@ -1304,8 +1326,8 @@ FUNCTION SteeringCorrections {
                 set LatCtrl to -LatCtrl.
             }
 
-            set maxDecel to max((ship:availablethrust / ship:mass) - 4.805, 0.000001).
-            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 8.805.
+            set maxDecel to max((ship:availablethrust / ship:mass) - 9.805, 0.000001).
+            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
 
             if not (MiddleEnginesShutdown) {
                 set stopTime9 to (airspeed - 50) / min(maxDecel, 50).
@@ -1319,7 +1341,7 @@ FUNCTION SteeringCorrections {
             else {
                 set TotalstopTime to airspeed / min(maxDecel, FinalDeceleration).
                 set TotalstopDist to (airspeed / 2) * TotalstopTime.
-                set landingRatio to TotalstopDist / (RadarAlt - 2.5).
+                set landingRatio to TotalstopDist / (RadarAlt + 2.5).
                 set LngCtrlPID:setpoint to 0.
             }
 
@@ -1362,8 +1384,8 @@ FUNCTION SteeringCorrections {
                 set LatCtrl to -LatCtrl.
             }
 
-            set maxDecel to max((ship:availablethrust / ship:mass) - 4.805, 0.000001).
-            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 8.805.
+            set maxDecel to max((ship:availablethrust / ship:mass) - 9.805, 0.000001).
+            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
 
             if not (MiddleEnginesShutdown) {
                 set stopTime9 to (airspeed - 50) / min(maxDecel, 50).
@@ -1443,11 +1465,20 @@ FUNCTION SteeringCorrections {
 
 
 function LandingThrottle {
-    if verticalspeed > CatchVS {
+    if verticalspeed > CatchVS and alt:radar > 200 {
+        set minDecel to (Planet1G - 0.025) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
+        set minDecel to minDecel.
+        set Hover to true.
+        return minDecel.
+    } 
+    else if verticalspeed > CatchVS {
         set minDecel to (Planet1G - 0.025) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
         set minDecel to minDecel + 0.2.
         set Hover to true.
         return minDecel.
+    }
+    if verticalSpeed < 30 and alt:radar > 60*Scale and verticalSpeed > CatchVS {
+        set minDecel to minDecel - 0.4.
     }
     if RSS {
         return max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.29).
@@ -1792,14 +1823,18 @@ function setTowerHeadingVector {
                     }
                 }
             }
-            lock RollVector to AngleAxis(2.9, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - BoosterCore:position).
+            if GfC {
+                lock RollVector to AngleAxis(2.9, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - BoosterCore:position).
+            } else {
+                lock RollVector to vxcl(up:vector,ErrorVector).
+            }
         }
     }
 }
 
 
 function GetBoosterRotation {
-    if not (TargetOLM = "false") and RadarAlt < 100 {
+    if not (TargetOLM = "false") and RadarAlt < 100 and GfC {
     //if 1=2 {
         set TowerHeadingVector to AngleAxis(8, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
 
@@ -1929,11 +1964,11 @@ function GUIupdate {
             set message3:text to "<size=13><b>NO</b> HSR Jettison</size>".
         }
     } else if PollTimer < 10 {
-        set message3:text to "Go-NoGo-Poll ending in: <color=red>" + round(PollTimer) + "</color>s".
+        set message3:text to "Poll ending in: <color=red>" + round(PollTimer) + "</color>s".
     } else if PollTimer < 20 {
-        set message3:text to "Go-NoGo-Poll ending in: <color=yellow>" + round(PollTimer) + "</color>s".
+        set message3:text to "Poll ending in: <color=yellow>" + round(PollTimer) + "</color>s".
     } else {
-        set message3:text to "Go-NoGo-Poll ending in: " + round(PollTimer) + "s".
+        set message3:text to "Poll ending in: " + round(PollTimer) + "s".
     }
 
     if PollTimer < -1.5 {
