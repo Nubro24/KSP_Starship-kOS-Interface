@@ -267,7 +267,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 2403.
-        set LngCtrlPID:setpoint to 85.
+        set LngCtrlPID:setpoint to 84.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -276,7 +276,7 @@ if bodyexists("Earth") {
         set Scale to 1.6.
         set CorrFactor to 0.7.
         set PIDFactor to 16.
-        set CatchVS to -0.3.
+        set CatchVS to -0.6.
     }
     else {
         set KSRSS to true.
@@ -293,7 +293,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1800.
-        set LngCtrlPID:setpoint to 90.
+        set LngCtrlPID:setpoint to 93.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 125.
@@ -326,7 +326,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1900.
-        set LngCtrlPID:setpoint to 90.
+        set LngCtrlPID:setpoint to 93.
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 125.
@@ -666,6 +666,10 @@ function Boostback {
             set GfC to false.
         }
 
+        if HSRJet and KSRSS {
+            set LngCtrlPID:setpoint to 150.
+        }
+
         if GfC and HSRJet {
             HUDTEXT("GO for Catch, HSR-Jettison", 8, 2, 20, green, false).
         } else if GfC and not HSRJet {
@@ -912,6 +916,30 @@ function Boostback {
     
     set once to false.
     until alt:radar < 1469 {
+        if KSRSS and HSRJet {set LngCtrlPID:setpoint to 120.}
+        SteeringCorrections().
+        if kuniverse:timewarp:warp > 0 {
+            set once to true.
+        }
+        if alt:radar < 4000 and once {
+            set kuniverse:timewarp:warp to 0.
+            set once to false.
+        }
+        if altitude > 26000 and RSS or altitude > 20000 and not (RSS) {
+            rcs on.
+        }
+        else {
+            rcs off.
+        }
+        PollUpdate().
+        GUIupdate().
+        SetBoosterActive().
+        CheckFuel().
+        wait 0.1.
+    }
+
+    until alt:radar < 1275 or not RSS {
+        if KSRSS and HSRJet {set LngCtrlPID:setpoint to 120.}
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -939,7 +967,22 @@ function Boostback {
     else {
         //set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 7.5.
     }
-    lock throttle to (LandingThrottle() - 0.1).
+
+    if HSRJet and RSS {
+        lock throttle to (LandingThrottle() - 0.4).
+    } 
+    else if HSRJet and not RSS {
+        lock throttle to (LandingThrottle() - 0.24).
+    }
+    else if RSS {
+        //BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+        //wait 0.01.
+        //set MiddleEnginesShutdown to true.
+        lock throttle to (LandingThrottle() - 0.42).
+    } else {
+        lock throttle to (LandingThrottle() - 0.08).
+    }
+    
     hudtext(throttle, 3, 2, 5, red, false).
     if RSS {
         lock SteeringVector to lookdirup(-1*velocity:surface, ApproachVector).
@@ -959,7 +1002,7 @@ function Boostback {
         lock RadarAlt to alt:radar - BoosterHeight.
     }
 
-    if (abs(LngError - LngCtrlPID:setpoint) > 50 * Scale or abs(LatError) > 5) and GfC and not cAbort {
+    if (abs(LngError - LngCtrlPID:setpoint) > 50 * Scale or abs(LatError) > 5) and not HSRJet and GfC and not cAbort {
         set LandSomewhereElse to true.
         lock RadarAlt to alt:radar - BoosterHeight.
         HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
@@ -969,6 +1012,7 @@ function Boostback {
     }
 
     set LngCtrlPID:setpoint to 0.
+    
 
     when RadarAlt < 1500 and not (LandSomewhereElse) then {
         if not (TargetOLM = "false") and TowerExists {
@@ -1025,16 +1069,39 @@ function Boostback {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), facing:topvector).
     }
 
-    when ((verticalspeed > -120 and RSS) or (verticalspeed > -110 and not RSS)) and (stopDist3 / RadarAlt) < 1.8 and LngError < 200 or ((verticalspeed > -120 and RSS) or (verticalspeed > -105 and not RSS)) then {
+    when ((verticalspeed > -120 and RSS) or (verticalspeed > -110 and not RSS)) and (stopDist3 / RadarAlt) < 1.8 and LngError < 200 and not MiddleEnginesShutdown or ((verticalspeed > -120 and RSS) or (verticalspeed > -105 and not RSS)) and not MiddleEnginesShutdown then {
         set SwingTime to time:seconds.
-        lock throttle to 0.66.
+        if not KSRSS {
+            if not RSS {
+                lock throttle to 0.67.
+            } else {
+                if HSRJet {
+                    lock throttle to 0.36.
+                } else {
+                    lock throttle to 0.42.
+                }
+            }
+        } else {
+            if not HSRJet {
+                lock throttle to 0.67.
+            } else {
+                lock throttle to 0.7.
+            }
+        }
         if not cAbort {
             lock SteeringVector to lookDirUp(up:vector, RollVector).
             lock steering to SteeringVector.
         }
         when (time:seconds > SwingTime + 1 and RSS) or (time:seconds > SwingTime + 1.5 and not RSS) then {
             set MiddleEnginesShutdown to true.
-            lock throttle to LandingThrottle().
+            if not RSS {
+                lock throttle to LandingThrottle().
+            } else {
+                lock throttle to 0.68.
+                if HSRJet {
+                    lock throttle to 0.71.
+                }
+            }
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             set LngCtrlPID:setpoint to 0.
 
@@ -1058,7 +1125,7 @@ function Boostback {
     }
 
 
-    until verticalspeed > CatchVS and RadarAlt < 2 or verticalspeed > -0.01 and RadarAlt < 2000 or hover {
+    until verticalspeed > CatchVS - 0.1 and RadarAlt < 2 or verticalspeed > -0.01 and RadarAlt < 2000 or hover {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         if RadarAlt > 500 {
@@ -1087,19 +1154,33 @@ function Boostback {
     else if not (TargetOLM = "False") {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
     }
-    //lock throttle to (Planet1G + (verticalspeed / CatchVS - 1) - 0.2) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
-    lock throttle to 0.5.
+    //lock throttle to (Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
+    if not RSS {
+        lock throttle to 0.5.
+    } else {
+        lock throttle to 0.33.
+    }
     set once to false.
     until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.2 or RadarAlt < -1 {
         if once {}
         else {
             set t2 to time:seconds.
+            set once to true.
         }
         SteeringCorrections().
         if time:seconds > t2 + 3 {
-            lock throttle to 0.7.
+            if RSS {
+                lock throttle to 0.38.
+                //lock throttle to (Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
+            } else {
+                lock throttle to 0.77.
+            }
         } else {
-            lock throttle to 0.5.
+            if RSS {
+                lock throttle to 0.33.
+            } else {
+                lock throttle to 0.6.
+            }
         }
         print "slowly lowering down booster..".
         rcs on.
@@ -1467,24 +1548,30 @@ FUNCTION SteeringCorrections {
 function LandingThrottle {
     if verticalspeed > CatchVS and alt:radar > 200 {
         set minDecel to (Planet1G - 0.025) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
-        set minDecel to minDecel.
+        //set minDecel to minDecel.
         set Hover to true.
         return minDecel.
     } 
     else if verticalspeed > CatchVS {
         set minDecel to (Planet1G - 0.025) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
-        set minDecel to minDecel + 0.2.
+        //set minDecel to minDecel + 0.2.
         set Hover to true.
         return minDecel.
     }
     if verticalSpeed < 30 and alt:radar > 60*Scale and verticalSpeed > CatchVS {
-        set minDecel to minDecel - 0.4.
+        //set minDecel to minDecel - 0.4.
     }
+    set thro to 0.
     if RSS {
-        return max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.29).
+        set thro to max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.29).
     }
     else {
-        return max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.33).
+        set thro to max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.33).
+    }
+    if thro > 1 {
+        return 1.
+    } else {
+        return thro.
     }
 }
 
