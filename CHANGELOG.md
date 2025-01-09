@@ -1,3 +1,8 @@
+# V3.1.6 (2025-01-08) 
+- aplying 3.1.5 to RSS and KSRSS
+- (hopefuly I didnt break Stock Size)
+- (note: kraken might still attack on contact with chopsticks)
+
 # V3.1.5 (2025-01-05) 
 - Fixing Booster Landing Attempt 2
 - mostly on target now
