@@ -1,4 +1,4 @@
-# V3.1.6 (2025-01-08) 
+# V3.1.6 (2025-01-09) 
 - aplying 3.1.5 to RSS and KSRSS
 - (hopefuly I didnt break Stock Size)
 - (note: kraken might still attack on contact with chopsticks)
