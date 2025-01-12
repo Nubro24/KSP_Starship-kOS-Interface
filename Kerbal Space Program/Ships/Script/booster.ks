@@ -1045,7 +1045,7 @@ function Boostback {
                 when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 20 * Scale and RadarAlt < 7.5 * BoosterHeight and not (WobblyTower) then {
                     sendMessage(Vessel(TargetOLM), "MechazillaArms,3.2,12,90,true").
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
-                    //sendMessage(Vessel(TargetOLM), "MechazillaHeight,2.8,0.5").
+                    if not KSRSS and not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,2.8,0.5").}
                     sendMessage(Vessel(TargetOLM), ("RetractSQDArm")).
                     when RadarAlt < 3.24 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",24,8,true")).
@@ -1104,7 +1104,7 @@ function Boostback {
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
-        when (time:seconds > SwingTime + 2.0 and RSS) or (time:seconds > SwingTime + 2.6 and not RSS and not KSRSS) or (time:seconds > SwingTime + 8 and KSRSS) then {
+        when (time:seconds > SwingTime + 2.0 and RSS) or (time:seconds > SwingTime + 4.2 and not RSS and not KSRSS) or (time:seconds > SwingTime + 12 and KSRSS) then {
             
             lock throttle to LandingThrottle().
             
