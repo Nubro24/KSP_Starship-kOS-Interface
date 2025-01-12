@@ -1,3 +1,9 @@
+# V3.1.7 (2025-01-12) 
+- Readded dynamic Landing Throttle
+- Changed Booster Flip direction to match IFT-5 & -6
+- Changed the Swing Maneuver on Booster Landing Burn
+- Fixed non-circular orbit insertion in RSS 
+
 # V3.1.6 (2025-01-09) 
 - aplying 3.1.5 to RSS and KSRSS
 - (hopefuly I didnt break Stock Size)
