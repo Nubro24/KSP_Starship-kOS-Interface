@@ -135,7 +135,7 @@ if RSS {         // Real Solar System
     set LandingAoA to 80.
     set MaxCargoToOrbit to 1510000.
     set MaxReEntryCargoThickAtmo to 2500.
-    set MaxIU to 250.
+    set MaxIU to 200.
     set MaxReEntryCargoThinAtmo to 151000.
     set LaunchTimeSpanInSeconds to 500.
     set ShipHeight to 49.7.
@@ -175,7 +175,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set LandingAoA to 75.
     set MaxCargoToOrbit to 126000.
     set MaxReEntryCargoThickAtmo to 1000.
-    set MaxIU to 150.
+    set MaxIU to 100.
     set MaxReEntryCargoThinAtmo to 126000.
     set LaunchTimeSpanInSeconds to 360.
     set ShipHeight to 31.0.
@@ -222,7 +222,7 @@ else {       // Stock Kerbin
     set LandingAoA to 75.
     set MaxCargoToOrbit to 77800.
     set MaxReEntryCargoThickAtmo to 1000.
-    set MaxIU to 150.
+    set MaxIU to 100.
     set MaxReEntryCargoThinAtmo to 77800.
     set LaunchTimeSpanInSeconds to 265.
     set ShipHeight to 31.0.
@@ -259,7 +259,7 @@ else {       // Stock Kerbin
     }
 }
 set SNStart to 30.  // Defines the first Serial Number when multiple ships are found and renaming is necessary.
-set MaxTilt to 2.5.  // Defines maximum allowed slope for the Landing Zone Search Function
+set MaxTilt to 3.5.  // Defines maximum allowed slope for the Landing Zone Search Function
 set maxstabengage to 0.  // Defines max closing of the stabilizers after landing.
 set CPUSPEED to 600.  // Defines cpu speed in lines per second.
 set FWDFlapDefault to 60.
@@ -4798,7 +4798,7 @@ set launchbutton:ontoggle to {
                             if TargetShip = 0 and not hastarget {}
                             else if not (TargetShip = 0) {
                                 if RSS {
-                                    set LaunchTimeSpanInSeconds to 540.
+                                    set LaunchTimeSpanInSeconds to 480.
                                     set LaunchDistance to 1450000.
                                 }
                                 else if KSRSS {
@@ -6658,8 +6658,8 @@ function Launch {
             }
             set PitchIncrement to 0 + 2.4 * CargoMass / MaxCargoToOrbit.
             set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0, 0, -30, PitchIncrement).
-            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 120.
-            set BoosterThrottleDownAlt to 1500.
+            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 20.
+            set BoosterThrottleDownAlt to 1400.
         }
         else if KSRSS {
             set LaunchElev to altitude - 67.74.
@@ -6714,7 +6714,7 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,12.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,2.2,0.5").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,1.8,0.5").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
             set x to time:seconds + 15.
@@ -7060,7 +7060,7 @@ function Launch {
                         }
                     }
                 }
-                until time:seconds > t + 3 {
+                until time:seconds > t + 2.43 {
                     clearscreen.
                     SendPing().
                     BackGroundUpdate().
@@ -7391,7 +7391,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
             }
         }
         else if KSRSS {
