@@ -1045,7 +1045,7 @@ function Boostback {
                 when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 20 * Scale and RadarAlt < 7.5 * BoosterHeight and not (WobblyTower) then {
                     sendMessage(Vessel(TargetOLM), "MechazillaArms,3.2,12,90,true").
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
-                    if not KSRSS and not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,2.8,0.5").}
+                    if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,3,0.5").}
                     sendMessage(Vessel(TargetOLM), ("RetractSQDArm")).
                     when RadarAlt < 3.24 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",24,8,true")).
