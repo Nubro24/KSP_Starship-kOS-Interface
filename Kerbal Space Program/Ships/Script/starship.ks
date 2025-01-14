@@ -9716,7 +9716,7 @@ function updatestatusbar {
         if FuelMass = 0 {
             set FuelMass to 0.001.
         }
-        if DeltaVCheck {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).}
+        //if DeltaVCheck {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).}
         if currentdeltav > 275 {set status2:style:textcolor to white.}
         else if currentdeltav < 250 {set status2:style:textcolor to red.}
         else {set status2:style:textcolor to yellow.}
