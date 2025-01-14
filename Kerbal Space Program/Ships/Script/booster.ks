@@ -698,15 +698,16 @@ function Boostback {
         lock throttle to 0.
         set BoostBackComplete to true.
 
-
-        if GD and GE and GF and GT {
-            set GfC to true.
-        } else {
-            set GfC to false.
-        }
+        PollUpdate().
+        GUIupdate().
 
         if GfC and HSRJet {
             HUDTEXT("GO for Catch, HSR-Jettison", 8, 2, 20, green, false).
+            if not KSRSS and not RSS{
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 15.
+            } else {
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 20.
+            }
         } else if GfC and not HSRJet {
             HUDTEXT("GO for Catch, NO HSR-Jettison", 8, 2, 20, green, false).
         } else if not GfC and HSRJet {
@@ -716,11 +717,6 @@ function Boostback {
         }
         
         if GfC {
-            if HSRJet and not KSRSS and not RSS{
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 15.
-            } else {
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 20.
-            }
             when not GfC then {
                 set cAbort to true.
                 set landingzone to offshoreSite.

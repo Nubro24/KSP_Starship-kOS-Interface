@@ -416,6 +416,7 @@ set Dist2LandProc to 1.
 set LowCargoMass to false.
 set HSRJet to false.
 set Booster to "".
+set DeltaVCheck to true.
 
 
 
@@ -4622,6 +4623,7 @@ set launchbutton:ontoggle to {
                     set message3:style:textcolor to cyan.
                     set execute:text to "<b>REFUEL</b>".
                     if confirm() {
+                        set DeltaVCheck to false.
                         set message3:style:textcolor to white.
                         set message3:text to "".
                         set execute:text to "<b>EXECUTE</b>".
@@ -4677,6 +4679,7 @@ set launchbutton:ontoggle to {
                         ClearInterfaceAndSteering().
                         return.
                     }
+                    
                     if CargoMass < MaxCargoToOrbit + 1 and cargo1text:text = "Closed" {
                         ShowHomePage().
                         InhibitButtons(0, 0, 0).
@@ -4751,9 +4754,11 @@ set launchbutton:ontoggle to {
                         set execute:text to "<b>CONFIRM</b>".
                         set cancel:text to "<b>DENY</b>".
                         if confirm() {
+                            set DeltaVCheck to true.
                             set HSRJet to true.
                         } else {
                             set HSRJet to false.
+                            set DeltaVCheck to true.
                         }
                         set message1:text to "".
                         set message2:text to "".
@@ -9680,14 +9685,20 @@ function updatestatusbar {
                     set OxShip to OxShip + res:amount.
                     set OxShipCap to OxShipCap + res:capacity.
                 }
-                //if not (res:enabled) {
-                //    set res:enabled to true.
-                //}
+                if not (res:enabled) {
+                    set res:enabled to true.
+                }
             }
             set FuelMass to (Tank:mass - Tank:drymass) + (HeaderTank:mass - HeaderTank:drymass).
+            if FuelMass = 0 {
+                set FuelMass to 0.001.
+            }
         }
         else {
             set FuelMass to Tank:mass - Tank:drymass.
+            if FuelMass = 0 {
+                set FuelMass to 0.001.
+            }
         }
 
         if SLEngines[0]:ignition and not (VACEngines[0]:ignition) {
@@ -9705,7 +9716,7 @@ function updatestatusbar {
         if FuelMass = 0 {
             set FuelMass to 0.001.
         }
-        set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).
+        if DeltaVCheck {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).}
         if currentdeltav > 275 {set status2:style:textcolor to white.}
         else if currentdeltav < 250 {set status2:style:textcolor to red.}
         else {set status2:style:textcolor to yellow.}
@@ -9819,7 +9830,7 @@ function updatestatusbar {
                 }
             }
         }
-        if ShipType = "Tanker" or ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp"{
+        if ShipType = "Tanker" or ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1Exp" {
             cargobutton:hide().
         }
         else {
@@ -13348,7 +13359,7 @@ function CheckFullTanks {
                 }
             }
         }
-        if ShipType = "Block1" {
+        if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
             for res in HeaderTank:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                     set FullTanks to false.
@@ -13358,14 +13369,14 @@ function CheckFullTanks {
             }
         }
         for res in Tank:resources {
-            if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not ShipType = "Block1" and not ShipType = "Cargo" {
+            if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not ShipType = "Block1" and not ShipType = "Block1Cargo" and not ShipType = "Block1PEZ" and not ShipType = "Cargo" {
                 set FullTanks to false.
                 set amount to amount + res:amount.
                 set cap to cap + res:capacity.
             } else {
-                for res in BoosterCore[0]:resources {
-                    if res:name = "Oxidizer" or res:name = "LqdMethane" {
-                        set res:enabled to true.
+                for res2 in BoosterCore[0]:resources {
+                    if res2:name = "Oxidizer" or res2:name = "LqdMethane" {
+                        set res2:enabled to true.
                     }
                 }
             }
@@ -13373,7 +13384,7 @@ function CheckFullTanks {
 
         
 
-        if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
+        if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 and FullTanks {
             for res in BoosterCore[0]:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass > 24 {
                     set FullTanks to false.
@@ -13384,31 +13395,31 @@ function CheckFullTanks {
                     set LowCargoMass to true.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
-                    for res in Tank:resources {
-                        if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass > 12 {
-                            for res in BoosterCore[0]:resources {
-                                if res:name = "Oxidizer" or res:name = "LqdMethane" {
-                                    set res:enabled to false.
+                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
+                    for res2 in Tank:resources {
+                        if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass > 12 {
+                            for res3 in BoosterCore[0]:resources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to false.
                                 }
                             }
                             set FullTanks to false.
-                            set amount to amount + res:amount.
-                            set cap to cap + res:capacity.
-                        } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass <= 12 {
-                            for res in BoosterCore[0]:resources {
-                                if res:name = "Oxidizer" or res:name = "LqdMethane" {
-                                    set res:enabled to false.
+                            set amount to amount + res2:amount.
+                            set cap to cap + res2:capacity.
+                        } else if res2:amount < res2:capacity * 0.9 - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass <= 12 {
+                            for res3 in BoosterCore[0]:resources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to false.
                                 }
                             }
                             set FullTanks to false.
                             set LowCargoMass to true.
-                            set amount to amount + res:amount.
-                            set cap to cap + res:capacity.
+                            set amount to amount + res2:amount.
+                            set cap to cap + res2:capacity.
                         } else {
-                            for res in BoosterCore[0]:resources {
-                                if res:name = "Oxidizer" or res:name = "LqdMethane" {
-                                    set res:enabled to true.
+                            for res3 in BoosterCore[0]:resources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to true.
                                 }
                             }
                         }
