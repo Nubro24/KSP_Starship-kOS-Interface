@@ -1,5 +1,5 @@
 # V3.1.8 (2025-01-14) 
-- fixed Refueling Mistake leeding to thrust anomaly
+- fixed Refueling Mistake leading to thrust anomaly
 
 # V3.1.7 (2025-01-12) 
 - Readded dynamic Landing Throttle
