@@ -104,6 +104,7 @@ set VentCutOff to false.
 set command to "".
 set parameter1 to "".
 set GF to false.
+set GFnoGO to false.
 set GE to false.
 set GT to false.
 set GD to false.
@@ -355,7 +356,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1650.
-        set LngCtrlPID:setpoint to 55. //50
+        set LngCtrlPID:setpoint to 57. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 125.
@@ -500,12 +501,15 @@ function Boostback {
                         }
                     }
                     if not (ShipFound) {
-                        for tgt in tgtlist {
-                            if tgt:name:contains("Starship") and tgt:orbit:periapsis < ship:body:atm:height {
-                                set ShipFound to true.
-                                print tgt:name.
-                                set starship to tgt:name.
-                                wait 0.001.
+                        set waittimer to time:seconds.
+                        when waittimer + 3 > time:seconds then {
+                            for tgt in tgtlist {
+                                if tgt:name:contains("Starship") and tgt:orbit:periapsis < ship:body:atm:height {
+                                    set ShipFound to true.
+                                    print tgt:name.
+                                    set starship to tgt:name.
+                                    wait 0.001.
+                                }
                             }
                         }
                         set ShipNotFound to true.
@@ -1184,7 +1188,7 @@ function Boostback {
         clearscreen.
         print "Booster Landed!".
         wait 0.01.
-        BoosterEngines[0]:shutdown.
+        if BoosterEngines[0]:length > 0 {BoosterEngines[0]:shutdown.}
     } else if not GfC {
         lock throttle to 0.
         rcs on.
@@ -1198,7 +1202,7 @@ function Boostback {
         print "Booster Landed!".
         wait 0.01.
         set ship:control:pitch to 0.
-        BoosterEngines[0]:shutdown.
+        if BoosterEngines[0]:length > 0 {BoosterEngines[0]:shutdown.}
     }
     
     
@@ -1970,8 +1974,14 @@ function PollUpdate {
     } else {
         if RadarAlt > 1900 {
             set GF to false.
+            unlock throttle.
+            lock throttle to 0.
+            set BoostBackComplete to true.
+            set GFnoGO to true.
         } else {
-            set GF to true.
+            if not GFnoGO {
+                set GF to true.
+            }
         }
     }
 }

@@ -144,7 +144,7 @@ if RSS {         // Real Solar System
     set towerhgt to 96.
     set LaunchSites to lexicon("KSC", "28.497545,-80.535394").
     set DefaultLaunchSite to "28.497545,-80.535394".
-    set FuelVentCutOffValue to 7500.
+    set FuelVentCutOffValue to 8500.
     set FuelBalanceSpeed to 50.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 10000.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
@@ -185,12 +185,12 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     if RESCALE and bodyexists("Kerbin") {
         set LaunchSites to lexicon("KSC", "-0.0970,-74.5833", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set DefaultLaunchSite to "-0.0970,-74.5833".
-        set FuelVentCutOffValue to 931.5.
+        set FuelVentCutOffValue to 1431.5.
     }
     else {
         set LaunchSites to lexicon("KSC", "28.497545,-80.535394").
         set DefaultLaunchSite to "28.497545,-80.535394".
-        set FuelVentCutOffValue to 931.5.
+        set FuelVentCutOffValue to 1431.5.
     }
     set FuelBalanceSpeed to 30.
     set RollVector to heading(242,0):vector.
@@ -504,6 +504,7 @@ function FindParts {
                 }
 				else if x:title = "Donnager MK-3 Header Tank" or x:name:contains("SEP.24.SHIP.HEADER") {
                     set HeaderTank to x.
+
                 }
                 else if x:title = "Starship Header Tank" {
                     set HeaderTank to x.
@@ -972,7 +973,8 @@ set g_close:onclick to {
             lock throttle to 0.
             unlock throttle.
             if defined Nose {
-                if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+                if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+                else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
                 }
             }
@@ -1266,7 +1268,7 @@ local setting1label is settingsstackvlayout1:addlabel("<b>Target Landing Zone:</
     set setting1label:style:fontsize to 19.
     set setting1label:style:wordwrap to false.
     set setting1label:style:width to 225.
-    set setting1label:tooltip to "Ship Landing Target coördinates (e.g. " + DefaultLaunchSite + "). Default = Launchpad".
+    set setting1label:tooltip to "Ship Landing Target coordinates (e.g. " + DefaultLaunchSite + "). Default = Launchpad".
 local setting1 is settingsstackvlayout2:addtextfield(DefaultLaunchSite).
     set setting1:style:width to 175.
     set setting1:style:margin:top to 10.
@@ -1303,12 +1305,14 @@ local TargetLZPicker is settingsstackvlayout2:addpopupmenu().
     set TargetLZPicker:style:focused:bg to "starship_img/starship_background_light".
     set TargetLZPicker:style:focused_on:bg to "starship_img/starship_background_light".
     if RSS or KSRSS {
-        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>KSC</color></b>").
+        set TargetLZPicker:maxvisible to 6.
+        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>KSC</color></b>", "<b><color=white>Off-Shore</color></b>", "<b><color=white>Off-Shore Boca Chica</color></b>").
     }
     else {
-        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>KSC</color></b>", "<b><color=white>Dessert</color></b>", "<b><color=white>Woomerang</color></b>","<b><color=white>Baikerbanur</color></b>").
+        set TargetLZPicker:maxvisible to 8.
+        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>KSC</color></b>", "<b><color=white>Dessert</color></b>", "<b><color=white>Woomerang</color></b>", "<b><color=white>Off-Shore</color></b>","<b><color=white>Baikerbanur</color></b>").
     }
-    set TargetLZPicker:tooltip to "Select a predefined Landing Zone here:  e.g.  KSC, Dessert, Woomerang".
+    set TargetLZPicker:tooltip to "Select a predefined Landing Zone here:  e.g.  KSC, Off-Shore".
 local setting3label is settingsstackvlayout1:addlabel("<b>Launch Inclination (°)</b>").
     set setting3label:style:margin:left to 10.
     set setting3label:style:fontsize to 19.
@@ -1488,6 +1492,57 @@ set TargetLZPicker:onchange to {
         }
         if KUniverse:activevessel = vessel(ship:name) {
             ADDONS:TR:SETTARGET(landingzone).
+        }
+    }
+    if choice = "<b><color=white>Off-Shore</color></b>" {
+        if not RSS and not KSRSS {
+            set setting1:text to "-0.0970,-74.2".
+            set landingzone to latlng(-0.0970,-74.2).
+            if homeconnection:isconnected {
+                SaveToSettings("Landing Coordinates", "-0.0970,-74.2").
+            }
+            if KUniverse:activevessel = vessel(ship:name) {
+                ADDONS:TR:SETTARGET(landingzone).
+            }
+        } else if RSS {
+            set setting1:text to "28.497545,-80.46".
+            set landingzone to latlng(28.497545,-80.46).
+            if homeconnection:isconnected {
+                SaveToSettings("Landing Coordinates", "28.497545,-80.46").
+            }
+            if KUniverse:activevessel = vessel(ship:name) {
+                ADDONS:TR:SETTARGET(landingzone).
+            }
+        } else {
+            set setting1:text to "28.50895,-80.4".
+            set landingzone to latlng(28.50895,-80.4).
+            if homeconnection:isconnected {
+                SaveToSettings("Landing Coordinates", "28.50895,-80.4").
+            }
+            if KUniverse:activevessel = vessel(ship:name) {
+                ADDONS:TR:SETTARGET(landingzone).
+            }
+        }
+    }
+    if choice = "<b><color=white>Off-Shore Boca Chica</color></b>" {
+        if RSS {
+            set setting1:text to "25.9965,-97.075".
+            set landingzone to latlng(25.9965,-97.075).
+            if homeconnection:isconnected {
+                SaveToSettings("Landing Coordinates", "25.9965,-97.075").
+            }
+            if KUniverse:activevessel = vessel(ship:name) {
+                ADDONS:TR:SETTARGET(landingzone).
+            }
+        } else {
+            set setting1:text to "25.9965,-97.07".
+            set landingzone to latlng(25.9965,-97.070).
+            if homeconnection:isconnected {
+                SaveToSettings("Landing Coordinates", "25.9965,-97.070").
+            }
+            if KUniverse:activevessel = vessel(ship:name) {
+                ADDONS:TR:SETTARGET(landingzone).
+            }
         }
     }
     if choice = "<b><color=white>Current Impact</color></b>" {
@@ -1962,7 +2017,8 @@ set quickattitude1:onclick to {
     set attitude2label:style:textcolor to grey.
     set attitude2label:style:bg to "starship_img/attitude_page_background".
     if defined Nose {
-        if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).}
+            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
         Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
         }
     }
@@ -5136,6 +5192,7 @@ set landbutton:ontoggle to {
                             BackGroundUpdate().
                         }
                         set message1:text to "".
+                        set CargoMass to ship:mass - ship:drymass.
                         if ShipType = "Tanker" and CargoMass > MaxReEntryCargoThickAtmo and ship:body:atm:sealevelpressure > 0.5 or ShipType = "Tanker" and CargoMass > MaxReEntryCargoThinAtmo and ship:body:atm:sealevelpressure < 0.5 {
                             ShowHomePage().
                             set textbox:style:bg to "starship_img/starship_main_square_bg".
@@ -5862,7 +5919,8 @@ function LandwithoutAtmo {
         ActivateEngines(1).
         lock throttle to 0.
         if defined Nose {
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).}
+            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
             Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
             }
         }
@@ -5934,6 +5992,7 @@ function LandwithoutAtmo {
             return.
         }
         set runningprogram to "After Landing".
+        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).}
         Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
         set ship:control:translation to v(0, 0, 0).
         set ShutdownComplete to false.
@@ -5974,7 +6033,8 @@ function LandwithoutAtmo {
         set message3:text to "<b>Hatches may now be opened..</b>".
         set runningprogram to "None".
         if defined Nose {
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).}
+            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
             Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
             }
         }
@@ -7892,12 +7952,17 @@ function ReEntryAndLand {
         set textbox:style:bg to "starship_img/starship_main_square_bg".
         set t to time:seconds.
 
-        if ShipType="Block1" {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).}
-        if not (ShipType="Block1") and not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).}
+        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).}
+            else if not (ShipType="Block1") and not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).}
         Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).
         //if Tank:getmodule("ModuleSepPartSwitchAction"):getfield("current docking system") = "QD" {
         //    Tank:getmodule("ModuleSepPartSwitchAction"):DoAction("next docking system", true).
         //}
+        for res in HeaderTank:resources {
+            if not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
+                set res:enabled to true.
+            } 
+        }
         ShowButtons(0).
         InhibitButtons(1, 1, 0).
         if altitude > 30000 {
@@ -8263,7 +8328,7 @@ function ReEntryData {
         set result to lookdirup(facing:forevector, facing:topvector).
     }
     if altitude < ship:body:atm:height - 5000 and vang(facing:forevector, result:vector) > 29 or CargoMass > 25000 * Scale {
-        if ShipType="Block1" {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
         if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
         Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         }
@@ -8272,7 +8337,7 @@ function ReEntryData {
 
     }
     if time:seconds > tt + 15 {
-        if ShipType="Block1" {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).}
+        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).}
         if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
         Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
         }
@@ -8489,8 +8554,8 @@ function ReEntryData {
             set LandingFlipStart to time:seconds.
             setflaps(0, 80, 1, 0).
             set ship:control:pitch to 1.
-            if ShipType="Block1" {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
-            if not (ShipType= "Block1") and not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             set ThrottleMin to 0.37.
             if STOCK {
@@ -8518,7 +8583,8 @@ function ReEntryData {
                 }
                 wait 0.001.
                 Tank:shutdown.
-                if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").}
+                //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").}
+                if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
                 SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
@@ -8545,7 +8611,7 @@ function ReEntryData {
             set LandingLateralDirection to facing:starvector.
             set LandingBurnStarted to false.
             set landingRatio to 0.
-            set LandingFlipTime to 4.
+            set LandingFlipTime to 5.
             set maxDecel to 0.
             set maxG to 4.
             set DesiredDecel to 0.
@@ -8574,20 +8640,23 @@ function ReEntryData {
                 
 
                 if TargetOLM {
-                    when RadarAlt < 0.88 * ShipHeight then {
+                    when RadarAlt < 2.42 * ShipHeight then {
                         setflaps(0, 85, 1, 0).
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",10,30,true")).
-                        when RadarAlt < 0.22 * ShipHeight then {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",7,5,true")).
-                            if RadarAlt > 1 * Scale {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",20,30,true")).
+                        when RadarAlt < 0.66 * ShipHeight then {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",12,5,true")).
+                            if RadarAlt > 0.24 * ShipHeight {
                                 set t to time:seconds.
                                 until time:seconds > t + 0.1 {}
                                 preserve.
                             }
                             else {
-                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",4,60,false")).
-                                sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
-                                sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,2,60,false")).
+                                set k to time:seconds.
+                                if time:seconds < k + 2 {
+                                    sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",8,1,false")).
+                                } else {
+                                    sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,6,1,false")).
+                                }
                             }
                         }
                         if LandSomewhereElse {
@@ -8627,7 +8696,7 @@ function ReEntryData {
             }
 
             
-            when verticalspeed > -42 and throttle < ThrottleMin + 0.005 and groundspeed < 5 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G then {
+            when verticalspeed > -42 and throttle < ThrottleMin + 0.05 and groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G then {
                 SLEngines[1]:shutdown.
                 SLEngines[1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                 LogToFile("3rd engine shutdown; performing a 2-engine landing..").
@@ -8642,7 +8711,7 @@ function ReEntryData {
             until verticalspeed > CatchVS and RadarAlt < 15 * Scale and groundspeed < 1 or Hover and groundspeed < 1 {
                 SendPing().
                 if ship:body:atm:sealevelpressure > 0.5 {
-                    if ErrorVector:MAG > (Scale * 1.5 * RadarAlt + 25) and RadarAlt > 5 and not (LandSomewhereElse) or RadarAlt < -1 and not (LandSomewhereElse) or verticalspeed > -15 and ErrorVector:MAG > 15 * Scale {
+                    if ErrorVector:MAG > (Scale * 2 * RadarAlt + 25) and RadarAlt > 55 and not (LandSomewhereElse) or RadarAlt < -1 and not (LandSomewhereElse) or verticalspeed > -15 and ErrorVector:MAG > 15 * Scale {
                         set LandSomewhereElse to true.
                         SetRadarAltitude().
                         LogToFile("Uh oh... Landing Off-Target").
@@ -8673,7 +8742,7 @@ function ReEntryData {
                 wait 0.001.
                 set t to time:seconds.
                 lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
-                lock throttle to min((Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), ThrottleMin).
+                lock throttle to max((Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), ThrottleMin).
                 until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.01 or RadarAlt < -1 {
                     SendPing().
                     BackGroundUpdate().
@@ -8702,6 +8771,7 @@ function ReEntryData {
                         wait 0.01.
                     }
                 }
+                //sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
             }
             print "Ship Landing Confirmed!".
             LogToFile("Ship Landing Confirmed!").
@@ -8910,7 +8980,8 @@ function LandingVector {
             set FWDFlapDefault to 60.
             set AFTFlapDefault to 60.
             set FlapsYawEngaged to true.
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
             Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
@@ -8949,8 +9020,9 @@ function LandingVector {
             else {
                 setflaps(80, 85, 1, 0).
             }
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).}
+            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
             }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
             set message1:text to "<b><color=green>Vehicle Self-Check OK!</color></b>".
@@ -8958,7 +9030,8 @@ function LandingVector {
             set message2:text to "<b>Re-Entry & Land Program completed..</b>".
             set message3:text to "<b>Hatches may now be opened..</b>".
             set runningprogram to "None".
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
             Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
@@ -9052,10 +9125,10 @@ function LngLatError {
         if ship:body:atm:sealevelpressure > 0.5 {
             if TargetOLM {
                 if STOCK {
-                    set LngLatOffset to -230.
+                    set LngLatOffset to -60.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -65.
+                    set LngLatOffset to -64.
                 }
                 else {
                     set LngLatOffset to -55.
@@ -9063,7 +9136,7 @@ function LngLatError {
             }
             else {
                 if STOCK {
-                    set LngLatOffset to -220.
+                    set LngLatOffset to -60.
                 }
                 else if KSRSS {
                     set LngLatOffset to -80.
@@ -9716,7 +9789,7 @@ function updatestatusbar {
         if FuelMass = 0 {
             set FuelMass to 0.001.
         }
-        //if DeltaVCheck {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).}
+        if DeltaVCheck {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).}
         if currentdeltav > 275 {set status2:style:textcolor to white.}
         else if currentdeltav < 250 {set status2:style:textcolor to red.}
         else {set status2:style:textcolor to yellow.}
@@ -11773,7 +11846,7 @@ function LandAtOLM {
             set FlipAltitude to 500.
         }
         else if KSRSS {
-            set FlipAltitude to 550.
+            set FlipAltitude to 624.
         }
         else {
             set FlipAltitude to 524.
@@ -12184,7 +12257,8 @@ function PerformBurn {
         set runningprogram to "Standby for Burn".
         HideEngineToggles(1).
         if defined Nose {
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).}
+            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
             }
         }
@@ -13344,9 +13418,12 @@ function CheckFullTanks {
         if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
+                    set res:enabled to true.
                     set FullTanks to false.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
+                } else {
+                    set res:enabled to false.
                 }
             }
         }
@@ -13362,10 +13439,13 @@ function CheckFullTanks {
         if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
             for res in HeaderTank:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
+                    set res:enabled to true.
                     set FullTanks to false.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } 
+                } else {
+                    set res:enabled to false.
+                }
             }
         }
         for res in Tank:resources {
