@@ -1,3 +1,9 @@
+# V3.1.9 (2025-01-15) 
+- Fixed Ship Landing for Stock and KSRSS
+- Added Off Shore landing site for Ship
+- Fixed too much Fuel message for Tanker
+  (note: too much Cargo message after Cargo deployment -> restart Tank-CPU)
+
 # V3.1.8 (2025-01-14) 
 - fixed Refueling Mistake leading to thrust anomaly
 
