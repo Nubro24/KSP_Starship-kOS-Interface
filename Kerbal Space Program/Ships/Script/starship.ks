@@ -144,7 +144,7 @@ if RSS {         // Real Solar System
     set towerhgt to 96.
     set LaunchSites to lexicon("KSC", "28.497545,-80.535394").
     set DefaultLaunchSite to "28.497545,-80.535394".
-    set FuelVentCutOffValue to 8500.
+    set FuelVentCutOffValue to 7700.
     set FuelBalanceSpeed to 50.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 10000.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
@@ -7074,6 +7074,9 @@ function Launch {
         }
 
         if Boosterconnected {
+            when apoapsis > BoosterAp - 14000 * Scale then {
+                lock steering to lookDirUp(prograde:vector+0.3*up:vector, LaunchRollVector).
+            }
             when apoapsis > BoosterAp - 7500 * Scale and ShipType = "Crew" then {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
             }
@@ -7164,10 +7167,8 @@ function Launch {
                     }
                 }
                 
-                print "1".
                 wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0.
                 set StageSepComplete to true.
-                print "2".
                 set ship:name to ("Starship " + ShipType).
                 set Boosterconnected to false.
                 set CargoAfterSeparation to CargoMass.
@@ -7214,6 +7215,7 @@ function Launch {
         when StageSepComplete then {
             when time:seconds > HotStageTime + 1.8 then {
                 lock throttle to LaunchThrottle().
+                lock steering to LaunchSteering().
             }
             when time:seconds > HotStageTime + 2.4 then {
                 KUniverse:forceactive(vessel("Booster")).
@@ -7223,7 +7225,7 @@ function Launch {
             }
 
 
-            when time:seconds > HotStageTime + 25 then {
+            when time:seconds > HotStageTime + 15 then {
                     if HSRJet {
                         sendMessage(vessel("Booster"), "HSRJet").
                     } 
@@ -8557,7 +8559,7 @@ function ReEntryData {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
             else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-            set ThrottleMin to 0.37.
+            set ThrottleMin to 0.42.
             if STOCK {
                 set FlipAngleFactor to 0.5.
                 set CatchVS to -0.25.
@@ -8643,6 +8645,7 @@ function ReEntryData {
                     when RadarAlt < 2.42 * ShipHeight then {
                         setflaps(0, 85, 1, 0).
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",20,30,true")).
+                        when RadarAlt < 1.5 * ShipHeight then {sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",20,30,true")).}
                         when RadarAlt < 0.66 * ShipHeight then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",12,5,true")).
                             if RadarAlt > 0.24 * ShipHeight {
@@ -8654,9 +8657,10 @@ function ReEntryData {
                                 set k to time:seconds.
                                 if time:seconds < k + 2 {
                                     sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",8,1,false")).
-                                } else {
-                                    sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,6,1,false")).
-                                }
+                                } 
+                            }
+                            when RadarAlt < 3 * Scale then {
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,6,1,false")).
                             }
                         }
                         if LandSomewhereElse {
@@ -8938,7 +8942,7 @@ function LandingVector {
     DetectWobblyTower().
 
     wait 0.001.
-    if TargetOLM and RadarAlt < 50 * Scale and not (LandSomewhereElse) {
+    if TargetOLM and RadarAlt < 70 * Scale and not (LandSomewhereElse) {
         set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - Nose:position).
         return lookDirUp(result, RollVector).
     }
@@ -9128,7 +9132,7 @@ function LngLatError {
                     set LngLatOffset to -60.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -64.
+                    set LngLatOffset to -94.
                 }
                 else {
                     set LngLatOffset to -55.
@@ -12043,7 +12047,7 @@ function LandingZoneFinder {
 function CheckLZReachable {
     set LngLatErrorList to LngLatError().
     if ship:body:atm:sealevelpressure > 0.5 {
-        if abs(LngLatErrorList[0]) > 5000 or abs(LngLatErrorList[1]) > 1500 {
+        if abs(LngLatErrorList[0]) > 7000 or abs(LngLatErrorList[1]) > 2000 {
             set AvailableLandingSpots to CheckSlope(1).
             wait 0.1.
             set FindNewTarget to true.
@@ -12058,7 +12062,7 @@ function CheckLZReachable {
         LogToFile("Dense Atmo Planet Automated Landing Activated").
     }
     else if ship:body:atm:sealevelpressure < 0.5 and ship:body:atm:exists {
-        if abs(LngLatErrorList[0]) > 7500 and not (RSS) or abs(LngLatErrorList[0]) > 200000 and RSS or abs(LngLatErrorList[1]) > 250 and not (RSS) or abs(LngLatErrorList[1]) > 10000 and RSS {
+        if abs(LngLatErrorList[0]) > 7500 and not (RSS) or abs(LngLatErrorList[0]) > 200000 and RSS or abs(LngLatErrorList[1]) > 2500 and not (RSS) or abs(LngLatErrorList[1]) > 10000 and RSS {
             set AvailableLandingSpots to CheckSlope(1).
             wait 0.1.
             set FindNewTarget to true.
