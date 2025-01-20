@@ -1,3 +1,7 @@
+# V3.1.10 (2025-01-20) 
+- Fixed Ship Catch in KSRSS
+- increased Error capability before diverting Ship Landing (untested)
+
 # V3.1.9 (2025-01-15) 
 - Fixed Ship Landing for Stock and KSRSS
 - Added Off Shore landing site for Ship
