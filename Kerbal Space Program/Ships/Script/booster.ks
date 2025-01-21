@@ -1015,6 +1015,7 @@ function Boostback {
     } else {
         lock SteeringVector to lookdirup(-1*velocity:surface+6*up:vector:normalized, ApproachVector).
     }
+    PollUpdate().
     
     lock steering to SteeringVector.
     
@@ -1050,8 +1051,15 @@ function Boostback {
 
     when RadarAlt < 1500 and not (LandSomewhereElse) then {
         if not (TargetOLM = "false") and TowerExists {
+            PollUpdate().
+            when not GfC then {
+                set cAbort to true.
+                HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
+                set LandSomewhereElse to true.
+                lock RadarAlt to alt:radar - BoosterHeight.
+            }
             if Vessel(TargetOLM):distance < 2250 {
-
+                PollUpdate().
                 lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist.
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
@@ -1109,6 +1117,7 @@ function Boostback {
         
         if not cAbort {
             //lock SteeringVector to lookDirUp((up:vector:normalized + 0.05*vxcl(up:vector, velocity:surface):normalized), RollVector).
+            PollUpdate().
             
             if KSRSS {
                 lock SteeringVector to lookDirUp(up:vector - 0.024*ErrorVector, RollVector).
@@ -1117,6 +1126,7 @@ function Boostback {
             } else {
                 lock SteeringVector to lookDirUp(up:vector - 0.024*ErrorVector, RollVector).
             }
+            PollUpdate().
             
             
             lock steering to SteeringVector.
@@ -1124,16 +1134,19 @@ function Boostback {
             when vAng(ApproachVector, up:vector) < 10 then {
                 HUDTEXT("10", 10, 2, 10, yellow, false).
                 lock steering to lookDirUp(up:vector - 0.02 * vxcl(up:vector, velocity:surface) - 0.005 * ErrorVector, RollVector).
+                PollUpdate().
             }
         }
 
         when SwingTime+0.5 < time:seconds then {
+            PollUpdate().
             set MiddleEnginesShutdown to true.
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
         }
 
         //when (time:seconds > SwingTime + 2.0 and RSS) or (time:seconds > SwingTime + 4.2 and not RSS and not KSRSS) or (time:seconds > SwingTime + 12 and KSRSS) then {
         when vAng(ApproachVector, up:vector) < 5 then {
+            PollUpdate().
             HUDTEXT("5", 10, 2, 10, yellow, false).
             
             lock throttle to LandingThrottle().
@@ -2012,6 +2025,11 @@ function PollUpdate {
                 set GF to true.
             }
         }
+    }
+    if GD and GE and GF and GT {
+        set GfC to true.
+    } else {
+        set GfC to false.
     }
 }
 
