@@ -1,3 +1,6 @@
+# V3.2.0 (2025-01-21) 
+- Reworked Booster Guidance during Landing Burn
+
 # V3.1.10 (2025-01-20) 
 - Fixed Ship Catch in KSRSS
 - increased Error capability before diverting Ship Landing (untested)
