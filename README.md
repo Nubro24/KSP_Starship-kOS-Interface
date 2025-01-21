@@ -36,7 +36,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
   - _Kerbal Space Program/Ships/VAB_                     (location of the .craft files)
 
 ### Optional:
-- If u want to use older SLE arms, move the _"SLE_SS_OLIT_MZ.mu"_, _SLE_SS_OLIT_MZ_Pulley.png_, _SLE_SS_OLIT_MZ.png_ and _"SLE_SS_OLIT_MZ.cfg"_ in _GameData/StarshipLaunchExpansion/Parts/SSPads_ and overwrite
+- If u want to use older SLE arms, move the "_SLE_SS_OLIT_MZ.mu_", "_SLE_SS_OLIT_MZ_Pulley.png_", "_SLE_SS_OLIT_MZ.png_" and "_SLE_SS_OLIT_MZ.cfg_" in _GameData/StarshipLaunchExpansion/Parts/SSPads_ and overwrite
 - If you are using **Stock**-size SEP and dont have enough Thrust at LiftOff or Landing, move the _SEPkOS patch for stock size booster landing.cfg_ to the _GameData/StarshipInterface_ folder.
 
 
