@@ -1,3 +1,12 @@
+# V3.3.0 (2025-01-23) 
+- Adjusted Landing Position when FuelNoGo before Boostback is complete
+**- Added more checks to the Go-NoGo-Poll**
+- Changed Ascent Guidance for heavy payloads (like Tankers, Depots, e.g.)
+- Changed HSR Command Timing
+**- Added support for older Chopsticks**
+- Fixed Booster stopping midair when offshore divert
+**- Added new Telemetry UI**
+
 # V3.2.0 (2025-01-21) 
 - Reworked Booster Guidance during Landing Burn
 - Added Automatic Abort during Landing Burn
