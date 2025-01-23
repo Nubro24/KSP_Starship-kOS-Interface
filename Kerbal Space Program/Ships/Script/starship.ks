@@ -56,6 +56,74 @@ else {
 
 
 
+//---------------Telemetry GUI-----------------//
+
+local sTelemetry is GUI(150).
+    set sTelemetry:style:bg to "starship_img/telemetry_bg".
+    set sTelemetry:style:border:h to 10.
+    set sTelemetry:style:border:v to 10.
+    set sTelemetry:style:padding:v to 0.
+    set sTelemetry:style:padding:h to 0.
+    set sTelemetry:x to -680.
+    set sTelemetry:y to -200.
+    set sTelemetry:skin:label:textcolor to white.
+    set sTelemetry:skin:textfield:textcolor to white.
+    
+
+local sAttitudeTelemetry is sTelemetry:addhlayout().
+local ShipAttitude is sAttitudeTelemetry:addvlayout().
+local ShipStatus is sAttitudeTelemetry:addvlayout().
+local ShipRaptors is sAttitudeTelemetry:addvlayout().
+
+local sAttitude is ShipAttitude:addlabel().
+    set sAttitude:style:bg to "starship_img/ship".
+    set sAttitude:style:margin:left to 60.
+    set sAttitude:style:margin:right to 60.
+    set sAttitude:style:width to 60.
+    set sAttitude:style:height to 180.
+local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
+    set sSpeed:style:wordwrap to false.
+    set sSpeed:style:margin:left to 10.
+    set sSpeed:style:margin:top to 10.
+    set sSpeed:style:width to 296.
+    set sSpeed:style:fontsize to 30.
+local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
+    set sAltitude:style:wordwrap to false.
+    set sAltitude:style:margin:left to 10.
+    set sAltitude:style:margin:top to 2.
+    set sAltitude:style:width to 296.
+    set sAltitude:style:fontsize to 30.
+// local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
+//     set sThrust:style:wordwrap to false.
+//     set sThrust:style:margin:left to 10.
+//     set sThrust:style:margin:top to 25.
+//     set sThrust:style:margin:bottom to 20.
+//     set sThrust:style:width to 150.
+//     set sThrust:style:fontsize to 16.
+local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
+    set sLOX:style:wordwrap to false.
+    set sLOX:style:margin:left to 15.
+    set sLOX:style:margin:top to 30.
+    set sLOX:style:width to 200.
+    set sLOX:style:fontsize to 20.
+local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
+    set sCH4:style:wordwrap to false.
+    set sCH4:style:margin:left to 15.
+    set sCH4:style:margin:top to 4.
+    set sCH4:style:width to 200.
+    set sCH4:style:fontsize to 20.
+local sEngines is ShipRaptors:addlabel().
+    set sEngines:style:bg to "starship_img/ship0".
+    set sEngines:style:width to 190.
+    set sEngines:style:height to 180.
+    set sEngines:style:margin:top to 10.
+    set sEngines:style:margin:bottom to 10.
+
+
+
+
+
+
 //------------Initial Setup-------------//
 
 print "starting initial setup".
@@ -417,11 +485,25 @@ set LowCargoMass to false.
 set HSRJet to false.
 set Booster to "".
 set DeltaVCheck to true.
+set oldArms to false.
+
 
 
 
 //---------------Finding Parts-----------------//
 
+when NOT CORE:MESSAGES:EMPTY then {
+    hudtext("Message",5,2,5,yellow,false).
+    SET RECEIVED TO CORE:MESSAGES:POP.
+    if RECEIVED:CONTENT = "Arms,true" {
+        set oldArms to true.
+        print "Old Arms".
+    }
+    else if RECEIVED:CONTENT = "Arms,false" {
+        set oldArms to false.
+        print "New Arms".
+    }
+}
 
 
 function FindParts {
@@ -606,6 +688,10 @@ function FindParts {
 
     if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
         set Boosterconnected to true.
+        set sAttitude:style:bg to "starship_img/FullstackShip".
+        set sAttitude:style:width to 73.
+        set sAttitude:style:margin:left to 54.
+        set sAttitude:style:margin:right to 53.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
@@ -617,6 +703,9 @@ function FindParts {
             }
             else {
                 set BoosterCorrectVariant to false.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
             }
         }
     }
@@ -634,6 +723,7 @@ function FindParts {
         set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
         set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
         Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
+        sendMessage(processor(volume("OrbitalLaunchMount")), "getArmsVersion").
         if RSS {
             set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 12.
         }
@@ -703,6 +793,10 @@ print "Starship Interface startup complete!".
 
 
 //-------------Start Graphic User Interface-------------//
+
+
+
+
 
 
 local g is GUI(600).
@@ -6274,6 +6368,7 @@ function LandwithoutAtmoLabels {
 
 
 g:show().
+sTelemetry:show().
 
 
 if addons:tr:available and not startup {
@@ -6712,10 +6807,10 @@ function Launch {
         if RSS {
             set LaunchElev to altitude - 108.384.
             if ShipType = "Depot" {
-                set BoosterAp to 124000 + (cos(targetincl) * 3000).
+                set BoosterAp to 116000 + (cos(targetincl) * 3000).
                 set turnAltitude to 750.
             } else if CargoMass > 20000 {
-                set BoosterAp to 114000 + (cos(targetincl) * 3000).
+                set BoosterAp to 112000 + (cos(targetincl) * 3000).
                 set turnAltitude to 280.
             } else {
                 set BoosterAp to 124000 + (cos(targetincl) * 3000).
@@ -6732,6 +6827,10 @@ function Launch {
                 set BoosterAp to 78500 + (cos(targetincl) * 1500).
                 set TimeFromLaunchToOrbit to 360.
             }
+            else if CargoMass > 42000 {
+                set BoosterAp to 72000 + (cos(targetincl) * 1500).
+                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 20.
+            }
             else {
                 set BoosterAp to 75000 + (cos(targetincl) * 1500).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 10.
@@ -6743,9 +6842,14 @@ function Launch {
         else {
             set LaunchElev to altitude - 67.74.
             if ShipType = "Depot" {
-                set BoosterAp to 60000 + (cos(targetincl) * 1000).
+                set BoosterAp to 38000 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to 285.
                 set PitchIncrement to 5.
+            }
+            else if CargoMass > 42000 {
+                set BoosterAp to 48500 + (cos(targetincl) * 1000).
+                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 10.
+                set PitchIncrement to 0.
             }
             else {
                 set BoosterAp to 56500 + (cos(targetincl) * 1000).
@@ -6940,7 +7044,7 @@ function Launch {
                 print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.3, 2)).
                 wait 0.1.}
             set message1:text to "<b>Engine throttle up: </b>" + round(throttle * 100) + "%".
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.25 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.24 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             //if 1=1 {}
             else {
                 print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.25, 2)).
@@ -7063,7 +7167,6 @@ function Launch {
         when altitude-LaunchElev > 243 then {lock throttle to LaunchThrottle().}
         lock steering to LaunchSteering().
 
-        //if not Vessel("Booster"):isdead {print "Booster alive".}
 
         when cancelconfirmed and not ClosingIsRunning and LaunchButtonIsRunning then {
             Droppriority().
@@ -7074,8 +7177,18 @@ function Launch {
         }
 
         if Boosterconnected {
+            set sAttitude:style:bg to "starship_img/FullstackShip".
+            set sAttitude:style:width to 73.
+            set sAttitude:style:margin:left to 54.
+            set sAttitude:style:margin:right to 53.
             when apoapsis > BoosterAp - 14000 * Scale then {
                 lock steering to lookDirUp(prograde:vector+0.3*up:vector, LaunchRollVector).
+                if HSRJet {
+                    sendMessage(processor(volume("Booster")), "HSRJet").
+                } 
+                else {
+                    sendMessage(processor(volume("Booster")), "NoHSRJet").
+                } 
             }
             when apoapsis > BoosterAp - 7500 * Scale and ShipType = "Crew" then {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
@@ -7213,6 +7326,10 @@ function Launch {
         }
 
         when StageSepComplete then {
+            set sAttitude:style:bg to "starship_img/Ship".
+            set sAttitude:style:width to 60.
+            set sAttitude:style:margin:left to 60.
+            set sAttitude:style:margin:right to 60.
             when time:seconds > HotStageTime + 1.8 then {
                 lock throttle to LaunchThrottle().
                 lock steering to LaunchSteering().
@@ -7225,15 +7342,7 @@ function Launch {
             }
 
 
-            when time:seconds > HotStageTime + 15 then {
-                    if HSRJet {
-                        sendMessage(vessel("Booster"), "HSRJet").
-                    } 
-                    else {
-                        sendMessage(vessel("Booster"), "NoHSRJet").
-                    } 
-                } 
-
+            
             when deltav < 50 and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
@@ -7481,7 +7590,7 @@ Function LaunchSteering {
         }
         else {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
             }
             else {
                 set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
@@ -9706,6 +9815,61 @@ function timeSpanCalculator {
 }
 
 function updatestatusbar {
+
+    set shipAltitude to alt:radar - 9*Scale.
+    set shipSpeed to ship:airspeed.
+    set activeEngines to 0.
+    for e in SLEngines {
+        if e:thrust > 1 {
+            set activeEngines to activeEngines + 1.
+        }
+    }
+    for e in VacEngines {
+        if e:thrust > 1 {
+            set activeEngines to activeEngines + 1.
+        }
+    }
+    //set shipThrust to ShipEngines[0]:thrust*activeEngines.
+    for res in Tank:resources {
+        if res:name = "Oxidizer" {
+            set shipLOX to res:amount*100/res:capacity.
+        }
+        if res:name = "LqdMethane" {
+            set shipCH4 to res:amount*100/res:capacity.
+        }
+    }
+    set Mode to "NaN".
+    if throttle > 0 {
+        set Mode to activeEngines.
+        
+        if Mode = 1 {
+            set sEngines:style:bg to "starship_img/ship1".
+        } else if Mode = 3 {
+            set sEngines:style:bg to "starship_img/ship3".
+        } else if Mode = 6 {
+            set sEngines:style:bg to "starship_img/ship6".
+        } else {
+            set sEngines:style:bg to "starship_img/ship0".
+        }
+    } else {
+        set sEngines:style:bg to "starship_img/ship0".
+    }
+    
+    set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
+    if shipAltitude > 99999 {
+        set sAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(shipAltitude/1000) + " <size=24>KM</size>".
+    } else if shipAltitude > 999 {
+        set sAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(shipAltitude/1000,1) + " <size=24>KM</size>".
+    } else {
+        set sAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(shipAltitude) + " <size=24>M</size>".
+    }
+    //set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN".
+
+    set sLOX:text to "<b>LOX</b>       " + round(shipLOX,1) + " %". 
+    set sCH4:text to "<b>CH4</b>       " + round(shipCH4,1) + " %". 
+
+
+
     if not (StatusBarIsRunning) {
         set StatusBarIsRunning to true.
         for res in ship:resources {
@@ -12406,17 +12570,17 @@ function PerformBurn {
 function SetInterfaceLocation {
     if KUniverse:activevessel = vessel(ship:name) or BoosterExists() {
         if ShipIsDocked and ShipType = "Tanker" and not (LaunchButtonIsRunning) {
-            set g:y to -200 - 250.
+            set g:y to 200 + 250.
         }
         else {
-            set g:y to -200.
+            set g:y to 200.
         }
     }
     else if LaunchButtonIsRunning or ship:status = "LANDED" or ship:status = "PRELAUNCH" or ship:status = "SUB_ORBITAL" {
-        set g:y to -200.
+        set g:y to 200.
     }
     else {
-        set g:y to -200 - 250.
+        set g:y to 200 + 250.
     }
 }
 
