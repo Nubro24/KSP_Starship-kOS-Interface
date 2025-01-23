@@ -6,6 +6,11 @@
 
 User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
+### Credits:
+- Original Script: Janus92
+- Vehicle pictograms: Space_I_Isaac
+
+
 ## Current State:
 - Ship landings/catches and Booster catches don't work reliably anymore due to the many changes in SEP & SLE dev.
   (Stock and KSRSS should work better than RSS though)
@@ -17,8 +22,8 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
     - The scripts have been designed for stock Kerbin, and it functions most reliably on a stock install. If you use planet mods that increase the size of the planet (e.g. KSRSS,RSS) the chances of a wobbly tower or other problems are significantly higher.
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
-- **Booster/Ship krakens on contact with Chopsticks due to SLE changes**
-- **Ship Landings are broken in RSS**
+- **Booster/Ship krakens on contact with Chopsticks due to SLE changes** 
+- **Ship Landings are/might be broken**
 - SQD may not rotate away on Lift-Off (SLE bug I think)
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
