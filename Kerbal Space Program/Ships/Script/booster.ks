@@ -619,10 +619,10 @@ function Boostback {
         when time:seconds > flipStartTime + 9 then {
             lock throttle to 0.66.
         }
-        when time:seconds > flipStartTime + 6 then { 
+        when time:seconds > flipStartTime + 4 then { 
             set steeringmanager:yawtorquefactor to 0.3.
         }
-        when time:seconds > flipStartTime + 14 then { 
+        when time:seconds > flipStartTime + 8 then { 
             set steeringmanager:yawtorquefactor to 0.7.
         }
         when BoostBackComplete then {
