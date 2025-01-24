@@ -1,6 +1,9 @@
 set RSS to false.
 set KSRSS to false.
 set STOCK to false.
+set AfterLaunch to false.
+set oldArms to true.
+set onOLM to false.
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
@@ -34,6 +37,26 @@ set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Roof
 set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
 set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+
+set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+for part in ship:parts {
+    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") {
+        set BoosterCore to part.
+        set onOLM to true.
+    } else if part:name:contains("SEP.23.SHIP.BODY") {
+        set ShipTank to part.
+    } else if part:name:contains("SEP.24.SHIP.CORE") {
+        set ShipTank to part.
+    } else if part:name:contains("SEP.23.SHIP.DEPOT") {
+        set ShipTank to part.
+    }
+}
+if onOLM {
+    set BoosterCore:getmodule("kOSProcessor"):volume:name to "Booster".
+    set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
+}
+
+
 set PrevTime to time:seconds.
 clearscreen.
 
@@ -200,11 +223,17 @@ until False {
         else if command = "MechazillaArms" {
             MechazillaArms(parameter1, parameter2, parameter3, parameter4).
         }
+        else if command = "CloseArms" {
+            CloseArms().
+        }
         else if command = "MechazillaPushers" {
             MechazillaPushers(parameter1, parameter2, parameter3, parameter4).
         }
         else if command = "LiftOff" {
             LiftOff().
+        }
+        else if command = "getArmsVersion" {
+            ArmVersion().
         }
         else if command = "MechazillaStabilizers" {
             MechazillaStabilizers(parameter1).
@@ -246,8 +275,10 @@ until False {
             SaveToSettings("Tower:arms:angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("arms open angle")).
         }
         SaveToSettings("Tower:pushers:extension", Mechazilla:getmodulebyindex(NrforOpenClosePushers):getfield("current extension")).
-        SaveToSettings("Tower:stabilizers:extension", Mechazilla:getmodulebyindex(NrforStabilizers):getfield("current extension")).
-        SaveToSettings("Tower:arms:height", Mechazilla:getmodulebyindex(NrforVertMoveMent):getfield("current extension")).
+        if not oldArms {
+            SaveToSettings("Tower:stabilizers:extension", Mechazilla:getmodulebyindex(NrforStabilizers):getfield("current extension")).
+            SaveToSettings("Tower:arms:height", Mechazilla:getmodulebyindex(NrforVertMoveMent):getfield("current extension")).
+        }
         if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 {
             RenameOLM().
         }
@@ -287,6 +318,27 @@ function LiftOff {
             }
         }
     }
+    set AfterLaunch to true.
+}
+
+function ArmVersion {
+    set oldArms to false.
+    if Mechazilla:modules:length > 16 {
+        set oldArms to false.
+        print("Arms new").
+        print(Mechazilla:modules:length).
+    }
+    else {
+        set oldArms to true.
+        print("Arms old").
+    }
+    if not AfterLaunch and oldArms {
+        sendMessage(processor(volume("Booster")), "Arms,true").
+        sendMessage(processor(volume("Starship")), "Arms,true").
+    } else if not AfterLaunch and not oldArms {
+        sendMessage(processor(volume("Booster")), "Arms,false").
+        sendMessage(processor(volume("Starship")), "Arms,false").
+    }
 }
 
 
@@ -322,6 +374,12 @@ function MechazillaArms {
     }
 }
 
+function CloseArms {
+    if Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("close arms") {
+        Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
+    }
+}
+
 
 function MechazillaPushers {
     parameter targetextension.
@@ -347,28 +405,36 @@ function MechazillaPushers {
 
 function MechazillaStabilizers {
     parameter StabilizerPercent.
-    Mechazilla:getmodulebyindex(NrforStabilizers):SetField("target extension", StabilizerPercent:toscalar(0)).
+    if not oldArms {
+        Mechazilla:getmodulebyindex(NrforStabilizers):SetField("target extension", StabilizerPercent:toscalar(0)).
+    }
 }
 
 function MechazillaRails {
     parameter RailsPercent.
-    Mechazilla:getmodulebyindex(NrforLandingRails):SetField("Landing Rail extension", RailsPercent:toscalar(0)).
+    if not oldArms {
+        Mechazilla:getmodulebyindex(NrforLandingRails):SetField("Landing Rail extension", RailsPercent:toscalar(0)).
+    }
 }
 
 function ExtendMechazillaRails {
-    for x in range(0, Mechazilla:modules:length) {
-        if Mechazilla:getmodulebyindex(x):hasaction("Raise Landing Rails") {
-            Mechazilla:getmodulebyindex(x):doaction("Raise Landing Rails", true).
-            break.
+    if not oldArms {
+        for x in range(0, Mechazilla:modules:length) {
+            if Mechazilla:getmodulebyindex(x):hasaction("Raise Landing Rails") {
+                Mechazilla:getmodulebyindex(x):doaction("Raise Landing Rails", true).
+                break.
+            }
         }
-    }    
+    }  
 }
 
 function RetractMechazillaRails {
-    for x in range(0, Mechazilla:modules:length) {
-        if Mechazilla:getmodulebyindex(x):hasaction("Lower Landing Rails") {
-            Mechazilla:getmodulebyindex(x):doaction("Lower Landing Rails", false).
-            break.
+    if not oldArms {
+        for x in range(0, Mechazilla:modules:length) {
+            if Mechazilla:getmodulebyindex(x):hasaction("Lower Landing Rails") {
+                Mechazilla:getmodulebyindex(x):doaction("Lower Landing Rails", false).
+                break.
+            }
         }
     }
 }
@@ -451,5 +517,29 @@ function RenameOLM {
             }
             set ship:name to "OrbitalLaunchMount".
         }
+    }
+}
+
+function sendMessage {
+    parameter ves, msg.
+    set cnx to ves:connection.
+    if cnx:isconnected {
+        if cnx:sendmessage(msg) {
+            if msg = "ping" {}
+            else {
+                print "message sent: (" + msg + ")".
+                set LastMessageSentTime to time:seconds.
+            }
+        }
+        else {
+            print "message could not be sent!! (" + msg + ")".
+            HUDTEXT("Sending a Message failed!", 10, 2, 20, red, false).
+            set LastMessageSentTime to time:seconds.
+        }.
+    }
+    else {
+        print "connection could not be established..".
+        HUDTEXT("Sending a Message failed due to Connection problems..", 10, 2, 20, red, false).
+        set LastMessageSentTime to time:seconds.
     }
 }
