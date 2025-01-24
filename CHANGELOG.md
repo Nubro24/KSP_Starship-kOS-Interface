@@ -1,3 +1,7 @@
+# V3.3.2 (2025-01-24) 
+- Syncronized Engine UI for Ship with actual Engines
+- Changed Ship Engine ignition Sequence during Hotstaging
+
 # V3.3.1 (2025-01-24) 
 - **Added Engine UI for Ship**
   (note: not detecting 2 Engine mode yet)
