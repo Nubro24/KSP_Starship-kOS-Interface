@@ -539,6 +539,7 @@ function Boostback {
         set ship:name to "Booster".
         rcs on.
         lock throttle to 0.43.
+        
         sas off.
         set SteeringManager:ROLLCONTROLANGLERANGE to 3.
         set SteeringManager:rollts to 5.
@@ -621,6 +622,18 @@ function Boostback {
         }
         when time:seconds > flipStartTime + 4 then { 
             set steeringmanager:yawtorquefactor to 0.3.
+            for fin in GridFins {
+            if fin:hasmodule("ModuleControlSurface") {
+                fin:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 32).
+                fin:getmodule("ModuleControlSurface"):DoAction("deactivate roll control", true).
+            }
+            if fin:hasmodule("SyncModuleControlSurface") {
+                fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", false).
+                fin:getmodule("SyncModuleControlSurface"):SetField("authority limiter", 32).
+                fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
+            }
+        }
         }
         when time:seconds > flipStartTime + 8 then { 
             set steeringmanager:yawtorquefactor to 0.7.
@@ -1153,7 +1166,7 @@ function Boostback {
             }
             if Vessel(TargetOLM):distance < 2250 {
                 PollUpdate().
-                lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist.
+                lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 0.5.
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
 
@@ -1163,16 +1176,19 @@ function Boostback {
                     if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,3,0.5").}
                     sendMessage(Vessel(TargetOLM), ("RetractSQDArm")).
                     when RadarAlt < 2.43 * BoosterHeight then {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",18,6,true")).
-                        rcs off.
-                        if RadarAlt > 12 * Scale {
-                            set t to time:seconds.
-                            until time:seconds > t + 0.1 {}
-                            preserve.
-                        }
-                        else {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",10,60,false")).
-                        }
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",12,24,true")).
+                    }
+                    when RadarAlt < 1.43 * BoosterHeight then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,12,true")).
+                    }
+                    when RadarAlt < 0.93 * BoosterHeight then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",6,8,true")).
+                    }
+                    when RadarAlt < 0.43 * BoosterHeight then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
+                    }
+                    when RadarAlt < 0.12 * BoosterHeight then {
+                        sendMessage(Vessel(TargetOLM), ("CloseArms")).
                     }
                 }
                 when WobblyTower and RadarAlt < 100 then {
@@ -1987,6 +2003,7 @@ function BoosterDocking {
 
 
 function ActivateGridFins {
+    if GG {
     for fin in GridFins {
         if fin:hasmodule("ModuleControlSurface") {
             fin:getmodule("ModuleControlSurface"):DoAction("activate pitch controls", true).
@@ -1999,20 +2016,23 @@ function ActivateGridFins {
             fin:getmodule("SyncModuleControlSurface"):DoAction("activate roll control", true).
         }
     }
+    }
 }
 
 
 function DeactivateGridFins {
-    for fin in GridFins {
-        if fin:hasmodule("ModuleControlSurface") {
-            fin:getmodule("ModuleControlSurface"):DoAction("deactivate pitch control", true).
-            fin:getmodule("ModuleControlSurface"):DoAction("deactivate yaw control", true).
-            fin:getmodule("ModuleControlSurface"):DoAction("deactivate roll control", true).
-        }
-        if fin:hasmodule("SyncModuleControlSurface") {
-            fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate pitch control", true).
-            fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate yaw control", true).
-            fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
+    if GG {
+        for fin in GridFins {
+            if fin:hasmodule("ModuleControlSurface") {
+                fin:getmodule("ModuleControlSurface"):DoAction("deactivate pitch control", true).
+                fin:getmodule("ModuleControlSurface"):DoAction("deactivate yaw control", true).
+                fin:getmodule("ModuleControlSurface"):DoAction("deactivate roll control", true).
+            }
+            if fin:hasmodule("SyncModuleControlSurface") {
+                fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate pitch control", true).
+                fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate yaw control", true).
+                fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
+            }
         }
     }
 }

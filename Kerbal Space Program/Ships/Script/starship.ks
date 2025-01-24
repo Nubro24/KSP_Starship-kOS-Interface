@@ -64,7 +64,7 @@ local sTelemetry is GUI(150).
     set sTelemetry:style:border:v to 10.
     set sTelemetry:style:padding:v to 0.
     set sTelemetry:style:padding:h to 0.
-    set sTelemetry:x to -680.
+    set sTelemetry:x to -660.
     set sTelemetry:y to -200.
     set sTelemetry:skin:label:textcolor to white.
     set sTelemetry:skin:textfield:textcolor to white.
@@ -114,7 +114,7 @@ local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
     set sCH4:style:fontsize to 20.
 local sEngines is ShipRaptors:addlabel().
     set sEngines:style:bg to "starship_img/ship0".
-    set sEngines:style:width to 190.
+    set sEngines:style:width to 180.
     set sEngines:style:height to 180.
     set sEngines:style:margin:top to 10.
     set sEngines:style:margin:bottom to 10.
@@ -7134,7 +7134,6 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight,12,0.8")).
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 OLM:getmodule("ModuleAnimateGeneric"):doevent("open clamps + qd").
                 ClearInterfaceAndSteering().
                 reboot.
@@ -7159,12 +7158,18 @@ function Launch {
             if kuniverse:activevessel = ship {
                 ADDONS:TR:SETTARGET(landingzone).
             }
+
+
+
         }
         else if apoapsis < targetap {
             LogToFile("Launching").
         }.
 
-        when altitude-LaunchElev > 243 then {lock throttle to LaunchThrottle().}
+        when altitude-LaunchElev > 243 then {
+            lock throttle to LaunchThrottle().
+            //SetLoadDistances(ship, "OLM").
+        }
         lock steering to LaunchSteering().
 
 
@@ -7200,12 +7205,12 @@ function Launch {
                 }
                 for fin in GridFins {
                     if fin:hasmodule("ModuleControlSurface") {
-                        fin:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                        fin:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
                         fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 32).
                         fin:getmodule("ModuleControlSurface"):DoAction("deactivate roll control", true).
                     }
                     if fin:hasmodule("SyncModuleControlSurface") {
-                        fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", false).
+                        fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", true).
                         fin:getmodule("SyncModuleControlSurface"):SetField("authority limiter", 32).
                         fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
                     }
@@ -7428,6 +7433,7 @@ function Launch {
             wait 0.001.
         }
         ShutDownAllEngines().
+        BackGroundUpdate().
         set DistanceToTarget to ((landingzone:lng - ship:geoposition:lng) * Planet1Degree).
         LogToFile("Distance flown from Launch Site to Orbit Complete: " + round(DistanceToTarget, 3) + "km").
         if not (LiftOffTime = 0) {
@@ -7839,13 +7845,7 @@ Function AbortLaunch {
         if Boosterconnected {
             BoosterEngines[0]:shutdown.
             wait 0.1.
-            //stage.
-            //BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
             HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
-            //wait 0.1.
-            //if stage:number = 2 {
-            //    stage.
-            //}
             set Boosterconnected to false.
         }
         set runningprogram to "Launch Abort!".
@@ -8723,6 +8723,9 @@ function ReEntryData {
             set LandingBurnStarted to false.
             set landingRatio to 0.
             set LandingFlipTime to 5.
+            if KSRSS {
+                set LandingFlipTime to 6.
+            }
             set maxDecel to 0.
             set maxG to 4.
             set DesiredDecel to 0.
@@ -9241,7 +9244,7 @@ function LngLatError {
                     set LngLatOffset to -60.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -94.
+                    set LngLatOffset to -96.
                 }
                 else {
                     set LngLatOffset to -55.
@@ -9818,17 +9821,19 @@ function updatestatusbar {
 
     set shipAltitude to alt:radar - 9*Scale.
     set shipSpeed to ship:airspeed.
-    set activeEngines to 0.
+    set activeSL to 0.
+    set activeVAC to 0.
     for e in SLEngines {
         if e:thrust > 1 {
-            set activeEngines to activeEngines + 1.
+            set activeSL to activeSL + 1.
         }
     }
     for e in VacEngines {
         if e:thrust > 1 {
-            set activeEngines to activeEngines + 1.
+            set activeVAC to activeVAC + 1.
         }
     }
+    set Mode to 0.
     //set shipThrust to ShipEngines[0]:thrust*activeEngines.
     for res in Tank:resources {
         if res:name = "Oxidizer" {
@@ -9838,14 +9843,34 @@ function updatestatusbar {
             set shipCH4 to res:amount*100/res:capacity.
         }
     }
-    set Mode to "NaN".
+    
+    if activeSL > 0 and activeVAC = 0 {
+        if activeSL = 1 {
+            set Mode to 1.
+        } else if activeSL = 3 {
+            set Mode to "3SL".
+        }
+    } 
+    else if activeSL = 0 and activeVAC > 0 {
+        if activeVAC = 3 {
+            set Mode to "3VAC".
+        }
+    } 
+    else if activeSL = 0 and activeVAC = 0 {
+        set Mode to 0.
+    }
+    else if activeSL = 3 and activeVAC = 3 {
+        set Mode to 6.
+    }
+
     if throttle > 0 {
-        set Mode to activeEngines.
         
         if Mode = 1 {
             set sEngines:style:bg to "starship_img/ship1".
-        } else if Mode = 3 {
-            set sEngines:style:bg to "starship_img/ship3".
+        } else if Mode = "3SL" {
+            set sEngines:style:bg to "starship_img/ship3S".
+        } else if Mode = "3VAC" {
+            set sEngines:style:bg to "starship_img/ship3V".
         } else if Mode = 6 {
             set sEngines:style:bg to "starship_img/ship6".
         } else {
@@ -11794,7 +11819,7 @@ function SetRadarAltitude {
         LogToFile("Radar Altitude set.. (" + round(ArmsHeight + (39.5167 - ShipBottomRadarHeight) - 0.1, 1) + ")").
     }
     else {
-        lock RadarAlt to altitude - max(ship:geoposition:terrainheight, 0) - ShipBottomRadarHeight + 0.1.
+        lock RadarAlt to alt:radar - ShipBottomRadarHeight + 0.1.
         LogToFile("Radar Altitude set (no OLM)").
     }
 }
@@ -12731,6 +12756,14 @@ function SetLoadDistances {
         set shp:loaddistance:orbit:pack to 350.
         set shp:loaddistance:orbit:unpack to 200.
         wait 0.001.
+    }
+    else if distance = "OLM" {
+        SET KUNIVERSE:DEFAULTLOADDISTANCE:LANDED:UNLOAD TO 130000.
+        SET KUNIVERSE:DEFAULTLOADDISTANCE:LANDED:LOAD TO 119500.
+        WAIT 0.001. 
+        SET KUNIVERSE:DEFAULTLOADDISTANCE:LANDED:PACK TO 39999.
+        SET KUNIVERSE:DEFAULTLOADDISTANCE:LANDED:UNPACK TO 29000.
+        WAIT 0.001.
     }
     else {
         set shp:loaddistance:flying:unload to distance.
