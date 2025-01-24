@@ -135,6 +135,7 @@ set STOCK to false.
 set RESCALE to false.
 set Methane to false.
 set LF to false.
+set partsfound to false.
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
@@ -487,7 +488,10 @@ set Booster to "".
 set DeltaVCheck to true.
 set oldArms to false.
 
-
+when partsfound then {
+    updateTelemetry().
+    preserve.
+}
 
 
 //---------------Finding Parts-----------------//
@@ -591,7 +595,7 @@ function FindParts {
                 else if x:title = "Starship Header Tank" {
                     set HeaderTank to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.CARGO") and not x:name:contains("SEP.23.SHIP.CARGO.EXP") or x:name:contains("SEP.23.SHIP.FLAPS") {
+                else if x:name:contains("SEP.23.SHIP.CARGO") and not x:name:contains("SEP.23.SHIP.CARGO.EXP") {
                     set Nose to x.
                     set ShipType to "Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
@@ -741,6 +745,7 @@ function FindParts {
         set StackMass to ship:mass.
         print("Stack mass (no OLM found): " + StackMass).
     }
+    set partsfound to true.
 }
 
 
@@ -6064,7 +6069,7 @@ function LandwithoutAtmo {
         lock STEERING to LandwithoutAtmoSteering.
 
         when verticalspeed > -10 and LandingBurnStarted then {
-            //GEAR on.
+            GEAR on.
             set quickstatus3:pressed to true.
             LogToFile("Extending Landing Gear").
         }
@@ -7257,7 +7262,6 @@ function Launch {
                     sendMessage(Processor(volume("Booster")), "Boostback").
                 }
                 set quickengine3:pressed to true.
-                set quickengine2:pressed to true.
                 if ShipType:contains("Block1") {
                     print "Block 1".
                     if defined HSR {
@@ -7335,6 +7339,9 @@ function Launch {
             set sAttitude:style:width to 60.
             set sAttitude:style:margin:left to 60.
             set sAttitude:style:margin:right to 60.
+            when time:seconds > HotStageTime + 0.4 then {
+                set quickengine2:pressed to true.
+            }
             when time:seconds > HotStageTime + 1.8 then {
                 lock throttle to LaunchThrottle().
                 lock steering to LaunchSteering().
@@ -9241,13 +9248,13 @@ function LngLatError {
         if ship:body:atm:sealevelpressure > 0.5 {
             if TargetOLM {
                 if STOCK {
-                    set LngLatOffset to -60.
+                    set LngLatOffset to -50.
                 }
                 else if KSRSS {
                     set LngLatOffset to -96.
                 }
                 else {
-                    set LngLatOffset to -55.
+                    set LngLatOffset to -75.
                 }
             }
             else {
@@ -9819,82 +9826,7 @@ function timeSpanCalculator {
 
 function updatestatusbar {
 
-    set shipAltitude to alt:radar - 9*Scale.
-    set shipSpeed to ship:airspeed.
-    set activeSL to 0.
-    set activeVAC to 0.
-    for e in SLEngines {
-        if e:thrust > 1 {
-            set activeSL to activeSL + 1.
-        }
-    }
-    for e in VacEngines {
-        if e:thrust > 1 {
-            set activeVAC to activeVAC + 1.
-        }
-    }
-    set Mode to 0.
-    //set shipThrust to ShipEngines[0]:thrust*activeEngines.
-    for res in Tank:resources {
-        if res:name = "Oxidizer" {
-            set shipLOX to res:amount*100/res:capacity.
-        }
-        if res:name = "LqdMethane" {
-            set shipCH4 to res:amount*100/res:capacity.
-        }
-    }
     
-    if activeSL > 0 and activeVAC = 0 {
-        if activeSL = 1 {
-            set Mode to 1.
-        } else if activeSL = 3 {
-            set Mode to "3SL".
-        }
-    } 
-    else if activeSL = 0 and activeVAC > 0 {
-        if activeVAC = 3 {
-            set Mode to "3VAC".
-        }
-    } 
-    else if activeSL = 0 and activeVAC = 0 {
-        set Mode to 0.
-    }
-    else if activeSL = 3 and activeVAC = 3 {
-        set Mode to 6.
-    }
-
-    if throttle > 0 {
-        
-        if Mode = 1 {
-            set sEngines:style:bg to "starship_img/ship1".
-        } else if Mode = "3SL" {
-            set sEngines:style:bg to "starship_img/ship3S".
-        } else if Mode = "3VAC" {
-            set sEngines:style:bg to "starship_img/ship3V".
-        } else if Mode = 6 {
-            set sEngines:style:bg to "starship_img/ship6".
-        } else {
-            set sEngines:style:bg to "starship_img/ship0".
-        }
-    } else {
-        set sEngines:style:bg to "starship_img/ship0".
-    }
-    
-    set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
-    if shipAltitude > 99999 {
-        set sAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(shipAltitude/1000) + " <size=24>KM</size>".
-    } else if shipAltitude > 999 {
-        set sAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(shipAltitude/1000,1) + " <size=24>KM</size>".
-    } else {
-        set sAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(shipAltitude) + " <size=24>M</size>".
-    }
-    //set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN".
-
-    set sLOX:text to "<b>LOX</b>       " + round(shipLOX,1) + " %". 
-    set sCH4:text to "<b>CH4</b>       " + round(shipCH4,1) + " %". 
-
-
-
     if not (StatusBarIsRunning) {
         set StatusBarIsRunning to true.
         for res in ship:resources {
@@ -13836,3 +13768,74 @@ function DetectWobblyTower {
         }
     }
 }
+
+
+function updateTelemetry {
+    set shipAltitude to alt:radar - 9*Scale.
+    set shipSpeed to ship:airspeed.
+    local ch4 to 0.
+    local lox to 0.
+    local mch4 to 0.
+    local mlox to 0.
+    for res in tank:resources {
+        if res:name = "LqdMethane" {
+            set ch4 to res:amount.
+            set mch4 to res:capacity.
+        }
+        if res:name = "Oxidizer" {
+            set lox to res:amount.
+            set mlox to res:capacity.
+        }
+    }
+    if not ShipType:contains("Exp") and not ShipType = "Depot" {
+        for res in HeaderTank:resources {
+            if res:name = "LqdMethane" {
+                set ch4 to ch4 + res:amount.
+                set mch4 to mch4 + res:capacity.
+            }
+            if res:name = "Oxidizer" {
+                set lox to lox + res:amount.
+                set mlox to mlox + res:capacity.
+            }
+        }
+    }
+    set shipLOX to lox*100/mlox.
+    set shipCH4 to ch4*100/mch4.
+    
+    
+    if throttle > 0 {
+        
+        if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 {
+            set sEngines:style:bg to "starship_img/shipSL0".
+        } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
+            set sEngines:style:bg to "starship_img/shipSL0+1".
+        } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
+            set sEngines:style:bg to "starship_img/shipSL0+2".
+        } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
+            set sEngines:style:bg to "starship_img/shipSLAll".
+        } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 {
+            set sEngines:style:bg to "starship_img/shipAll".
+        } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 {
+            set sEngines:style:bg to "starship_img/shipVacAll".
+        } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
+            set sEngines:style:bg to "starship_img/ship0".
+        }
+
+
+    } else {
+        set sEngines:style:bg to "starship_img/ship0".
+    }
+    
+    set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
+    if shipAltitude > 99999 {
+        set sAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(shipAltitude/1000) + " <size=24>KM</size>".
+    } else if shipAltitude > 999 {
+        set sAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(shipAltitude/1000,1) + " <size=24>KM</size>".
+    } else {
+        set sAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(shipAltitude) + " <size=24>M</size>".
+    }
+
+    set sLOX:text to "<b>LOX</b>       " + round(shipLOX,1) + " %". 
+    set sCH4:text to "<b>CH4</b>       " + round(shipCH4,1) + " %". 
+}
+
