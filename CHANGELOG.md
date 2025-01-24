@@ -1,3 +1,9 @@
+# V3.3.1 (2025-01-24) 
+- **Added Engine UI for Ship**
+  (note: not detecting 2 Engine mode yet)
+- Changed Tower commands during Booster Catch
+- Attempt to fix KSRSS Ship Landing Position (untested)
+
 # V3.3.0 (2025-01-23) 
 - Adjusted Landing Position when FuelNoGo before Boostback is complete
 - **Added more checks to the Go-NoGo-Poll**
