@@ -1,3 +1,9 @@
+# V3.3.3 (2025-01-25) 
+- **Fixed Kraken on Catch (for Stock and KSRSS)**
+- Changed Ship Ignition timings
+- deactivated quicksave loading after Catch
+- note: **pls REMOVE all scriptrelated folders before installing this update**
+
 # V3.3.2 (2025-01-24) 
 - Syncronized Engine UI for Ship with actual Engines
 - Changed Ship Engine ignition Sequence during Hotstaging
