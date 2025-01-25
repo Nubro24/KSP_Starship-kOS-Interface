@@ -7276,7 +7276,6 @@ function Launch {
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
-                    wait 0.001.
                 } else {
                     if defined HSR {
                         HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
