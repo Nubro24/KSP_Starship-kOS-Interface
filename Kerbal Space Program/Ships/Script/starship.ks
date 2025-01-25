@@ -13806,6 +13806,8 @@ function updateTelemetry {
             set sEngines:style:bg to "starship_img/shipSL0+1".
         } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
             set sEngines:style:bg to "starship_img/shipSL0+2".
+        } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
+            set sEngines:style:bg to "starship_img/shipSL1+2".
         } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
             set sEngines:style:bg to "starship_img/shipSLAll".
         } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 {
