@@ -8815,9 +8815,9 @@ function ReEntryData {
 
             
             when verticalspeed > -42 and throttle < ThrottleMin + 0.05 and groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and RadarAlt < ShipHeight then {
-                SLEngines[1]:shutdown.
-                SLEngines[1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                LogToFile("3rd engine shutdown; performing a 2-engine landing..").
+                SLEngines[0]:shutdown.
+                SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                LogToFile("1st engine shutdown; performing a 2-engine landing..").
                 set ThrottleMin to 0.33.
                 when ThrottleMin * 2 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and throttle < ThrottleMin + 0.001 and groundspeed < 0.5 and verticalspeed > -8 then {
                     SLEngines[2]:shutdown.
