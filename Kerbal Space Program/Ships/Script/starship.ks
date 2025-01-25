@@ -7210,16 +7210,18 @@ function Launch {
                 }
                 for fin in GridFins {
                     if fin:hasmodule("ModuleControlSurface") {
-                        fin:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                        fin:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
                         fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 32).
                         fin:getmodule("ModuleControlSurface"):DoAction("deactivate roll control", true).
                     }
                     if fin:hasmodule("SyncModuleControlSurface") {
-                        fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", true).
+                        fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", false).
                         fin:getmodule("SyncModuleControlSurface"):SetField("authority limiter", 32).
                         fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
                     }
                 }
+                //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
+                //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 lock throttle to 0.5.
                 unlock steering.
@@ -7339,7 +7341,7 @@ function Launch {
             set sAttitude:style:width to 60.
             set sAttitude:style:margin:left to 60.
             set sAttitude:style:margin:right to 60.
-            when time:seconds > HotStageTime + 0.4 then {
+            when time:seconds > HotStageTime + 0.8 then {
                 set quickengine2:pressed to true.
             }
             when time:seconds > HotStageTime + 1.8 then {
@@ -8731,7 +8733,7 @@ function ReEntryData {
             set landingRatio to 0.
             set LandingFlipTime to 5.
             if KSRSS {
-                set LandingFlipTime to 6.
+                set LandingFlipTime to 5.
             }
             set maxDecel to 0.
             set maxG to 4.
@@ -8761,25 +8763,18 @@ function ReEntryData {
                 
 
                 if TargetOLM {
-                    when RadarAlt < 2.42 * ShipHeight then {
+                    when RadarAlt < 3.42 * ShipHeight then {
                         setflaps(0, 85, 1, 0).
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",20,30,true")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",20,90,true")).
                         when RadarAlt < 1.5 * ShipHeight then {sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",20,30,true")).}
-                        when RadarAlt < 0.66 * ShipHeight then {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",12,5,true")).
-                            if RadarAlt > 0.24 * ShipHeight {
-                                set t to time:seconds.
-                                until time:seconds > t + 0.1 {}
-                                preserve.
-                            }
-                            else {
-                                set k to time:seconds.
-                                if time:seconds < k + 2 {
-                                    sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",8,1,false")).
-                                } 
+                        when RadarAlt < 0.6 * ShipHeight then {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",10,8,true")).
+                            
+                            when RadarAlt < 0.24 * ShipHeight then {
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",4,4,true")).
                             }
                             when RadarAlt < 3 * Scale then {
-                                sendMessage(Vessel(TargetOLM), ("MechazillaArms,999,6,1,false")).
+                                sendMessage(Vessel(TargetOLM), ("CloseArms")).
                             }
                         }
                         if LandSomewhereElse {
@@ -8819,7 +8814,7 @@ function ReEntryData {
             }
 
             
-            when verticalspeed > -42 and throttle < ThrottleMin + 0.05 and groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G then {
+            when verticalspeed > -42 and throttle < ThrottleMin + 0.05 and groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and RadarAlt < ShipHeight then {
                 SLEngines[1]:shutdown.
                 SLEngines[1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                 LogToFile("3rd engine shutdown; performing a 2-engine landing..").
@@ -8864,7 +8859,7 @@ function ReEntryData {
                 unlock throttle.
                 wait 0.001.
                 set t to time:seconds.
-                lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
+                lock steering to lookDirUp(up:vector - 0.01 * velocity:surface, RollVector).
                 lock throttle to max((Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), ThrottleMin).
                 until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.01 or RadarAlt < -1 {
                     SendPing().
@@ -9008,10 +9003,10 @@ function LandingVector {
             else {
                 if ship:body:atm:sealevelpressure > 0.5 {
                     if verticalspeed < -30 {
-                        set result to up:vector - 0.01 / Scale * vxcl(up:vector, velocity:surface).
+                        set result to up:vector - 0.02 * vxcl(north:vector, ErrorVector).
                     }
                     else {
-                        set result to up:vector - 0.025 * vxcl(up:vector, velocity:surface).
+                        set result to up:vector - 0.02 * velocity:surface.
                     }
                 }
                 if ship:body:atm:sealevelpressure < 0.5 {
@@ -9164,14 +9159,14 @@ function LandingVector {
             wait 3.
             ClearInterfaceAndSteering().
             if TargetOLM and not (RSS) {
-                HUDTEXT("Loading current Ship quicksave for safe docking! (Avoid Kraken..)", 10, 2, 20, green, false).
+                //HUDTEXT("Loading current Ship quicksave for safe docking! (Avoid Kraken..)", 10, 2, 20, green, false).
                 sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (1 * Scale) + ",0.8")).
                 wait 2.5.
                 when kuniverse:canquicksave and KUniverse:activevessel = ship then {
-                    kuniverse:quicksave().
+                    //kuniverse:quicksave().
                     wait 0.1.
                     when kuniverse:canquicksave then {
-                        kuniverse:quickload().
+                        //kuniverse:quickload().
                     }
                 }
             }
@@ -9251,7 +9246,7 @@ function LngLatError {
                     set LngLatOffset to -50.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -96.
+                    set LngLatOffset to -54.
                 }
                 else {
                     set LngLatOffset to -75.
@@ -11971,7 +11966,7 @@ function LandAtOLM {
             set FlipAltitude to 500.
         }
         else if KSRSS {
-            set FlipAltitude to 624.
+            set FlipAltitude to 664.
         }
         else {
             set FlipAltitude to 524.

@@ -325,7 +325,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 3456.
-        set LngCtrlPID:setpoint to 50. //84
+        set LngCtrlPID:setpoint to 40. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -445,6 +445,13 @@ clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
 
+when True then {
+    GUIupdate().
+    preserve.
+}
+
+
+
 until False {
     set ShipConnectedToBooster to false.
     for Part in SHIP:PARTS {
@@ -453,7 +460,6 @@ until False {
         }
     }
     bTelemetry:show().
-    GUIupdate().
     if ShipConnectedToBooster = "false" and BoostBackComplete = "false" and not (ship:status = "LANDED") and altitude > 10000 and verticalspeed < 0 {
         set bAttitude:style:bg to "starship_img/booster".
         set bAttitude:style:width to 48.
@@ -476,9 +482,7 @@ until False {
             }
         }
     }
-    UNTIL NOT CORE:MESSAGES:EMPTY {
-        GUIupdate().
-    }
+    UNTIL NOT CORE:MESSAGES:EMPTY {}
     SET RECEIVED TO CORE:MESSAGES:POP.
     IF RECEIVED:CONTENT = "Boostback" {
         Boostback().
@@ -615,25 +619,14 @@ function Boostback {
         when time:seconds > flipStartTime + 5 then {
             set FC to true.
             bGUI:show().
-            GUIupdate().
         }
         when time:seconds > flipStartTime + 9 then {
             lock throttle to 0.66.
         }
-        when time:seconds > flipStartTime + 4 then { 
+        when time:seconds > flipStartTime + 4 then {
             set steeringmanager:yawtorquefactor to 0.3.
-            for fin in GridFins {
-            if fin:hasmodule("ModuleControlSurface") {
-                fin:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
-                fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 32).
-                fin:getmodule("ModuleControlSurface"):DoAction("deactivate roll control", true).
-            }
-            if fin:hasmodule("SyncModuleControlSurface") {
-                fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", false).
-                fin:getmodule("SyncModuleControlSurface"):SetField("authority limiter", 32).
-                fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
-            }
-        }
+            //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
+            //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
         }
         when time:seconds > flipStartTime + 8 then { 
             set steeringmanager:yawtorquefactor to 0.7.
@@ -690,7 +683,6 @@ function Boostback {
             rcs on.
             wait 0.1.
             PollUpdate().
-            GUIupdate().
         }
 
         set steeringmanager:maxstoppingtime to 3.
@@ -730,7 +722,6 @@ function Boostback {
             SteeringCorrections().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
-            GUIupdate().
             SetBoosterActive().
             wait 0.1.
         }
@@ -758,7 +749,6 @@ function Boostback {
             SteeringCorrections().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
-            GUIupdate().
             SetBoosterActive().
             wait 0.001.
         }
@@ -767,7 +757,6 @@ function Boostback {
         set BoostBackComplete to true.
 
         PollUpdate().
-        GUIupdate().
 
         if GfC and HSRJet {
             HUDTEXT("GO for Catch, HSR-Jettison", 8, 2, 20, green, false).
@@ -843,7 +832,6 @@ function Boostback {
             until time:seconds - turnTime > 16 {
                 SteeringCorrections().
                 PollUpdate().
-                GUIupdate().
                 SetBoosterActive().
                 rcs on.
                 CheckFuel().
@@ -857,7 +845,6 @@ function Boostback {
                 SteeringCorrections().
                 SetBoosterActive().
                 PollUpdate().
-                GUIupdate().
                 rcs on.
                 CheckFuel().
                 wait 0.1.
@@ -868,7 +855,6 @@ function Boostback {
                 SteeringCorrections().
                 SetBoosterActive().
                 PollUpdate().
-                GUIupdate().
                 rcs on.
                 CheckFuel().
                 wait 0.1.
@@ -881,7 +867,6 @@ function Boostback {
         //     rcs on.
         //     SetBoosterActive().
         //     PollUpdate().
-        //     GUIupdate().
         //     CheckFuel().
         //     wait 0.1.
         // }
@@ -894,7 +879,6 @@ function Boostback {
         //     rcs on.
         //     SetBoosterActive().
         //     PollUpdate().
-        //     GUIupdate().
         //     CheckFuel().
         //     wait 0.1.
         // }
@@ -939,7 +923,6 @@ function Boostback {
         rcs on.
         CheckFuel().
         PollUpdate().
-        GUIupdate().
         
         if abs(steeringmanager:angleerror) > 10 {
             SetBoosterActive().
@@ -987,7 +970,6 @@ function Boostback {
             rcs off.
         }
         PollUpdate().
-        GUIupdate().
         SetBoosterActive().
         CheckFuel().
         wait 0.1.
@@ -1022,7 +1004,6 @@ function Boostback {
             rcs off.
         }
         PollUpdate().
-        GUIupdate().
         SetBoosterActive().
         CheckFuel().
         wait 0.1.
@@ -1044,7 +1025,6 @@ function Boostback {
             rcs off.
         }
         PollUpdate().
-        GUIupdate().
         SetBoosterActive().
         CheckFuel().
         wait 0.1.
@@ -1066,7 +1046,6 @@ function Boostback {
             rcs off.
         }
         PollUpdate().
-        GUIupdate().
         SetBoosterActive().
         CheckFuel().
         wait 0.1.
@@ -1088,7 +1067,6 @@ function Boostback {
             rcs off.
         }
         PollUpdate().
-        GUIupdate().
         SetBoosterActive().
         CheckFuel().
         wait 0.1.
@@ -1274,6 +1252,18 @@ function Boostback {
             set steeringmanager:rolltorquefactor to 0.75.
             SetGridFinAuthority(2.5).
         }
+
+        when RadarAlt < BoosterHeight * 0.7 then {
+            if RSS {
+                lock SteeringVector to lookdirup(up:vector - 0.02 * velocity:surface - 0.001 * ErrorVector, RollVector).
+            }
+            else if KSRSS {
+                lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.001 * ErrorVector, RollVector).
+            }
+            else {
+                lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.0002 * ErrorVector, RollVector).
+            }
+        }
         
     }
 
@@ -1294,7 +1284,6 @@ function Boostback {
             }
         }
         PollUpdate().
-        GUIupdate().
         SetBoosterActive().
         CheckFuel().
         DetectWobblyTower().
@@ -1307,7 +1296,7 @@ function Boostback {
     else if not (TargetOLM = "False") {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
     }
-    lock throttle to (Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))).
+    lock throttle to ((Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))))-0.05.
     
     set once to false.
     until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 {
@@ -1329,8 +1318,8 @@ function Boostback {
         unlock steering.
         lock throttle to 0.
         set ship:control:pilotmainthrottle to 0.
-        rcs off.
         sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
+        rcs off.
         clearscreen.
         print "Booster Landed!".
         wait 0.01.
@@ -1373,6 +1362,7 @@ function Boostback {
                 //sendMessage(Vessel(TargetOLM), "DockingForce,200").
             }
             print "Tower Operation in Progress..".
+            sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
 
             sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.5,0.2,false").
 
@@ -1383,15 +1373,15 @@ function Boostback {
                     sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.2 * Scale, 2) + ",false")).
                     when kuniverse:canquicksave and time:seconds > LandingTime + 32 and L["Auto-Stack"] = true and not (RSS) and not (LandSomewhereElse) then {
                         if not oldArms {sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).}
-                        HUDTEXT("Loading current Booster quicksave for safe docking! (to avoid the Kraken..)", 20, 2, 20, green, false).
+                        //HUDTEXT("Loading current Booster quicksave for safe docking! (to avoid the Kraken..)", 20, 2, 20, green, false).
                         sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (7 * Scale) + ",0.5")).
                         wait 1.5.
                         if not oldArms {sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").}
                         when kuniverse:canquicksave and KUniverse:activevessel = ship then {
-                            kuniverse:quicksave().
+                            //kuniverse:quicksave().
                             wait 0.1.
                             when kuniverse:canquicksave then {
-                                kuniverse:quickload().
+                                //kuniverse:quickload().
                             }
                         }
                     }
@@ -1404,7 +1394,7 @@ function Boostback {
             until TowerReset or (RSS) {
                 clearscreen.
                 set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - BoosterCore:position).
-                set RollAngle to vang(facing:starvector, AngleAxis(-270, up:vector) * RollVector).
+                set RollAngle to vang(facing:starvector, AngleAxis(-90, up:vector) * RollVector).
                 print "Roll Angle: " + round(RollAngle,1).
                 if abs(RollAngle) > 30 {
                     set RollAngleExceeded to true.
@@ -1418,12 +1408,13 @@ function Boostback {
                     HUDTEXT("Tower has been reset, Booster may now be recovered!", 10, 2, 20, green, false).
                 }
             }
-            else {
+            else if 1=2 {
                 sendMessage(Vessel(TargetOLM), "EmergencyStop").
                 print "Emergency Shutdown commanded! Roll Angle exceeded: " + round(RollAngle, 1).
                 print "Continue manually with great care..".
                 HUDTEXT("Emergency Shutdown commanded!", 10, 2, 20, red, false).
                 HUDTEXT("Continue manually with great care..", 10, 2, 20, red, false).
+                wait 3.
                 shutdown.
             }
         }
@@ -1932,6 +1923,7 @@ function BoosterDocking {
             print "Continue manually with great care..".
             HUDTEXT("Emergency Shutdown commanded!", 10, 2, 20, red, false).
             HUDTEXT("Continue manually with great care..", 10, 2, 20, red, false).
+            wait 3.
             shutdown.
         }
 
@@ -1997,6 +1989,7 @@ function BoosterDocking {
         print "Continue manually with great care..".
         HUDTEXT("Automated Booster Docking currently not safe..", 10, 2, 20, yellow, false).
         HUDTEXT("Continue manually or toggle power on the kOS unit (booster) and try again..", 10, 2, 20, yellow, false).
+        wait 3.
         shutdown.
     }
 }
