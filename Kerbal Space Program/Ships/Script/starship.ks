@@ -13777,6 +13777,10 @@ function updateTelemetry {
             set ch4 to res:amount.
             set mch4 to res:capacity.
         }
+        if res:name = "LiquidFuel" {
+            set ch4 to res:amount.
+            set mch4 to res:capacity.
+        }
         if res:name = "Oxidizer" {
             set lox to res:amount.
             set mlox to res:capacity.
@@ -13787,7 +13791,13 @@ function updateTelemetry {
             if res:name = "LqdMethane" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
+                set methane to true.
             }
+            if res:name = "LiquidFuel" {
+                set ch4 to ch4 + res:amount.
+                set mch4 to mch4 + res:capacity.
+                set methane to false.
+            } 
             if res:name = "Oxidizer" {
                 set lox to lox + res:amount.
                 set mlox to mlox + res:capacity.
@@ -13833,6 +13843,11 @@ function updateTelemetry {
     }
 
     set sLOX:text to "<b>LOX</b>       " + round(shipLOX,1) + " %". 
-    set sCH4:text to "<b>CH4</b>       " + round(shipCH4,1) + " %". 
+    if methane {
+        set sCH4:text to "<b>CH4</b>       " + round(shipCH4,1) + " %". 
+    } else {
+        set sCH4:text to "<b>Fuel</b>      " + round(shipCH4,1) + " %". 
+    }
+    
 }
 

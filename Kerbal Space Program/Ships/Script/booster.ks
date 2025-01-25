@@ -2161,6 +2161,11 @@ function GUIupdate {
         }
         if res:name = "LqdMethane" {
             set boosterCH4 to res:amount*100/res:capacity.
+            set methane to true.
+        }
+        if res:name = "Liquid Fuel" {
+            set boosterCH4 to res:amount*100/res:capacity.
+            set methane to false.
         }
     }
     set Mode to "NaN".
@@ -2193,8 +2198,13 @@ function GUIupdate {
     }
     //set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN".
 
-    set bLOX:text to "<b>LOX</b>       " + round(boosterLOX,1) + " %". 
-    set bCH4:text to "<b>CH4</b>       " + round(boosterCH4,1) + " %". 
+    set bLOX:text to "<b>LOX</b>       " + round(boosterLOX,1) + " %".
+    if methane {
+        set bCH4:text to "<b>CH4</b>       " + round(boosterCH4,1) + " %". 
+    } else {
+        set bCH4:text to "<b>Fuel</b>      " + round(boosterCH4,1) + " %". 
+    }
+    
 
 
     if flipStartTime > 0 {
