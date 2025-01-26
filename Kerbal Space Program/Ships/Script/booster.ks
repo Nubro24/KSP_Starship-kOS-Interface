@@ -2163,7 +2163,7 @@ function GUIupdate {
             set boosterCH4 to res:amount*100/res:capacity.
             set methane to true.
         }
-        if res:name = "Liquid Fuel" {
+        if res:name = "LiquidFuel" {
             set boosterCH4 to res:amount*100/res:capacity.
             set methane to false.
         }
