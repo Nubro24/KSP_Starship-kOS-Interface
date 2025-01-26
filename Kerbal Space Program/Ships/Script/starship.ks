@@ -7272,7 +7272,6 @@ function Launch {
                         print "test".
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                    wait 0.01.
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
@@ -7284,7 +7283,6 @@ function Launch {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                    wait 0.01.
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
