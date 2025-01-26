@@ -1,3 +1,9 @@
+# V3.3.4 (2025-01-26) 
+- Attempt to fix Errors during Hotstaging
+- **Adding support for all Launch Sites regarding offshore divert**
+- **Changed Landing Throttle for Booster shortly before touchdown (to prevent throttle flickering)**
+- Fixed Error during Fuel transfers in Orbit
+
 # V3.3.3 (2025-01-25) 
 - **Fixed Kraken on Catch (for Stock and KSRSS)**
 - Changed Ship Ignition timings
