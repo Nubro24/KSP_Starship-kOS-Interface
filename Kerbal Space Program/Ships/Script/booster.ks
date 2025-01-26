@@ -119,6 +119,7 @@ set flipStartTime to -2.
 set cAbort to false.
 set oldArms to false.
 list targets in shiplist.
+set BoosterLanded to false.
 
 
 local bTelemetry is GUI(150).
@@ -464,7 +465,7 @@ until False {
         set bAttitude:style:bg to "starship_img/booster".
         set bAttitude:style:width to 48.
         Boostback().
-    } else {
+    } else if ShipConnectedToBooster = "true" {
         set bAttitude:style:bg to "starship_img/Fullstack".
         set bAttitude:style:width to 37.
     }
@@ -1176,7 +1177,7 @@ function Boostback {
                     lock RadarAlt to alt:radar - BoosterHeight.
                     ADDONS:TR:SETTARGET(landingzone).
                 }
-                when RadarAlt < -1 and GfC then {
+                when RadarAlt < -1 and GfC and not BoosterLanded then {
                     set LandSomewhereElse to true.
                     lock RadarAlt to alt:radar - BoosterHeight.
                     HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
@@ -1200,7 +1201,7 @@ function Boostback {
             PollUpdate().
             
             if KSRSS {
-                lock SteeringVector to lookDirUp(up:vector - 0.024*ErrorVector, RollVector).
+                lock SteeringVector to lookDirUp(up:vector - 0.018*ErrorVector, RollVector).
             } else if RSS {
                 lock SteeringVector to lookDirUp(up:vector - 0.02*ErrorVector, RollVector).
             } else {
@@ -1268,7 +1269,7 @@ function Boostback {
     }
 
 
-    until verticalspeed > CatchVS - 0.1 and RadarAlt < 2 or verticalspeed > -0.01 and RadarAlt < 2000 or hover {
+    until verticalspeed > CatchVS - 0.2 and RadarAlt < 5 or verticalspeed > -0.01 and RadarAlt < 2000 or hover {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         if RadarAlt > 500 {
@@ -1296,7 +1297,17 @@ function Boostback {
     else if not (TargetOLM = "False") {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
     }
-    lock throttle to ((Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))))-0.05.
+    
+    lock throttle to min(max((Planet1G-1 + (verticalspeed / CatchVS)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), 0.3), 0.69).
+    // if RSS {
+    //     lock throttle to 0.5.
+    // } else if KSRSS {
+    //     lock throttle to 0.62.
+    // } else {
+    //     lock throttle to 0.5.
+    // }
+
+    
     
     set once to false.
     until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 {
@@ -1322,6 +1333,7 @@ function Boostback {
         rcs off.
         clearscreen.
         print "Booster Landed!".
+        set BoosterLanded to true.
         wait 0.01.
         if BoosterEngines[0]:hasphysics {BoosterEngines[0]:shutdown.}
     } else if not GfC {
@@ -1335,6 +1347,7 @@ function Boostback {
         rcs off.
         clearscreen.
         print "Booster Landed!".
+        set BoosterLanded to true.
         wait 0.01.
         set ship:control:pitch to 0.
         if BoosterEngines[0]:hasphysics {BoosterEngines[0]:shutdown.}
@@ -1838,9 +1851,15 @@ function setLandingZone {
             if L:haskey("Launch Coordinates") {
                 if RSS {
                     set landingzone to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(28.6117), L["Launch Coordinates"]:split(",")[1]:toscalar(-80.5864)).
+                    set offshoreSite to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(28.6117)+0.05, L["Launch Coordinates"]:split(",")[1]:toscalar(-80.5864)+0.7).
+                }
+                else if KSRSS {
+                    set landingzone to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(28.6117), L["Launch Coordinates"]:split(",")[1]:toscalar(-80.5864)).
+                    set offshoreSite to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(28.6117)+0.05, L["Launch Coordinates"]:split(",")[1]:toscalar(-80.5864)+0.5).
                 }
                 else {
                     set landingzone to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(-000.0972), L["Launch Coordinates"]:split(",")[1]:toscalar(-074.5577)).
+                    set offshoreSite to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(-000.0972)+0.02, L["Launch Coordinates"]:split(",")[1]:toscalar(-074.5577)+0.2).
                 }
             }
             else {

@@ -213,7 +213,7 @@ if RSS {         // Real Solar System
     set towerhgt to 96.
     set LaunchSites to lexicon("KSC", "28.497545,-80.535394").
     set DefaultLaunchSite to "28.497545,-80.535394".
-    set FuelVentCutOffValue to 7700.
+    set FuelVentCutOffValue to 6000.
     set FuelBalanceSpeed to 50.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 10000.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
@@ -743,7 +743,7 @@ function FindParts {
         set OnOrbitalMount to False.
         set OLM to false.
         set StackMass to ship:mass.
-        print("Stack mass (no OLM found): " + StackMass).
+        //print("Stack mass (no OLM found): " + StackMass).
     }
     set partsfound to true.
 }
@@ -7272,7 +7272,7 @@ function Launch {
                         print "test".
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                    wait 0.001.
+                    wait 0.01.
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
@@ -7284,7 +7284,7 @@ function Launch {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                    wait 0.001.
+                    wait 0.01.
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
@@ -8764,8 +8764,8 @@ function ReEntryData {
                 if TargetOLM {
                     when RadarAlt < 3.42 * ShipHeight then {
                         setflaps(0, 85, 1, 0).
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",20,90,true")).
-                        when RadarAlt < 1.5 * ShipHeight then {sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",20,30,true")).}
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",24,90,true")).
+                        when RadarAlt < 1.5 * ShipHeight then {sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",16,30,true")).}
                         when RadarAlt < 0.6 * ShipHeight then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",10,8,true")).
                             
@@ -9245,7 +9245,7 @@ function LngLatError {
                     set LngLatOffset to -50.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -54.
+                    set LngLatOffset to -64.
                 }
                 else {
                     set LngLatOffset to -75.
@@ -9908,7 +9908,7 @@ function updatestatusbar {
         if FuelMass = 0 {
             set FuelMass to 0.001.
         }
-        if DeltaVCheck {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).}
+        if DeltaVCheck and not docked {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).} 
         if currentdeltav > 275 {set status2:style:textcolor to white.}
         else if currentdeltav < 250 {set status2:style:textcolor to red.}
         else {set status2:style:textcolor to yellow.}
