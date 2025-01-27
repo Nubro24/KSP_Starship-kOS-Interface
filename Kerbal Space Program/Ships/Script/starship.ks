@@ -13779,10 +13779,30 @@ function DetectWobblyTower {
 function updateTelemetry {
     set shipAltitude to alt:radar - 9*Scale.
     set shipSpeed to ship:airspeed.
-   
+    
+    set ch4 to 0.
+    set mch4 to 0.
+    set lox to 0.
+    set mlox to 0.
 
-    set shipLOX to OxShip*100/OxShipCap.
-    set shipCH4 to LFShip*100/LFShipCap.
+    for res in ship:resources {
+        if res:name = "LqdMethane" {
+            set ch4 to res:amount.
+            set mch4 to res:capacity.
+        }
+        if res:name = "Oxidizer" {
+            set lox to res:amount.
+            set mlox to res:capacity.
+        }
+        if res:name = "LiquidFuel" {
+            set ch4 to res:amount.
+            set mch4 to res:capacity.
+        }
+    }
+
+
+    set shipLOX to lox*100/mlox.
+    set shipCH4 to ch4*100/mch4.
     
     
     if throttle > 0 {
