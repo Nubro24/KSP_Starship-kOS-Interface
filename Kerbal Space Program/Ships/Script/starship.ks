@@ -7272,6 +7272,7 @@ function Launch {
                         print "test".
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                    wait 0.1.
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
@@ -7283,6 +7284,7 @@ function Launch {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                    wait 0.1.
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
@@ -8195,7 +8197,7 @@ function ReEntryAndLand {
                             set YawPID:kp to 0.025.
                             set YawPID:ki to 0.0125.
                             set YawPID:kd to 0.01.
-                            set maxDeltaV to 350.
+                            set maxDeltaV to 450.
                         }
                         else if KSRSS {
                             set PitchPID:kp to 0.025.
@@ -8204,7 +8206,7 @@ function ReEntryAndLand {
                             set YawPID:kp to 0.1.
                             set YawPID:ki to 0.075.
                             set YawPID:kd to 0.025.
-                            set maxDeltaV to 300.
+                            set maxDeltaV to 400.
                         }
                         else {
                             set PitchPID:kp to 0.025.
@@ -8213,7 +8215,7 @@ function ReEntryAndLand {
                             set YawPID:kp to 0.1.
                             set YawPID:ki to 0.075.
                             set YawPID:kd to 0.025.
-                            set maxDeltaV to 300.
+                            set maxDeltaV to 400.
                         }
                     }
                     else {
@@ -8760,15 +8762,15 @@ function ReEntryData {
                 
 
                 if TargetOLM {
-                    when RadarAlt < 3.42 * ShipHeight then {
+                    when RadarAlt < 7.42 * ShipHeight then {
                         setflaps(0, 85, 1, 0).
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",24,90,true")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",26,90,true")).
                         when RadarAlt < 1.5 * ShipHeight then {sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",16,30,true")).}
                         when RadarAlt < 0.6 * ShipHeight then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",10,8,true")).
                             
                             when RadarAlt < 0.24 * ShipHeight then {
-                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",4,4,true")).
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",4,5,true")).
                             }
                             when RadarAlt < 3 * Scale then {
                                 sendMessage(Vessel(TargetOLM), ("CloseArms")).
@@ -8794,9 +8796,9 @@ function ReEntryData {
                     }
                     when verticalspeed > -20 then {
                         GEAR on.
-                        SLEngines[2]:shutdown.
-                        SLEngines[2]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                        LogToFile("2nd engine shutdown; performing a single engine landing..").
+                        SLEngines[0]:shutdown.
+                        SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                        LogToFile("1st engine shutdown; performing a single engine landing..").
                     }
                 }
                 if ship:body:atm:sealevelpressure < 0.5 {
@@ -9106,14 +9108,14 @@ function LandingVector {
             //}
 
             if TargetOLM {
-                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + (0.7 * Scale) + ",false")).
+                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(0.7 * Scale,2) + ",true")).
                 sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
                 when time:seconds > ShutdownProcedureStart + 5 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.7 * Scale, 2) + ",true")).
                     sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
                 }
                 when time:seconds > ShutdownProcedureStart + 10 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + (0.7 * Scale) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.7 * Scale, 2) + ",true")).
                 }
             }
 
@@ -9246,7 +9248,11 @@ function LngLatError {
                     set LngLatOffset to -64.
                 }
                 else {
-                    set LngLatOffset to -75.
+                    if ShipType:contains("Block1"){
+                        set LngLatOffset to -75.
+                    } else {
+                        set LngLatOffset to -65.
+                    }
                 }
             }
             else {
@@ -11960,13 +11966,21 @@ function LandAtOLM {
         set LandAtOLMisrunning to true.
         set TargetOLM to false.
         if STOCK {
-            set FlipAltitude to 500.
+            if ShipType:contains("Block1"){
+                set FlipAltitude to 510.
+            } else {
+                set FlipAltitude to 524.
+            }
         }
         else if KSRSS {
             set FlipAltitude to 664.
         }
         else {
-            set FlipAltitude to 524.
+            if ShipType:contains("Block1"){
+                set FlipAltitude to 524.
+            } else {
+                set FlipAltitude to 524.
+            }
         }
         list targets in shiplist.
         if shiplist:length > 0 {
@@ -13765,69 +13779,61 @@ function DetectWobblyTower {
 function updateTelemetry {
     set shipAltitude to alt:radar - 9*Scale.
     set shipSpeed to ship:airspeed.
-    local ch4 to 0.
-    local lox to 0.
-    local mch4 to 0.
-    local mlox to 0.
-    for res in tank:resources {
-        if res:name = "LqdMethane" {
-            set ch4 to res:amount.
-            set mch4 to res:capacity.
-        }
-        if res:name = "LiquidFuel" {
-            set ch4 to res:amount.
-            set mch4 to res:capacity.
-        }
-        if res:name = "Oxidizer" {
-            set lox to res:amount.
-            set mlox to res:capacity.
-        }
-    }
-    if not ShipType:contains("Exp") and not ShipType = "Depot" {
-        for res in HeaderTank:resources {
-            if res:name = "LqdMethane" {
-                set ch4 to ch4 + res:amount.
-                set mch4 to mch4 + res:capacity.
-                set methane to true.
-            }
-            if res:name = "LiquidFuel" {
-                set ch4 to ch4 + res:amount.
-                set mch4 to mch4 + res:capacity.
-                set methane to false.
-            } 
-            if res:name = "Oxidizer" {
-                set lox to lox + res:amount.
-                set mlox to mlox + res:capacity.
-            }
-        }
-    }
-    set shipLOX to lox*100/mlox.
-    set shipCH4 to ch4*100/mch4.
+   
+
+    set shipLOX to OxShip*100/OxShipCap.
+    set shipCH4 to LFShip*100/LFShipCap.
     
     
     if throttle > 0 {
-        
-        if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 {
-            set sEngines:style:bg to "starship_img/shipSL0".
-        } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
-            set sEngines:style:bg to "starship_img/shipSL0+1".
-        } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-            set sEngines:style:bg to "starship_img/shipSL0+2".
-        } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-            set sEngines:style:bg to "starship_img/shipSL1+2".
-        } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-            set sEngines:style:bg to "starship_img/shipSLAll".
-        } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 {
-            set sEngines:style:bg to "starship_img/shipAll".
-        } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 {
-            set sEngines:style:bg to "starship_img/shipVacAll".
-        } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
-            set sEngines:style:bg to "starship_img/ship0".
+        if VACEngines:length < 4 {    
+            if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/shipSL0".
+            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/shipSL0+1".
+            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/shipSL0+2".
+            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/shipSL1+2".
+            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/shipSLAll".
+            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 {
+                set sEngines:style:bg to "starship_img/shipAll".
+            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 {
+                set sEngines:style:bg to "starship_img/shipVacAll".
+            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/ship0".
+            }
+        } else {
+            if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/ship9SL0".
+            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/ship9SL0+1".
+            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/ship9SL0+2".
+            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/ship9SL1+2".
+            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/ship9SLAll".
+            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 {
+                set sEngines:style:bg to "starship_img/ship9All".
+            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 {
+                set sEngines:style:bg to "starship_img/ship9VacAll".
+            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 and VACEngines[1]:thrust = 0 and VACEngines[2]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/ship9Vac0+3".
+            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 and VACEngines[1]:thrust > 0 and VACEngines[2]:thrust > 0 {
+                set sEngines:style:bg to "starship_img/ship9Vac-0-3".
+            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
+                set sEngines:style:bg to "starship_img/ship90".
+            }
         }
 
-
     } else {
-        set sEngines:style:bg to "starship_img/ship0".
+        if VACEngines:length < 4 {
+            set sEngines:style:bg to "starship_img/ship0".
+        } else {
+            set sEngines:style:bg to "starship_img/ship90".
+        }
     }
     
     set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".

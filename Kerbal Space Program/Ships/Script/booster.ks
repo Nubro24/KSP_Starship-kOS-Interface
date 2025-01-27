@@ -1166,7 +1166,7 @@ function Boostback {
                     when RadarAlt < 0.43 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
                     }
-                    when RadarAlt < 0.12 * BoosterHeight then {
+                    when RadarAlt < 0.14 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("CloseArms")).
                     }
                 }
@@ -1377,13 +1377,13 @@ function Boostback {
             print "Tower Operation in Progress..".
             sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
 
-            sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.5,0.2,false").
+            sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.5,0.3,true").
 
             when time:seconds > LandingTime + 5 then {
-                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.2 * Scale, 2) + ",false")).
+                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.3 * Scale, 2) + ",true")).
                 sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,0.25,60,false").
                 when time:seconds > LandingTime + 10 * Scale then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.2 * Scale, 2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.3 * Scale, 2) + ",true")).
                     when kuniverse:canquicksave and time:seconds > LandingTime + 32 and L["Auto-Stack"] = true and not (RSS) and not (LandSomewhereElse) then {
                         if not oldArms {sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).}
                         //HUDTEXT("Loading current Booster quicksave for safe docking! (to avoid the Kraken..)", 20, 2, 20, green, false).
