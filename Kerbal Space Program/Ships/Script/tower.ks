@@ -316,10 +316,10 @@ function ArmVersion {
         set oldArms to true.
         print("Arms old").
     }
-    if not AfterLaunch and oldArms {
+    if not AfterLaunch and oldArms and onOLM {
         sendMessage(processor(volume("Booster")), "Arms,true").
         sendMessage(processor(volume("Starship")), "Arms,true").
-    } else if not AfterLaunch and not oldArms {
+    } else if not AfterLaunch and not oldArms and onOLM {
         sendMessage(processor(volume("Booster")), "Arms,false").
         sendMessage(processor(volume("Starship")), "Arms,false").
     }

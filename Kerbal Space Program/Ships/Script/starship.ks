@@ -487,6 +487,8 @@ set HSRJet to false.
 set Booster to "".
 set DeltaVCheck to true.
 set oldArms to false.
+set twoSL to false.
+
 
 when partsfound then {
     updateTelemetry().
@@ -7236,6 +7238,7 @@ function Launch {
                 //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
                 //}
                 BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                wait 0.02.
                 set t to time:seconds.
                 until time:seconds > t + 1.5 {
                     clearscreen.
@@ -7244,6 +7247,7 @@ function Launch {
                     LaunchLabelData().
                     wait 0.1.
                 }
+                wait 0.02.
                 if defined HSR {
                     for x in range(0, HSR[0]:modules:length) {
                         if HSR[0]:getmodulebyindex(x):hasfield("% rated thrust") {
@@ -8121,13 +8125,13 @@ function ReEntryAndLand {
 
         if LFShip > max(FuelVentCutOffValue, MaxFuel) and ship:body:atm:sealevelpressure > 0.5 {
             ToggleHeaderTank(0).
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if not ShipType:contains("Block1") {
                 Nose:activate.
             }
             Tank:activate.
             when LFShip < max(FuelVentCutOffValue, MaxFuel) then {
                 Tank:shutdown.
-                if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+                if not ShipType:contains("Block1") {
                     Nose:shutdown.
                 }
                 ToggleHeaderTank(1).
@@ -8471,10 +8475,10 @@ function ReEntryData {
             set AFTFlapDefault to max(min(60 + (PitchInput * 10 / Scale),65),55).
             if airspeed > 300 {
                 if ship:body:atm:sealevelpressure < 0.5 {
-                    setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 10).
+                    setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 14).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 10).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 20).
                 }
             }
             else {
@@ -8482,7 +8486,7 @@ function ReEntryData {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 10).
                 }
                 else if not (RSS) or altitude > 10000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 10).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 12).
                 }
                 else {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 5).
@@ -8683,7 +8687,7 @@ function ReEntryData {
             }
             else if KSRSS {
                 set FlipAngleFactor to 0.75.
-                set CatchVS to -0.1.
+                set CatchVS to -0.2.
             }
             else {
                 set FlipAngleFactor to 0.95.
@@ -8730,8 +8734,10 @@ function ReEntryData {
             set LandingLateralDirection to facing:starvector.
             set LandingBurnStarted to false.
             set landingRatio to 0.
-            set LandingFlipTime to 5.
+            set LandingFlipTime to 3.5.
             if KSRSS {
+                set LandingFlipTime to 4.
+            } else if RSS {
                 set LandingFlipTime to 5.
             }
             set maxDecel to 0.
@@ -8765,6 +8771,7 @@ function ReEntryData {
                     when RadarAlt < 7.42 * ShipHeight then {
                         setflaps(0, 85, 1, 0).
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",26,90,true")).
+                        
                         when RadarAlt < 1.5 * ShipHeight then {sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",16,30,true")).}
                         when RadarAlt < 0.6 * ShipHeight then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",10,8,true")).
@@ -8817,6 +8824,7 @@ function ReEntryData {
                 SLEngines[0]:shutdown.
                 SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                 LogToFile("1st engine shutdown; performing a 2-engine landing..").
+                set twoSL to true.
                 set ThrottleMin to 0.33.
                 when ThrottleMin * 2 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and throttle < ThrottleMin + 0.001 and groundspeed < 0.5 and verticalspeed > -8 then {
                     SLEngines[2]:shutdown.
@@ -8832,6 +8840,7 @@ function ReEntryData {
                         set LandSomewhereElse to true.
                         SetRadarAltitude().
                         LogToFile("Uh oh... Landing Off-Target").
+                        lock throttle to LandingThrottle().
                     }
                 }
                 else {
@@ -8904,6 +8913,9 @@ function LandingThrottle {
     if LandSomewhereElse {
         set minDecel to (Planet1G - 2.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
     }
+    if verticalSpeed < 10*CatchVS and Hover {
+        set Hover to false.
+    }
     if verticalspeed > CatchVS or Hover {
         set Hover to true.
         return minDecel.
@@ -8930,7 +8942,6 @@ function LandingThrottle {
             return max(max(min((landingRatio * (DesiredDecel + Planet1G)) / maxDecel, maxG * Planet1G / maxDecel), minDecel), 0.5 * ThrottleMin).
         }
     }
-    wait 0.001.
 }
 
 
@@ -9001,11 +9012,26 @@ function LandingVector {
             }
             else {
                 if ship:body:atm:sealevelpressure > 0.5 {
-                    if verticalspeed < -30 {
-                        set result to up:vector - 0.02 * vxcl(north:vector, ErrorVector).
+                    if verticalspeed < -30 and not twoSL {
+                        if ErrorVector:MAG > 15 * Scale {
+                            set result to up:vector - 0.05 * vxcl(north:vector, ErrorVector) - 0.01 * ErrorVector.
+                        } else {
+                            set result to up:vector - 0.02 * vxcl(north:vector, ErrorVector).
+                        }
                     }
+                    else if not twoSL {
+                        if ErrorVector:MAG > 10 * Scale {
+                            set result to up:vector - 0.03 * vxcl(north:vector, ErrorVector) - 0.02 * velocity:surface - 0.01 * ErrorVector.
+                        } else {
+                            set result to up:vector - 0.02 * velocity:surface.
+                        }
+                    } 
                     else {
-                        set result to up:vector - 0.02 * velocity:surface.
+                        if ErrorVector:MAG > 10 * Scale {
+                            set result to up:vector - 0.03 * vxcl(north:vector, ErrorVector) - 0.03 * velocity:surface - 0.01 * ErrorVector - 0.04*facing:topvector.
+                        } else {
+                            set result to up:vector - 0.02 * velocity:surface - 0.04*facing:topvector.
+                        }
                     }
                 }
                 if ship:body:atm:sealevelpressure < 0.5 {
@@ -9245,7 +9271,11 @@ function LngLatError {
                     set LngLatOffset to -50.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -64.
+                    if ShipType:contains("Block1"){
+                        set LngLatOffset to -65.
+                    } else {
+                        set LngLatOffset to -75.
+                    }
                 }
                 else {
                     if ShipType:contains("Block1"){
@@ -11973,13 +12003,17 @@ function LandAtOLM {
             }
         }
         else if KSRSS {
-            set FlipAltitude to 664.
+            if ShipType:contains("Block1"){
+                set FlipAltitude to 680.
+            } else {
+                set FlipAltitude to 680.
+            }
         }
         else {
             if ShipType:contains("Block1"){
-                set FlipAltitude to 524.
+                set FlipAltitude to 624.
             } else {
-                set FlipAltitude to 524.
+                set FlipAltitude to 624.
             }
         }
         list targets in shiplist.
@@ -13797,6 +13831,23 @@ function updateTelemetry {
         if res:name = "LiquidFuel" {
             set ch4 to res:amount.
             set mch4 to res:capacity.
+        }
+    }
+
+    if Boosterconnected {
+        for res in Tank:resources {
+            if res:name = "LqdMethane" {
+                set ch4 to res:amount.
+                set mch4 to res:capacity.
+            }
+            if res:name = "Oxidizer" {
+                set lox to res:amount.
+                set mlox to res:capacity.
+            }
+            if res:name = "LiquidFuel" {
+                set ch4 to res:amount.
+                set mch4 to res:capacity.
+            }
         }
     }
 

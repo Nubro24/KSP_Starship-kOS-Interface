@@ -343,7 +343,7 @@ if bodyexists("Earth") {
         set Planet to "Earth".
         set LaunchSites to lexicon("KSC", "28.50895,-81.20396").
         set offshoreSite to latlng(28.50895,-80.4).
-        set BoosterHeight to 45.4.
+        set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 2400.
         if FAR {
@@ -377,7 +377,7 @@ else {
             set LaunchSites to lexicon("KSC", "-0.0970,-74.5833").
             set offshoreSite to latlng(0,-74.3).
         }
-        set BoosterHeight to 45.4.
+        set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 2300.
         if FAR {
@@ -404,7 +404,7 @@ else {
         set Planet to "Kerbin".
         set LaunchSites to lexicon("KSC", "-0.0972,-74.5577", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set offshoreSite to latlng(0,-74.3).
-        set BoosterHeight to 45.4.
+        set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 1900.
         if FAR {
@@ -514,6 +514,7 @@ until False {
 
 
 function Boostback {
+    
     wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
     wait 0.001.
     
@@ -1089,9 +1090,9 @@ function Boostback {
     
     hudtext(throttle, 3, 2, 5, red, false).
     if RSS {
-        lock SteeringVector to lookdirup(-1*velocity:surface +6*up:vector:normalized, ApproachVector).
+        lock SteeringVector to lookdirup(-1*velocity:surface - 3*up:vector:normalized, ApproachVector).
     } else {
-        lock SteeringVector to lookdirup(-1*velocity:surface+6*up:vector:normalized, ApproachVector).
+        lock SteeringVector to lookdirup(-1*velocity:surface - 4*up:vector:normalized, ApproachVector).
     }
     PollUpdate().
     
@@ -1135,13 +1136,27 @@ function Boostback {
     when RadarAlt < 1500 and not (LandSomewhereElse) then {
         if not (TargetOLM = "false") and TowerExists {
             PollUpdate().
-            when not GfC then {
+            when not GfC and not BoosterLanded then {
+                set abortTime to time:seconds.
                 set cAbort to true.
                 HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
                 set LandSomewhereElse to true.
                 lock RadarAlt to alt:radar - BoosterHeight.
-                set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.05,addons:tr:impactpos:lng-0.02).
-                sendMessage(Vessel(TargetOLM), "MechazillaArms,0,20,95,true").
+                set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.06,addons:tr:impactpos:lng+0.12).
+                lock SteeringVector to lookDirUp(up:vector - 0.08*ErrorVector, RollVector).
+                when time:seconds > abortTime + 4 then {
+                    if RSS {
+                        lock SteeringVector to lookdirup(up:vector - 0.04 * velocity:surface - 0.003 * ErrorVector, RollVector).
+                    }
+                    else if KSRSS {
+                        lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.001 * ErrorVector, RollVector).
+                    }
+                    else {
+                        lock SteeringVector to lookdirup(up:vector - 0.05 * velocity:surface - 0.0005 * ErrorVector, RollVector).
+                    }
+                    lock steering to SteeringVector.
+                }
+                sendMessage(Vessel(TargetOLM), "MechazillaArms,0,24,95,true").
             }
             if Vessel(TargetOLM):distance < 2250 {
                 PollUpdate().
@@ -1156,6 +1171,7 @@ function Boostback {
                     sendMessage(Vessel(TargetOLM), ("RetractSQDArm")).
                     when RadarAlt < 2.43 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",12,24,true")).
+                        NoGo:hide().
                     }
                     when RadarAlt < 1.43 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,12,true")).
@@ -1226,7 +1242,7 @@ function Boostback {
         }
 
         //when (time:seconds > SwingTime + 2.0 and RSS) or (time:seconds > SwingTime + 4.2 and not RSS and not KSRSS) or (time:seconds > SwingTime + 12 and KSRSS) then {
-        when RadarAlt < BoosterHeight * 2 then {
+        when RadarAlt < BoosterHeight * 2.43 then {
             PollUpdate().
             HUDTEXT("5", 10, 2, 10, yellow, false).
             
