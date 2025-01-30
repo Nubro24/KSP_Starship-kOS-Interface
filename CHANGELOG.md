@@ -1,3 +1,10 @@
+# V3.3.6 (2025-01-30) 
+- Adjusted Abort during Booster Landing Burn
+- Added Fix for Hotstaging Error (found by Manu)
+- Fixed Tower Error (Communication with Stack only when on OLM)
+- Changed Landing Guidance for Ship Catch
+  --> Attempt on fixing Ship Landings in KSRSS (SEP24 works for me)
+
 # V3.3.5 (2025-01-27) 
 - **Added 9 Engine UI for Ship**
 - Fixed Ship Landings for SEP_23 (STOCK only)
