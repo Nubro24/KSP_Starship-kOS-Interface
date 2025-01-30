@@ -1,3 +1,7 @@
+# V3.3.7 (2025-01-30) 
+- Upgraded Ship Landing Guidance (Catch should now be working consistently in Stock and KSRSS)
+- Fixed weird Booster roation on Landing Burn
+
 # V3.3.6 (2025-01-30) 
 - Adjusted Abort during Booster Landing Burn
 - Added Fix for Hotstaging Error (found by Manu)
