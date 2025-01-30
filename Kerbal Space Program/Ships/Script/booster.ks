@@ -1090,9 +1090,9 @@ function Boostback {
     
     hudtext(throttle, 3, 2, 5, red, false).
     if RSS {
-        lock SteeringVector to lookdirup(-1*velocity:surface - 3*up:vector:normalized, ApproachVector).
+        lock SteeringVector to lookdirup(-1*velocity:surface - 2*up:vector:normalized - 0.01*ErrorVector, ApproachVector).
     } else {
-        lock SteeringVector to lookdirup(-1*velocity:surface - 4*up:vector:normalized, ApproachVector).
+        lock SteeringVector to lookdirup(-1*velocity:surface - 3*up:vector:normalized - 0.006*ErrorVector, ApproachVector).
     }
     PollUpdate().
     
@@ -1136,6 +1136,8 @@ function Boostback {
     when RadarAlt < 1500 and not (LandSomewhereElse) then {
         if not (TargetOLM = "false") and TowerExists {
             PollUpdate().
+            set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0001).
+            addons:tr:settarget(landingzone).
             when not GfC and not BoosterLanded then {
                 set abortTime to time:seconds.
                 set cAbort to true.
@@ -1143,7 +1145,8 @@ function Boostback {
                 set LandSomewhereElse to true.
                 lock RadarAlt to alt:radar - BoosterHeight.
                 set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.06,addons:tr:impactpos:lng+0.12).
-                lock SteeringVector to lookDirUp(up:vector - 0.08*ErrorVector, RollVector).
+                addons:tr:settarget(landingzone).
+                lock SteeringVector to lookDirUp(up:vector - 0.08*ErrorVector - 0.02 * velocity:surface, RollVector).
                 when time:seconds > abortTime + 4 then {
                     if RSS {
                         lock SteeringVector to lookdirup(up:vector - 0.04 * velocity:surface - 0.003 * ErrorVector, RollVector).
@@ -1183,6 +1186,7 @@ function Boostback {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
                     }
                     when RadarAlt < 0.14 * BoosterHeight then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
                         sendMessage(Vessel(TargetOLM), ("CloseArms")).
                     }
                 }
@@ -1217,7 +1221,7 @@ function Boostback {
             PollUpdate().
             
             if KSRSS {
-                lock SteeringVector to lookDirUp(up:vector - 0.018*ErrorVector, RollVector).
+                lock SteeringVector to lookDirUp(up:vector - 0.021*ErrorVector, facing:topvector).
             } else if RSS {
                 lock SteeringVector to lookDirUp(up:vector - 0.02*ErrorVector, RollVector).
             } else {
@@ -1228,11 +1232,6 @@ function Boostback {
             
             lock steering to SteeringVector.
 
-            when vAng(ApproachVector, up:vector) < 10 then {
-                HUDTEXT("10", 10, 2, 10, yellow, false).
-                lock steering to lookDirUp(up:vector - 0.02 * vxcl(up:vector, velocity:surface) - 0.005 * ErrorVector, RollVector).
-                PollUpdate().
-            }
         }
 
         when SwingTime+0.5 < time:seconds then {
@@ -1242,7 +1241,7 @@ function Boostback {
         }
 
         //when (time:seconds > SwingTime + 2.0 and RSS) or (time:seconds > SwingTime + 4.2 and not RSS and not KSRSS) or (time:seconds > SwingTime + 12 and KSRSS) then {
-        when RadarAlt < BoosterHeight * 2.43 then {
+        when RadarAlt < BoosterHeight * 2.43 and not KSRSS or RadarAlt < BoosterHeight * 1.8 then {
             PollUpdate().
             HUDTEXT("5", 10, 2, 10, yellow, false).
             
@@ -1314,7 +1313,7 @@ function Boostback {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
     }
     
-    lock throttle to min(max((Planet1G-1 + (verticalspeed / CatchVS)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), 0.3), 0.69).
+    lock throttle to min(max((Planet1G-0.8 + (verticalspeed / (CatchVS * 2))) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), 0.3), 0.69).
     // if RSS {
     //     lock throttle to 0.5.
     // } else if KSRSS {

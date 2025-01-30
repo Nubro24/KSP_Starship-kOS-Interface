@@ -7295,6 +7295,7 @@ function Launch {
                 }
                 
                 wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0.
+                updateTelemetry().
                 set StageSepComplete to true.
                 set ship:name to ("Starship " + ShipType).
                 set Boosterconnected to false.
@@ -8686,16 +8687,19 @@ function ReEntryData {
                 set CatchVS to -0.25.
             }
             else if KSRSS {
-                set FlipAngleFactor to 0.75.
+                set FlipAngleFactor to 0.5.
                 set CatchVS to -0.2.
             }
             else {
-                set FlipAngleFactor to 0.95.
+                set FlipAngleFactor to 0.65.
                 set CatchVS to -0.1.
             }
             
             wait 0.001.
             lock throttle to 0.5.
+
+            set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0002).
+            addons:tr:settarget(landingzone).
 
             if ship:body:atm:sealevelpressure > 0.5 {
                 if abs(LngLatErrorList[0]) > 20 or abs(LngLatErrorList[1]) > 15 {
@@ -8736,7 +8740,7 @@ function ReEntryData {
             set landingRatio to 0.
             set LandingFlipTime to 3.5.
             if KSRSS {
-                set LandingFlipTime to 4.
+                set LandingFlipTime to 3.5.
             } else if RSS {
                 set LandingFlipTime to 5.
             }
@@ -8772,7 +8776,11 @@ function ReEntryData {
                         setflaps(0, 85, 1, 0).
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",26,90,true")).
                         
-                        when RadarAlt < 1.5 * ShipHeight then {sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",16,30,true")).}
+                        when RadarAlt < 1.5 * ShipHeight then {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",16,30,true")).
+                            set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0001).
+                            addons:tr:settarget(landingzone).
+                        }
                         when RadarAlt < 0.6 * ShipHeight then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",10,8,true")).
                             
@@ -9012,25 +9020,32 @@ function LandingVector {
             }
             else {
                 if ship:body:atm:sealevelpressure > 0.5 {
-                    if verticalspeed < -30 and not twoSL {
-                        if ErrorVector:MAG > 15 * Scale {
-                            set result to up:vector - 0.05 * vxcl(north:vector, ErrorVector) - 0.01 * ErrorVector.
+                    if verticalspeed < -38 and not twoSL {
+                        if ErrorVector:MAG > 20 * Scale {
+                            set result to up:vector - 0.01 * vxcl(north:vector, ErrorVector) - 0.04 * ErrorVector.
                         } else {
-                            set result to up:vector - 0.02 * vxcl(north:vector, ErrorVector).
+                            set result to up:vector - 0.01 * vxcl(north:vector, ErrorVector) - 0.02 * ErrorVector.
                         }
                     }
-                    else if not twoSL {
-                        if ErrorVector:MAG > 10 * Scale {
-                            set result to up:vector - 0.03 * vxcl(north:vector, ErrorVector) - 0.02 * velocity:surface - 0.01 * ErrorVector.
+                    else if vxcl(north:vector, ErrorVector):mag > 8 and not twoSL {
+                        if ErrorVector:MAG > 12 * Scale and groundspeed > 1.5 {
+                            set result to up:vector - 0.01 * vxcl(north:vector, ErrorVector) - 0.01 * velocity:surface - 0.01 * ErrorVector.
                         } else {
-                            set result to up:vector - 0.02 * velocity:surface.
+                            set result to up:vector - 0.01 * velocity:surface - 0.01 * ErrorVector.
+                        }
+                    } 
+                    else if not twoSL {
+                        if ErrorVector:MAG > 7 * Scale and groundspeed > 1.5 {
+                            set result to 2 * up:vector - 0.02 * velocity:surface - 0.015 * ErrorVector.
+                        } else {
+                            set result to 2 * up:vector - 0.02 * velocity:surface - 0.01 * ErrorVector.
                         }
                     } 
                     else {
-                        if ErrorVector:MAG > 10 * Scale {
-                            set result to up:vector - 0.03 * vxcl(north:vector, ErrorVector) - 0.03 * velocity:surface - 0.01 * ErrorVector - 0.04*facing:topvector.
+                        if ErrorVector:MAG > 5 * Scale {
+                            set result to up:vector - 0.01 * vxcl(north:vector, ErrorVector) - 0.03 * velocity:surface - 0.01 * ErrorVector - 0.024*facing:topvector.
                         } else {
-                            set result to up:vector - 0.02 * velocity:surface - 0.04*facing:topvector.
+                            set result to up:vector - 0.02 * velocity:surface - 0.024*facing:topvector.
                         }
                     }
                 }
@@ -9268,13 +9283,17 @@ function LngLatError {
         if ship:body:atm:sealevelpressure > 0.5 {
             if TargetOLM {
                 if STOCK {
-                    set LngLatOffset to -50.
+                    if ShipType:contains("Block1"){
+                        set LngLatOffset to -51.
+                    } else {
+                        set LngLatOffset to -54.
+                    }
                 }
                 else if KSRSS {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -65.
+                        set LngLatOffset to -60.
                     } else {
-                        set LngLatOffset to -75.
+                        set LngLatOffset to -58.
                     }
                 }
                 else {
@@ -12004,9 +12023,9 @@ function LandAtOLM {
         }
         else if KSRSS {
             if ShipType:contains("Block1"){
-                set FlipAltitude to 680.
+                set FlipAltitude to 642.
             } else {
-                set FlipAltitude to 680.
+                set FlipAltitude to 642.
             }
         }
         else {
@@ -12035,9 +12054,9 @@ function LandAtOLM {
                         if alt:radar > 1000 and alt:radar < 10100 {
                             if not (Vessel(TargetOLM):isdead) {
                                 when Vessel(TargetOLM):unpacked then {
-                                    wait 0.001.
-                                    sendMessage(Vessel(TargetOLM), "MechazillaHeight,0,2").
-                                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,5,90,true").
+                                    wait 0.01.
+                                    sendMessage(Vessel(TargetOLM), "MechazillaHeight,0.5,2").
+                                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,10,90,true").
                                     sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,1,12,false").
                                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
                                     if RSS {
