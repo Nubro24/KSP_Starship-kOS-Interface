@@ -607,6 +607,8 @@ function Boostback {
                     }
                 }
             }
+        } else if starship:contains("Starship") {
+            set ShipFound to true.
         }
 
         if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
