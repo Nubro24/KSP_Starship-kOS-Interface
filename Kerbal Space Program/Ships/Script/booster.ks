@@ -579,7 +579,7 @@ function Boostback {
         lock steering to SteeringVector.
 
         wait 0.001.
-        if defined L {
+        if defined L and not starship:contains("Starship") {
             if L:haskey("Ship Name") {
                 set starship to L["Ship Name"].
                 until ShipFound or verticalspeed < 0 or ShipNotFound {
