@@ -451,7 +451,7 @@ when True then {
     preserve.
 }
 
-
+set OnceShipName to false.
 
 until False {
     set ShipConnectedToBooster to false.
@@ -459,6 +459,10 @@ until False {
         if Part:name:contains("SEP.23.SHIP.BODY") or Part:name:contains("SEP.24.SHIP.CORE") {
             set ShipConnectedToBooster to true.
         }
+    }
+    if not OnceShipName {
+        set starship to ship:name.
+        set OnceShipName to true.
     }
     bTelemetry:show().
     if ShipConnectedToBooster = "false" and BoostBackComplete = "false" and not (ship:status = "LANDED") and altitude > 10000 and verticalspeed < 0 {
