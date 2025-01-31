@@ -7240,7 +7240,7 @@ function Launch {
                 BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 wait 0.02.
                 set t to time:seconds.
-                until time:seconds > t + 1.5 {
+                until time:seconds > t + 2.5 {
                     clearscreen.
                     SendPing().
                     BackGroundUpdate().
