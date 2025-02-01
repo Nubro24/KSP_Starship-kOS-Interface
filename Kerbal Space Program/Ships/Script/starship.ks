@@ -7175,7 +7175,7 @@ function Launch {
 
         when altitude-LaunchElev > 243 then {
             lock throttle to LaunchThrottle().
-            //SetLoadDistances(ship, "OLM").
+            SetLoadDistances(ship, "OLM").
         }
         lock steering to LaunchSteering().
 
@@ -7257,7 +7257,7 @@ function Launch {
                         }
                     }
                 }
-                until time:seconds > t + 2.43 {
+                until time:seconds > t + 2.93 {
                     clearscreen.
                     SendPing().
                     BackGroundUpdate().
@@ -12749,7 +12749,10 @@ function SetLoadDistances {
         wait 0.001.
     }
     else if distance = "OLM" {
-        SET KUNIVERSE:DEFAULTLOADDISTANCE:LANDED:UNLOAD TO 130000.
+        SET KUNIVERSE:DEFAULTLOADDISTANCE:prelaunch:UNLOAD TO 150000.
+        SET KUNIVERSE:DEFAULTLOADDISTANCE:prelaunch:LOAD TO 119500.
+        WAIT 0.001. 
+        SET KUNIVERSE:DEFAULTLOADDISTANCE:LANDED:UNLOAD TO 150000.
         SET KUNIVERSE:DEFAULTLOADDISTANCE:LANDED:LOAD TO 119500.
         WAIT 0.001. 
         SET KUNIVERSE:DEFAULTLOADDISTANCE:LANDED:PACK TO 39999.

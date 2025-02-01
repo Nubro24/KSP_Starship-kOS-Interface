@@ -233,6 +233,9 @@ until False {
         else if command = "LiftOff" {
             LiftOff().
         }
+        else if command = "LandingDeluge" {
+            LandingDeluge().
+        }
         else if command = "getArmsVersion" {
             ArmVersion().
         }
@@ -283,11 +286,12 @@ function LiftOff {
         OLM:getmodule("ModuleAnimateGeneric"):doevent("close clamps + qd").
     }
     wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0.
+    RetractSQDArm().
     wait 3.
     RenameOLM().
     wait 3.
     MechazillaPushers("0", "0.2", "12", "true").
-    MechazillaHeight("6.5", "0.5").
+    MechazillaHeight("4.5", "0.5").
     MechazillaArms("8","10","97.5","true").
     set ship:type to "Base".
     for x in list(OLM,SteelPlate) {
@@ -303,6 +307,36 @@ function LiftOff {
         }
     }
     set AfterLaunch to true.
+}
+
+function LandingDeluge {
+    for x in list(OLM,SteelPlate) {
+        if x:hasmodule("ModuleEnginesFX") {
+            if x:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
+                x:getmodule("ModuleEnginesFX"):doevent("activate engine").
+            }
+        }
+        if x:hasmodule("ModuleEnginesRF") {
+            if x:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
+                x:getmodule("ModuleEnginesRF"):doevent("activate engine").
+            }
+        }
+    }
+    local waterOn to time:seconds.
+    when waterOn + 15 < time:seconds then {
+        for x in list(OLM,SteelPlate) {
+            if x:hasmodule("ModuleEnginesFX") {
+                if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                    x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+                }
+            }
+            if x:hasmodule("ModuleEnginesRF") {
+                if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                    x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                }
+            }
+        }
+    }
 }
 
 function ArmVersion {

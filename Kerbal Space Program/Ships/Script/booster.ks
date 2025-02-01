@@ -315,7 +315,7 @@ if bodyexists("Earth") {
         set RSS to true.
         set Planet to "Earth".
         set LaunchSites to lexicon("KSC", "28.6117,-80.58647").
-        set offshoreSite to latlng(28.6117,-80.46).
+        set offshoreSite to latlng(28.6117,-80.52).
         set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
         set LFBoosterFuelCutOff to 10600.
@@ -1038,7 +1038,7 @@ function Boostback {
         wait 0.1.
     }
 
-    until alt:radar < 1275 or not RSS {
+    until alt:radar < 1375 or not RSS {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1096,12 +1096,12 @@ function Boostback {
     
     hudtext(throttle, 3, 2, 5, red, false).
     if RSS {
-        lock SteeringVector to lookdirup(-1*velocity:surface - 2*up:vector:normalized - 0.01*ErrorVector, ApproachVector).
+        lock SteeringVector to lookdirup(-1*velocity:surface - 2*up:vector:normalized - 0.02*ErrorVector, ApproachVector).
     } else {
         lock SteeringVector to lookdirup(-1*velocity:surface - 3*up:vector:normalized - 0.006*ErrorVector, ApproachVector).
     }
     PollUpdate().
-    
+
     lock steering to SteeringVector.
 
 
@@ -1173,26 +1173,60 @@ function Boostback {
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
 
-                when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 20 * Scale and RadarAlt < 7.5 * BoosterHeight and not (WobblyTower) then {
-                    sendMessage(Vessel(TargetOLM), "MechazillaArms," + round(BoosterRot, 1) + ",12,75,true").
+                when Vessel(TargetOLM):distance < 1600 then {sendMessage(Vessel(TargetOLM), ("RetractSQD")).}
+
+                when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 42 * Scale and RadarAlt < 7.5 * BoosterHeight and not (WobblyTower) then {
+                    if RSS {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",16,75,true")).
+                    } else {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",12,75,true")).
+                    }
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
                     if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,3,0.5").}
-                    sendMessage(Vessel(TargetOLM), ("RetractSQDArm")).
+                    sendMessage(Vessel(TargetOLM), ("RetractSQD")).
+                    when RadarAlt < 5.2 * BoosterHeight then {sendMessage(Vessel(TargetOLM), "LandingDeluge").}
                     when RadarAlt < 2.43 * BoosterHeight then {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",12,24,true")).
+                        if RSS {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",16,24,true")).
+                        } else {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",12,24,true")).
+                        }
                         NoGo:hide().
                     }
+                    when RadarAlt < 1.9 * BoosterHeight then {
+                        if RSS {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",16,24,true")).
+                        } else {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",12,24,true")).
+                        }
+                    }
                     when RadarAlt < 1.43 * BoosterHeight then {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,12,true")).
+                        if RSS {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",10,12,true")).
+                        } else {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,12,true")).
+                        }
                     }
                     when RadarAlt < 0.93 * BoosterHeight then {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",6,8,true")).
+                        if RSS {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,8,true")).
+                        } else {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",6,8,true")).
+                        }
                     }
                     when RadarAlt < 0.43 * BoosterHeight then {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
+                        if RSS {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",6,5,true")).
+                        } else {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
+                        }
                     }
                     when RadarAlt < 0.14 * BoosterHeight then {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
+                        if RSS {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",6,5,true")).
+                        } else {
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
+                        }
                         sendMessage(Vessel(TargetOLM), ("CloseArms")).
                     }
                 }
@@ -1229,7 +1263,11 @@ function Boostback {
             if KSRSS {
                 lock SteeringVector to lookDirUp(up:vector - 0.021*ErrorVector, facing:topvector).
             } else if RSS {
-                lock SteeringVector to lookDirUp(up:vector - 0.02*ErrorVector, RollVector).
+                lock SteeringVector to lookDirUp(up:vector - 0.018*ErrorVector, RollVector).
+                when SwingTime + 3 < time:seconds then {
+                    rcs on.
+                    lock SteeringVector to lookDirUp(up:vector - 0.012*ErrorVector, RollVector).
+                }
             } else {
                 lock SteeringVector to lookDirUp(up:vector - 0.02*ErrorVector, RollVector).
             }
@@ -1247,7 +1285,7 @@ function Boostback {
         }
 
         //when (time:seconds > SwingTime + 2.0 and RSS) or (time:seconds > SwingTime + 4.2 and not RSS and not KSRSS) or (time:seconds > SwingTime + 12 and KSRSS) then {
-        when RadarAlt < BoosterHeight * 2.43 and not KSRSS or RadarAlt < BoosterHeight * 1.8 then {
+        when RadarAlt < BoosterHeight * 2.43 and STOCK or RadarAlt < BoosterHeight * 1.8 and KSRSS or RadarAlt < BoosterHeight * 1.4 and RSS then {
             PollUpdate().
             HUDTEXT("5", 10, 2, 10, yellow, false).
             
@@ -1261,7 +1299,7 @@ function Boostback {
             
 
             if RSS {
-                lock SteeringVector to lookdirup(up:vector - 0.04 * velocity:surface - 0.003 * ErrorVector, RollVector).
+                lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.002 * ErrorVector, RollVector).
             }
             else if KSRSS {
                 lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.001 * ErrorVector, RollVector).
@@ -1286,11 +1324,23 @@ function Boostback {
                 lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.0002 * ErrorVector, RollVector).
             }
         }
+
+        when RadarAlt < BoosterHeight * 0.4 then {
+            if RSS {
+                lock SteeringVector to lookdirup(up:vector - 0.01 * velocity:surface - 0.0004 * ErrorVector, RollVector).
+            }
+            else if KSRSS {
+                lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.001 * ErrorVector, RollVector).
+            }
+            else {
+                lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.0002 * ErrorVector, RollVector).
+            }
+        }
         
     }
 
 
-    until verticalspeed > CatchVS - 0.2 and RadarAlt < 5 or verticalspeed > -0.01 and RadarAlt < 2000 or hover {
+    until verticalspeed > CatchVS - 0.2 and RadarAlt < 5 or verticalspeed > -0.02 and RadarAlt < 2000 or hover {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         if RadarAlt > 500 {
@@ -1319,16 +1369,8 @@ function Boostback {
         lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
     }
     
-    lock throttle to min(max((Planet1G-0.8 + (verticalspeed / (CatchVS * 2))) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), 0.3), 0.69).
-    // if RSS {
-    //     lock throttle to 0.5.
-    // } else if KSRSS {
-    //     lock throttle to 0.62.
-    // } else {
-    //     lock throttle to 0.5.
-    // }
-
-    
+    lock throttle to min(max((Planet1G-1 + (verticalspeed / (CatchVS * 2))) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), 0.24), 0.69).
+   
     
     set once to false.
     until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 {
@@ -1872,7 +1914,7 @@ function setLandingZone {
             if L:haskey("Launch Coordinates") {
                 if RSS {
                     set landingzone to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(28.6117), L["Launch Coordinates"]:split(",")[1]:toscalar(-80.5864)).
-                    set offshoreSite to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(28.6117)+0.05, L["Launch Coordinates"]:split(",")[1]:toscalar(-80.5864)+0.7).
+                    set offshoreSite to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(28.6117)+0.05, L["Launch Coordinates"]:split(",")[1]:toscalar(-80.5864)+0.3).
                 }
                 else if KSRSS {
                     set landingzone to latlng(L["Launch Coordinates"]:split(",")[0]:toscalar(28.6117), L["Launch Coordinates"]:split(",")[1]:toscalar(-80.5864)).
