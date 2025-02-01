@@ -1,3 +1,8 @@
+# V3.3.8 (2025-02-01) 
+- **Added Deluge during Booster Landing**
+- **Attempt on fixing RSS Booster Landing**
+- *note: Changed Files starship.ks - booster.ks - tower.ks (**no** changes to boot files)*
+
 # V3.3.7 (2025-01-30) 
 - Upgraded Ship Landing Guidance (Catch should now be working consistently in Stock and KSRSS)
 - Fixed weird Booster roation on Landing Burn
