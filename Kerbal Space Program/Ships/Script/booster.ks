@@ -84,6 +84,7 @@ set BoosterDocked to false.
 set QuickSaveLoaded to false.
 set ShipNotFound to false.
 set RollAngle to 0.
+set missionTimer to 0.
 set BoosterRot to 0.
 if BoosterCore:hasmodule("FARPartModule") {
     set FAR to true.
@@ -120,6 +121,7 @@ set cAbort to false.
 set oldArms to false.
 list targets in shiplist.
 set BoosterLanded to false.
+set Tminus to false.
 
 
 local bTelemetry is GUI(150).
@@ -128,28 +130,34 @@ local bTelemetry is GUI(150).
     set bTelemetry:style:border:v to 10.
     set bTelemetry:style:padding:v to 0.
     set bTelemetry:style:padding:h to 0.
-    set bTelemetry:x to 160.
-    set bTelemetry:y to -200.
+    set bTelemetry:x to 0.
+    set bTelemetry:y to -220.
     set bTelemetry:skin:label:textcolor to white.
     set bTelemetry:skin:textfield:textcolor to white.
+    set bTelemetry:skin:label:font to "Arial Bold".
+    set bTelemetry:skin:textfield:font to "Arial Bold".
     
 
 local bAttitudeTelemetry is bTelemetry:addhlayout().
 local boosterCluster is bAttitudeTelemetry:addvlayout().
 local boosterStatus is bAttitudeTelemetry:addvlayout().
 local boosterAttitude is bAttitudeTelemetry:addvlayout().
+local missionTimeDisplay is bAttitudeTelemetry:addvlayout().
+local shipSpace is bAttitudeTelemetry:addvlayout().
 
 local bEngines is boosterCluster:addlabel().
     set bEngines:style:bg to "starship_img/booster0".
     set bEngines:style:width to 190.
     set bEngines:style:height to 180.
-    set bEngines:style:margin:top to 10.
-    set bEngines:style:margin:bottom to 10.
+    set bEngines:style:margin:top to 20.
+    set bEngines:style:margin:left to 24.
+    set bEngines:style:margin:right to 26.
+    set bEngines:style:margin:bottom to 20.
 
 local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
     set bSpeed:style:wordwrap to false.
     set bSpeed:style:margin:left to 10.
-    set bSpeed:style:margin:top to 10.
+    set bSpeed:style:margin:top to 20.
     set bSpeed:style:width to 296.
     set bSpeed:style:fontsize to 30.
 local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
@@ -180,12 +188,25 @@ local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
 
 local bAttitude is boosterAttitude:addlabel().
     set bAttitude:style:bg to "starship_img/booster".
-    set bAttitude:style:margin:left to 66.
-    set bAttitude:style:margin:right to 66.
+    set bAttitude:style:margin:left to 80.
+    set bAttitude:style:margin:right to 100.
     set bAttitude:style:width to 48.
     set bAttitude:style:height to 180.
+    set bAttitude:style:margin:top to 15.
 
+local missionTimeLabel is missionTimeDisplay:addlabel().
+    set missionTimeLabel:style:wordwrap to false.
+    set missionTimeLabel:style:margin:left to 100.
+    set missionTimeLabel:style:margin:right to 160.
+    set missionTimeLabel:style:margin:top to 80.
+    set missionTimeLabel:style:width to 160.
+    set missionTimeLabel:style:fontsize to 42.
+    set missionTimeLabel:style:align to "center".
 
+local shipBackground is shipSpace:addlabel().
+    set shipBackground:style:width to 726.
+
+set bTelemetry:draggable to false.
 
 
 local bGUI is GUI(150).
@@ -509,6 +530,10 @@ until False {
     }
     else if RECEIVED:CONTENT = "Depot" {
         set Depot to true.
+    }
+    else if RECEIVED:CONTENT = "Countdown" {
+        set missionTimer to time:seconds.
+        set missionTimer to missionTimer + 17.
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -1284,7 +1309,7 @@ function Boostback {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
         }
 
-        //when (time:seconds > SwingTime + 2.0 and RSS) or (time:seconds > SwingTime + 4.2 and not RSS and not KSRSS) or (time:seconds > SwingTime + 12 and KSRSS) then {
+        
         when RadarAlt < BoosterHeight * 2.43 and STOCK or RadarAlt < BoosterHeight * 1.8 and KSRSS or RadarAlt < BoosterHeight * 1.4 and RSS then {
             PollUpdate().
             HUDTEXT("5", 10, 2, 10, yellow, false).
@@ -1327,7 +1352,7 @@ function Boostback {
 
         when RadarAlt < BoosterHeight * 0.4 then {
             if RSS {
-                lock SteeringVector to lookdirup(up:vector - 0.01 * velocity:surface - 0.0004 * ErrorVector, RollVector).
+                lock SteeringVector to lookdirup(up:vector - 0.024 * velocity:surface - 0.0004 * ErrorVector, RollVector).
             }
             else if KSRSS {
                 lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.001 * ErrorVector, RollVector).
@@ -2285,6 +2310,43 @@ function GUIupdate {
         set bCH4:text to "<b>CH4</b>       " + round(boosterCH4,1) + " %". 
     } else {
         set bCH4:text to "<b>Fuel</b>      " + round(boosterCH4,1) + " %". 
+    }
+    
+    set missionTimerNow to time:seconds-missionTimer.
+    if missionTimerNow < 0 {
+        set missionTimerNow to -missionTimerNow.
+        set TMinus to true.
+    } 
+    else set TMinus to false.
+
+    set hoursV to missionTimerNow/60/60.
+    set Thours to round(hoursV).
+    if hoursV < Thours {
+        set Thours to Thours - 1.
+    }
+
+    set minV to missionTimerNow/60 - Thours*60.
+    set Tminutes to round(minV).
+    if minV < Tminutes {
+        set Tminutes to Tminutes - 1.
+    }
+    
+    set Tseconds to missionTimerNow - Thours*60*60 - Tminutes*60.
+    set Tseconds to round(Tseconds).
+
+    if Thours < 9.1 {
+        set Thours to "0"+Thours.
+    }
+    if Tminutes < 9.1 {
+        set Tminutes to "0"+Tminutes.
+    }
+    if Tseconds < 9.1 {
+        set Tseconds to "0"+Tseconds.
+    }
+    if TMinus {
+        set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
+    } else {
+        set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
     }
     
 
