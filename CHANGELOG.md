@@ -2,7 +2,7 @@
 - **Update to the latest SEP version (Flap Update)**
 - **Updated Telemetry UI and added Mission Timer**
 - Fine tuning of Catch Guidance for Booster and Ship
-- Reentry for KSRSS and RSS might be weird, but should work
+- Reentry for RSS not working yet
 
 # V3.3.8 (2025-02-01) 
 - **Added Deluge during Booster Landing**
