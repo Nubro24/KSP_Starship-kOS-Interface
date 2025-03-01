@@ -1,7 +1,6 @@
 # V3.4.1 (2025-03-01 - WIP) 
 - Kraken: root cause seems to be the steel of the vehicles wobbling, probably caused by LoadDistanceChanges
-  > Kraken during catch fixed
-  > added WobbleCheck --> offshore divert, when detected
+  > Kraken during catch fixed; added WobbleCheck --> offshore divert, when detected
 - Updated to SEP-Beta4
 - Added primitive Attitude Indicators
 - Booster Landing Rework 2.0
