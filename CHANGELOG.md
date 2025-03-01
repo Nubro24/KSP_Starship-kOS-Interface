@@ -1,3 +1,14 @@
+# V3.4.1 (2025-03-01 - WIP) 
+- Kraken: root cause seems to be the steel of the vehicles wobbling, probably caused by LoadDistanceChanges
+  > Kraken during catch fixed
+  > added WobbleCheck --> offshore divert, when detected
+- Updated to SEP-Beta4
+- Added primitive Attitude Indicators
+- Booster Landing Rework 2.0
+- Small UI adjustments
+- DSS now starting before Deluge at Lift-Off
+- Readded switch to Ship during Booster Coast Phase (currently not working in KSRSS)
+
 # V3.4.0 (2025-02-14) 
 - **Update to the latest SEP version (Flap Update)**
 - **Updated Telemetry UI and added Mission Timer**
