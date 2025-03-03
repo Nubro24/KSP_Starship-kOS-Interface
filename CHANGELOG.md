@@ -1,6 +1,6 @@
 # V3.4.1 (2025-03-03 - WIP) 
 - Kraken: root cause seems to be the steel of the vehicles wobbling, probably caused by LoadDistanceChanges
-  > **Kraken fixed during catch for Stock and KSRSS**; added WobbleCheck --> offshore divert, when detected
+  > **Kraken fixed during catch for Stock and KSRSS**; added WobbleCheck --> offshore divert, when detected;    
   > RSS kraken has the booster just glitching/gliding through the chopsticks, with no wobble of Booster or Tower
 - Updated to SEP-Beta4 (Steering beetween reentry and Bellyflop still "sketchy")
 - Added primitive Attitude Indicators
