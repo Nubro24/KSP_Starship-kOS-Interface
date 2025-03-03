@@ -1,12 +1,14 @@
-# V3.4.1 (2025-03-01 - WIP) 
+# V3.4.1 (2025-03-03 - WIP) 
 - Kraken: root cause seems to be the steel of the vehicles wobbling, probably caused by LoadDistanceChanges
-  > Kraken during catch fixed; added WobbleCheck --> offshore divert, when detected
-- Updated to SEP-Beta4
+  > **Kraken fixed during catch for Stock and KSRSS**; added WobbleCheck --> offshore divert, when detected
+  > RSS kraken has the booster just glitching/gliding through the chopsticks, with no wobble of Booster or Tower
+- Updated to SEP-Beta4 (Steering beetween reentry and Bellyflop still "sketchy")
 - Added primitive Attitude Indicators
-- Booster Landing Rework 2.0
+- **Booster Landing Rework 2.0**
+- Ship Landing fine tuned
 - Small UI adjustments
 - DSS now starting before Deluge at Lift-Off
-- Readded switch to Ship during Booster Coast Phase (currently not working in KSRSS)
+- Readded switch to Ship during Booster Coast Phase (currently only working in Stock)
 
 # V3.4.0 (2025-02-14) 
 - **Update to the latest SEP version (Flap Update)**
