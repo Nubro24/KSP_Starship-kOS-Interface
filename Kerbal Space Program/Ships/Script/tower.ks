@@ -50,10 +50,13 @@ for part in ship:parts {
     } else if part:name:contains("SEP.23.SHIP.DEPOT") {
         set ShipTank to part.
     }
+     else if part:name:contains("BLOCK-2.MAIN.TANK") {
+        set ShipTank to part.
+    }
 }
 if onOLM {
     set BoosterCore:getmodule("kOSProcessor"):volume:name to "Booster".
-    set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
+    if defined ShipTank {set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".}
 }
 
 
