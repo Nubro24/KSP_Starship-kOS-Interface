@@ -1,5 +1,5 @@
 # V3.4.2 WIP
--Small changes to craft files
+-Small changes to Block1 stock and real size craft files
 
 # V3.4.1 (2025-03-07) 
 - Kraken: root cause seems to be the steel of the vehicles wobbling, probably caused by LoadDistanceChanges
