@@ -1,4 +1,4 @@
-# V3.4.2 WIP
+# V3.4.2 Waiting for Nubro to see my pull request
 -Small changes to Block1 stock and real size craft files
 
 # V3.4.1 (2025-03-07) 
