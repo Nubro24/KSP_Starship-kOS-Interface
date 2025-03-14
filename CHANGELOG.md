@@ -1,3 +1,6 @@
+# V3.4.1 WIP
+-Small changes to craft files
+
 # V3.4.1 (2025-03-07) 
 - Kraken: root cause seems to be the steel of the vehicles wobbling, probably caused by LoadDistanceChanges
   > **Kraken fixed during catch for Stock and KSRSS**; added WobbleCheck --> offshore divert, when detected;    
