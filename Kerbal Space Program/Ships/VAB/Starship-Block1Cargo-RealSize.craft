@@ -2,9 +2,9 @@ ship = Starship-Block1Cargo-RealSize
 version = 1.12.5
 description = 
 type = VAB
-size = 59.3747253,146.406799,27.6766815
+size = 59.3747253,146.406799,27.6765747
 steamPublishedFileId = 0
-persistentId = 3165336139
+persistentId = 4164756244
 rot = 0,0,0,0
 missionFlag = KerbalismConfig/Flags/kerbalism
 vesselType = Debris
@@ -12,12 +12,12 @@ OverrideDefault = False,False,False,False
 OverrideActionControl = 0,0,0,0
 OverrideAxisControl = 0,0,0,0
 OverrideGroupNames = ,,,
-_modVersions = Scale_Redist=2.4.8|ModuleManager=4.1.4|ModuleManager=4.1.4|ClickThroughBlocker=2.1.10|0Harmony=2.2.1|HarmonyInstallChecker=2.2.1|KSPBurst=1.5.5|Microsoft.Extensions.FileSystemGlobbing=6.0.21|System.IO.Compression=4.6.57|System.IO.Compression.FileSystem=4.6.57|System.Runtime.CompilerServices.Unsafe=4.700.20|System.Runtime=4.0.0|Unity.Burst=0.0.0|Unity.Burst.Unsafe=1.0.0|Unity.Collections=0.0.0|Unity.Jobs=0.0.0|Unity.Mathematics=1.0.0|BlendshapeModelLoader=1.6.2|TexturesUnlimited=1.6.2|ToolbarControl=0.1.9|AnimatedDecouplers=1.4.2|ASETPropsIdentifier=1.5.0|Astrogator=1.0.2|AtmosphericFx=1.0.0|B9PartSwitch=2.20.0|BoosterGuidance=1.2.0|CameraTools=1.35.0|Chatterer=0.9.99|CCK=5.1.0|ConformalDecals=0.2.14|ContractConfigurator=2.11.0|CustomPreLaunchChecks=1.8.1|KerbalKonstructs=1.8.10|KerKonConConExt=2.0.0|SimpleBoiloff=0.2.1|DeployableEngines=2.2.0|DepthMask=1.1.3|DistantObject=0.0.0|KSPe.Light.DOE=2.5.4|DMModuleScienceAnimateGeneric=0.23.0|DynamicBatteryStorage=1.0.0|EditorExtensionsRedux=3.4.5|EngineLightRelit=1.6.3|Atmosphere=2.3.0|CelestialShadows=2.3.0|CityLights=2.3.0|EVEManager=2.3.0|PartFX=2.3.0|PQSManager=2.3.0|ShaderLoader=2.3.0|Terrain=2.3.0|TextureConfig=2.3.0|Utils=2.3.0|_BuildManager=2.3.0|FMRSContinued=1.2.9|FossilizedPlugin=1.0.0|FreeIva=0.2.19|StarshipFrost=1.0.0|HangerExtenderExtended=3.6.0|HullcamVDSContinued=0.2.2|JSIAdvTransparentPods=0.1.24|RasterPropMonitor=1.0.2|KerbalEngineer.Unity=1.0.0|KerbalEngineer=1.1.9|KerbalismBootstrap=3.19.0|KerbalJointReinforcement=3.8.3|Renamer=1.7.0|DeployableAeroSurfaces=1.0.0|Kopernicus.Parser=1.0.0|ModularFlightIntegrator=1.2.10|Kopernicus=1.12.214|ICSharpCode.SharpZipLib=0.86.0|kOS=1.4.0|kOS.Safe=1.4.0|kOS-KerbalEngineer=0.1.1|JsonFx=2.0.1209|kOSPropMonitor=1.7.3|KSCSwitcher=2.2.0|0_MultipleModuleInPartAPI=1.0.0|KSPCommunityFixes=1.36.1|LunarTransferPlanner=0.0.0|MechJeb2=2.14.3|System.Buffers=4.6.28619|AvionicsSystems=1.3.7|MoonSharp.Interpreter=2.0.0|DockingPortAlignmentIndicator=6.10.0|DPAI_RPM=1.0.0|ModuleDockingNodeNamed=1.0.0|NFPropUtils=1.0.0|NeptuneCamera=1.0.0|Google.Protobuf=3.8.0|Grpc.Core.Api=2.24.0|OfCourseIStillLoveYou.Client=1.0.0|OfCourseIStillLoveYou=1.0.0|OfCourseIStillLoveYou.TUFX=1.0.0|Grass=0.0.0|ParallaxQualityLibrary=1.0.0|ParallaxOptimized=1.0.0|PatchManager=0.0.17|PersistentRotationUpgraded=1.9.1|ProbeControlRoomRecontrolled=1.4.0|ProceduralFairings=6.6.2|RealChute=1.4.9059|RealHeat=5.1.0|TilingHeightmap=1.0.0|RealSolarSystem=20.1.3|RecoveryController=0.0.4|Restock=1.0.0|Reviva=1.0.0|RocketSoundEnhancement.Unity=1.0.0|RocketSoundEnhancement=0.9.11|ROLoadingImages=1.0.0|RSSTimeFormatter=1.12.0|RSSVE=1.8.1|scatterer=0.870.0|Shabby=0.4.0|ShipEffectsContinued=1.0.11|SimpleAdjustableFairings=1.12.0|SmartParts=1.10.0|SmokeScreen=2.8.14|KSP_Log=1.2.0|ButtonManager=1.0.1|KSP_ColorPicker=1.1.0|KSP_PartHighlighter=1.1.0|SpaceTuxUtility=1.0.1|VesselModuleSave=1.0.1|KSPSteamCtrlr=0.0.1|StagedAnimation=1.0.0|HabUtils=1.0.0|StarshipExpansionProject=1.0.0|StarshipLaunchExpansion=1.0.0|SystemHeat=0.1.0|TestFlightAPI=2.2.0|TestFlight=2.2.0|TestFlightContracts=2.2.0|TestFlightCore=2.2.0|TextureReplacer=4.5.3|Trajectories=2.4.5|TUFX=1.1.0|TundraExploration=1.0.0|VesselView=0.8.9|VesselViewRPM=0.8.9|VVDiscoDisplay=0.8.9|VVPartSelector=0.8.9|Waterfall=0.10.2|Deferred=1.2.6|Kerbalism=3.19.0
+_modVersions = ModuleManager=4.2.3|ClickThroughBlocker=2.1.10|0Harmony=2.2.1|HarmonyInstallChecker=2.2.1|KSPBurst=1.5.5|Microsoft.Extensions.FileSystemGlobbing=6.0.21|System.IO.Compression=4.6.57|System.IO.Compression.FileSystem=4.6.57|System.Runtime.CompilerServices.Unsafe=4.700.20|System.Runtime=4.0.0|Unity.Burst=0.0.0|Unity.Burst.Unsafe=1.0.0|Unity.Collections=0.0.0|Unity.Jobs=0.0.0|Unity.Mathematics=1.0.0|BlendshapeModelLoader=1.6.3|TexturesUnlimited=1.6.3|ToolbarControl=0.1.9|B9PartSwitch=2.20.0|B9-PWings-Fork=0.46.0|CameraTools=1.36.0|ConformalDecals=0.2.14|SimpleBoiloff=0.2.1|CustomPreLaunchChecks=1.8.1|DeployableEngines=2.2.0|DynamicBatteryStorage=1.0.0|EditorExtensionsRedux=3.4.6|Atmosphere=1.11.7|CelestialShadows=1.11.7|CityLights=1.11.7|EVEManager=1.11.7|PartFX=1.11.7|PQSManager=1.11.7|ShaderLoader=1.11.7|Terrain=1.11.7|TextureConfig=1.11.7|Utils=1.11.7|_BuildManager=1.11.7|Firefly=1.0.2|FreeIva=0.2.20|StarshipFrost=1.0.0|HangerExtenderExtended=3.6.0|HullcamVDSContinued=0.2.2|RasterPropMonitor=1.0.2|KerbalJointReinforcement=3.8.3|KerbalKonstructs=1.8.10|DeployableAeroSurfaces=1.0.0|Kopernicus.Parser=1.0.0|ModularFlightIntegrator=1.2.10|Kopernicus=1.12.223|ICSharpCode.SharpZipLib=0.86.0|kOS=1.5.1|kOS.Safe=1.5.1|KSCSwitcher=2.2.0|0_MultipleModuleInPartAPI=1.0.0|KSPCommunityFixes=1.36.1|KSPCommunityPartModules=0.4.0|NFPropUtils=1.0.0|Google.Protobuf=3.8.0|Grpc.Core.Api=2.24.0|OfCourseIStillLoveYou.Client=1.0.0|OfCourseIStillLoveYou=1.0.0|OfCourseIStillLoveYou.TUFX=1.0.0|ProceduralParts=2.7.2|RealHeat=5.1.0|RealSolarSystem=20.1.3|Reviva=1.0.0|RSSTimeFormatter=1.12.0|RSSVE=1.8.1|scatterer=0.878.0|Shabby=0.4.0|SmokeScreen=2.8.14|KSP_Log=1.2.0|ButtonManager=1.0.1|KSP_ColorPicker=1.1.0|KSP_PartHighlighter=1.1.0|SpaceTuxUtility=1.0.1|VesselModuleSave=1.0.1|KSPSteamCtrlr=0.0.1|HabUtils=1.0.0|Waterfall=0.10.2|StarshipExpansionProject=3.0.4|StarshipLaunchExpansion=1.0.0|TacSelfDestruct=1.7.0|Trajectories=2.4.5|TundraExploration=7.1.1
 PART
 {
 	part = SEP.24.SHIP.CORE_4286287862
 	partName = Part
-	persistentId = 2736678924
+	persistentId = 2018776353
 	pos = 0.000142661156,113.162849,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 0.000142661156,113.162849,-0.000138040152
@@ -37,7 +37,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 248177
-	modMass = 0.00373541843
+	modMass = 0
 	modSize = 0,0,0
 	link = SEP.24.SHIP.AFT.LEFT.FLAP_4286225562
 	link = SEP.24.SHIP.AFT.RIGHT.FLAP_4286224368
@@ -186,7 +186,6 @@ PART
 			HibernateToggle
 			{
 				actionGroup = None
-				active = False
 				wasActiveBeforePartWasAdjusted = False
 			}
 		}
@@ -376,7 +375,24 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = SEP_Welds
-		currentSubtype = 28WeldsPainted
+		currentSubtype = 28Welds
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		isEnabled = True
+		stagingEnabled = True
+		moduleID = SEP_Paint
+		currentSubtype = PaintOFF
 		EVENTS
 		{
 		}
@@ -410,7 +426,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = SEP_CH4_Vent_1
-		currentSubtype = Center
+		currentSubtype = Installed
 		EVENTS
 		{
 		}
@@ -428,23 +444,6 @@ PART
 		stagingEnabled = True
 		moduleID = SEP_CH4_Vent_2
 		currentSubtype = Center
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleB9PartSwitch
-		isEnabled = True
-		stagingEnabled = True
-		moduleID = SEP_CH4_Vent_3
-		currentSubtype = Installed
 		EVENTS
 		{
 		}
@@ -478,7 +477,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = SEP_LOX_Vents_2
-		currentSubtype = Outer
+		currentSubtype = Inner
 		EVENTS
 		{
 		}
@@ -495,23 +494,6 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = SEP_LOX_Vents_3
-		currentSubtype = Both
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleB9PartSwitch
-		isEnabled = True
-		stagingEnabled = True
-		moduleID = SEP_LOX_Vents_4
 		currentSubtype = None
 		EVENTS
 		{
@@ -528,7 +510,7 @@ PART
 		name = ModuleB9PartSwitch
 		isEnabled = True
 		stagingEnabled = True
-		moduleID = SEP_LOX_Vents_5
+		moduleID = SEP_LOX_Vents_4
 		currentSubtype = Disabled
 		EVENTS
 		{
@@ -677,958 +659,9 @@ PART
 	}
 	MODULE
 	{
-		name = BoosterGuidanceCore
-		isEnabled = True
-		tgtSet = False
-		tgtLatitude = 0
-		tgtLongitude = 0
-		tgtAlt = 0
-		reentryBurnAlt = 55000
-		reentryBurnTargetSpeed = 700
-		reentryBurnSteerKp = 0.00999999978
-		reentryBurnMaxAoA = 30
-		aeroDescentSteerKp = 10
-		aeroDescentMaxAoA = 15
-		landingBurnSteerKp = 10
-		landingBurnMaxAoA = 15
-		touchdownMargin = 20
-		touchdownSpeed = 2
-		noSteerHeight = 200
-		deployLandingGear = True
-		deployLandingGearHeight = 500
-		landingBurnEngines = current
-		igniteDelay = 3
-		phase = Unset
-		aeroMult = 1
-		enableRCS = True
-		actionGroup = 0
-		degreeRange = 10
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			EnableGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			DisableGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ProbeControlRoomPart
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RasterPropMonitorComputer
-		isEnabled = True
-		vesselDescription = 
-		RPMCid = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		PERSISTENT_VARS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASFlightComputer
-		isEnabled = True
-		flightComputerId = 
-		shipDescription = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MechJebCore
-		isEnabled = True
-		running = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			OnOrbitProgradeAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRetrogradeAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitNormalAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitAntinormalAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRadialInAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRadialOutAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnKillRotationAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnDeactivateSmartASSAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnLandsomewhereAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnLandTargetAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnPanicAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronOffAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronKeepVertAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronZeroSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronPlusOneSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronMinusOneSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronToggleHSAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnAscentAPToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		MechJebLocalSettings
-		{
-			MechJebModuleMenu
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleRoverWindow
-			{
-				unlockParts = 
-				unlockTechs = fieldScience
-			}
-			MechJebModuleAttitudeAdjustment
-			{
-				unlockParts = 
-				unlockTechs = advFlightControl
-			}
-			MechJebModuleAscentNavBall
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleLogicalStageTracking
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleRCSBalancerWindow
-			{
-				unlockParts = 
-				unlockTechs = advFlightControl
-			}
-			MechJebModuleRoverController
-			{
-				ControlHeading = False
-				ControlSpeed = False
-				BrakeOnEject = False
-				BrakeOnEnergyDepletion = False
-				WarpToDaylight = False
-				StabilityControl = False
-				LimitAcceleration = False
-				unlockParts = 
-				unlockTechs = 
-				heading
-				{
-					_val = 0
-					_text = 0
-				}
-				speed
-				{
-					_val = 10
-					_text = 10
-				}
-			}
-			MechJebModuleSpaceplaneGuidance
-			{
-				runwayIndex = 0
-				unlockParts = 
-				unlockTechs = unmannedTech
-			}
-			MechJebModuleAscentPVG
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleInfoItems
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleSmartRcs
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleAscentClassic
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleSpaceplaneAutopilot
-			{
-				bBreakAsSoonAsLanded = False
-				unlockParts = 
-				unlockTechs = 
-				glideslope
-				{
-					_val = 2.5
-					_text = 2.5
-				}
-				approachSpeed
-				{
-					_val = 80
-					_text = 80
-				}
-				touchdownSpeed
-				{
-					_val = 60
-					_text = 60
-				}
-				maximumSafeBankAngle
-				{
-					_val = 25
-					_text = 25
-				}
-			}
-			MechJebModuleAirplaneAutopilot
-			{
-				HeadingHoldEnabled = False
-				AltitudeHoldEnabled = False
-				VertSpeedHoldEnabled = False
-				RollHoldEnabled = False
-				SpeedHoldEnabled = False
-				AltitudeTarget = 0
-				HeadingTarget = 90
-				RollTarget = 0
-				SpeedTarget = 0
-				VertSpeedTarget = 0
-				BankAngle = 30
-				unlockParts = 
-				unlockTechs = 
-				AccKp
-				{
-					_val = 0.5
-					_text = 0.5
-				}
-				AccKi
-				{
-					_val = 0.5
-					_text = 0.5
-				}
-				AccKd
-				{
-					_val = 0.0050000000000000001
-					_text = 0.005
-				}
-				PitKp
-				{
-					_val = 2
-					_text = 2
-				}
-				PitKi
-				{
-					_val = 1
-					_text = 1
-				}
-				PitKd
-				{
-					_val = 0.0050000000000000001
-					_text = 0.005
-				}
-				RolKp
-				{
-					_val = 0.5
-					_text = 0.5
-				}
-				RolKi
-				{
-					_val = 0.02
-					_text = 0.02
-				}
-				RolKd
-				{
-					_val = 0.5
-					_text = 0.5
-				}
-				YawKp
-				{
-					_val = 1
-					_text = 1
-				}
-				YawKi
-				{
-					_val = 0.25
-					_text = 0.25
-				}
-				YawKd
-				{
-					_val = 0.02
-					_text = 0.02
-				}
-				YawLimit
-				{
-					_val = 10
-					_text = 10
-				}
-				RollLimit
-				{
-					_val = 45
-					_text = 45
-				}
-				PitchDownLimit
-				{
-					_val = 15
-					_text = 15
-				}
-				PitchUpLimit
-				{
-					_val = 25
-					_text = 25
-				}
-			}
-			MechJebModuleDockingGuidance
-			{
-				unlockParts = 
-				unlockTechs = advUnmanned
-			}
-			MechJebModuleSettings
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleAscentGT
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleDebugArrows
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleSmartASS
-			{
-				mode = ORBITAL
-				target = OFF
-				advReference = INERTIAL
-				advDirection = FORWARD
-				forceRol = False
-				forcePitch = True
-				forceYaw = True
-				unlockParts = 
-				unlockTechs = flightControl
-				srfHdg
-				{
-					_val = 90
-					_text = 90
-				}
-				srfPit
-				{
-					_val = 90
-					_text = 90
-				}
-				srfRol
-				{
-					_val = 0
-					_text = 0
-				}
-				srfVelYaw
-				{
-					_val = 0
-					_text = 0
-				}
-				srfVelPit
-				{
-					_val = 0
-					_text = 0
-				}
-				srfVelRol
-				{
-					_val = 0
-					_text = 0
-				}
-				rol
-				{
-					_val = 0
-					_text = 0
-				}
-			}
-			MechJebModuleDockingAutopilot
-			{
-				forceRol = False
-				overrideSafeDistance = False
-				overrideTargetSize = False
-				unlockParts = 
-				unlockTechs = 
-				rol
-				{
-					_val = 0
-					_text = 0
-				}
-			}
-			ModExtensionDemo
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleThrustWindow
-			{
-				autostageSavedState = False
-				unlockParts = 
-				unlockTechs = advFlightControl
-			}
-			MechJebModuleWarpHelper
-			{
-				unlockParts = 
-				unlockTechs = advFlightControl
-				phaseAngle
-				{
-					_val = 0
-					_text = 0
-				}
-			}
-			MechJebModuleCustomWindowEditor
-			{
-				unlockParts = 
-				unlockTechs = flightControl
-			}
-			MechJebModuleAscentAutopilot
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleRendezvousAutopilotWindow
-			{
-				unlockParts = 
-				unlockTechs = advUnmanned
-			}
-			MechJebModuleNodeExecutor
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleNodeEditor
-			{
-				unlockParts = 
-				unlockTechs = advFlightControl
-			}
-			MechJebModuleLandingAutopilot
-			{
-				deployGears = True
-				deployChutes = True
-				rcsAdjustment = True
-				unlockParts = 
-				unlockTechs = 
-				touchdownSpeed
-				{
-					_val = 0.5
-					_text = 0.5
-				}
-				limitGearsStage
-				{
-					val = 0
-					_text = 0
-				}
-				limitChutesStage
-				{
-					val = 0
-					_text = 0
-				}
-			}
-			MechJebModuleScript
-			{
-				minifiedGUI = False
-				selectedSlot = 0
-				selectedMemorySlotType = 0
-				activeSavepoint = -1
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleLandingGuidance
-			{
-				landingSiteIdx = 0
-				unlockParts = 
-				unlockTechs = unmannedTech
-			}
-			MechJebModuleLandingPredictions
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleTranslatron
-			{
-				unlockParts = 
-				unlockTechs = advFlightControl
-				trans_spd
-				{
-					_val = 0
-					_text = 0
-				}
-			}
-			MechJebModuleAscentGuidance
-			{
-				unlockParts = 
-				unlockTechs = unmannedTech
-			}
-			MechJebModuleRendezvousAutopilot
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleWaypointWindow
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleWaypointHelpWindow
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleTargetController
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleManeuverPlanner
-			{
-				unlockParts = 
-				unlockTechs = advFlightControl
-			}
-			MechJebModuleStageStats
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleAirplaneGuidance
-			{
-				showpid = False
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleGuidanceController
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleRendezvousGuidance
-			{
-				unlockParts = 
-				unlockTechs = advUnmanned
-			}
-			MechJebModuleAscentClassicMenu
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleCustomInfoWindow
-			{
-			}
-			MechJebModuleWarpController
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleDeployableAntennaController
-			{
-				prev_shouldDeploy = False
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleSolarPanelController
-			{
-				prev_shouldDeploy = False
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleThrustController
-			{
-				limitThrottle = False
-				limiterMinThrottle = False
-				electricThrottle = False
-				unlockParts = 
-				unlockTechs = 
-				maxThrottle
-				{
-					_val = 1
-					_text = 100
-				}
-				minThrottle
-				{
-					_val = 0.050000000000000003
-					_text = 5
-				}
-				electricThrottleLo
-				{
-					_val = 0.050000000000000003
-					_text = 5
-				}
-				electricThrottleHi
-				{
-					_val = 0.14999999999999999
-					_text = 15
-				}
-			}
-			MechJebModuleRCSController
-			{
-				unlockParts = 
-				unlockTechs = 
-				Tf
-				{
-					_val = 1
-					_text = 1
-				}
-				Kp
-				{
-					_val = 0.125
-					_text = 0.125
-				}
-				Ki
-				{
-					_val = 0.070000000000000007
-					_text = 0.07
-				}
-				Kd
-				{
-					_val = 0.53000000000000003
-					_text = 0.53
-				}
-			}
-			MechJebModuleRCSBalancer
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleAttitudeController
-			{
-				unlockParts = 
-				unlockTechs = 
-				MJAttitudeController
-				{
-				}
-				KosAttitudeController
-				{
-				}
-				HybridController
-				{
-				}
-				BetterController
-				{
-				}
-			}
-			MechJebModuleStagingController
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleFlightRecorder
-			{
-				markUT = 0
-				deltaVExpended = 0
-				dragLosses = 0
-				gravityLosses = 0
-				steeringLosses = 0
-				markLAN = 0
-				markLatitude = 0
-				markLongitude = 0
-				markAltitude = 0
-				markBodyIndex = 1
-				maxDragGees = 0
-				unlockParts = 
-				unlockTechs = 
-			}
-			MechJebModuleFlightRecorderGraph
-			{
-				unlockParts = 
-				unlockTechs = 
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Starship Block 1 Core
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleReactionWheel
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleDataTransmitter
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleB9PartSwitch
-		isEnabled = True
-		stagingEnabled = True
-		moduleID = IVASwitch
-		currentSubtype = MissionControl_ASET
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleIVASwitch
-		isEnabled = True
-		internalName = MissionControl_ASET
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -1661,7 +694,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 60244.216466351914
+		LastUpdateTime = 1002407.7447803506
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -1832,8 +865,12 @@ PART
 		baseDiskSpace = 255000
 		baseModuleMass = 0
 		additionalCost = 18677
+		diskSpaceCostFactor = 0.0244140625
+		diskSpaceMassFactor = 4.88289986E-09
 		MaxPartId = 100
-		RequiredPower = 0.400000006
+		ECPerInstruction = 3.99999999E-06
+		ECPerBytePerSecond = 0
+		RequiredPower = 0.100000001
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -1926,22 +963,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -1956,7 +977,7 @@ PART
 	RESOURCE
 	{
 		name = LqdMethane
-		amount = 450000
+		amount = 404999.98927116394
 		maxAmount = 450000
 		flowState = True
 		isTweakable = True
@@ -1967,7 +988,7 @@ PART
 	RESOURCE
 	{
 		name = Oxidizer
-		amount = 150000
+		amount = 134999.99642372131
 		maxAmount = 150000
 		flowState = True
 		isTweakable = True
@@ -1980,8 +1001,8 @@ PART
 {
 	part = SEP.24.SHIP.AFT.LEFT.FLAP_4286225562
 	partName = Part
-	persistentId = 2866208561
-	pos = 0.000144568505,104.585869,5.13375425
+	persistentId = 557753876
+	pos = 0.000144568505,104.585869,5.13378096
 	attPos = 0,0,0
 	attPos0 = -5.13387156,-8.57698059,1.52587745E-06
 	rot = -0.50000006,0.50000006,-0.50000006,0.50000006
@@ -2061,6 +1082,21 @@ PART
 	}
 	MODULE
 	{
+		name = ModuleCenterFollowTransform
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = ModuleSEPControlSurface
 		isEnabled = True
 		deployAngle = 60
@@ -2151,6 +1187,11 @@ PART
 				wasActiveBeforePartWasAdjusted = False
 			}
 			ActivateFlipAngles
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateLandingAngles
 			{
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
@@ -2253,41 +1294,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -2319,8 +1328,8 @@ PART
 {
 	part = SEP.24.SHIP.AFT.RIGHT.FLAP_4286224368
 	partName = Part
-	persistentId = 2381983426
-	pos = 0.00014361483,104.585869,-5.13402987
+	persistentId = 2426826569
+	pos = 0.00014361483,104.585869,-5.13405657
 	attPos = 0,0,0
 	attPos0 = 5.13387156,-8.57698059,1.52587745E-06
 	rot = 0.50000006,0.50000006,0.50000006,0.50000006
@@ -2400,6 +1409,21 @@ PART
 	}
 	MODULE
 	{
+		name = ModuleCenterFollowTransform
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = ModuleSEPControlSurface
 		isEnabled = True
 		deployAngle = 60
@@ -2490,6 +1514,11 @@ PART
 				wasActiveBeforePartWasAdjusted = False
 			}
 			ActivateFlipAngles
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateLandingAngles
 			{
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
@@ -2592,41 +1621,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -2658,8 +1655,8 @@ PART
 {
 	part = DC.smallCam.Wide_4286208346
 	partName = Part
-	persistentId = 2898780469
-	pos = -2.59988499,103.962852,-3.66721988
+	persistentId = 2882995089
+	pos = -2.59991789,103.962852,-3.66727471
 	attPos = -0.185312271,-0.068939209,-0.33254385
 	attPos0 = 3.85234857,-9.13105774,-2.26745629
 	rot = -0.0922958255,-0.0922958255,0.701057434,0.701057434
@@ -2820,23 +1817,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -2855,23 +1835,8 @@ PART
 	{
 		name = JSIExternalCameraSelector
 		isEnabled = True
-		current = 2
+		current = 1
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -2888,8 +1853,8 @@ PART
 {
 	part = SEP.23.RAPTOR2.SL.RC_4286207348
 	partName = Part
-	persistentId = 3535573616
-	pos = -0.880633235,100.523361,-0.000139291849
+	persistentId = 2641098572
+	pos = -0.880639911,100.523361,-0.000139291849
 	attPos = 0,0,0
 	attPos0 = 1.3998615E-06,-12.6394882,-0.880770743
 	rot = 0,0.707106829,0,0.707106829
@@ -2908,7 +1873,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0.150000006
+	modMass = 0
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR2.SL.RC_4286204880
 	sym = SEP.23.RAPTOR2.SL.RC_4286204330
@@ -2992,7 +1957,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = RaptorCC
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -3228,69 +2193,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -3338,22 +2243,6 @@ PART
 	{
 		name = ModuleB9PartInfo
 		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -3381,8 +2270,8 @@ PART
 {
 	part = SEP.23.RAPTOR2.SL.RC_4286204880
 	partName = Part
-	persistentId = 2498645612
-	pos = 0.440532714,100.523361,0.762640417
+	persistentId = 1335958276
+	pos = 0.440537721,100.523361,0.762648761
 	attPos = 0,0,0
 	attPos0 = -0.762772083,-12.6394882,0.440386146
 	rot = 0,0.965925932,0,-0.258819133
@@ -3401,7 +2290,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0.150000006
+	modMass = 0
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR2.SL.RC_4286204330
 	sym = SEP.23.RAPTOR2.SL.RC_4286207348
@@ -3485,7 +2374,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = RaptorCC
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -3713,69 +2602,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -3834,22 +2663,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3866,8 +2679,8 @@ PART
 {
 	part = SEP.23.RAPTOR2.SL.RC_4286204330
 	partName = Part
-	persistentId = 2239531928
-	pos = 0.440534264,100.523361,-0.762913942
+	persistentId = 1415769684
+	pos = 0.440537602,100.523361,-0.762920618
 	attPos = 0,0,0
 	attPos0 = 0.762770712,-12.6394882,0.440389156
 	rot = 0,0.258819014,0,-0.965925932
@@ -3886,7 +2699,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0.150000006
+	modMass = 0
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR2.SL.RC_4286207348
 	sym = SEP.23.RAPTOR2.SL.RC_4286204880
@@ -3970,7 +2783,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = RaptorCC
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -4198,69 +3011,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -4319,22 +3072,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -4351,8 +3088,8 @@ PART
 {
 	part = SEP.23.RAPTOR.VAC_4286199384
 	partName = Part
-	persistentId = 1039224451
-	pos = 3.015378,101.968201,-0.000138516989
+	persistentId = 4266632690
+	pos = 3.0154047,101.968201,-0.000138516989
 	attPos = 0,0,0
 	attPos0 = -8.95888661E-08,-11.1946487,3.01521492
 	rot = 0,0.707106829,0,0.707106829
@@ -4371,7 +3108,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0.0500000007
+	modMass = 0
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR.VAC_4286197518
 	sym = SEP.23.RAPTOR.VAC_4286196980
@@ -4454,8 +3191,8 @@ PART
 		name = ModuleB9PartSwitch
 		isEnabled = True
 		stagingEnabled = True
-		moduleID = CoverSwitch
-		currentSubtype = RaptorCC
+		moduleID = ShieldSwitch
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -4568,69 +3305,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -4661,22 +3338,6 @@ PART
 	{
 		name = ModuleB9PartInfo
 		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -4704,8 +3365,8 @@ PART
 {
 	part = SEP.23.RAPTOR.VAC_4286197518
 	partName = Part
-	persistentId = 2896303042
-	pos = -1.50747287,101.968201,-2.61140108
+	persistentId = 1712489184
+	pos = -1.50748622,101.968201,-2.61141443
 	attPos = 0,0,0
 	attPos0 = 2.61125278,-11.1946487,-1.50760508
 	rot = 0,0.965925932,0,-0.258819133
@@ -4724,7 +3385,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0.0500000007
+	modMass = 0
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR.VAC_4286196980
 	sym = SEP.23.RAPTOR.VAC_4286199384
@@ -4807,8 +3468,8 @@ PART
 		name = ModuleB9PartSwitch
 		isEnabled = True
 		stagingEnabled = True
-		moduleID = CoverSwitch
-		currentSubtype = RaptorCC
+		moduleID = ShieldSwitch
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -4913,69 +3574,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -5017,22 +3618,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -5049,8 +3634,8 @@ PART
 {
 	part = SEP.23.RAPTOR.VAC_4286196980
 	partName = Part
-	persistentId = 1692279435
-	pos = -1.5074724,101.968201,2.61112523
+	persistentId = 2809505141
+	pos = -1.50748575,101.968201,2.61113858
 	attPos = 0,0,0
 	attPos0 = -2.61125278,-11.1946487,-1.50760508
 	rot = 0,0.258819014,0,-0.965925932
@@ -5069,7 +3654,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0.0500000007
+	modMass = 0
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR.VAC_4286199384
 	sym = SEP.23.RAPTOR.VAC_4286197518
@@ -5152,8 +3737,8 @@ PART
 		name = ModuleB9PartSwitch
 		isEnabled = True
 		stagingEnabled = True
-		moduleID = CoverSwitch
-		currentSubtype = RaptorCC
+		moduleID = ShieldSwitch
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -5258,69 +3843,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -5362,22 +3887,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -5394,8 +3903,8 @@ PART
 {
 	part = DC.smallCam.Wide_4286191194
 	partName = Part
-	persistentId = 2566801288
-	pos = -4.29639149,101.318733,0.00578189315
+	persistentId = 3773541774
+	pos = -4.29643536,101.318733,0.00578189315
 	attPos = -0.000177268405,0.0943908691,0.100436687
 	attPos0 = -0.00574231707,-11.9385071,-4.39693403
 	rot = -0.227248371,-0.671879828,-0.229014099,0.666699588
@@ -5556,23 +4065,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -5591,23 +4083,8 @@ PART
 	{
 		name = JSIExternalCameraSelector
 		isEnabled = True
-		current = 3
+		current = 1
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -5624,7 +4101,7 @@ PART
 {
 	part = SEP.23.BOOSTER.HSR_4287633448
 	partName = Part
-	persistentId = 927882649
+	persistentId = 3237679106
 	pos = 0.000144544669,96.6928024,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = -2.27373675E-13,-16.470047,1.88350555E-06
@@ -5946,117 +4423,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Behemoth Hot Stage Ring
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = tjs_DecouplerLight
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -6098,22 +4467,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = SolidFuel
@@ -6130,7 +4483,7 @@ PART
 {
 	part = SEP.23.BOOSTER.INTEGRATED_4287621798
 	partName = Part
-	persistentId = 370378184
+	persistentId = 3621266584
 	pos = 0.000148359366,60.0927887,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = -2.27373675E-13,-36.6000137,3.81469727E-06
@@ -6159,6 +4512,8 @@ PART
 	link = SEP.23.BOOSTER.GRIDFIN_4287237358
 	link = DC.smallCam.Wide_4287007452
 	link = DC.smallCam_4287005724
+	link = DC.smallCam.Wide_4293351444
+	link = DC.smallCam.Wide_4292967056
 	attN = frosty,Null_0_0|-35|0_0|1|0_0|-35|0_0|1|0
 	attN = node_top_regular,SEP.23.BOOSTER.HSR_4287633448_0|36.6000099|-3.81469727E-06_0|1.00000012|-1.1920929E-07_0|36.6000099|-3.81469727E-06_0|1.00000012|-1.1920929E-07
 	attN = node_bottom,SEP.23.BOOSTER.CLUSTER_4287605498_2.38418636E-07|-32.9147987|3.81469727E-06_0|-1.00000012|-1.1920929E-07_2.38418636E-07|-32.9147987|3.81469727E-06_0|-1.00000012|-1.1920929E-07
@@ -6620,491 +4975,9 @@ PART
 	}
 	MODULE
 	{
-		name = BoosterGuidanceCore
-		isEnabled = True
-		tgtSet = False
-		tgtLatitude = 0
-		tgtLongitude = 0
-		tgtAlt = 0
-		reentryBurnAlt = 55000
-		reentryBurnTargetSpeed = 700
-		reentryBurnSteerKp = 0.00999999978
-		reentryBurnMaxAoA = 30
-		aeroDescentSteerKp = 10
-		aeroDescentMaxAoA = 15
-		landingBurnSteerKp = 10
-		landingBurnMaxAoA = 15
-		touchdownMargin = 20
-		touchdownSpeed = 2
-		noSteerHeight = 200
-		deployLandingGear = True
-		deployLandingGearHeight = 500
-		landingBurnEngines = current
-		igniteDelay = 3
-		phase = Unset
-		aeroMult = 1
-		enableRCS = True
-		actionGroup = 0
-		degreeRange = 10
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			EnableGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			DisableGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ProbeControlRoomPart
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RasterPropMonitorComputer
-		isEnabled = True
-		vesselDescription = 
-		RPMCid = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		PERSISTENT_VARS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASFlightComputer
-		isEnabled = True
-		flightComputerId = 
-		shipDescription = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MechJebCore
-		isEnabled = True
-		running = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			OnOrbitProgradeAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRetrogradeAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitNormalAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitAntinormalAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRadialInAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRadialOutAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnKillRotationAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnDeactivateSmartASSAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnLandsomewhereAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnLandTargetAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnPanicAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronOffAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronKeepVertAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronZeroSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronPlusOneSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronMinusOneSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronToggleHSAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnAscentAPToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Super Heavy Core
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = tjs_DecouplerLight
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleReactionWheel
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleDataTransmitter
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = PlannerController
-		isEnabled = True
-		considered = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleB9PartSwitch
-		isEnabled = True
-		stagingEnabled = True
-		moduleID = IVASwitch
-		currentSubtype = MissionControl_ASET
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleIVASwitch
-		isEnabled = True
-		internalName = MissionControl_ASET
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleEnginesFX
-		isEnabled = True
-		independentThrottle = False
-		independentThrottlePercentage = 0
-		staged = False
-		flameout = False
-		EngineIgnited = False
-		engineShutdown = False
-		currentThrottle = 0
-		thrustPercentage = 100
-		manuallyOverridden = False
-		includeinDVCalcs = False
-		stagingEnabled = False
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			OnAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			ShutdownAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			ActivateAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			ToggleThrottle
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		AXISGROUPS
-		{
-			independentThrottlePercentage
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-			thrustPercentage
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleWaterfallFX
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -7137,7 +5010,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 60244.216466351914
+		LastUpdateTime = 1002407.7447803506
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -7308,8 +5181,12 @@ PART
 		baseDiskSpace = 255000
 		baseModuleMass = 0
 		additionalCost = 0
+		diskSpaceCostFactor = 0.0244140625
+		diskSpaceMassFactor = 4.88289986E-09
 		MaxPartId = 100
-		RequiredPower = 0.400000006
+		ECPerInstruction = 3.99999999E-06
+		ECPerBytePerSecond = 0
+		RequiredPower = 0.100000001
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -7404,22 +5281,6 @@ PART
 	}
 	MODULE
 	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -7451,7 +5312,7 @@ PART
 	RESOURCE
 	{
 		name = LqdMethane
-		amount = 1619250
+		amount = 1457324.9613940716
 		maxAmount = 1619250
 		flowState = True
 		isTweakable = True
@@ -7462,7 +5323,7 @@ PART
 	RESOURCE
 	{
 		name = Oxidizer
-		amount = 539750
+		amount = 485774.98713135719
 		maxAmount = 539750
 		flowState = True
 		isTweakable = True
@@ -7475,7 +5336,7 @@ PART
 {
 	part = SEP.23.BOOSTER.CLUSTER_4287605498
 	partName = Part
-	persistentId = 3506457118
+	persistentId = 718534584
 	pos = 0.000152174078,26.7236176,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 0,-33.369175,4.58955765E-06
@@ -7600,10 +5461,13 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleTundraEngineSwitch
+		name = ModuleSEPEngineSwitch
 		isEnabled = True
 		currentEngineDisplay = All Engines
 		selectedIndex = 0
+		independentThrottle = False
+		independentThrottlePercentage = 0
+		thrustPercentage = 100
 		stagingEnabled = True
 		EVENTS
 		{
@@ -7635,15 +5499,35 @@ PART
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
 			}
-			ToggleEngineModeAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
 			ToggleIndependentThrottleAction
 			{
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		AXISGROUPS
+		{
+			independentThrottlePercentage
+			{
+				axisGroup = None
+				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				axisSpeedMultiplier = 0
+				axisInverted = None
+				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+			}
+			thrustPercentage
+			{
+				axisGroup = None
+				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				axisSpeedMultiplier = 0
+				axisInverted = None
+				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
 			}
 		}
 		UPGRADESAPPLIED
@@ -7736,7 +5620,7 @@ PART
 		engineShutdown = False
 		currentThrottle = 0
 		thrustPercentage = 100
-		manuallyOverridden = True
+		manuallyOverridden = False
 		includeinDVCalcs = False
 		stagingEnabled = True
 		EVENTS
@@ -7810,7 +5694,7 @@ PART
 		engineShutdown = False
 		currentThrottle = 0
 		thrustPercentage = 100
-		manuallyOverridden = True
+		manuallyOverridden = False
 		includeinDVCalcs = False
 		stagingEnabled = True
 		EVENTS
@@ -8155,132 +6039,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Super Heavy Raptor Cluster
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleWaterfallFX
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleWaterfallFX
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -8322,22 +6083,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -8354,7 +6099,7 @@ PART
 {
 	part = SLE.SS.OLM_4287433086
 	partName = Part
-	persistentId = 637761941
+	persistentId = 883375765
 	pos = 0.000155262358,5.65171051,-0.000143613652
 	attPos = 0,0,0
 	attPos0 = 5.5736632E-06,-21.071907,3.08752442E-06
@@ -8927,118 +6672,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Starship Orbital Launch Mount
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = PlannerController
-		isEnabled = True
-		considered = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -9059,8 +6695,12 @@ PART
 		baseDiskSpace = 255000
 		baseModuleMass = 0
 		additionalCost = 0
+		diskSpaceCostFactor = 0.0244140625
+		diskSpaceMassFactor = 4.88289986E-09
 		MaxPartId = 100
-		RequiredPower = 0.400000006
+		ECPerInstruction = 3.99999999E-06
+		ECPerBytePerSecond = 0
+		RequiredPower = 0.100000001
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -9192,22 +6832,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -9224,8 +6848,8 @@ PART
 {
 	part = SLE.SS.OLIT.Base_4287348244
 	partName = Part
-	persistentId = 1184215619
-	pos = -33.341629,11.891716,-0.910637617
+	persistentId = 2843645669
+	pos = -33.3418427,11.891716,-0.910530806
 	attPos = 0,0,0
 	attPos0 = -33.3426247,6.23290634,-0.92016995
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -9235,12 +6859,12 @@ PART
 	symMethod = Radial
 	autostrutMode = Off
 	rigidAttachment = False
-	istg = 0
+	istg = 2
 	resPri = 0
 	dstg = 0
 	sidx = 1
 	sqor = 0
-	sepI = 0
+	sepI = 2
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
@@ -9389,314 +7013,9 @@ PART
 	}
 	MODULE
 	{
-		name = BoosterGuidanceCore
-		isEnabled = True
-		tgtSet = False
-		tgtLatitude = 0
-		tgtLongitude = 0
-		tgtAlt = 0
-		reentryBurnAlt = 55000
-		reentryBurnTargetSpeed = 700
-		reentryBurnSteerKp = 0.00999999978
-		reentryBurnMaxAoA = 30
-		aeroDescentSteerKp = 10
-		aeroDescentMaxAoA = 15
-		landingBurnSteerKp = 10
-		landingBurnMaxAoA = 15
-		touchdownMargin = 20
-		touchdownSpeed = 2
-		noSteerHeight = 200
-		deployLandingGear = True
-		deployLandingGearHeight = 500
-		landingBurnEngines = current
-		igniteDelay = 3
-		phase = Unset
-		aeroMult = 1
-		enableRCS = True
-		actionGroup = 0
-		degreeRange = 10
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			EnableGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			DisableGuidance
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ProbeControlRoomPart
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RasterPropMonitorComputer
-		isEnabled = True
-		vesselDescription = 
-		RPMCid = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		PERSISTENT_VARS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASFlightComputer
-		isEnabled = True
-		flightComputerId = 
-		shipDescription = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MechJebCore
-		isEnabled = True
-		running = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			OnOrbitProgradeAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRetrogradeAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitNormalAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitAntinormalAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRadialInAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnOrbitRadialOutAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnKillRotationAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnDeactivateSmartASSAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnLandsomewhereAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnLandTargetAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnPanicAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronOffAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronKeepVertAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronZeroSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronPlusOneSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronMinusOneSpeedAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnTranslatronToggleHSAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			OnAscentAPToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleDataTransmitter
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleB9PartSwitch
-		isEnabled = True
-		stagingEnabled = True
-		moduleID = IVASwitch
-		currentSubtype = MissionControl_ASET
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleIVASwitch
-		isEnabled = True
-		internalName = MissionControl_ASET
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -9811,8 +7130,8 @@ PART
 {
 	part = SLE.SS.OLIT.Core_4287331592
 	partName = Part
-	persistentId = 3178538119
-	pos = -33.3403358,17.5220261,-0.950722456
+	persistentId = 689544845
+	pos = -33.3405495,17.5220261,-0.950615644
 	attPos = 0,0,0
 	attPos0 = 0.00129322417,5.63031054,-0.0400839373
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -9822,12 +7141,12 @@ PART
 	symMethod = Radial
 	autostrutMode = Off
 	rigidAttachment = False
-	istg = 0
+	istg = 2
 	resPri = 0
 	dstg = 0
 	sidx = -1
 	sqor = -1
-	sepI = 0
+	sepI = 2
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
@@ -9940,6 +7259,186 @@ PART
 		}
 		ACTIONS
 		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
 		}
 		UPGRADESAPPLIED
 		{
@@ -10135,84 +7634,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = EngineLightEffect
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -10262,22 +7686,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -10294,8 +7702,8 @@ PART
 {
 	part = SLE.SS.OLIT.Top_4287315974
 	partName = Part
-	persistentId = 3224069621
-	pos = -33.3399658,135.088257,-0.985287428
+	persistentId = 1867713178
+	pos = -33.3402863,135.088257,-0.985180616
 	attPos = 0,0,0
 	attPos0 = -0.00765405223,16.7680054,0.0435114279
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -10305,12 +7713,12 @@ PART
 	symMethod = Radial
 	autostrutMode = Off
 	rigidAttachment = False
-	istg = 0
+	istg = 2
 	resPri = 0
 	dstg = 0
 	sidx = -1
 	sqor = -1
-	sepI = 0
+	sepI = 2
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
@@ -10381,7 +7789,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = railSwitch
-		currentSubtype = Enabled
+		currentSubtype = Disabled
 		EVENTS
 		{
 		}
@@ -10398,24 +7806,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = lightningrodSwitch
-		currentSubtype = Enabled
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
+		currentSubtype = Disabled
 		EVENTS
 		{
 		}
@@ -10431,21 +7822,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -10500,8 +7876,8 @@ PART
 {
 	part = hc.launchcam_4286995820
 	partName = Part
-	persistentId = 2890295277
-	pos = -31.5399189,151.888245,-9.38539028
+	persistentId = 1479509775
+	pos = -31.5401325,151.888245,-9.38539028
 	attPos = -0.305088162,0,-0.543728352
 	attPos0 = 2.10506725,16.7999878,-7.85627127
 	rot = 0.103553273,0.603553593,-0.079459317,0.786566079
@@ -10511,12 +7887,12 @@ PART
 	symMethod = Radial
 	autostrutMode = Off
 	rigidAttachment = False
-	istg = 0
+	istg = 2
 	resPri = 0
 	dstg = 0
 	sidx = -1
 	sqor = -1
-	sepI = 0
+	sepI = 2
 	attm = 1
 	sameVesselCollision = False
 	modCost = 0
@@ -10646,46 +8022,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASCamera
-		isEnabled = True
-		goalFov = 50
-		currentFov = 50
-		goalPan = 0
-		currentPan = 0
-		goalTilt = 0
-		currentTilt = 0
-		cameraName = Launchpad Camera
-		activeMode = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -10704,23 +8040,8 @@ PART
 	{
 		name = JSIExternalCameraSelector
 		isEnabled = True
-		current = 2
+		current = 1
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -10737,8 +8058,8 @@ PART
 {
 	part = SLE.SS.OLIT.MZ_4287297256
 	partName = Part
-	persistentId = 315149670
-	pos = -21.2959652,133.16629,0.599063158
+	persistentId = 1554283645
+	pos = -21.296072,133.16629,0.599116564
 	attPos = 0,0,0
 	attPos0 = 12.0442562,115.644241,1.54983258
 	rot = 0.707082331,-0.00588271022,-0.00588274002,-0.707082391
@@ -10748,12 +8069,12 @@ PART
 	symMethod = Radial
 	autostrutMode = Off
 	rigidAttachment = False
-	istg = 0
+	istg = 2
 	resPri = 0
 	dstg = 0
 	sidx = -1
 	sqor = -1
-	sepI = 0
+	sepI = 2
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
@@ -11504,41 +8825,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -11591,8 +8880,8 @@ PART
 {
 	part = SLE.SS.OLIT.SQD_4287271022
 	partName = Part
-	persistentId = 374404452
-	pos = -31.2260895,96.7473831,-2.2122333
+	persistentId = 3993743904
+	pos = -31.2263031,96.7473831,-2.21212649
 	attPos = 0,0,0
 	attPos0 = 2.11424112,79.2253571,-1.26150656
 	rot = -1.03623009E-07,0.997030318,1.2003003E-08,0.077011764
@@ -11602,12 +8891,12 @@ PART
 	symMethod = Radial
 	autostrutMode = Off
 	rigidAttachment = False
-	istg = 0
+	istg = 2
 	resPri = 0
 	dstg = 0
 	sidx = -1
 	sqor = -1
-	sepI = 0
+	sepI = 2
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
@@ -11909,41 +9198,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -11960,8 +9217,8 @@ PART
 {
 	part = SLE.SS.SteelPlate_4287250170
 	partName = Part
-	persistentId = 1230514194
-	pos = 0.000154365844,6.31102753,-0.000143430414
+	persistentId = 301402750
+	pos = 0.000154367473,6.31102753,-0.000143433674
 	attPos = 0,0,0
 	attPos0 = -0.000113472823,0.659316242,-0.00101260806
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -12199,100 +9456,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = EngineLightEffect
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = PlannerController
-		isEnabled = True
-		considered = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -12336,22 +9502,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -12368,8 +9518,8 @@ PART
 {
 	part = kerbpro_4287004298
 	partName = Part
-	persistentId = 3165430062
-	pos = 1.11733437,27.8174515,-7.74565601
+	persistentId = 4194480085
+	pos = 1.11734772,27.8174515,-7.74574947
 	attPos = -1.90928936,0.138744354,1.21252298
 	attPos0 = 3.02267027,22.0152626,-8.99198818
 	rot = -0.405758053,-0.57910341,0.579102755,-0.40575844
@@ -12515,46 +9665,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASCamera
-		isEnabled = True
-		goalFov = 50
-		currentFov = 50
-		goalPan = 0
-		currentPan = 0
-		goalTilt = 0
-		currentTilt = 0
-		cameraName = KerbPro
-		activeMode = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -12573,23 +9683,8 @@ PART
 	{
 		name = JSIExternalCameraSelector
 		isEnabled = True
-		current = 2
+		current = 1
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -12606,8 +9701,8 @@ PART
 {
 	part = DC.smallCam.Wide_4287003278
 	partName = Part
-	persistentId = 3361590132
-	pos = -2.80813479,15.7296219,4.73306131
+	persistentId = 1549252901
+	pos = -2.8081677,15.7296219,4.73314905
 	attPos = -0.318912268,-3.05199051,0.77094388
 	attPos0 = -2.46479249,13.095293,3.89035249
 	rot = 0.421194166,-0.195444643,0.0930080712,0.880764782
@@ -12768,23 +9863,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -12803,23 +9881,8 @@ PART
 	{
 		name = JSIExternalCameraSelector
 		isEnabled = True
-		current = 2
+		current = 1
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -12836,8 +9899,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287238350
 	partName = Part
-	persistentId = 2988827574
-	pos = -2.95397353,95.7895966,-5.11702967
+	persistentId = 852742550
+	pos = -2.9540174,95.7895966,-5.11707354
 	attPos = 0,0,0
 	attPos0 = 5.11684418,35.6968117,-2.95408344
 	rot = 0.866025448,4.86962328E-08,0.49999997,4.86962328E-08
@@ -13037,41 +10100,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -13088,8 +10119,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237920
 	partName = Part
-	persistentId = 2864063219
-	pos = 2.95424366,95.7895966,-5.11702871
+	persistentId = 4129983684
+	pos = 2.95426559,95.7895966,-5.11707258
 	attPos = 0,0,0
 	attPos0 = 5.11684418,35.6968117,2.95407033
 	rot = 0.500000179,-5.45420349E-08,0.866025507,-5.45420349E-08
@@ -13281,41 +10312,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -13332,8 +10331,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237634
 	partName = Part
-	persistentId = 2255457864
-	pos = -2.9539547,95.7895966,5.11675119
+	persistentId = 204779515
+	pos = -2.95397663,95.7895966,5.11679506
 	attPos = 0,0,0
 	attPos0 = -5.11684227,35.6968117,-2.95407891
 	rot = 0.866025507,4.8696247E-08,-0.500000179,-4.86962257E-08
@@ -13525,41 +10524,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -13576,8 +10543,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237358
 	partName = Part
-	persistentId = 1777746034
-	pos = 2.95425868,95.7895966,5.11675215
+	persistentId = 3381508747
+	pos = 2.95430255,95.7895966,5.11679602
 	attPos = 0,0,0
 	attPos0 = -5.11684227,35.6968117,2.95407104
 	rot = 0.499999881,-5.45420598E-08,-0.866025567,5.45420313E-08
@@ -13769,41 +10736,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -13820,8 +10755,8 @@ PART
 {
 	part = DC.smallCam.Wide_4287007452
 	partName = Part
-	persistentId = 2805407716
-	pos = -4.32665825,96.2467499,-0.31921649
+	persistentId = 1034024557
+	pos = -4.32670212,96.2467499,-0.31921649
 	attPos = 0.00283139944,-0.105514526,-0.0367350578
 	attPos0 = 0.316836923,36.2570686,-4.29601383
 	rot = -0.098037377,0.73301369,-0.108167723,-0.66436404
@@ -13982,23 +10917,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -14017,23 +10935,8 @@ PART
 	{
 		name = JSIExternalCameraSelector
 		isEnabled = True
-		current = 2
+		current = 1
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -14050,13 +10953,13 @@ PART
 {
 	part = DC.smallCam_4287005724
 	partName = Part
-	persistentId = 3543580412
-	pos = -3.8350091,50.2346497,-3.95887828
-	attPos = 9.53674316E-07,0.018573761,0.12358284
+	persistentId = 1183931325
+	pos = 2.91248059,50.1917152,4.71025038
+	attPos = -8.66916084,-0.021156311,6.8711133
 	attPos0 = 3.9587903,-9.87991714,-3.9587903
-	rot = -0.25879097,0.680593669,-0.624776661,-0.281911135
-	attRot = -0.0427204184,6.07609678E-08,-4.3822034E-08,0.999087095
-	attRot0 = 0.25879094,0.68059361,-0.624776602,0.281911075
+	rot = 0.702100039,0.192967102,-0.221285075,0.648731291
+	attRot = 0.00405817246,0.0425275117,0.994569063,-0.0949090272
+	attRot0 = 0.652931809,-0.32227394,0.339987487,0.595170617
 	mir = 1,1,1
 	symMethod = Radial
 	autostrutMode = Off
@@ -14212,23 +11115,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -14247,23 +11133,8 @@ PART
 	{
 		name = JSIExternalCameraSelector
 		isEnabled = True
-		current = 2
+		current = 1
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -14280,7 +11151,7 @@ PART
 {
 	part = SEP.24.SHIP.CARGO_4288254814
 	partName = Part
-	persistentId = 2950538996
+	persistentId = 679828085
 	pos = 0.000139609401,139.011551,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 4.54747351E-13,25.8487015,-3.05175536E-06
@@ -14305,12 +11176,13 @@ PART
 	link = SEP.24.SHIP.FWD.LEFT.FLAP_4286226646
 	link = SEP.24.SHIP.FWD.RIGHT.FLAP_4286227736
 	link = SEP.24.SHIP.HEADER_4286284348
-	link = Decoupler.1p5_4290906486
+	link = DC.smallCam.Wide_4293865852
+	link = DC.smallCam_4292361788
 	attN = node_fin_right,SEP.24.SHIP.FWD.RIGHT.FLAP_4286227736_4.36749029|0.158287078|-0.0507640354_0.978147745|0.207911611|-1.1920929E-07_4.36749029|0.158287078|-0.0507640354_0.978147745|0.207911611|-1.1920929E-07
 	attN = node_fin_left,SEP.24.SHIP.FWD.LEFT.FLAP_4286226646_-4.36749411|0.158287078|-0.0507640354_-0.978147745|0.207911611|-1.1920929E-07_-4.36749411|0.158287078|-0.0507640354_-0.978147745|0.207911611|-1.1920929E-07
 	attN = node_bottom,SEP.24.SHIP.CORE_4286287862_-4.76837272E-07|-12.0728636|3.05175786E-06_-1.50995831E-07|-1.00000012|-1.1920929E-07_-4.76837272E-07|-12.0728636|3.05175786E-06_-1.50995831E-07|-1.00000012|-1.1920929E-07
 	attN = node_top,SEP.24.SHIP.HEADER_4286284348_0|5.83310032|-7.62939464E-07_0|1.00000012|-1.1920929E-07_0|5.83310032|-7.62939464E-07_0|1.00000012|-1.1920929E-07
-	attN = node_cargo,Decoupler.1p5_4290906486_-9.93411131E-09|-11.4562836|1.52587893E-06_0|1.00000012|-1.1920929E-07_-9.93411131E-09|-11.4562836|1.52587893E-06_0|1.00000012|-1.1920929E-07
+	attN = node_cargo,Null_0_-9.93411131E-09|-11.4562836|1.52587893E-06_0|1.00000012|-1.1920929E-07_-9.93411131E-09|-11.4562836|1.52587893E-06_0|1.00000012|-1.1920929E-07
 	EVENTS
 	{
 	}
@@ -14614,23 +11486,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = ModuleEnginesFX
 		isEnabled = True
 		independentThrottle = False
@@ -14731,52 +11586,9 @@ PART
 	}
 	MODULE
 	{
-		name = Reliability
-		isEnabled = True
-		type = ModuleEngines
-		broken = False
-		critical = False
-		quality = False
-		last = 0
-		next = 0
-		last_inspection = 0
-		needMaintenance = False
-		enforce_breakdown = False
-		running = False
-		operation_duration = 0
-		fail_duration = 0
-		ignitions = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -14843,8 +11655,12 @@ PART
 		baseDiskSpace = 255000
 		baseModuleMass = 0
 		additionalCost = 0
+		diskSpaceCostFactor = 0.0244140625
+		diskSpaceMassFactor = 4.88289986E-09
 		MaxPartId = 100
-		RequiredPower = 0.400000006
+		ECPerInstruction = 3.99999999E-06
+		ECPerBytePerSecond = 0
+		RequiredPower = 0.100000001
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -14909,22 +11725,6 @@ PART
 	}
 	MODULE
 	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -14958,8 +11758,8 @@ PART
 {
 	part = SEP.24.SHIP.FWD.LEFT.FLAP_4286226646
 	partName = Part
-	persistentId = 3469516202
-	pos = -0.0506238155,139.024048,4.71706247
+	persistentId = 3357108830
+	pos = -0.0506238155,139.024048,4.71708918
 	attPos = 0,0,0
 	attPos0 = -4.7171874,0.0124969482,-0.0507638939
 	rot = -0.549525142,0.444996834,-0.549525142,0.444996893
@@ -15039,6 +11839,21 @@ PART
 	}
 	MODULE
 	{
+		name = ModuleCenterFollowTransform
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = ModuleSEPControlSurface
 		isEnabled = True
 		deployAngle = 60
@@ -15129,6 +11944,11 @@ PART
 				wasActiveBeforePartWasAdjusted = False
 			}
 			ActivateFlipAngles
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateLandingAngles
 			{
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
@@ -15321,41 +12141,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -15387,8 +12175,8 @@ PART
 {
 	part = SEP.24.SHIP.FWD.RIGHT.FLAP_4286227736
 	partName = Part
-	persistentId = 3405404027
-	pos = -0.050625246,139.024048,-4.71733427
+	persistentId = 2242436054
+	pos = -0.050625246,139.024048,-4.71736097
 	attPos = 0,0,0
 	attPos0 = 4.71718359,0.0124969482,-0.0507643707
 	rot = 0.549525201,0.444996953,0.549525082,0.444996774
@@ -15468,6 +12256,21 @@ PART
 	}
 	MODULE
 	{
+		name = ModuleCenterFollowTransform
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = ModuleSEPControlSurface
 		isEnabled = True
 		deployAngle = 60
@@ -15558,6 +12361,11 @@ PART
 				wasActiveBeforePartWasAdjusted = False
 			}
 			ActivateFlipAngles
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateLandingAngles
 			{
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
@@ -15660,41 +12468,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -15726,7 +12502,7 @@ PART
 {
 	part = SEP.24.SHIP.HEADER_4286284348
 	partName = Part
-	persistentId = 1373250471
+	persistentId = 3378632712
 	pos = 0.000138655727,146.164307,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 0,7.15275574,-9.53674316E-07
@@ -15839,41 +12615,9 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -15906,7 +12650,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 60244.216466351914
+		LastUpdateTime = 1002407.7447803506
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -16085,22 +12829,6 @@ PART
 	}
 	MODULE
 	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -16143,33 +12871,32 @@ PART
 }
 PART
 {
-	part = Decoupler.1p5_4290906486
+	part = DC.smallCam.Wide_4293865852
 	partName = Part
-	persistentId = 4138319723
-	pos = 0.000141135286,127.630264,-0.000138030213
-	attPos = 0,0,0
-	attPos0 = -9.93918636E-09,-11.3812866,1.52588495E-06
-	rot = 1.00000012,0,0,0
-	attRot = 0.99999994,0,0,0
-	attRot0 = 0.707106829,0,0.707106829,0
+	persistentId = 2378821282
+	pos = -2.30531192,138.992523,-3.5466814
+	attPos = -0.104722023,-0.043762207,-0.197391033
+	attPos0 = 3.65122843,0.0247344971,-2.10803747
+	rot = 0.13204585,0.232141301,-0.629534841,-0.729630291
+	attRot = 0.183012679,0.683012784,-0.183012664,0.683012724
+	attRot0 = 0.538518786,0.680075169,-0.351777822,-0.351777822
 	mir = 1,1,1
 	symMethod = Radial
 	autostrutMode = Off
 	rigidAttachment = False
-	istg = 1
+	istg = -1
 	resPri = 0
-	dstg = 1
-	sidx = 3
-	sqor = 1
-	sepI = 1
-	attm = 0
+	dstg = 0
+	sidx = -1
+	sqor = -1
+	sepI = 0
+	attm = 1
 	sameVesselCollision = False
 	modCost = 0
 	modMass = 0
 	modSize = 0,0,0
-	link = Size4.Tank.03_4290774000
-	attN = top,SEP.24.SHIP.CARGO_4288254814_0|0.075000003|0_0|1|0_0|0.075000003|0_0|1|0
-	attN = bottom,Size4.Tank.03_4290774000_0|-0.075000003|0_0|-1|0_0|-0.075000003|0_0|-1|0
+	srfN = srfAttach,SEP.24.SHIP.CARGO_4288254814,Circle_COLLIDER,0|-0.0374999978|0,0|-1.25|0,0|-0.0374999978|0
+	attN = bottom,Null_0_0|-0.0374999978|0_0|-1.25|0_0|-0.0374999978|0_0|-1.25|0
 	EVENTS
 	{
 	}
@@ -16228,21 +12955,15 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleDecouple
+		name = ModulePartVariants
 		isEnabled = True
-		ejectionForcePercent = 19
-		isDecoupled = False
+		useVariantMass = True
 		stagingEnabled = True
 		EVENTS
 		{
 		}
 		ACTIONS
 		{
-			DecoupleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
 		}
 		UPGRADESAPPLIED
 		{
@@ -16250,38 +12971,7 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleToggleCrossfeed
-		isEnabled = True
-		crossfeedStatus = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			EnableAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			DisableAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleTestSubject
+		name = MuMechModuleHullCameraZoom
 		isEnabled = True
 		stagingEnabled = True
 		EVENTS
@@ -16289,6 +12979,36 @@ PART
 		}
 		ACTIONS
 		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
 		}
 		UPGRADESAPPLIED
 		{
@@ -16298,7 +13018,7 @@ PART
 	{
 		name = ModuleCargoPart
 		isEnabled = True
-		packedVolume = 900
+		packedVolume = 5
 		beingAttached = False
 		beingSettled = False
 		reinitResourcesOnStoreInVessel = False
@@ -16315,69 +13035,6 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
-		isEnabled = True
-		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModulePartVariants
-		isEnabled = True
-		useVariantMass = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = tjs_DecouplerLight
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleFreeIva
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -16394,23 +13051,10 @@ PART
 	}
 	MODULE
 	{
-		name = RSE_Coupler
+		name = JSIExternalCameraSelector
 		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
+		current = 2
+		showCones = False
 		stagingEnabled = True
 		EVENTS
 		{
@@ -16425,32 +13069,32 @@ PART
 }
 PART
 {
-	part = Size4.Tank.03_4290774000
+	part = DC.smallCam.Wide_4293351444
 	partName = Part
-	persistentId = 502378060
-	pos = 0.000141135286,131.455261,-0.000138030213
-	attPos = 0,0,0
-	attPos0 = 0,-3.82499886,0
-	rot = 0,0,0,1.00000012
-	attRot = 0,0,0,1
-	attRot0 = -1,0,0,0
+	persistentId = 1134629077
+	pos = 1.51867759,96.3064804,-4.43216085
+	attPos = 0.139538288,0.0669403076,0.112280846
+	attPos0 = 4.2924571,36.1467514,1.40623522
+	rot = 0.606505632,-0.171812534,0.363525987,-0.685915768
+	attRot = -1.12388276E-08,0.923879564,8.98388279E-08,-0.382683516
+	attRot0 = 0.171812519,0.363525867,0.685915887,-0.606505454
 	mir = 1,1,1
 	symMethod = Radial
 	autostrutMode = Off
 	rigidAttachment = False
-	istg = 1
+	istg = 0
 	resPri = 0
-	dstg = 2
+	dstg = 0
 	sidx = -1
 	sqor = -1
-	sepI = 1
-	attm = 0
+	sepI = 0
+	attm = 1
 	sameVesselCollision = False
-	modCost = 16409.5996
-	modMass = -3.57627869E-07
+	modCost = 0
+	modMass = 0
 	modSize = 0,0,0
-	attN = top,Null_0_0|3.75|0_0|1|0_0|3.75|0_0|1|0
-	attN = bottom,Decoupler.1p5_4290906486_0|-3.75|0_0|-1|0_0|-3.75|0_0|-1|0
+	srfN = srfAttach,SEP.23.BOOSTER.INTEGRATED_4287621798,Circle_COLLIDER,0|-0.0374999978|0,0|-1.25|0,0|-0.0374999978|0
+	attN = bottom,Null_0_0|-0.0374999978|0_0|-1.25|0_0|-0.0374999978|0_0|-1.25|0
 	EVENTS
 	{
 	}
@@ -16494,11 +13138,13 @@ PART
 		ResourcesEnableFlow
 		{
 			actionGroup = None
+			active = False
 			wasActiveBeforePartWasAdjusted = False
 		}
 		ResourcesDisableFlow
 		{
 			actionGroup = None
+			active = False
 			wasActiveBeforePartWasAdjusted = False
 		}
 	}
@@ -16507,11 +13153,10 @@ PART
 	}
 	MODULE
 	{
-		name = FMRS_PM
+		name = ModulePartVariants
 		isEnabled = True
+		useVariantMass = True
 		stagingEnabled = True
-		MM_DYNAMIC = true
-		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -16524,11 +13169,454 @@ PART
 	}
 	MODULE
 	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleCargoPart
+		isEnabled = True
+		packedVolume = 5
+		beingAttached = False
+		beingSettled = False
+		reinitResourcesOnStoreInVessel = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = KOSNameTag
+		isEnabled = False
+		nameTag = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = JSIExternalCameraSelector
+		isEnabled = True
+		current = 3
+		showCones = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+}
+PART
+{
+	part = DC.smallCam.Wide_4292967056
+	partName = Part
+	persistentId = 2901523682
+	pos = 1.5417484,96.3109512,-4.50661516
+	attPos = 0.210194111,0.130958557,0.14564991
+	attPos0 = 4.29626036,36.087204,1.39593935
+	rot = 0.309597373,-0.543042958,-0.224935651,-0.747434199
+	attRot = 0.653281569,0.65328145,-0.270598054,-0.270598203
+	attRot0 = 0.377971888,0.144526407,0.0598648861,-0.91250509
+	mir = 1,1,1
+	symMethod = Radial
+	autostrutMode = Off
+	rigidAttachment = False
+	istg = 0
+	resPri = 0
+	dstg = 0
+	sidx = -1
+	sqor = -1
+	sepI = 0
+	attm = 1
+	sameVesselCollision = False
+	modCost = 0
+	modMass = 0
+	modSize = 0,0,0
+	srfN = srfAttach,SEP.23.BOOSTER.INTEGRATED_4287621798,Circle_COLLIDER,0|-0.0374999978|0,0|-1.25|0,0|-0.0374999978|0
+	attN = bottom,Null_0_0|-0.0374999978|0_0|-1.25|0_0|-0.0374999978|0_0|-1.25|0
+	EVENTS
+	{
+	}
+	ACTIONS
+	{
+		ToggleSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		SetSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		RemoveSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutOff
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutRoot
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutHeaviest
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutGrandparent
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		ResourcesEnableFlow
+		{
+			actionGroup = None
+			active = False
+			wasActiveBeforePartWasAdjusted = False
+		}
+		ResourcesDisableFlow
+		{
+			actionGroup = None
+			active = False
+			wasActiveBeforePartWasAdjusted = False
+		}
+	}
+	PARTDATA
+	{
+	}
+	MODULE
+	{
 		name = ModulePartVariants
 		isEnabled = True
 		useVariantMass = True
 		stagingEnabled = True
-		selectedVariant = Orange
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleCargoPart
+		isEnabled = True
+		packedVolume = 5
+		beingAttached = False
+		beingSettled = False
+		reinitResourcesOnStoreInVessel = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = KOSNameTag
+		isEnabled = False
+		nameTag = 
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = JSIExternalCameraSelector
+		isEnabled = True
+		current = 3
+		showCones = False
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+}
+PART
+{
+	part = DC.smallCam_4292361788
+	partName = Part
+	persistentId = 531696770
+	pos = 3.91801882,138.724274,-0.000138040152
+	attPos = -5.21453387E-07,-1.24984741,-0.428149939
+	attPos0 = 4.46157742E-08,0.96257019,4.34602404
+	rot = -0.251319945,0.660937548,0.251320004,0.660937428
+	attRot = -0.923879623,-4.46867965E-09,1.77834512E-08,0.382683665
+	attRot0 = -0.355420083,8.94069672E-08,2.98023224E-08,0.934706688
+	mir = 1,1,1
+	symMethod = Radial
+	autostrutMode = Off
+	rigidAttachment = False
+	istg = -1
+	resPri = 0
+	dstg = 0
+	sidx = -1
+	sqor = -1
+	sepI = 0
+	attm = 1
+	sameVesselCollision = False
+	modCost = 0
+	modMass = 0
+	modSize = 0,0,0
+	srfN = srfAttach,SEP.24.SHIP.CARGO_4288254814,Circle_COLLIDER,0|-0.0374999978|0,0|-1.25|0,0|-0.0374999978|0
+	attN = bottom,Null_0_0|-0.0374999978|0_0|-1.25|0_0|-0.0374999978|0_0|-1.25|0
+	EVENTS
+	{
+	}
+	ACTIONS
+	{
+		ToggleSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		SetSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		RemoveSameVesselInteraction
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutOff
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutRoot
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutHeaviest
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		AutostrutGrandparent
+		{
+			actionGroup = None
+			wasActiveBeforePartWasAdjusted = False
+		}
+		ResourcesEnableFlow
+		{
+			actionGroup = None
+			active = False
+			wasActiveBeforePartWasAdjusted = False
+		}
+		ResourcesDisableFlow
+		{
+			actionGroup = None
+			active = False
+			wasActiveBeforePartWasAdjusted = False
+		}
+	}
+	PARTDATA
+	{
+	}
+	MODULE
+	{
+		name = ModulePartVariants
+		isEnabled = True
+		useVariantMass = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleCargoPart
+		isEnabled = True
+		packedVolume = 5
+		beingAttached = False
+		beingSettled = False
+		reinitResourcesOnStoreInVessel = False
+		stagingEnabled = True
 		EVENTS
 		{
 		}
@@ -16557,8 +13645,10 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
+		name = JSIExternalCameraSelector
 		isEnabled = True
+		current = 4
+		showCones = False
 		stagingEnabled = True
 		EVENTS
 		{
@@ -16569,83 +13659,5 @@ PART
 		UPGRADESAPPLIED
 		{
 		}
-	}
-	MODULE
-	{
-		name = ModuleB9PartSwitch
-		isEnabled = True
-		stagingEnabled = True
-		moduleID = fuelSwitch
-		currentSubtype = LiquidFuel
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleCryoTank
-		isEnabled = True
-		LastUpdateTime = 60244.216466351914
-		CoolingAllowed = True
-		CoolingEnabled = False
-		BoiloffOccuring = False
-		DebugMode = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			EnableAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			DisableAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			ToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleB9PartInfo
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	RESOURCE
-	{
-		name = LiquidFuel
-		amount = 25600
-		maxAmount = 25600
-		flowState = False
-		isTweakable = True
-		hideFlow = False
-		isVisible = True
-		flowMode = Both
 	}
 }
