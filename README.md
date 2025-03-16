@@ -66,6 +66,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Realism Overhaul (RO)
 - Xyphos Aerospace
 - Physics Range Extender
+- Stage Recovery
 
 
 
