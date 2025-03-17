@@ -1,3 +1,6 @@
+# V3.4.2 Waiting for Nubro to see my pull request
+-Small changes to Block1 stock and real size craft files
+
 # V3.4.1 (2025-03-07) 
 - Kraken: root cause seems to be the steel of the vehicles wobbling, probably caused by LoadDistanceChanges
   > **Kraken fixed during catch for Stock and KSRSS**; added WobbleCheck --> offshore divert, when detected;    
