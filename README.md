@@ -9,7 +9,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ### Credits:
 - Original Script: Janus92
 - Vehicle pictograms: Space_I_Isaac
-
+- Updated Script: Nubro24
 
 ## Current State:
 - Ship landings/catches and Booster catches don't work in RSS
