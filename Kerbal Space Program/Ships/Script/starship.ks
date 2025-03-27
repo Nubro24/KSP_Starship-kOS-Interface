@@ -359,9 +359,9 @@ set SNStart to 30.  // Defines the first Serial Number when multiple ships are f
 set MaxTilt to 3.5.  // Defines maximum allowed slope for the Landing Zone Search Function
 set maxstabengage to 0.  // Defines max closing of the stabilizers after landing.
 set CPUSPEED to 600.  // Defines cpu speed in lines per second.
-set FWDFlapDefault to 65.
-set AFTFlapDefault to 55.
-set rcsRaptorBoundary to 100.  // Defines the custom burn boundary velocity where the ship will burn either RCS/Single Raptor below it or VAC Raptors above it.
+set FWDFlapDefault to 55.
+set AFTFlapDefault to 65.
+set rcsRaptorBoundary to 80.  // Defines the custom burn boundary velocity where the ship will burn either RCS/Single Raptor below it or VAC Raptors above it.
 set CoGFuelBalancing to true.  // Disable this to stop constant fuel transfers during re-entry.
 set DynamicPitch to true.   // Change the flap defaults dynamically during re-entry.
 set steeringmanager:pitchtorquefactor to 0.75.
@@ -8623,7 +8623,9 @@ function ReEntryData {
         }
     }
 
-    if not ShipType = "Block2PEZSEPOv" {if CoGFuelBalancing {
+    if ship:partsnamed("NOSE.PEZ.BLOCK-2"):length = 0 {
+        //print("FuelBalancing Active").
+        if CoGFuelBalancing {
         if altitude < ship:body:ATM:height - 10000 and RadarAlt > FlipAltitude + 100 {
             if not (RebalanceCoGox:status = "Transferring") or (RebalanceCoGlf:status = "Transferring") {
                 set PitchInput to SLEngines[0]:gimbal:pitchangle.
@@ -8705,7 +8707,9 @@ function ReEntryData {
                 set RebalanceCoGlf:ACTIVE to true.
             }
         }
-    }}
+        } 
+    } else 
+        //print("FuelBalancing NOT active").
 
     if (landingzone:lng - ship:geoposition:lng) < -180 {
         set LngDistanceToTarget to ((landingzone:lng - ship:geoposition:lng + 360) * Planet1Degree).
@@ -9284,14 +9288,14 @@ function LandingVector {
             //}
 
             if TargetOLM {
-                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(0.8 * Scale,2) + ",false")).
+                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(0.82 * Scale,2) + ",false")).
                 sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
                 when time:seconds > ShutdownProcedureStart + 5 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.8 * Scale, 2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.82 * Scale, 2) + ",false")).
                     sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
                 }
                 when time:seconds > ShutdownProcedureStart + 10 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.8 * Scale, 2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.82 * Scale, 2) + ",false")).
                 }
             }
 
