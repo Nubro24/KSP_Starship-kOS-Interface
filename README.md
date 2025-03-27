@@ -20,7 +20,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
 - Booster/Ship krakens on contact with Chopsticks in RSS
-    - **If your Booster lands beside/in front of the Tower, use [Frisk's fork](https://github.com/Frisk-33/KSP_Starship-kOS-Interface/tree/patch-1) for a potential patch**
+    - **If your Booster lands beside/in front of the Tower, use [Frisk's fork](https://github.com/Frisk-33/KSP_Starship-kOS-Interface/tree/patch-1) for a potential patch (RSS only)**
 - SQD may not rotate away on Lift-Off (SLE bug I think)
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
