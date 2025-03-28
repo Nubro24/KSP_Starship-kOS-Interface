@@ -1,3 +1,7 @@
+# V3.4.2 (2025-03-28)
+- various Bug/Error Fixes
+- KSRSS Reentry improved a bit
+
 # V3.4.1 (2025-03-07) 
 - Kraken: root cause seems to be the steel of the vehicles wobbling, probably caused by LoadDistanceChanges
   > **Kraken fixed during catch for Stock and KSRSS**; added WobbleCheck --> offshore divert, when detected;    
