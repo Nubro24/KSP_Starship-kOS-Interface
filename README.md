@@ -20,6 +20,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
 - Booster/Ship krakens on contact with Chopsticks in RSS
+    - **If your Booster lands beside/in front of the Tower, use [Frisk's fork](https://github.com/Frisk-33/KSP_Starship-kOS-Interface/tree/patch-1) for a potential patch (RSS only)**
 - SQD may not rotate away on Lift-Off (SLE bug I think)
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
@@ -48,8 +49,8 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ## Requirements:
 - Stock-size Kerbin or Real Solar System or KSRSS or SigmaDimensions (2.5-2.7x)
 - KSP language set to **English**
-- Starship Expansion Project - [github Dev](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with beta3*
-- Starship Launch Expansion - [github Dev](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Dev)
+- Starship Expansion Project - [github Dev](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with beta4*
+- Starship Launch Expansion - [github Exp](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Experimental)
 - kOS - [github](https://github.com/KSP-KOS/KOS/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/165628-ksp-1101-and-111-kos-v1310-kos-scriptable-autopilot-system/)
 - Trajectories - [github](https://github.com/neuoy/KSPTrajectories/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/162324-18-112x-trajectories-v241-2021-06-27-atmospheric-predictions/)
 - Kerbal Joint Reinforcement Continued - [github](https://github.com/KSP-RO/Kerbal-Joint-Reinforcement-Continued/releases) - [Forum](https://forum.kerbalspaceprogram.com/topic/184019-131-14x-15x-16x-17x-kerbal-joint-reinforcement-continued-v340-25-04-2019/)
@@ -66,6 +67,8 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Realism Overhaul (RO)
 - Xyphos Aerospace
 - Physics Range Extender
+- Stage Recovery
+- PEKKA's Starship Pack
 
 
 
