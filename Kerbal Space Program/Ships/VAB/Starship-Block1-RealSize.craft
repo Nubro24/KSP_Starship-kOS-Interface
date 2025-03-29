@@ -2,7 +2,7 @@ ship = Starship-Block1-RealSize
 version = 1.12.5
 description = 
 type = VAB
-size = 59.3747253,146.406799,27.6765633
+size = 59.3747253,146.406799,27.6765518
 steamPublishedFileId = 0
 persistentId = 4164756244
 rot = 0,0,0,0
@@ -17,7 +17,7 @@ PART
 {
 	part = SEP.24.SHIP.CORE_4286287862
 	partName = Part
-	persistentId = 811907005
+	persistentId = 673474488
 	pos = 0.000142661156,113.162849,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 0.000142661156,113.162849,-0.000138040152
@@ -694,7 +694,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 1002409.8447803525
+		LastUpdateTime = 1007676.9374829354
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -1001,8 +1001,8 @@ PART
 {
 	part = SEP.24.SHIP.AFT.LEFT.FLAP_4286225562
 	partName = Part
-	persistentId = 3946582337
-	pos = 0.000144568505,104.585869,5.13378382
+	persistentId = 986521003
+	pos = 0.000144568505,104.585869,5.13378668
 	attPos = 0,0,0
 	attPos0 = -5.13387156,-8.57698059,1.52587745E-06
 	rot = -0.50000006,0.50000006,-0.50000006,0.50000006
@@ -1328,8 +1328,8 @@ PART
 {
 	part = SEP.24.SHIP.AFT.RIGHT.FLAP_4286224368
 	partName = Part
-	persistentId = 1666811612
-	pos = 0.00014361483,104.585869,-5.13405943
+	persistentId = 1079398756
+	pos = 0.00014361483,104.585869,-5.13406229
 	attPos = 0,0,0
 	attPos0 = 5.13387156,-8.57698059,1.52587745E-06
 	rot = 0.50000006,0.50000006,0.50000006,0.50000006
@@ -1655,8 +1655,8 @@ PART
 {
 	part = DC.smallCam.Wide_4286208346
 	partName = Part
-	persistentId = 3154286661
-	pos = -2.59992146,103.962852,-3.66728067
+	persistentId = 3409936209
+	pos = -2.59992576,103.962852,-3.66728783
 	attPos = -0.185312271,-0.068939209,-0.33254385
 	attPos0 = 3.85234857,-9.13105774,-2.26745629
 	rot = -0.0922958255,-0.0922958255,0.701057434,0.701057434
@@ -1853,8 +1853,8 @@ PART
 {
 	part = SEP.23.RAPTOR2.SL.RC_4286207348
 	partName = Part
-	persistentId = 2377124745
-	pos = -0.880640626,100.523361,-0.000139291849
+	persistentId = 1411298727
+	pos = -0.880641341,100.523361,-0.000139291849
 	attPos = 0,0,0
 	attPos0 = 1.3998615E-06,-12.6394882,-0.880770743
 	rot = 0,0.707106829,0,0.707106829
@@ -1873,7 +1873,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0
+	modMass = 0.150000006
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR2.SL.RC_4286204880
 	sym = SEP.23.RAPTOR2.SL.RC_4286204330
@@ -1957,7 +1957,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = Unshielded
+		currentSubtype = Shielded
 		EVENTS
 		{
 		}
@@ -2270,8 +2270,8 @@ PART
 {
 	part = SEP.23.RAPTOR2.SL.RC_4286204880
 	partName = Part
-	persistentId = 3312820116
-	pos = 0.440538257,100.523361,0.762649655
+	persistentId = 3451829216
+	pos = 0.440538794,100.523361,0.762650549
 	attPos = 0,0,0
 	attPos0 = -0.762772083,-12.6394882,0.440386146
 	rot = 0,0.965925932,0,-0.258819133
@@ -2290,7 +2290,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0
+	modMass = 0.150000006
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR2.SL.RC_4286204330
 	sym = SEP.23.RAPTOR2.SL.RC_4286207348
@@ -2374,7 +2374,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = Unshielded
+		currentSubtype = Shielded
 		EVENTS
 		{
 		}
@@ -2679,8 +2679,8 @@ PART
 {
 	part = SEP.23.RAPTOR2.SL.RC_4286204330
 	partName = Part
-	persistentId = 2601434252
-	pos = 0.440537959,100.523361,-0.762921333
+	persistentId = 2104997868
+	pos = 0.440538317,100.523361,-0.762922049
 	attPos = 0,0,0
 	attPos0 = 0.762770712,-12.6394882,0.440389156
 	rot = 0,0.258819014,0,-0.965925932
@@ -2699,7 +2699,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0
+	modMass = 0.150000006
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR2.SL.RC_4286207348
 	sym = SEP.23.RAPTOR2.SL.RC_4286204880
@@ -2783,7 +2783,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = Unshielded
+		currentSubtype = Shielded
 		EVENTS
 		{
 		}
@@ -3088,8 +3088,8 @@ PART
 {
 	part = SEP.23.RAPTOR.VAC_4286199384
 	partName = Part
-	persistentId = 31397469
-	pos = 3.01540756,101.968201,-0.000138516989
+	persistentId = 3608267454
+	pos = 3.01541042,101.968201,-0.000138516989
 	attPos = 0,0,0
 	attPos0 = -8.95888661E-08,-11.1946487,3.01521492
 	rot = 0,0.707106829,0,0.707106829
@@ -3108,7 +3108,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0
+	modMass = 0.0500000007
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR.VAC_4286197518
 	sym = SEP.23.RAPTOR.VAC_4286196980
@@ -3192,7 +3192,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = ShieldSwitch
-		currentSubtype = Unshielded
+		currentSubtype = Shielded
 		EVENTS
 		{
 		}
@@ -3365,8 +3365,8 @@ PART
 {
 	part = SEP.23.RAPTOR.VAC_4286197518
 	partName = Part
-	persistentId = 1229340231
-	pos = -1.50748765,101.968201,-2.61141586
+	persistentId = 1916543450
+	pos = -1.50748909,101.968201,-2.61141729
 	attPos = 0,0,0
 	attPos0 = 2.61125278,-11.1946487,-1.50760508
 	rot = 0,0.965925932,0,-0.258819133
@@ -3385,7 +3385,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0
+	modMass = 0.0500000007
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR.VAC_4286196980
 	sym = SEP.23.RAPTOR.VAC_4286199384
@@ -3469,7 +3469,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = ShieldSwitch
-		currentSubtype = Unshielded
+		currentSubtype = Shielded
 		EVENTS
 		{
 		}
@@ -3634,8 +3634,8 @@ PART
 {
 	part = SEP.23.RAPTOR.VAC_4286196980
 	partName = Part
-	persistentId = 664566018
-	pos = -1.50748718,101.968201,2.61114001
+	persistentId = 3414543332
+	pos = -1.50748861,101.968201,2.61114144
 	attPos = 0,0,0
 	attPos0 = -2.61125278,-11.1946487,-1.50760508
 	rot = 0,0.258819014,0,-0.965925932
@@ -3654,7 +3654,7 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 0
+	modMass = 0.0500000007
 	modSize = 0,0,0
 	sym = SEP.23.RAPTOR.VAC_4286199384
 	sym = SEP.23.RAPTOR.VAC_4286197518
@@ -3738,7 +3738,7 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = ShieldSwitch
-		currentSubtype = Unshielded
+		currentSubtype = Shielded
 		EVENTS
 		{
 		}
@@ -3903,8 +3903,8 @@ PART
 {
 	part = DC.smallCam.Wide_4286191194
 	partName = Part
-	persistentId = 2864978714
-	pos = -4.29644012,101.318733,0.00578189315
+	persistentId = 4081396577
+	pos = -4.29644585,101.318733,0.00578189315
 	attPos = -0.000177268405,0.0943908691,0.100436687
 	attPos0 = -0.00574231707,-11.9385071,-4.39693403
 	rot = -0.227248371,-0.671879828,-0.229014099,0.666699588
@@ -4101,7 +4101,7 @@ PART
 {
 	part = SEP.23.BOOSTER.HSR_4287633448
 	partName = Part
-	persistentId = 2119223854
+	persistentId = 1151205045
 	pos = 0.000144544669,96.6928024,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = -2.27373675E-13,-16.470047,1.88350555E-06
@@ -4483,7 +4483,7 @@ PART
 {
 	part = SEP.23.BOOSTER.INTEGRATED_4287621798
 	partName = Part
-	persistentId = 2735437345
+	persistentId = 926683604
 	pos = 0.000148359366,60.0927887,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = -2.27373675E-13,-36.6000137,3.81469727E-06
@@ -5010,7 +5010,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 1002409.8447803525
+		LastUpdateTime = 1007676.9374829354
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -5336,7 +5336,7 @@ PART
 {
 	part = SEP.23.BOOSTER.CLUSTER_4287605498
 	partName = Part
-	persistentId = 3472223090
+	persistentId = 1620230213
 	pos = 0.000152174078,26.7236176,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 0,-33.369175,4.58955765E-06
@@ -6099,7 +6099,7 @@ PART
 {
 	part = SLE.SS.OLM_4287433086
 	partName = Part
-	persistentId = 443351497
+	persistentId = 19842804
 	pos = 0.000155262358,5.65171051,-0.000143613652
 	attPos = 0,0,0
 	attPos0 = 5.5736632E-06,-21.071907,3.08752442E-06
@@ -6848,8 +6848,8 @@ PART
 {
 	part = SLE.SS.OLIT.Base_4287348244
 	partName = Part
-	persistentId = 2282340137
-	pos = -33.3418655,11.891716,-0.910519361
+	persistentId = 1581048696
+	pos = -33.3418884,11.891716,-0.910507917
 	attPos = 0,0,0
 	attPos0 = -33.3426247,6.23290634,-0.92016995
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -7130,8 +7130,8 @@ PART
 {
 	part = SLE.SS.OLIT.Core_4287331592
 	partName = Part
-	persistentId = 2492700866
-	pos = -33.3405724,17.5220261,-0.9506042
+	persistentId = 2297844157
+	pos = -33.3405952,17.5220261,-0.950592756
 	attPos = 0,0,0
 	attPos0 = 0.00129322417,5.63031054,-0.0400839373
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -7702,8 +7702,8 @@ PART
 {
 	part = SLE.SS.OLIT.Top_4287315974
 	partName = Part
-	persistentId = 1311306736
-	pos = -33.3403206,135.088257,-0.985169172
+	persistentId = 2174236586
+	pos = -33.3403549,135.088257,-0.985157728
 	attPos = 0,0,0
 	attPos0 = -0.00765405223,16.7680054,0.0435114279
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -7876,8 +7876,8 @@ PART
 {
 	part = hc.launchcam_4286995820
 	partName = Part
-	persistentId = 2404734952
-	pos = -31.5401554,151.888245,-9.38539028
+	persistentId = 3699444799
+	pos = -31.5401783,151.888245,-9.38539028
 	attPos = -0.305088162,0,-0.543728352
 	attPos0 = 2.10506725,16.7999878,-7.85627127
 	rot = 0.103553273,0.603553593,-0.079459317,0.786566079
@@ -8058,8 +8058,8 @@ PART
 {
 	part = SLE.SS.OLIT.MZ_4287297256
 	partName = Part
-	persistentId = 4249927590
-	pos = -21.2960835,133.16629,0.599122286
+	persistentId = 2701756659
+	pos = -21.2960949,133.16629,0.599128008
 	attPos = 0,0,0
 	attPos0 = 12.0442562,115.644241,1.54983258
 	rot = 0.707082331,-0.00588271022,-0.00588274002,-0.707082391
@@ -8880,8 +8880,8 @@ PART
 {
 	part = SLE.SS.OLIT.SQD_4287271022
 	partName = Part
-	persistentId = 1729913942
-	pos = -31.226326,96.7473831,-2.21211505
+	persistentId = 3065421075
+	pos = -31.2263489,96.7473831,-2.21210361
 	attPos = 0,0,0
 	attPos0 = 2.11424112,79.2253571,-1.26150656
 	rot = -1.03623009E-07,0.997030318,1.2003003E-08,0.077011764
@@ -9217,8 +9217,8 @@ PART
 {
 	part = SLE.SS.SteelPlate_4287250170
 	partName = Part
-	persistentId = 418203676
-	pos = 0.00015436759,6.31102753,-0.000143434023
+	persistentId = 1652459667
+	pos = 0.000154367823,6.31102753,-0.000143434372
 	attPos = 0,0,0
 	attPos0 = -0.000113472823,0.659316242,-0.00101260806
 	rot = 1.02897586E-10,0,-6.17385518E-11,1
@@ -9518,8 +9518,8 @@ PART
 {
 	part = kerbpro_4287004298
 	partName = Part
-	persistentId = 1746725828
-	pos = 1.11734915,27.8174515,-7.74575949
+	persistentId = 2227422130
+	pos = 1.11735058,27.8174515,-7.7457695
 	attPos = -1.90928936,0.138744354,1.21252298
 	attPos0 = 3.02267027,22.0152626,-8.99198818
 	rot = -0.405758053,-0.57910341,0.579102755,-0.40575844
@@ -9701,8 +9701,8 @@ PART
 {
 	part = DC.smallCam.Wide_4287003278
 	partName = Part
-	persistentId = 2540878039
-	pos = -2.80817127,15.7296219,4.73315859
+	persistentId = 2749385417
+	pos = -2.80817556,15.7296219,4.73317003
 	attPos = -0.318912268,-3.05199051,0.77094388
 	attPos0 = -2.46479249,13.095293,3.89035249
 	rot = 0.421194166,-0.195444643,0.0930080712,0.880764782
@@ -9899,8 +9899,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287238350
 	partName = Part
-	persistentId = 4283265037
-	pos = -2.95402217,95.7895966,-5.1170783
+	persistentId = 4000506588
+	pos = -2.95402789,95.7895966,-5.11708403
 	attPos = 0,0,0
 	attPos0 = 5.11684418,35.6968117,-2.95408344
 	rot = 0.866025448,4.86962328E-08,0.49999997,4.86962328E-08
@@ -10119,8 +10119,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237920
 	partName = Part
-	persistentId = 551035683
-	pos = 2.95426798,95.7895966,-5.11707735
+	persistentId = 2322670823
+	pos = 2.95427084,95.7895966,-5.11708307
 	attPos = 0,0,0
 	attPos0 = 5.11684418,35.6968117,2.95407033
 	rot = 0.500000179,-5.45420349E-08,0.866025507,-5.45420349E-08
@@ -10331,8 +10331,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237634
 	partName = Part
-	persistentId = 2560233782
-	pos = -2.95397902,95.7895966,5.11679983
+	persistentId = 3208037198
+	pos = -2.95398188,95.7895966,5.11680555
 	attPos = 0,0,0
 	attPos0 = -5.11684227,35.6968117,-2.95407891
 	rot = 0.866025507,4.8696247E-08,-0.500000179,-4.86962257E-08
@@ -10543,8 +10543,8 @@ PART
 {
 	part = SEP.23.BOOSTER.GRIDFIN_4287237358
 	partName = Part
-	persistentId = 1323688332
-	pos = 2.95430732,95.7895966,5.11680079
+	persistentId = 1914958113
+	pos = 2.95431304,95.7895966,5.11680651
 	attPos = 0,0,0
 	attPos0 = -5.11684227,35.6968117,2.95407104
 	rot = 0.499999881,-5.45420598E-08,-0.866025567,5.45420313E-08
@@ -10755,8 +10755,8 @@ PART
 {
 	part = DC.smallCam.Wide_4287007452
 	partName = Part
-	persistentId = 6784877
-	pos = -4.32670689,96.2467499,-0.31921649
+	persistentId = 886085159
+	pos = -4.32671261,96.2467499,-0.31921649
 	attPos = 0.00283139944,-0.105514526,-0.0367350578
 	attPos0 = 0.316836923,36.2570686,-4.29601383
 	rot = -0.098037377,0.73301369,-0.108167723,-0.66436404
@@ -10953,8 +10953,8 @@ PART
 {
 	part = DC.smallCam_4287005724
 	partName = Part
-	persistentId = 2216315273
-	pos = 2.91248298,50.1917152,4.71025515
+	persistentId = 270211505
+	pos = 2.91248584,50.1917152,4.71026087
 	attPos = -8.66916084,-0.021156311,6.8711133
 	attPos0 = 3.9587903,-9.87991714,-3.9587903
 	rot = 0.702100039,0.192967102,-0.221285075,0.648731291
@@ -11151,7 +11151,7 @@ PART
 {
 	part = SEP.24.SHIP.NOSECONE_4288254814
 	partName = Part
-	persistentId = 1995637130
+	persistentId = 1180197289
 	pos = 0.000139609401,139.011551,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 4.54747351E-13,25.8487015,-3.05175536E-06
@@ -11739,8 +11739,8 @@ PART
 {
 	part = SEP.24.SHIP.FWD.LEFT.FLAP_4286226646
 	partName = Part
-	persistentId = 490033103
-	pos = -0.0506238155,139.024048,4.71709204
+	persistentId = 1051771762
+	pos = -0.0506238155,139.024048,4.7170949
 	attPos = 0,0,0
 	attPos0 = -4.7171874,0.0124969482,-0.0507638939
 	rot = -0.549525142,0.444996834,-0.549525142,0.444996893
@@ -12156,8 +12156,8 @@ PART
 {
 	part = SEP.24.SHIP.FWD.RIGHT.FLAP_4286227736
 	partName = Part
-	persistentId = 1703374464
-	pos = -0.050625246,139.024048,-4.71736383
+	persistentId = 2814685948
+	pos = -0.050625246,139.024048,-4.7173667
 	attPos = 0,0,0
 	attPos0 = 4.71718359,0.0124969482,-0.0507643707
 	rot = 0.549525201,0.444996953,0.549525082,0.444996774
@@ -12483,7 +12483,7 @@ PART
 {
 	part = SEP.24.SHIP.HEADER_4286284348
 	partName = Part
-	persistentId = 653405684
+	persistentId = 3572692633
 	pos = 0.000138655727,146.164307,-0.000138040152
 	attPos = 0,0,0
 	attPos0 = 0,7.15275574,-9.53674316E-07
@@ -12631,7 +12631,7 @@ PART
 	{
 		name = ModuleCryoTank
 		isEnabled = True
-		LastUpdateTime = 1002409.8447803525
+		LastUpdateTime = 1007676.9374829354
 		CoolingAllowed = True
 		CoolingEnabled = False
 		BoiloffOccuring = False
@@ -12854,8 +12854,8 @@ PART
 {
 	part = DC.smallCam.Wide_4293865852
 	partName = Part
-	persistentId = 2336970526
-	pos = -2.30531549,138.992523,-3.54668736
+	persistentId = 4046963829
+	pos = -2.30531979,138.992523,-3.54669452
 	attPos = -0.104722023,-0.043762207,-0.197391033
 	attPos0 = 3.65122843,0.0247344971,-2.10803747
 	rot = 0.13204585,0.232141301,-0.629534841,-0.729630291
@@ -13052,8 +13052,8 @@ PART
 {
 	part = DC.smallCam.Wide_4293351444
 	partName = Part
-	persistentId = 3257336803
-	pos = 1.51867998,96.3064804,-4.43216562
+	persistentId = 1152098457
+	pos = 1.51868284,96.3064804,-4.43217134
 	attPos = 0.139538288,0.0669403076,0.112280846
 	attPos0 = 4.2924571,36.1467514,1.40623522
 	rot = 0.606505632,-0.171812534,0.363525987,-0.685915768
@@ -13250,8 +13250,8 @@ PART
 {
 	part = DC.smallCam.Wide_4292967056
 	partName = Part
-	persistentId = 1021642573
-	pos = 1.54175079,96.3109512,-4.50661993
+	persistentId = 3110102325
+	pos = 1.54175365,96.3109512,-4.50662565
 	attPos = 0.210194111,0.130958557,0.14564991
 	attPos0 = 4.29626036,36.087204,1.39593935
 	rot = 0.309597373,-0.543042958,-0.224935651,-0.747434199
@@ -13448,8 +13448,8 @@ PART
 {
 	part = DC.smallCam_4292633312
 	partName = Part
-	persistentId = 1905426333
-	pos = -4.37644863,131.043381,-0.000137086477
+	persistentId = 1103804742
+	pos = -4.37645435,131.043381,-0.000137086477
 	attPos = -1.24564394E-08,0.0187530518,0.15102911
 	attPos0 = -4.64381287E-07,-7.98692322,-4.52761507
 	rot = -0.353553385,0.612372518,-0.353553146,-0.612372637
