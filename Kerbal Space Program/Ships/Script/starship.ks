@@ -750,6 +750,7 @@ function FindParts {
         set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            print(round(BoosterCore[0]:drymass)).
             if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
                 set BoosterCorrectVariant to true.
             }
@@ -8272,7 +8273,7 @@ function ReEntryAndLand {
         }
         else if KSRSS {
             when airspeed < ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)) then {
-                set PitchPID to PIDLOOP(0.0025, 0, 0, -25, 30 - TRJCorrection).
+                set PitchPID to PIDLOOP(0.0025, 0, 0, -25, 30 + TRJCorrection).
             }
             set YawPID to PIDLOOP(0.0125, 0, 0, -50, 50).
         }
@@ -8283,7 +8284,7 @@ function ReEntryAndLand {
             set YawPID to PIDLOOP(0.0125, 0, 0, -50, 50).
         }
 
-        when altitude < 39000 and KSRSS then {
+        when altitude < 49000 and KSRSS then {
             set TRJCorrection to 1.5*TRJCorrection.
         }
         when altitude < 35000 and Stock or altitude < 39000 and KSRSS or altitude < 74000 and RSS then {
@@ -8597,16 +8598,16 @@ function ReEntryData {
         if time:seconds > t + 15 {
             set PitchInput to SLEngines[0]:gimbal:pitchangle.
             set t to time:seconds.
-            set FWDFlapDefault to max(min(60 - (PitchInput * 10 / Scale),65),55).
-            set AFTFlapDefault to max(min(60 + (PitchInput * 12 / Scale),65),55).
+            set FWDFlapDefault to max(min(60 - (PitchInput * 10 / Scale),70),55).
+            set AFTFlapDefault to max(min(60 + (PitchInput * 12 / Scale),65),50).
             if airspeed > 300 {
                 if ship:body:atm:sealevelpressure < 0.5 {
                     setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 10).
                 } else if altitude > 28000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 25).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 30).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 20).
                 }
             }
             else {
@@ -8710,7 +8711,8 @@ function ReEntryData {
         } 
     } else 
         //print("FuelBalancing NOT active").
-
+    set LngDistanceToTarget to 0.
+    SetPlanetData().
     if (landingzone:lng - ship:geoposition:lng) < -180 {
         set LngDistanceToTarget to ((landingzone:lng - ship:geoposition:lng + 360) * Planet1Degree).
     }
@@ -8719,6 +8721,7 @@ function ReEntryData {
     }
     set LatDistanceToTarget to max(landingzone:lat - ship:geoposition:lat, ship:geoposition:lat - landingzone:lat) * Planet1Degree.
     if LatDistanceToTarget < 0 {set LatDistanceToTarget to -1 * LatDistanceToTarget.}
+    print(LngDistanceToTarget).
     set DistanceToTarget to sqrt(LngDistanceToTarget * LngDistanceToTarget + LatDistanceToTarget * LatDistanceToTarget).
 
     if not ClosingIsRunning {
@@ -9423,16 +9426,16 @@ function LngLatError {
             if TargetOLM {
                 if STOCK {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -32.
+                        set LngLatOffset to -29.
                     } else {
-                        set LngLatOffset to -33.
+                        set LngLatOffset to -30.
                     }
                 }
                 else if KSRSS {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -36.
+                        set LngLatOffset to -38.
                     } else {
-                        set LngLatOffset to -37.
+                        set LngLatOffset to -39.
                     }
                 }
                 else {
@@ -9618,14 +9621,16 @@ function CalculateDeOrbitBurn {
     if ship:body:atm:exists {
         if RSS {
             if ship:body:atm:sealevelpressure > 0.5 {
-                set DegreestoLDGzone to 160.
+                set DegreestoLDGzone to 150.
             }
             else {
                 set DegreestoLDGzone to 100.
             }
         }
-        else {
+        else if not KSRSS {
             set DegreestoLDGzone to 100.
+        } else {
+            set DegreestoLDGzone to 95.
         }
     }
     else if ship:body:radius > 199999 {
@@ -12449,6 +12454,10 @@ function updateManeuver {
 
 
 function PerformBurn {
+    set mST to steeringManager:maxstoppingtime.
+    if ShipType:contains("Block1") {
+        set steeringManager:maxstoppingtime to mST/2.
+    }
     parameter Burntime, ProgradeVelocity, NormalVelocity, RadialVelocity, BurnType.
     set config:ipu to CPUSPEED.
     set textbox:style:bg to "starship_img/starship_main_square_bg".
@@ -12721,6 +12730,9 @@ function PerformBurn {
         SLEngines[0]:getmodule("ModuleSEPRaptor"):setfield("actuate limit", 100).
     }
     unlock BVec.
+    if ShipType:contains("Block1") {
+        set steeringManager:maxstoppingtime to mST.
+    }
 }
 
 
