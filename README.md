@@ -17,6 +17,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 ### Known Issues:
 - **Using the provided Craft Files you might have to change the Fuel levels back and forth one time in the VAB to prevent Fuel overload on first launch**
+- ***Currently the Ship reentry will only work with beta3 Flap configs, otherwise the Ship might loose control at some point***
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
 - Booster/Ship krakens on contact with Chopsticks in RSS
@@ -49,7 +50,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ## Requirements:
 - Stock-size Kerbin or Real Solar System or KSRSS or SigmaDimensions (2.5-2.7x)
 - KSP language set to **English**
-- Starship Expansion Project - [github Dev](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with beta3 !!!*
+- Starship Expansion Project - [github Dev](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with beta5*
 - Starship Launch Expansion - [github Exp](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Experimental)
 - kOS - [github](https://github.com/KSP-KOS/KOS/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/165628-ksp-1101-and-111-kos-v1310-kos-scriptable-autopilot-system/)
 - Trajectories - [github](https://github.com/neuoy/KSPTrajectories/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/162324-18-112x-trajectories-v241-2021-06-27-atmospheric-predictions/)
