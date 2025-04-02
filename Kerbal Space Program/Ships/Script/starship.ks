@@ -210,6 +210,7 @@ if ship:name:contains(" Real Size") and (RSS) {
 }
 
 set ShipType to "".
+set BoosterType to "".
 FindParts().
 if Tank:hasmodule("FARPartModule") {
     set FAR to true.
@@ -764,6 +765,7 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
     } else if ship:partsnamed("SEP.25.BOOSTER.CORE"):length > 0 {
+        set BoosterType to "Block1".
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
@@ -4650,22 +4652,29 @@ set launchbutton:ontoggle to {
                             }
                         }
 
-                        set message1:text to "<b>HSR Jettison after Boostback?</b>".
-                        set message2:text to "".
-                        set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
-                        set execute:text to "<b>CONFIRM</b>".
-                        set cancel:text to "<b>DENY</b>".
-                        if confirm() {
-                            set DeltaVCheck to true.
-                            set HSRJet to true.
+                        if not BoosterType="Block1" {   
+                            set message1:text to "<b>HSR Jettison after Boostback?</b>".
+                            set message2:text to "".
+                            set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
+                            set execute:text to "<b>CONFIRM</b>".
+                            set cancel:text to "<b>DENY</b>".
+                            if confirm() {
+                                set DeltaVCheck to true.
+                                set HSRJet to true.
+                            } else {
+                                set HSRJet to false.
+                                set DeltaVCheck to true.
+                            }
+                            set message1:text to "".
+                            set message2:text to "".
+                            set message3:text to "".
                         } else {
-                            set HSRJet to false.
+                            set HSRJet to true.
                             set DeltaVCheck to true.
+                            set message1:text to "".
+                            set message2:text to "".
+                            set message3:text to "".
                         }
-                        set message1:text to "".
-                        set message2:text to "".
-                        set message3:text to "".
-
                         if not (TargetShip = 0) {
                             if RSS {
                                 set targetap to targetap - 10000.
@@ -6665,7 +6674,7 @@ function Launch {
 
         when cancelconfirmed and not ClosingIsRunning and LaunchButtonIsRunning then {
             Droppriority().
-            abort().
+            AbortLaunch().
         }
         when apoapsis > BoosterAp and not AbortLaunchInProgress then {
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
@@ -7382,6 +7391,11 @@ Function AbortLaunch {
             BoosterEngines[0]:shutdown.
             wait 0.1.
             HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+            Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
+            wait 0.1.
+            if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
+                Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
+            }
             set Boosterconnected to false.
         }
         set runningprogram to "Launch Abort!".
@@ -7400,7 +7414,16 @@ Function AbortLaunch {
         wait 0.001.
         set quickengine2:pressed to true.
         set quickengine3:pressed to true.
-        Nose:activate.
+        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length > 0 or ship:partsnamed("SEP.25.BOOSTER.HSR"):length > 0 {
+            HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+            HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
+            Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
+            wait 0.1.
+            if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
+                Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
+            }
+        }
+        if ShipType:contains("Block1") {} else Nose:activate.
         Tank:activate.
         if apoapsis < 2500 {
             set AbortLaunchMode to "Early AbortLaunch".
@@ -10134,7 +10157,7 @@ function ReEntrySteering {
         set pitchctrl to -PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]).
         set DesiredAoA to aoa + pitchctrl + TRJCorrection.
         set yawctrl to YawPID:UPDATE(TIME:SECONDS, LngLatErrorList[1]).
-
+        set SRFPRGD to prograde.
         if RadarAlt > 5000 {
             set SRFPRGD to srfprograde.
         }
@@ -10262,6 +10285,9 @@ function ReEntryData {
                 }
                 else {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 6).
+                }
+                if altitude < 5000 {
+                    setflaps(FWDFlapDefault + 15, AFTFlapDefault, 1, 16).
                 }
             }
         }

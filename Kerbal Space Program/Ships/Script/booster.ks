@@ -199,13 +199,13 @@ local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
     set bAltitude:style:margin:top to 2.
     set bAltitude:style:width to 296.
     set bAltitude:style:fontsize to 30.
-// local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
-//     set bThrust:style:wordwrap to false.
-//     set bThrust:style:margin:left to 10.
-//     set bThrust:style:margin:top to 25.
-//     set bThrust:style:margin:bottom to 20.
-//     set bThrust:style:width to 150.
-//     set bThrust:style:fontsize to 16.
+ local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
+     set bThrust:style:wordwrap to false.
+     set bThrust:style:margin:left to 10.
+     set bThrust:style:margin:top to 25.
+     set bThrust:style:margin:bottom to 20.
+     set bThrust:style:width to 150.
+     set bThrust:style:fontsize to 16.
 local bLOX is boosterStatus:addlabel("<b>LOX  </b>").
     set bLOX:style:wordwrap to false.
     set bLOX:style:margin:left to 15.
@@ -469,13 +469,13 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        set BoosterGlideDistance to 2200.
+        if oldBooster set BoosterGlideDistance to 2200. else set BoosterGlideDistance to 1690.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 125.
-        set BoosterRaptorThrust to 555.
-        set BoosterRaptorThrust3 to 555.
+        if 1=1 set BoosterRaptorThrust to 555. else set BoosterRaptorThrust to 381.
+        if 1=1 set BoosterRaptorThrust3 to 510. else set BoosterRaptorThrust3 to 673.
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
@@ -616,8 +616,7 @@ function Boostback {
     //set ApproachVectorDraw to vecdraw(v(0,0,0), 5 * ApproachVector, green, "ApproachVector", 20, true, 0.005, true, true).
 
     if verticalspeed > 0 {
-        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
-            set ship:name to "Booster".
+        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 {
             set Block1HSR to true.
         }
         set SeparationTime to time:seconds.
@@ -693,7 +692,7 @@ function Boostback {
             set ShipFound to true.
         }
 
-        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
+        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 {
             set ship:name to "Booster".
             set Block1HSR to true.
         }
@@ -782,7 +781,7 @@ function Boostback {
 
         until vang(vxcl(up:vector, facing:forevector), vxcl(up:vector, -ErrorVector)) < 15 or verticalspeed < -50 {
             SteeringCorrections().
-            if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 {
+            if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 {
                 set ship:name to "Booster".
                 set Block1HSR to true.
             }
@@ -1040,7 +1039,7 @@ function Boostback {
         }
         
 
-        lock SteeringVector to lookDirUp(facing:forevector, facing:topvector).
+        lock steering to lookDirUp(facing:forevector, facing:topvector).
 
         set switchTime to time:seconds.
         until time:seconds > switchTime + 0.5 {
@@ -1098,7 +1097,7 @@ function Boostback {
     }
     lock GSVec to vxcl(up:vector,velocity:surface).
 
-    if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+    //if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
 
     set OneTime to true.
 
@@ -1134,7 +1133,7 @@ function Boostback {
                 SetBoosterActive().
             }
             if time:seconds - TimeStabilized > 5 and OneTime { //and not ShipBurnComplete 
-                if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+                //if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
                 //SetStarshipActive().
                 BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 10).
                 set TimeStabilized to 0.
@@ -1196,7 +1195,7 @@ function Boostback {
     lock steering to SteeringVector.
     
     set once to false.
-    until alt:radar < 1700 and oldBooster or RadarAlt < 1900 {
+    until alt:radar < 1700 {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1217,7 +1216,7 @@ function Boostback {
         wait 0.1.
     }
 
-    until alt:radar < 1550 or KSRSS or not oldBooster {
+    until alt:radar < 1550 or KSRSS {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1238,7 +1237,7 @@ function Boostback {
         wait 0.1.
     }
 
-    until alt:radar < 1375 or not RSS or not oldBooster {
+    until alt:radar < 1375 or not RSS {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1259,7 +1258,7 @@ function Boostback {
         wait 0.1.
     }
 
-    until alt:radar < 1300 or GF or not GfC and velocity:surface:mag > 290 or not oldBooster {
+    until alt:radar < 1300 or GF or not GfC and velocity:surface:mag > 290 {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1297,9 +1296,9 @@ function Boostback {
     
     hudtext(throttle, 3, 2, 10, white, false).
     if RSS {
-        lock SteeringVector to lookdirup(-0.5 * velocity:surface + up:vector - 1.6*driftVector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.5 * velocity:surface + up:vector - 0.8*driftVector, ApproachVector).
     } else {
-        lock SteeringVector to lookdirup(-0.5 * velocity:surface + up:vector - 3*driftVector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.5 * velocity:surface + up:vector - 1.5*driftVector, ApproachVector).
     }
 
 
@@ -1416,14 +1415,14 @@ function Boostback {
                         if RSS {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",7,8,true")).
                         } else {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",6,8,true")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,8,true")).
                         }
                     }
                     when RadarAlt < 0.43 * BoosterHeight then {
                         if RSS {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,5,true")).
                         } else {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,5,true")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",6,5,true")).
                         }
                     }
                     when RadarAlt < 0.24 * BoosterHeight then {
@@ -1468,16 +1467,16 @@ function Boostback {
 
         if STOCK {
             set s1gs to 0.004.
-            set s1ev to 0.018.
-            set s2gs to 0.0016.
+            set s1ev to 0.017.
+            set s2gs to 0.00185.
             if not HSRJet set s2gs to s2gs*1.1.
             set s2ev to 0.018.
             if not HSRJet set s2ev to s2ev*1.1.
-            set s3gs to 0.00975.
+            set s3gs to 0.009.
             if not HSRJet set s3gs to s3gs*1.1.
             set s3ev to 0.0016.
-            set s3height to 2.3.
-            set s4gs to 0.027.
+            set s3height to 2.6.
+            set s4gs to 0.024.
             if not HSRJet set s4gs to s4gs*1.1.
             set s4ev to 0.0006.
             set s4height to 1.2.
@@ -1523,9 +1522,9 @@ function Boostback {
             setTowerHeadingVector().
             
             HUDTEXT("1", 5, 2, 12, yellow, false).
-            lock SteeringVector to lookDirUp(up:vector - s1ev*ErrorVector - s1gs*GSVec + 0.02*driftVector, RollVector).
+            lock SteeringVector to lookDirUp(up:vector - s1ev*ErrorVector - s1gs*GSVec + 0.01*driftVector, RollVector).
 
-            when SwingTime + 4 < time:seconds or SwingTime + 2 < time:seconds and RSS then {
+            when SwingTime + 3.2 < time:seconds or SwingTime + 2 < time:seconds and RSS then {
                 
                 HUDTEXT("2", 5, 2, 12, yellow, false).
                 setTowerHeadingVector().
@@ -2554,7 +2553,7 @@ function GUIupdate {
 
     set boosterAltitude to RadarAlt.
     set boosterSpeed to ship:airspeed.
-    //set boosterThrust to BoosterEngines[0]:thrust.
+    set boosterThrust to BoosterEngines[0]:thrust.
     for res in BoosterCore:resources {
         if res:name = "Oxidizer" {
             set boosterLOX to res:amount*100/res:capacity.
@@ -2596,7 +2595,7 @@ function GUIupdate {
     } else {
         set bAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(boosterAltitude) + " <size=24>M</size>".
     }
-    //set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN".
+    set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN".
 
     set bLOX:text to "<b>LOX</b>       " + round(boosterLOX,1) + " %".
     if methane {
