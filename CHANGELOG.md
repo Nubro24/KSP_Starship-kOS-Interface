@@ -1,3 +1,12 @@
+# V3.4.4 (2025-04-03)
+- Added Patches for HSR heat resistance and Booster Thrust
+- New Booster now doesn't allow Catch with HSR (cause it now actually makes a realistic difference)
+- small fixes
+- note: Booster landing might not work atm
+- changed files:
+  - GameData/StarshipInterface/kOS.cfg
+  - Ships/Script/starship.ks and /booster.ks
+
 # V3.4.3 (2025-04-02)
 - little performance improvements
 - **Added support for beta5 (the new booster)**
