@@ -46,18 +46,48 @@ set LngCtrl to 0.
 set LngError to 0.
 set LatError to 0.
 set ErrorVector to V(0, 0, 0).
-set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
-set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
+set oldBooster to false.
+
+set GFset to false.
+set ECset to false.
+set BTset to false.
+set HSset to false.
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") {
+    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") and not BTset {
         set BoosterCore to part.
+        set oldBooster to true.
+        set BTset to true.
+    }
+    if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
+        set BoosterCore to part.
+        set BTset to true.
+    }
+    if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
+        set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
+        set ECset to true.
+    }
+    if part:name:contains("SEP.25.BOOSTER.CLUSTER") and not ECset {
+        set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
+        set ECset to true.
+    }
+    if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
+        set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
+        set GFset to true.
+    }
+    if part:name:contains("SEP.25.BOOSTER.GRIDFIN") and not GFset {
+        set Gridfins to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN").
+        set GFset to true.
+    }
+    if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
+        set HSR to part.
+        set HSset to true.
+    }
+    if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
+        set HSR to part.
+        set HSset to true.
     }
 }
 
-set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
-if HSR:length = 0 {
-    set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR (" + ship:name + ")").
-}
 wait 0.5.
 set InitialError to -9999.
 set maxDecel to 0.
@@ -218,8 +248,8 @@ local bGUI is GUI(150).
     set bGUI:style:border:v to 10.
     set bGUI:style:padding:v to 0.
     set bGUI:style:padding:h to 0.
-    set bGUI:x to 10.
-    set bGUI:y to -410.
+    set bGUI:x to 0.
+    set bGUI:y to -402.
     set bGUI:skin:button:bg to  "starship_img/telemetry_bg".
     set bGUI:skin:button:on:bg to  "starship_img/starship_background_light".
     set bGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
@@ -338,7 +368,8 @@ if bodyexists("Earth") {
         set Planet to "Earth".
         set LaunchSites to lexicon("KSC", "28.6117,-80.58647").
         set offshoreSite to latlng(28.6117,-80.52).
-        set BoosterHeight to 72.6.
+        set BoosterHeight to 70.6.
+        if oldBooster set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
         set LFBoosterFuelCutOff to 10600.
         if FAR {
@@ -365,7 +396,8 @@ if bodyexists("Earth") {
         set Planet to "Earth".
         set LaunchSites to lexicon("KSC", "28.50895,-81.20396").
         set offshoreSite to latlng(28.50895,-80.4).
-        set BoosterHeight to 45.6.
+        set BoosterHeight to 42.2.
+        if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 2400.
         if FAR {
@@ -399,7 +431,8 @@ else {
             set LaunchSites to lexicon("KSC", "-0.0970,-74.5833").
             set offshoreSite to latlng(0,-74.3).
         }
-        set BoosterHeight to 45.6.
+        set BoosterHeight to 42.2.
+        if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 2300.
         if FAR {
@@ -426,7 +459,8 @@ else {
         set Planet to "Kerbin".
         set LaunchSites to lexicon("KSC", "-0.0972,-74.5577", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set offshoreSite to latlng(0,-74.3).
-        set BoosterHeight to 45.6.
+        set BoosterHeight to 42.2.
+        if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 1900.
         if FAR {
@@ -470,6 +504,7 @@ print "Booster Nominal Operation, awaiting command..".
 
 when True then {
     GUIupdate().
+    wait 0.02.
     preserve.
 }
 
@@ -926,14 +961,19 @@ function Boostback {
             addons:tr:settarget(landingzone).
             NoGo:hide().
             if ErrorVector:mag < BoosterGlideDistance {
-                set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
-                set landingzone to latlng(landingzone:lat, landingzone:lng + lngCorrection).
+                set lngCorrection to 2*BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
+                set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
                 addons:tr:settarget(landingzone).
             }
         }
 
-        if (abs(LngError - LngCtrlPID:setpoint) > BoosterGlideDistance*2) and not GfC {
+        if (abs(LngError - LngCtrlPID:setpoint) > BoosterGlideDistance) and not GfC {
             set landingzone to addons:tr:IMPACTPOS.
+            if ErrorVector:mag < 2*BoosterGlideDistance {
+                set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
+                set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+                addons:tr:settarget(landingzone).
+            }
             addons:tr:settarget(landingzone).
             set LandSomewhereElse to true.
             lock RadarAlt to alt:radar - BoosterHeight.
@@ -1035,7 +1075,7 @@ function Boostback {
         for tgt in tlist {
             if tgt:name:contains(starship) {
                 if not (devMode) {
-                    KUniverse:forceactive(vessel(starship)).
+                    //KUniverse:forceactive(vessel(starship)).
                 }
                 set StarshipExists to true.
             }
@@ -1095,7 +1135,7 @@ function Boostback {
             }
             if time:seconds - TimeStabilized > 5 and OneTime { //and not ShipBurnComplete 
                 if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
-                SetStarshipActive().
+                //SetStarshipActive().
                 BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 10).
                 set TimeStabilized to 0.
                 set OneTime to false.
@@ -1111,6 +1151,11 @@ function Boostback {
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 1.}
     }
     
+    if ErrorVector:mag < 1.2*BoosterGlideDistance and not GF {
+        set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
+        set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+        addons:tr:settarget(landingzone).
+    }
     
     SetBoosterActive().
     set SteeringManager:yawtorquefactor to 0.8.
@@ -1151,7 +1196,7 @@ function Boostback {
     lock steering to SteeringVector.
     
     set once to false.
-    until alt:radar < 1700 {
+    until alt:radar < 1700 and oldBooster or RadarAlt < 1900 {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1172,7 +1217,7 @@ function Boostback {
         wait 0.1.
     }
 
-    until alt:radar < 1649 or KSRSS {
+    until alt:radar < 1550 or KSRSS or not oldBooster {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1193,7 +1238,7 @@ function Boostback {
         wait 0.1.
     }
 
-    until alt:radar < 1375 or not RSS {
+    until alt:radar < 1375 or not RSS or not oldBooster {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1214,7 +1259,7 @@ function Boostback {
         wait 0.1.
     }
 
-    until alt:radar < 1200 or GF {
+    until alt:radar < 1300 or GF or not GfC and velocity:surface:mag > 290 or not oldBooster {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1292,6 +1337,7 @@ function Boostback {
         lock RadarAlt to alt:radar - BoosterHeight.
         lock SteeringVector to lookdirup(-velocity:surface, ApproachVector).
         lock steering to SteeringVector.
+        addons:tr:settarget(landingzone).
     }
 
     set LngCtrlPID:setpoint to 0.
@@ -1416,130 +1462,105 @@ function Boostback {
         }
     }
 
-    if LandSomewhereElse {
-        lock steering to lookDirUp(up:vector - 0.01 * vxcl(up:vector, velocity:surface), facing:topvector).
-    }
 
     when ((verticalspeed > -80 and RSS) or (verticalspeed > -70 and not RSS)) and (stopDist3 / RadarAlt) < 1.8 and LngError < 200 and not MiddleEnginesShutdown or ((verticalspeed > -100 and RSS) or (verticalspeed > -75 and not RSS)) and not MiddleEnginesShutdown then {
         set SwingTime to time:seconds.
+
+        if STOCK {
+            set s1gs to 0.004.
+            set s1ev to 0.018.
+            set s2gs to 0.0016.
+            if not HSRJet set s2gs to s2gs*1.1.
+            set s2ev to 0.018.
+            if not HSRJet set s2ev to s2ev*1.1.
+            set s3gs to 0.00975.
+            if not HSRJet set s3gs to s3gs*1.1.
+            set s3ev to 0.0016.
+            set s3height to 2.3.
+            set s4gs to 0.027.
+            if not HSRJet set s4gs to s4gs*1.1.
+            set s4ev to 0.0006.
+            set s4height to 1.2.
+            set s5gs to 0.024.
+            set s5ev to 0.0005.
+            set s5height to 0.4.
+        }
+        if KSRSS {
+            set s1gs to 0.004.
+            set s1ev to 0.016.
+            set s2gs to 0.0016.
+            set s2ev to 0.018.
+            set s3gs to 0.009.
+            set s3ev to 0.0016.
+            set s3height to 2.2.
+            set s4gs to 0.027.
+            set s4ev to 0.0006.
+            set s4height to 1.2.
+            set s5gs to 0.024.
+            set s5ev to 0.0005.
+            set s5height to 0.4.
+        }
+        if RSS {
+            set s1gs to 0.004.
+            set s1ev to 0.016.
+            set s2gs to 0.0016.
+            set s2ev to 0.018.
+            set s3gs to 0.009.
+            set s3ev to 0.0016.
+            set s3height to 2.2.
+            set s4gs to 0.027.
+            set s4ev to 0.0006.
+            set s4height to 1.2.
+            set s5gs to 0.024.
+            set s5ev to 0.0005.
+            set s5height to 0.4.
+        }
+
         
 
         if not cAbort {
-            //lock SteeringVector to lookDirUp((up:vector:normalized + 0.05*vxcl(up:vector, velocity:surface):normalized), RollVector).
-            PollUpdate().
-            
-            HUDTEXT("1", 5, 2, 10, yellow, false).
-            if KSRSS {
-                lock SteeringVector to lookDirUp(up:vector - 0.016*ErrorVector - 0.004 * GSVec + 0.03*driftVector, facing:topvector).
-            } else if RSS {
-                lock SteeringVector to lookDirUp(1.6*up:vector - 0.018*ErrorVector - 0.004 * GSVec + 0.034*driftVector, RollVector).
-            } else {
-                lock SteeringVector to lookDirUp(up:vector - 0.016*ErrorVector - 0.004 * GSVec + 0.03*driftVector, RollVector).
-            }
             PollUpdate().
             setTowerHeadingVector().
             
-            
-            when SwingTime + 3 < time:seconds or SwingTime + 1.8 < time:seconds and RSS then {
-                if RSS {
-                    lock SteeringVector to lookDirUp(up:vector - 0.016*ErrorVector + 0.0015 * GSVec, RollVector).
-                } else {
-                    lock SteeringVector to lookDirUp(up:vector - 0.015*ErrorVector + 0.0016 * GSVec, RollVector).
-                }
-                HUDTEXT("2", 5, 2, 10, yellow, false).
+            HUDTEXT("1", 5, 2, 12, yellow, false).
+            lock SteeringVector to lookDirUp(up:vector - s1ev*ErrorVector - s1gs*GSVec + 0.02*driftVector, RollVector).
+
+            when SwingTime + 4 < time:seconds or SwingTime + 2 < time:seconds and RSS then {
+                
+                HUDTEXT("2", 5, 2, 12, yellow, false).
+                setTowerHeadingVector().
+                lock SteeringVector to lookDirUp(up:vector - s2ev*ErrorVector + s2gs*GSVec, RollVector).
+                
             }
-            
-            lock steering to SteeringVector.
-
         }
-
+        
         when SwingTime + 0.25 < time:seconds then {
             PollUpdate().
             set MiddleEnginesShutdown to true.
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
         }
 
-        
-        when RadarAlt < BoosterHeight * 2.4 and STOCK or RadarAlt < BoosterHeight * 3.25 and KSRSS or RadarAlt < BoosterHeight * 1.4 and RSS then {
-            
+        when RadarAlt < s3height * BoosterHeight then {
             PollUpdate().
-            HUDTEXT("3", 5, 2, 10, yellow, false).
-            
+            HUDTEXT("3", 5, 2, 12, yellow, false).
             lock throttle to LandingThrottle().
-            
-            
             set LngCtrlPID:setpoint to 0.
-
             setTowerHeadingVector().
-
-            
-
-            if RSS {
-                lock SteeringVector to lookdirup(1.6*up:vector - 0.01 * GSVec - 0.001 * ErrorVector, RollVector).
-            }
-            else if KSRSS {
-                lock SteeringVector to lookdirup(up:vector - 0.015 * GSVec - 0.001 * ErrorVector, RollVector).
-            }
-            else {
-                lock SteeringVector to lookdirup(up:vector - 0.01 * GSVec - 0.001 * ErrorVector, RollVector).
-            }
-            lock steering to SteeringVector.
-
+            lock SteeringVector to lookDirUp(up:vector - s3ev*ErrorVector - s3gs*GSVec, RollVector).
             set steeringmanager:rolltorquefactor to 0.75.
             SetGridFinAuthority(2.5).
         }
-
-        when RadarAlt < BoosterHeight * 1.2 or RadarAlt < BoosterHeight * 1.8 and KSRSS then {
-            HUDTEXT("4", 5, 2, 10, yellow, false).
-            if RSS {
-                lock SteeringVector to lookdirup(1.6*up:vector - 0.02 * GSVec - 0.0004 * ErrorVector, RollVector).
-            }
-            else if KSRSS {
-                lock SteeringVector to lookdirup(up:vector - 0.03 * GSVec - 0.0004 * ErrorVector, RollVector).
-            }
-            else {
-                lock SteeringVector to lookdirup(up:vector - 0.024 * GSVec - 0.0004 * ErrorVector, RollVector).
-            }
+        when RadarAlt < s4height * BoosterHeight then {
+            PollUpdate().
+            setTowerHeadingVector().
+            HUDTEXT("4", 5, 2, 12, yellow, false).
+            lock SteeringVector to lookDirUp(up:vector - s4ev*ErrorVector - s4gs*GSVec - 0.004*vxcl(vCrs(north:vector, up:vector), GSVec), RollVector).
         }
-        when RadarAlt < BoosterHeight * 0.75 then {
-            HUDTEXT("5", 5, 2, 10, yellow, false).
-            if RSS {
-                lock SteeringVector to lookdirup(1.6*up:vector - 0.03 * GSVec - 0.0004 * ErrorVector, RollVector).
-            }
-            else if KSRSS {
-                lock SteeringVector to lookdirup(up:vector - 0.03 * GSVec - 0.0004 * ErrorVector, RollVector).
-            }
-            else {
-                lock SteeringVector to lookdirup(up:vector - 0.04 * GSVec - 0.0004 * ErrorVector, RollVector).
-            }
+        when RadarAlt < s5height * BoosterHeight then {
+            HUDTEXT("5", 5, 2, 12, yellow, false).
+            setTowerHeadingVector().
+            lock SteeringVector to lookDirUp(up:vector - s5ev*ErrorVector - s5gs*GSVec - 0.0003*vxcl(vCrs(north:vector, up:vector), GSVec), RollVector).
         }
-
-        when RadarAlt < BoosterHeight * 0.5 then {
-            HUDTEXT("6", 5, 2, 10, yellow, false).
-            if RSS {
-                lock SteeringVector to lookdirup(1.6*up:vector - 0.03 * GSVec - 0.0001 * ErrorVector, RollVector).
-            }
-            else if KSRSS {
-                lock SteeringVector to lookdirup(up:vector - 0.03 * GSVec - 0.0001 * ErrorVector, RollVector).
-            }
-            else {
-                lock SteeringVector to lookdirup(up:vector - 0.03 * GSVec - 0.0001 * ErrorVector, RollVector).
-            }
-        }
-
-        when RadarAlt < BoosterHeight * 0.24 then {
-            HUDTEXT("7", 5, 2, 10, yellow, false).
-            if RSS {
-                lock SteeringVector to lookdirup(1.6*up:vector - 0.01 * GSVec, RollVector).
-            }
-            else if KSRSS {
-                lock SteeringVector to lookdirup(up:vector - 0.01 * GSVec, RollVector).
-            }
-            else {
-                lock SteeringVector to lookdirup(up:vector - 0.01 * GSVec, RollVector).
-            }
-        }
-        
     }
 
 
@@ -1557,6 +1578,9 @@ function Boostback {
             } else if verticalSpeed > CatchVS {
                 rcs off.
             }
+        }
+        if GfC and not cAbort and RadarAlt < 1500 {
+            setTowerHeadingVector().
         }
         PollUpdate().
         SetBoosterActive().
@@ -2485,10 +2509,12 @@ function PollUpdate {
     } else {
         if RadarAlt > 1900 and FC and not Depot {
                 set GF to false.
-                unlock throttle.
-                lock throttle to 0.
-                set BoostBackComplete to true.
-                set GFnoGO to true.
+                if LFBooster < LFBoosterFuelCutOff {
+                    unlock throttle.
+                    lock throttle to 0.
+                    set BoostBackComplete to true.
+                    set GFnoGO to true.
+                }
         } else {
             if not GFnoGO {
                 set GF to true.
@@ -2543,7 +2569,7 @@ function GUIupdate {
         }
     }
     set Mode to "NaN".
-    if throttle > 0 {
+    if throttle > 0 and BoosterEngines[0]:thrust > 0 {
         if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
             set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
         }
