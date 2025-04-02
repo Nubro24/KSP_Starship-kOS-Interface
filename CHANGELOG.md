@@ -2,6 +2,7 @@
 - little performance improvements
 - **Added support for beta5 (the new booster)**
   - NOTE: due to the low thrust of the new Booster, will the Booster run out of fuel and can't lift Payloads (I suggest reducing the boosters and ships fuel to 90 %)
+- Added Craft with new Booster (Stock Size)
 
 # V3.4.2 (2025-03-28)
 - various Bug/Error Fixes
