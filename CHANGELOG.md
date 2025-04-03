@@ -1,3 +1,10 @@
+# V3.4.5 (2025-04-03)
+- Tower should now recognize the new Booster
+- HSR should not explode on Hotstaging anymore
+- Ship Reentry improved
+- Booster Landing should work again (Stock&KSRSS)
+  - added ability to land from high inclination orbit (not perfect though)
+
 # V3.4.4 (2025-04-03)
 - Added Patches for HSR heat resistance and Booster Thrust
 - New Booster now doesn't allow Catch with HSR (cause it now actually makes a realistic difference)
