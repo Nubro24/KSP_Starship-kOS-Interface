@@ -368,6 +368,7 @@ set DynamicPitch to true.   // Change the flap defaults dynamically during re-en
 set steeringmanager:pitchtorquefactor to 0.75.
 set steeringmanager:yawtorquefactor to 0.75.
 set steeringmanager:rolltorquefactor to 0.75.
+        set SRFPRGD to prograde.
 
 
 
@@ -10157,7 +10158,6 @@ function ReEntrySteering {
         set pitchctrl to -PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]).
         set DesiredAoA to aoa + pitchctrl + TRJCorrection.
         set yawctrl to YawPID:UPDATE(TIME:SECONDS, LngLatErrorList[1]).
-        set SRFPRGD to prograde.
         if RadarAlt > 5000 {
             set SRFPRGD to srfprograde.
         }
@@ -10281,13 +10281,10 @@ function ReEntryData {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
                 }
                 else if not (RSS) or altitude > 10000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 16).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 24).
                 }
                 else {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 6).
-                }
-                if altitude < 5000 {
-                    setflaps(FWDFlapDefault + 15, AFTFlapDefault, 1, 16).
                 }
             }
         }
@@ -11193,7 +11190,7 @@ function CalculateDeOrbitBurn {
         else if not KSRSS {
             set DegreestoLDGzone to 95.
         } else {
-            set DegreestoLDGzone to 95.
+            set DegreestoLDGzone to 100.
         }
     }
     else if ship:body:radius > 199999 {
