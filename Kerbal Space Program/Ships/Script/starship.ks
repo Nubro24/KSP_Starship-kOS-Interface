@@ -4713,6 +4713,7 @@ set launchbutton:ontoggle to {
                             set execute:text to "<b>EXECUTE</b>".
                             LogToFile("Starting Launch Function").
                             sendMessage(processor(volume("Booster")),"Countdown").
+                            sendMessage(processor(volume("OrbitalLaunchMount")),"Countdown").
                             set MissionTimer to time:seconds-17.
                             SaveToSettings("Launch Time", time:seconds+17).
                             if TargetShip = 0 and not hastarget {}
@@ -6684,9 +6685,9 @@ function Launch {
         if Boosterconnected {
             when apoapsis > BoosterAp - 14000 * Scale then {
                 if RSS {
-                    lock steering to lookDirUp(prograde:vector+0.5*up:vector, LaunchRollVector).
+                    lock steering to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
                 } else {
-                    lock steering to lookDirUp(prograde:vector+0.3*up:vector, LaunchRollVector).
+                    lock steering to lookDirUp(2*srfPrograde:vector+0.3*up:vector, LaunchRollVector).
                 }
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
@@ -10264,16 +10265,16 @@ function ReEntryData {
         if time:seconds > t + 15 {
             set PitchInput to SLEngines[0]:gimbal:pitchangle.
             set t to time:seconds.
-            set FWDFlapDefault to max(min(60 - (PitchInput * 10 / Scale),70),55).
-            set AFTFlapDefault to max(min(60 + (PitchInput * 12 / Scale),65),45).
+            set FWDFlapDefault to max(min(70 - (PitchInput * 10 / Scale),80),60).
+            set AFTFlapDefault to max(min(65 + (PitchInput * 12 / Scale),75),55).
             if airspeed > 300 {
                 if ship:body:atm:sealevelpressure < 0.5 {
-                    setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 10).
+                    setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 15).
                 } else if altitude > 28000 {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 30).
                 }
             }
             else {
@@ -10281,10 +10282,10 @@ function ReEntryData {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
                 }
                 else if not (RSS) or altitude > 10000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 24).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 25).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 6).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 16).
                 }
             }
         }
@@ -10851,9 +10852,9 @@ function LandingVector {
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.03 * velocity:surface - 0.01 * ErrorVector - 0.026*facing:topvector.
+                            set result to up:vector - 0.03 * velocity:surface - 0.01 * ErrorVector - 0.024*facing:topvector.
                         } else {
-                            set result to up:vector - 0.02 * velocity:surface - 0.027*facing:topvector.
+                            set result to up:vector - 0.024 * velocity:surface - 0.025*facing:topvector.
                         }
                     }
                 }
