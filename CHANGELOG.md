@@ -4,6 +4,9 @@
 - Ship Reentry improved
 - Booster Landing should work again (Stock&KSRSS)
   - added ability to land from high inclination orbit (not perfect though)
+--> changed files:
+  - GameData/StarshipInterface/kOS.cfg
+  - Ships/Script/starship.ks,  /tower.ks  and /booster.ks
 
 # V3.4.4 (2025-04-03)
 - Added Patches for HSR heat resistance and Booster Thrust
