@@ -1,3 +1,28 @@
+# V3.4.5 (2025-04-03)
+- Tower should now recognize the new Booster
+- HSR should not explode on Hotstaging anymore
+- Ship Reentry improved
+- Booster Landing should work again (Stock&KSRSS)
+  - added ability to land from high inclination orbit (not perfect though)
+- **changed files:**
+  - GameData/StarshipInterface/kOS.cfg
+  - Ships/Script/starship.ks,  /tower.ks  and /booster.ks
+
+# V3.4.4 (2025-04-03)
+- Added Patches for HSR heat resistance and Booster Thrust
+- New Booster now doesn't allow Catch with HSR (cause it now actually makes a realistic difference)
+- small fixes
+- note: Booster landing might not work atm
+- changed files:
+  - GameData/StarshipInterface/kOS.cfg
+  - Ships/Script/starship.ks and /booster.ks
+
+# V3.4.3 (2025-04-02)
+- little performance improvements
+- **Added support for beta5 (the new booster)**
+  - NOTE: due to the low thrust of the new Booster, will the Booster run out of fuel and can't lift Payloads (I suggest reducing the boosters and ships fuel to 90 %)
+- Added Craft with new Booster (Stock Size)
+
 # V3.4.2 (2025-03-28)
 - various Bug/Error Fixes
 - KSRSS Reentry improved a bit
