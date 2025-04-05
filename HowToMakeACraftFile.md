@@ -12,6 +12,6 @@ Here I describe the steps required to make a .craft file for the Interface:
 - Ship Quick Disconnect: click 'Full Extension' button.
 - Mechazilla: set Target Extension to 6m (9.4 for RSS), and Target Angle to 8.2 degrees, set Pulley System to enabled.
 - Save the craft.
-- Manually edit the .craft file and search for all instances of 'liquid fuel', then delete all adjacent resources (elecCharge, oxidizer, xenon, etc). This is important to work across different fuels and planet sizes.
+- Manually edit the .craft file and search for all instances of 'liquid fuel'/'Lqd Methane', then delete all adjacent resources (elecCharge, oxidizer, xenon, etc). This is important to work across different fuels and planet sizes.
 
 That should be it.
