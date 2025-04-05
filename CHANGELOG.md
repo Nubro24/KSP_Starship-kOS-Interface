@@ -1,3 +1,9 @@
+# V3.4.6 (2025-04-05)
+- RSS patch
+  - Booster and Ship Catch should now be more on target
+  - Reentry fixed
+- NOTE: **Use at your own risk for KSRSS and Stock, its completly untested there**
+
 # V3.4.5 (2025-04-03)
 - Tower should now recognize the new Booster
 - HSR should not explode on Hotstaging anymore
