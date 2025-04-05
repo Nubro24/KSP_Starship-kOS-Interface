@@ -70,7 +70,9 @@ set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Bas
 set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
 set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
 set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
-set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+if ship:partsnamed("SLE.SS.OLIT.SQD"):length > 0 {
+    set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+}
 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
 
 
@@ -321,6 +323,7 @@ until False {
         }
         set PrevTime to time:seconds.
     }
+    wait 0.01.
 }
 
 // <--------------> Functions <--------------> //

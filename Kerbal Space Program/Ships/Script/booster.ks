@@ -379,7 +379,7 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        set BoosterGlideDistance to 4444.
+        if oldBooster set BoosterGlideDistance to 4444. else set BoosterGlideDistance to 3600.
         set LngCtrlPID:setpoint to 40. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -998,10 +998,22 @@ function Boostback {
         if LFBooster > LFBoosterFuelCutOff {
             BoosterCore:activate.
         }
-        
-        when time:seconds - turnTime > 2 and defined HSR and HSRJet then {
+        set FuelDump to false.
+        when time:seconds - turnTime > 1.8 and defined HSR and HSRJet then {
+            if BoosterCore:thrust > 0 {
+                BoosterCore:shutdown.
+                set FuelDump to true.
+                rcs off.
+            }
+            wait 0.2.
             BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
             wait 0.01.
+            when time:seconds - turnTime > 7 and FuelDump then {
+                rcs on.
+            }
+            when time:seconds - turnTime > 12 and FuelDump then {
+                BoosterCore:activate.
+            }
             set RenameHSR to false.
             if not Block1HSR and kuniverse:activevessel:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and kuniverse:activevessel:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 {
                 set RenameHSR to true.
@@ -1269,7 +1281,7 @@ function Boostback {
         wait 0.1.
     }
 
-    until alt:radar < 1375 or not RSS or earlyLdgBurn {
+    until alt:radar < 1175 or not RSS or earlyLdgBurn {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1328,7 +1340,7 @@ function Boostback {
     
     hudtext(throttle, 3, 2, 10, white, false).
     if RSS {
-        lock SteeringVector to lookdirup(-0.65 * velocity:surface + up:vector - 0.8*driftVector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.5 * velocity:surface + 2*up:vector - 0.8*driftVector, ApproachVector).
     } else {
         lock SteeringVector to lookdirup(-0.65 * velocity:surface + up:vector - 1.5*driftVector, ApproachVector).
     }
@@ -1337,7 +1349,7 @@ function Boostback {
     when verticalspeed > -162 and GfC then {
         if ErrorVector:mag > 30 set s0gs to s0gs*0.5. else if ErrorVector:mag < 24 set s0gs to s0gs*1.6.
         if RSS {
-            lock SteeringVector to lookdirup(-s0gs*velocity:surface + up:vector - 0.06*vxcl(driftVector, ErrorVector), ApproachVector). 
+            lock SteeringVector to lookdirup(-0.5*s0gs*velocity:surface + up:vector - 0.07*vxcl(driftVector, ErrorVector), ApproachVector). 
         } else {
             lock SteeringVector to lookdirup(-s0gs*velocity:surface + up:vector - 0.06*vxcl(driftVector, ErrorVector), ApproachVector). 
         }
@@ -1373,6 +1385,12 @@ function Boostback {
     }
 
     set LngCtrlPID:setpoint to 0.
+    if not (TargetOLM = "false") {
+        when Vessel(TargetOLM):distance < 1500 then {
+            set Vessel(TargetOLM):loaddistance:landed:unpack to 1200.
+            set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1200.
+        }
+    }
 
     hudtext(throttle, 3, 2, 10, white, false).
 
@@ -1412,7 +1430,7 @@ function Boostback {
 
                 when Vessel(TargetOLM):distance < 1000 then {sendMessage(Vessel(TargetOLM), ("RetractSQD")).}
 
-                when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 69 * Scale and RadarAlt < 7.5 * BoosterHeight and not (WobblyTower) then {
+                when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 124 * Scale and RadarAlt < 7.5 * BoosterHeight and not (WobblyTower) then {
                     if RSS {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",16,75,true")).
                     } else {
@@ -1425,7 +1443,7 @@ function Boostback {
                     when RadarAlt < 2.43 * BoosterHeight then {
                         set BRbefore to BoosterRot.
                         if RSS {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",3,24,true")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",12,24,true")).
                         } else {
                             set ArmSpeed to 12.
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + "," + ArmSpeed + ",24,true")).
@@ -1435,7 +1453,7 @@ function Boostback {
                     when RadarAlt < 1.9 * BoosterHeight then {
                         set BRbefore to BoosterRot.
                         if RSS {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",4,24,true")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",12,24,true")).
                         } else {
                             set ArmSpeed to 12.
                             if BRbefore - BoosterRot > 4 set ArmSpeed to ArmSpeed*2.
@@ -1445,7 +1463,7 @@ function Boostback {
                     when RadarAlt < 1.43 * BoosterHeight then {
                         set BRbefore to BoosterRot.
                         if RSS {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",6,12,true")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,12,true")).
                         } else {
                             set ArmSpeed to 8.
                             if BRbefore - BoosterRot > 4 set ArmSpeed to ArmSpeed*2.
@@ -1455,7 +1473,7 @@ function Boostback {
                     when RadarAlt < 0.96 * BoosterHeight then {
                         set BRbefore to BoosterRot.
                         if RSS {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",7,8,true")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",10,8,true")).
                         } else {
                             set ArmSpeed to 8.
                             if BRbefore - BoosterRot > 4 set ArmSpeed to ArmSpeed*2.
@@ -1475,7 +1493,7 @@ function Boostback {
                     when RadarAlt < 0.24 * BoosterHeight then {
                         set BRbefore to BoosterRot.
                         if RSS {
-                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",5,5,true")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",7,5,true")).
                         } else {
                             set ArmSpeed to 7.
                             if BRbefore - BoosterRot > 4 set ArmSpeed to ArmSpeed*2.
@@ -1485,7 +1503,7 @@ function Boostback {
                         when RadarAlt < 0.1 * BoosterHeight then {
                             set BRbefore to BoosterRot.
                             if RSS {
-                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",5,5,false")).
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",8,5,false")).
                             } else {
                                 set ArmSpeed to 8.
                                 if BRbefore - BoosterRot > 4 set ArmSpeed to ArmSpeed*2.
@@ -1517,6 +1535,11 @@ function Boostback {
     when ((verticalspeed > -80 and RSS) or (verticalspeed > -70 and not RSS)) and (stopDist3 / RadarAlt) < 1.8 and LngError < 200 and not MiddleEnginesShutdown or ((verticalspeed > -100 and RSS) or (verticalspeed > -75 and not RSS)) and not MiddleEnginesShutdown then {
         set SwingTime to time:seconds.
         set HighIncl to false.
+        if GfC {
+            set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+        } else {
+            set TowerRotationVector to north:vector.
+        }
         
         
         if STOCK {
@@ -1563,24 +1586,24 @@ function Boostback {
         }
         if RSS {
             set s1gs to 0.004.
-            set s1ev to 0.016.
-            set s1dv to 0.01.
-            set s2gs to 0.00075.
+            set s1ev to 0.0075.
+            set s1dv to 0.014.
+            set s2gs to 0.001.
             if not HSRJet set s2gs to s2gs*1.1.
-            set s2ev to 0.016.
+            set s2ev to 0.024.
             if not HSRJet set s2ev to s2ev*1.1.
             set s2Height to 3.5.
-            set s3gs to 0.0095.
+            set s3gs to 0.0069.
             if not HSRJet set s3gs to s3gs*1.1.
             set s3ev to 0.0018.
-            set s3height to 2.6.
-            set s4gs to 0.024.
+            set s3height to 1.8.
+            set s4gs to 0.02.
             if not HSRJet set s4gs to s4gs*1.1.
             set s4ev to 0.0008.
-            set s4height to 1.2.
-            set s5gs to 0.024.
+            set s4height to 0.9.
+            set s5gs to 0.026.
             set s5ev to 0.0005.
-            set s5height to 0.4.
+            set s5height to 0.3.
         }
 
         if GfC {
@@ -1588,19 +1611,19 @@ function Boostback {
                 set HighIncl to true.
                 set s3height to s3height*1.15.
             }
-            set TowerRotationVector to Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position.
-        } else {
-            set TowerRotationVector to north:vector.
         }
         
-
         if not cAbort {
             PollUpdate().
             setTowerHeadingVector().
             
             HUDTEXT("1", 5, 2, 12, yellow, false).
             if ErrorVector:mag > 42 set s1ev to s1ev*1.5. else if ErrorVector:mag < 24 set s1ev to s1ev * 0.6.
-            lock SteeringVector to lookDirUp(up:vector - s1ev*ErrorVector - s1gs*GSVec + s1dv*driftVector, RollVector).
+            if not RSS {
+                lock SteeringVector to lookDirUp(up:vector - s1ev*ErrorVector - s1gs*GSVec + s1dv*driftVector, RollVector).
+            } else {
+                lock SteeringVector to lookDirUp(up:vector - s1ev*TowerRotationVector - s1gs*GSVec + s1dv*driftVector, RollVector).
+            }
 
             when SwingTime + 3.2 < time:seconds or SwingTime + 2 < time:seconds and RSS then {
                 
