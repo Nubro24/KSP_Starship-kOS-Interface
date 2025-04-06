@@ -1,3 +1,14 @@
+# V3.4.7 (2025-04-06)
+- Overhauled Mechazilla Movement
+  - Arms track the vehicle with higher frequency
+  - Arms closure follows a curved behaviuer with a brief slow till vehicle is between the arms
+  - Arms should now barely collide with the vehicle, and never be below the engines
+- Catches should work on all versions
+- Fixed KSRSS Reentry
+- Added Craft files for Real Size PEZ and Stock Size Cargo with the new Booster
+- Fixed Mission Timer showing 60s instead of +1min
+- Fixed Cargo Mass not updating when pressing Reentry&Landing
+
 # V3.4.6 (2025-04-05)
 - RSS patch
   - Booster and Ship Catch should now be more on target
