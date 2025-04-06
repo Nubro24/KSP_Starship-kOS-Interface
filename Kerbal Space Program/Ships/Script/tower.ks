@@ -323,7 +323,7 @@ until False {
         }
         set PrevTime to time:seconds.
     }
-    wait 0.01.
+    wait 0.03.
 }
 
 // <--------------> Functions <--------------> //
@@ -371,7 +371,7 @@ function LandingDeluge {
         }
     }
     local waterOn to time:seconds.
-    when waterOn + 15 < time:seconds then {
+    when waterOn + 12 < time:seconds then {
         for x in list(OLM,SteelPlate) {
             if x:hasmodule("ModuleEnginesFX") {
                 if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
@@ -417,21 +417,26 @@ function MechazillaHeight {
 
 
 function MechazillaArms {
-    parameter targetangle.
-    parameter targetspeed.
-    parameter armsopenangle.
+    parameter targetangle. set targetangle to targetangle:toscalar.
+    parameter targetspeed. set targetspeed to targetspeed:toscalar.
+    parameter armsopenangle. set armsopenangle to armsopenangle:toscalar.
     parameter ArmsOpen.
-    //print targetangle.
-    //print targetspeed.
-    //print armsopenangle.
-    //print ArmsOpen.
+
+    set currentAngle to Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("current angle").
+    set angleerror to targetangle - currentAngle.
+    if armsopenangle/2 < angleerror*1.1 set armsopenangle to round(angleerror*2,1).
+
+    print targetangle.
+    print targetspeed.
+    print armsopenangle.
+    print ArmsOpen.
     if targetangle = 999 {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
     } else {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle:toscalar).
+        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle).
     }
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed:toscalar).
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle:toscalar).
+    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed).
+    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle).
     if ArmsOpen = "true" and Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("open arms") {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
     }
