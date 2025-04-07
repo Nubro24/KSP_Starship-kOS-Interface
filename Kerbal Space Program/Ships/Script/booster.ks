@@ -1727,115 +1727,6 @@ FUNCTION SteeringCorrections {
                 set RadarAlt to alt:radar - BoosterHeight.
             }
         } 
-        else if altitude < 30000 * Scale and not GfC or KUniverse:activevessel = vessel(ship:name) and not GfC and not cAbort {
-            set GS to groundspeed.
-
-            if InitialError = -9999 and addons:tr:hasimpact {
-                set InitialError to LngError.
-            }
-            set LngCtrlPID:maxoutput to max(min(abs(LngError - LngCtrlPID:setpoint) / (PIDFactor), 10), 2.5).
-            set LngCtrlPID:minoutput to -LngCtrlPID:maxoutput.
-            set LatCtrlPID:maxoutput to max(min(abs(LatError) / (10 * Scale), 5), 0.5).
-            set LatCtrlPID:minoutput to -LatCtrlPID:maxoutput.
-
-            set LngCtrl to -LngCtrlPID:UPDATE(time:seconds, LngError).
-            set LatCtrl to -LatCtrlPID:UPDATE(time:seconds, LatError).
-            if LngCtrl > 0 {
-                set LatCtrl to -LatCtrl.
-            }
-
-            set maxDecel to max((13 * BoosterRaptorThrust / ship:mass) - 9.805, 0.000001).
-            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
-
-            if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 65) / min(maxDecel, 50).
-                set stopDist9 to ((airspeed + 65) / 2) * stopTime9.
-                set stopTime3 to min(65, airspeed) / min(maxDecel3, FinalDeceleration).
-                set stopDist3 to (min(65, airspeed) / 2) * stopTime3.
-                set TotalstopTime to stopTime9 + stopTime3.
-                set TotalstopDist to (stopDist9 + stopDist3) * cos(vang(-velocity:surface, up:vector)).
-                set landingRatio to TotalstopDist / (RadarAlt).
-            }
-            else {
-                set TotalstopTime to airspeed / min(maxDecel3, FinalDeceleration).
-                set TotalstopDist to (airspeed / 2) * TotalstopTime.
-                set landingRatio to TotalstopDist / (RadarAlt - 0.5).
-                set LngCtrlPID:setpoint to 0.
-            }
-
-            if alt:radar < 1500 {
-                set magnitude to min(RadarAlt / 70, (ship:position - landingzone:position):mag / 12).
-                if ErrorVector:mag > magnitude and LandingBurnStarted {
-                    set ErrorVector to ErrorVector:normalized * magnitude.
-                }
-                if not (LandSomewhereElse) {
-                    if TargetOLM and verticalspeed > -18 and GfC {
-                        set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - BoosterCore:position).
-                    }
-                }
-            }
-            if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 5000 {
-                set LngCtrlPID:setpoint to CorrFactor * groundspeed.
-
-            }
-            
-            if LandSomewhereElse {
-                set RadarAlt to alt:radar - BoosterHeight.
-            }
-        } 
-        else if altitude < 30000 * Scale and not GfC or KUniverse:activevessel = vessel(ship:name) and cAbort {
-            set GS to groundspeed.
-            print "Abort".
-
-            if InitialError = -9999 and addons:tr:hasimpact {
-                set InitialError to LngError.
-            }
-            set LngCtrlPID:maxoutput to max(min(abs(LngError - LngCtrlPID:setpoint) / (PIDFactor), 10), 2.5).
-            set LngCtrlPID:minoutput to -LngCtrlPID:maxoutput.
-            set LatCtrlPID:maxoutput to max(min(abs(LatError) / (10 * Scale), 5), 0.5).
-            set LatCtrlPID:minoutput to -LatCtrlPID:maxoutput.
-
-            set LngCtrl to -LngCtrlPID:UPDATE(time:seconds, LngError).
-            set LatCtrl to -LatCtrlPID:UPDATE(time:seconds, LatError).
-            if LngCtrl > 0 {
-                set LatCtrl to -LatCtrl.
-            }
-
-            set maxDecel to max((13 * BoosterRaptorThrust / ship:mass) - 9.805, 0.000001).
-            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
-
-            if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 65) / min(maxDecel, 50).
-                set stopDist9 to ((airspeed + 65) / 2) * stopTime9.
-                set stopTime3 to min(65, airspeed) / min(maxDecel3, FinalDeceleration).
-                set stopDist3 to (min(65, airspeed) / 2) * stopTime3.
-                set TotalstopTime to stopTime9 + stopTime3.
-                set TotalstopDist to (stopDist9 + stopDist3) * cos(vang(-velocity:surface, up:vector)).
-                set landingRatio to TotalstopDist / (RadarAlt).
-            }
-            else {
-                set TotalstopTime to airspeed / min(maxDecel3, FinalDeceleration).
-                set TotalstopDist to (airspeed / 2) * TotalstopTime.
-                set landingRatio to TotalstopDist / (RadarAlt - 0.5).
-                set LngCtrlPID:setpoint to 0.
-            }
-
-            if alt:radar < 1500 {
-                set magnitude to min(RadarAlt / 70, (ship:position - landingzone:position):mag / 12).
-                if ErrorVector:mag > magnitude and LandingBurnStarted {
-                    set ErrorVector to ErrorVector:normalized * magnitude.
-                }
-            }
-            if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 5000 {
-                set LngCtrlPID:setpoint to CorrFactor * groundspeed.
-
-            }
-            
-            if LandSomewhereElse {
-                set RadarAlt to alt:radar - BoosterHeight.
-                set BoosterRot to ship:facing.
-            }
-        }
 
         clearscreen.
         print "Lng Error: " + round(LngError) + " / " + round(LngCtrlPID:setpoint).
@@ -1848,6 +1739,8 @@ FUNCTION SteeringCorrections {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
             print "LatCtrl: " + round(LatCtrl, 2) + " / " + round(LatCtrlPID:maxoutput, 1).
             print " ".
+            print "Landing Burn Alt: " + round(TotalstopDist*1.05, 2).
+            print " ".
             print "Max Decel: " + round(maxDecel, 2).
             print "Radar Alt: " + round(RadarAlt).
             print "Stop Time: " + round(TotalstopTime, 2).
@@ -1857,10 +1750,8 @@ FUNCTION SteeringCorrections {
             print " ".
             print "MZ Rotation: " + Round(BoosterRot,1).
             print "Ship Mass: " + round(ship:mass,3).
-            if airspeed > 100 {
-                print "Descent Angle: " + round(vang(-velocity:surface, up:vector), 1).
-                print "GS: " + round(groundspeed).
-            }
+            print "Descent Angle: " + round(vang(-velocity:surface, up:vector), 1).
+            print "GS: " + round(groundspeed).
             print " ".
             print "varR: " + round(varR, 2).
             print "varPredct: " + round(varPredct, 2).
