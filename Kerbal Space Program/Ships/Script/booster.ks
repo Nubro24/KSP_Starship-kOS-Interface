@@ -1868,7 +1868,7 @@ function LandingGuidance {
     //---------Cancel Velocity----------
     if RadarAlt < 2.6*BoosterHeight {
         set Fgs to 0.012.
-        set Ftrv to 0.005.
+        set Ftrv to 0.002.
     } 
     if RadarAlt < 1.24*BoosterHeight set Fgs to Fgs*2.
     if RadarAlt < 0.6*BoosterHeight {
