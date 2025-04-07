@@ -1,3 +1,8 @@
+# V3.4.8 (WIP)
+- Overhauled Booster Landing Guidance
+- Added Throttle Indicator
+- Fixed Ships Thrust Indicator positioning
+
 # V3.4.7 (2025-04-06)
 - Overhauled Mechazilla Movement
   - Arms track the vehicle with higher frequency
