@@ -1627,8 +1627,10 @@ function Boostback {
                 set s3gs to 0.8*s3gs.
                 set s4height to min(s4height*1.2,1.3).
             } 
-            if (vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position)):mag < 10*Scale and GSVec:mag > 6*Scale {
-                set s3gs to 2*s3gs.
+            if GfC {
+                if (vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position)):mag < 10*Scale and GSVec:mag > 6*Scale {
+                    set s3gs to 2*s3gs.
+                }
             }
             if ErrorVector:mag > 20 set s3ev to s3ev*1.5. else if ErrorVector:mag < 10 set s3ev to s3ev * 0.6.
             if not HighIncl {
