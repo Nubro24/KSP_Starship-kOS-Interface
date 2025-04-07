@@ -87,6 +87,15 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Looking forward to your bugs!
 
 
+
+### Planned Features:
+- Rendezvous Maneuver
+- better Ship Catch Abort
+- Landings with sub-meter precision
+- Scalable Telemetry
+
+
+
 > [!NOTE]
 > ### By the author:
 > This has been a pet project of mine since around May 2021, and I had a lot of fun making and using this Interface. I hope you will too! Let me know what you think! I thank all the mod makers whose work I have been able to rely on, and without whom none of this would have been possible. Especially I want to thank Kari, Sofie, all others that have contributed to SEP and SAMCG14 for his work on SLE.
