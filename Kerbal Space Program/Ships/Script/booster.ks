@@ -158,10 +158,12 @@ set WobblyBooster to false.
 set wobbleCheckrunning to false.
 set TowerRotationVector to -vCrs(north:vector,up:vector).
 set RollVector to vCrs(north:vector,up:vector).
+set PositionError to TowerRotationVector.
 set varR to 0.
 set varPredct to 0.
 set angle to 75.
 set speed to 10.
+set HighIncl to false.
 
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -1386,6 +1388,10 @@ function Boostback {
 
     set LngCtrlPID:setpoint to 0.
     if not (TargetOLM = "false") {
+        when Vessel(TargetOLM):distance < 2000 then {
+            set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Integration Tower Base")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
+            lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
+        }
         when Vessel(TargetOLM):distance < 1500 then {
             set Vessel(TargetOLM):loaddistance:landed:unpack to 1200.
             set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1200.
@@ -1484,7 +1490,6 @@ function Boostback {
 
     when ((verticalspeed > -80 and RSS) or (verticalspeed > -70 and not RSS)) and (stopDist3 / RadarAlt) < 1.8 and LngError < 200 and not MiddleEnginesShutdown or ((verticalspeed > -100 and RSS) or (verticalspeed > -75 and not RSS)) and not MiddleEnginesShutdown then {
         set SwingTime to time:seconds.
-        set HighIncl to false.
         
         when SwingTime + 0.25 < time:seconds then {
             PollUpdate().
@@ -1996,9 +2001,20 @@ function LandingThrottle {
 
 
 function LandingGuidance {
+    set Fpe to 0.
+    set Fev to 0.
+    set Fgs to 0.
+    set Ftrv to 0.
+    if vAng(ErrorVector, TowerRotationVector) < 90 { //ErrorVector and Position Error opposite
+        set Fev to ErrorVector:mag-PositionError:mag/1000.
+        set Fgs to 0.
+    }
+    else {                                          //ErrorVector and Position Error same direction
+        set Fev to ErrorVector:mag-PositionError:mag/1000.
+        set Fgs to 0.
+    }
 
-
-    set guidVec to lookDirUp(up:vector, RollVector).
+    set guidVec to lookDirUp(up:vector - Fev*ErrorVector - Fgs*GSVec - Ftrv*TowerRotationVector - Fpe*PositionError, RollVector).
     return guidVec.
 }
 
