@@ -12,15 +12,14 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ## Current State:
-- Ship landings/catches and Booster catches don't work in RSS
+- Ship landings/catches and Booster might be inconsistent
 - This fork is currently worked on by Nubro.
 
 ### Known Issues:
-- **Using the provided Craft Files you might have to change the Fuel levels back and forth one time in the VAB to prevent Fuel overload on first launch**
-- ***Currently the Ship reentry will only work with beta3 Flap configs, otherwise the Ship might loose control at some point***
+- **Using the (old) provided Craft Files you might have to change the Fuel levels back and forth one time in the VAB to prevent Fuel overload on first launch**
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
-- Booster/Ship krakens on contact with Chopsticks in RSS
+- Booster might land in front of the tower, due to differrent possible descent trajectories with KSP
     - **If your Booster lands beside/in front of the Tower, use [Frisk's fork](https://github.com/Frisk-33/KSP_Starship-kOS-Interface/tree/patch-1) for a potential patch (RSS only)**
 - SQD may not rotate away on Lift-Off (SLE bug I think)
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
@@ -38,13 +37,6 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
   - _Kerbal Space Program/GameData/StarshipInterface_    (location of the patch)
   - _Kerbal Space Program/Ships/Script_                  (here the kOS scripts are saved)
   - _Kerbal Space Program/Ships/VAB_                     (location of the .craft files)
-
-
-> [!IMPORTANT]
-> - Use the provided .craft files (e.g. _Starship Cargo_) located inside the stock craft category in the VAB's vessel loading menu (left hand side). This needs _stock vehicles_ enabled in your savegame.
-> - Real Solar System: use _Starship ... Real Size_.
-
-![Alt text](/Howtoloadcrafts.png)
 
 
 ## Requirements:
@@ -70,6 +62,15 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Physics Range Extender
 - Stage Recovery
 - PEKKA's Starship Pack
+
+
+
+> [!IMPORTANT]
+> - Use the provided .craft files (e.g. _Starship Cargo_) located inside the stock craft category in the VAB's vessel loading menu (left hand side). This needs _stock vehicles_ enabled in your savegame.
+> - Real Solar System: use _Starship ... Real Size_.
+> - If you want to create your own craft, use (the guide)[https://github.com/Nubro24/KSP_Starship-kOS-Interface/blob/main/HowToMakeACraftFile.md] for important info
+
+![Alt text](/Howtoloadcrafts.png)
 
 
 
