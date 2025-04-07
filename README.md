@@ -68,7 +68,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 > [!IMPORTANT]
 > - Use the provided .craft files (e.g. _Starship Cargo_) located inside the stock craft category in the VAB's vessel loading menu (left hand side). This needs _stock vehicles_ enabled in your savegame.
 > - Real Solar System: use _Starship ... Real Size_.
-> - If you want to create your own craft, use (the guide)[https://github.com/Nubro24/KSP_Starship-kOS-Interface/blob/main/HowToMakeACraftFile.md] for important info
+> - If you want to create your own craft, use [the guide](https://github.com/Nubro24/KSP_Starship-kOS-Interface/blob/main/HowToMakeACraftFile.md) for important info
 
 ![Alt text](/Howtoloadcrafts.png)
 
