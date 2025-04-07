@@ -6897,7 +6897,7 @@ function Launch {
                 set steeringmanager:pitchtorquefactor to 0.5.
             }
             if RSS {
-                when altitude > targetap - 500 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 750 then {
+                when TargetAp < apoapsis and altitude > TargetAp*0.9 or altitude > targetap - 500 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 750 then {
                     if ShipType = "Depot" {
                         set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0, -7.5, 20).
                     }
@@ -7182,8 +7182,8 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if MaintainVS {
             if deltaV > 500*Scale {
-                set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 95.
-                if apoapsis > 1.2*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,24),-24).
+                set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 100.
+                if apoapsis > 1.1*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,24),-24).
             }
             else {
                 set OrbitBurnPitchCorrectionPID:setpoint to 0.
