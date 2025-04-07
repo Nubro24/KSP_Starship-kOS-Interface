@@ -230,7 +230,6 @@ print "Fueling: " + NrforDelugeRefill.
 
 
 
-
 until False {
     if CORE:MESSAGES:length > 0 or SHIP:MESSAGES:length > 0 {
         if ship:messages:empty {
@@ -424,7 +423,10 @@ function MechazillaArms {
 
     set currentAngle to Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("current angle").
     set angleerror to targetangle - currentAngle.
-    if armsopenangle/2 < angleerror*1.1 set armsopenangle to round(angleerror*2,1).
+    if armsopenangle/2 < angleerror*2 {
+        set armsopenangle to round(angleerror*2.04,1).
+        set targetspeed to min(targetspeed*2,12).
+    }
 
     print targetangle.
     print targetspeed.

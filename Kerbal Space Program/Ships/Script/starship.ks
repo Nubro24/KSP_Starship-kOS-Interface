@@ -5,7 +5,7 @@ clearscreen.
 
 
 
-//--------------Self-Update-------------//
+//---------------Self-Update--------------//
 
 
 
@@ -66,6 +66,7 @@ if exists("0:/settings.json") {
         set missionTimer to L["Launch Time"].
     }
 }
+set RadarAlt to 0.
 
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -123,7 +124,7 @@ local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
 local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
     set sLOX:style:wordwrap to false.
     set sLOX:style:margin:left to 50.
-    set sLOX:style:margin:top to 30.
+    set sLOX:style:margin:top to 25.
     set sLOX:style:width to 200.
     set sLOX:style:fontsize to 20.
 local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
@@ -134,7 +135,7 @@ local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
     set sCH4:style:fontsize to 20.
 local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
     set sThrust:style:wordwrap to false.
-    set sThrust:style:margin:left to 10.
+    set sThrust:style:margin:left to 45.
     set sThrust:style:margin:top to 15.
     set sThrust:style:width to 150.
     set sThrust:style:fontsize to 16.
@@ -226,7 +227,6 @@ else {
 }
 set aoa to 60.
 set BoosterAp to 35000.
-set RadarAlt to 0.
 
 set config:obeyhideui to false.
 
@@ -755,6 +755,7 @@ function FindParts {
         set sSpeed:style:textcolor to grey.
         set sLOX:style:textcolor to grey.
         set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
@@ -782,6 +783,7 @@ function FindParts {
         set sSpeed:style:textcolor to grey.
         set sLOX:style:textcolor to grey.
         set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER").
         set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
@@ -6713,11 +6715,6 @@ function Launch {
 
         if Boosterconnected {
             when apoapsis > BoosterAp - 14000 * Scale then {
-                if RSS {
-                    lock steering to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
-                } else {
-                    lock steering to lookDirUp(2*srfPrograde:vector+0.3*up:vector, LaunchRollVector).
-                }
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
                 } 
@@ -6866,6 +6863,7 @@ function Launch {
             set sSpeed:style:textcolor to white.
             set sLOX:style:textcolor to white.
             set sCH4:style:textcolor to white.
+            set sThrust:style:textcolor to white.
             when time:seconds > HotStageTime + 0.5 then {
                 set quickengine2:pressed to true.
             }
@@ -6881,7 +6879,7 @@ function Launch {
             when time:seconds > HotStageTime + 3 then {
                 lock steering to LaunchSteering().
             }
-            when time:seconds > HotStageTime + 3.9 then {
+            when time:seconds > HotStageTime + 6.9 then {
                 KUniverse:forceactive(vessel("Booster")).
             }
 
@@ -7103,6 +7101,14 @@ Function LaunchSteering {
             set targetpitch to 90 - (11 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
+    } 
+    else if apoapsis > BoosterAp - 14000 * Scale and Boosterconnected {
+        rcs on.
+        if RSS {
+            set result to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
+        } else {
+            set result to lookDirUp(2*srfPrograde:vector+0.3*up:vector, LaunchRollVector).
+        }
     }
     else if Boosterconnected and not lowTWR {
         if RSS {
@@ -7183,7 +7189,7 @@ Function LaunchSteering {
         if MaintainVS {
             if deltaV > 500*Scale {
                 set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 100.
-                if apoapsis > 1.1*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,24),-24).
+                if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,24),-24).
             }
             else {
                 set OrbitBurnPitchCorrectionPID:setpoint to 0.
@@ -14586,7 +14592,7 @@ function updateTelemetry {
         set shipThrust to shipThrust + eng:thrust.
     }
 
-    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN".
+    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + round(throttle,2)*100 + "%".
 
     set missionTimerNow to time:seconds-missionTimer.
     if missionTimerNow < 0 {
