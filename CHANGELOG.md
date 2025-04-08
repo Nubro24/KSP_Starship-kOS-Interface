@@ -1,5 +1,11 @@
 # V3.4.8 (WIP)
 - Overhauled Booster Landing Guidance
+  - Guidance not staged anymore, but consistently determained by:
+    - Landing Position Error
+    - Horizontal Speed
+    - Altitude
+  - Middle Ring Shutdown Timing now like IRL catches at ~250 km/h
+  - Landing Burn Altitude now calculated, not guessed, and constantly updated during descent
 - Improved Arm Movement
 - Added Gridfin Tilt during Catch
 - Added Throttle Indicator
