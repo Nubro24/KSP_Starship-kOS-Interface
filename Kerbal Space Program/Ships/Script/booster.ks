@@ -1403,7 +1403,7 @@ function Boostback {
                         if not BoosterLanded preserve.
                     }
                     when RadarAlt < 0.25*BoosterHeight then {
-                        set steeringManager:maxstoppingtime to 3.
+                        set steeringManager:maxstoppingtime to 1.75.
                     }
                     when RadarAlt < 0.165*BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",3.2,24,false")).
