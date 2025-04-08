@@ -10572,7 +10572,7 @@ function ReEntryData {
                         setflaps(0, 87, 1, 0).
                         if not (TargetOLM = "False") {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
-                            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 0.7")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 1")).
                         }
                     }
                 }

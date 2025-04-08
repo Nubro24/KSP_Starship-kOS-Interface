@@ -469,7 +469,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 1900.
+        set LFBoosterFuelCutOff to 2005.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -538,7 +538,7 @@ until False {
     if ShipConnectedToBooster = "false" and not (ship:status = "LANDED") and altitude > 10000 {
         Boostback().
     }
-    if alt:radar < 150 and alt:radar > 40 and ship:mass - ship:drymass < 50 and ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 and not (RSS) and not (LandSomewhereElse) {
+    if alt:radar < 150 and alt:radar > 20 and ship:mass - ship:drymass < 60 and ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0  and not (LandSomewhereElse) { //and not (RSS)
         if homeconnection:isconnected {
             if exists("0:/settings.json") {
                 set L to readjson("0:/settings.json").
@@ -1403,7 +1403,7 @@ function Boostback {
                         }
                         if not BoosterLanded and RadarAlt > 0.17*BoosterHeight preserve.
                     }
-                    when RadarAlt < 0.75*BoosterHeight then {
+                    when RadarAlt < 0.5*BoosterHeight then {
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 0).
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 10).
                         Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
