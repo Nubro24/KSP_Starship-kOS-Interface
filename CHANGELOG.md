@@ -1,6 +1,7 @@
 # V3.4.8 (WIP)
 - Overhauled Booster Landing Guidance
 - Improved Arm Movement
+- Added Gridfin Tilt during Catch
 - Added Throttle Indicator
 - Fixed Ships Thrust Indicator positioning
 

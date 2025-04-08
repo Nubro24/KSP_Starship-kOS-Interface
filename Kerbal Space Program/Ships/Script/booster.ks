@@ -31,7 +31,7 @@ if homeconnection:isconnected {
     }
 }
 
-set drawVecs to true.
+set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
@@ -510,6 +510,7 @@ clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
 
+                        
 
 when True then {
     GUIupdate().
@@ -826,9 +827,9 @@ function Boostback {
             }
         }
 
-        set steeringmanager:maxstoppingtime to 3.
         when time:seconds > flipStartTime + 10 then {
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
+            set steeringmanager:maxstoppingtime to 3.
         }
 
         if RSS {
@@ -1400,7 +1401,14 @@ function Boostback {
                                 set SentTime to time:seconds.
                             }
                         }
-                        if not BoosterLanded preserve.
+                        if not BoosterLanded and RadarAlt > 0.17*BoosterHeight preserve.
+                    }
+                    when RadarAlt < 0.75*BoosterHeight then {
+                        for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 0).
+                        for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 10).
+                        Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                        Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                        for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", true).
                     }
                     when RadarAlt < 0.25*BoosterHeight then {
                         set steeringManager:maxstoppingtime to 1.75.
@@ -1440,18 +1448,6 @@ function Boostback {
     until verticalspeed > CatchVS - 0.5 and RadarAlt < 5 or verticalspeed > -0.05 and RadarAlt < 2000 or hover {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
-        if RadarAlt > 500 {
-            rcs off.
-            set Once to false.
-        }
-        else {
-            if Once = false {
-                //rcs on.
-                set Once to true.
-            } else if verticalSpeed > CatchVS {
-                rcs off.
-            }
-        }
         if GfC and not cAbort and RadarAlt < 1500 {
             setTowerHeadingVector().
         }
@@ -1461,24 +1457,11 @@ function Boostback {
         DetectWobblyTower().
         wait 0.05.
     }
-    set t to time:seconds.
-    if LandSomewhereElse or not GfC {
-        lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), facing:topvector).
-    }
-    else if not (TargetOLM = "False") {
-        lock steering to lookDirUp(up:vector - 0.025 * vxcl(up:vector, velocity:surface), RollVector).
-    }
-    
-    
-   
-    
+
+
     set once to false.
-    until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 {
-        if once {}
-        else {
-            set t2 to time:seconds.
-            set once to true.
-        }
+    until ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 {
+        
         SteeringCorrections().
         
         print "slowly lowering down booster..".
@@ -1637,22 +1620,14 @@ function Boostback {
         set LateAngle to (5/(1+constant:e^(-16*((RadarAlt/BoosterHeight) - 0.45)))).
 
         set angle to LateAngle*(EarlyAngle/5).
-        if 2*BoosterRot > angle set angle to 2*BoosterRot.
         if BoosterLanded set angle to 0.
         return round(angle,1).
     }
 
     function ClosingSpeed {
-        set currentDec to BoosterEngines[0]:thrust / (ship:mass).
-        if currentDec = 0 set currentDec to 0.00001.
-        set currentSpeed to verticalSpeed.
-        if currentSpeed = 0 set currentSpeed to 0.00001.
-        if currentSpeed < 0 set currentSpeed to -currentSpeed.
-
-        set speed to (angle-0.6/(currentSpeed/currentDec)).
-        if vxcl(TowerRotationVector,GSVec):mag > 0.6 set speed to speed * 1.6.
-
-        set speed to -2*constant:e^(((0.2*RadarAlt-16)/12)^2)+12.
+        if angle > 20 set speed to 10.
+        else if angle > 10 set speed to 7.
+        else set speed to 4.
 
         return min(max(round(speed,1),3.2),10).
     }
@@ -1847,7 +1822,7 @@ function LandingGuidance {
     else { 
         set Fev to 0.02.
         set Fgs to 0.
-        set FstarVec to 0.003.
+        set FstarVec to 0.0018.
     }
 
     //----------13 Engines-------------
@@ -1869,11 +1844,18 @@ function LandingGuidance {
 
 
     //---------Cancel Velocity----------
-    if RadarAlt < 2.6*BoosterHeight {
-        set Fgs to 0.012.
-        set Ftrv to 0.002.
+    if RadarAlt < 4*BoosterHeight {
+        set Fev to Fev * 2.
     } 
-    if RadarAlt < 1.24*BoosterHeight set Fgs to Fgs*2.
+    if RadarAlt < 3*BoosterHeight {
+        set Fgs to 0.012.
+        set Ftrv to 0.001.
+    } 
+    if RadarAlt < 1.5*BoosterHeight {
+        set Fgs to Fgs*2.
+        set Ftrv to 0.
+        set Fev to Fev / 1.6.
+    }
     if RadarAlt < 0.6*BoosterHeight {
         set Fgs to Fgs*0.8.
         set Fev to 0.
@@ -2293,7 +2275,7 @@ function GetBoosterRotation {
 
         set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position),yellow,"Arm Angle",2,drawVecs,0.06).
 
-        return min(max(varFinal, -32), 48).
+        return min(max(varFinal, -64), 48).
     }
 }
 

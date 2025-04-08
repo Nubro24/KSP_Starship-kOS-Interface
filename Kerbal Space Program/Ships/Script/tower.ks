@@ -432,6 +432,7 @@ function MechazillaArms {
     print targetspeed.
     print armsopenangle.
     print ArmsOpen.
+    print currentAngle.
     if targetangle = 999 {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
     } else {
