@@ -1389,7 +1389,7 @@ function Boostback {
                         set steeringManager:maxstoppingtime to 0.8.
                     }
                     set SentTime to time:seconds.
-                    when RadarAlt < 2.43 * BoosterHeight and RadarAlt > 0.17*BoosterHeight then {
+                    when RadarAlt < 3 * BoosterHeight and RadarAlt > 0.17*BoosterHeight then {
                         if not BoosterLanded {
                             set ArmAngle to ClosingAngle().
                             set ArmSpeed to ClosingSpeed().
@@ -1402,8 +1402,11 @@ function Boostback {
                         }
                         if not BoosterLanded preserve.
                     }
+                    when RadarAlt < 0.25*BoosterHeight then {
+                        set steeringManager:maxstoppingtime to 3.
+                    }
                     when RadarAlt < 0.165*BoosterHeight then {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",2.4,24,false")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",3.2,24,false")).
                         set steeringManager:maxstoppingtime to 0.3.
                         sendMessage(Vessel(TargetOLM), ("CloseArms")).
                     }
@@ -1427,7 +1430,7 @@ function Boostback {
         }
     }
 
-    when velocity:surface:mag < 60 and not MiddleEnginesShutdown then {
+    when velocity:surface:mag < 69 and not MiddleEnginesShutdown then {
         PollUpdate().
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -1630,14 +1633,11 @@ function Boostback {
 
 
     function ClosingAngle {
-        if (65/(1+constant:e^(-3.5*((RadarAlt/BoosterHeight) - 1.8)))) + 10 > 12 {
-            set angle to (65/(1+constant:e^(-3.5*((RadarAlt/BoosterHeight) - 1.8)))) + 10.
-            set angle to max(angle,12).
-        } else {
-            set angle to (12/(1+constant:e^(-15*((RadarAlt/BoosterHeight) - 0.3)))).
-            set angle to min(angle,12).
-        }
-        if angle > 75 set angle to 75.
+        set EarlyAngle to (65/(1+constant:e^(-3.5*((RadarAlt/BoosterHeight) - 1.8)))) + 10.
+        set LateAngle to (5/(1+constant:e^(-16*((RadarAlt/BoosterHeight) - 0.45)))).
+
+        set angle to LateAngle*(EarlyAngle/5).
+        if 2*BoosterRot > angle set angle to 2*BoosterRot.
         if BoosterLanded set angle to 0.
         return round(angle,1).
     }
@@ -1649,9 +1649,12 @@ function Boostback {
         if currentSpeed = 0 set currentSpeed to 0.00001.
         if currentSpeed < 0 set currentSpeed to -currentSpeed.
 
-        set speed to min(max((angle-0.6/(currentSpeed/currentDec)),3.6),12).
+        set speed to (angle-0.6/(currentSpeed/currentDec)).
+        if vxcl(TowerRotationVector,GSVec):mag > 0.6 set speed to speed * 1.6.
 
-        return round(speed,1).
+        set speed to -2*constant:e^(((0.2*RadarAlt-16)/12)^2)+12.
+
+        return min(max(round(speed,1),3.2),10).
     }
 }
 
@@ -1699,10 +1702,10 @@ FUNCTION SteeringCorrections {
             set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
 
             if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 60) / min(maxDecel, 60).
-                set stopDist9 to ((airspeed + 60) / 2) * stopTime9.
-                set stopTime3 to min(60, airspeed) / min(maxDecel3, FinalDeceleration).
-                set stopDist3 to (min(60, airspeed) / 2) * stopTime3.
+                set stopTime9 to (airspeed - 69) / min(maxDecel, 60).
+                set stopDist9 to ((airspeed + 69) / 2) * stopTime9.
+                set stopTime3 to min(69, airspeed) / min(maxDecel3, FinalDeceleration).
+                set stopDist3 to (min(69, airspeed) / 2) * stopTime3.
                 set TotalstopTime to stopTime9 + stopTime3.
                 set TotalstopDist to (stopDist9 + stopDist3) * cos(vang(-velocity:surface, up:vector)).
                 set landingRatio to TotalstopDist / (RadarAlt).
@@ -2286,11 +2289,11 @@ function GetBoosterRotation {
         set varR to vang(vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position), TowerHeadingVector) + 8.4.
         set varPredct to vang(vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + GSVec), vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)).
         
-        set varFinal to (varR + varPredct/5).
+        set varFinal to (varR).
 
-        set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,AngleAxis(angle, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position),yellow,"Arm Angle",2,drawVecs,0.06).
+        set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position),yellow,"Arm Angle",2,drawVecs,0.06).
 
-        return min(max(varFinal, -26), 42).
+        return min(max(varFinal, -32), 48).
     }
 }
 

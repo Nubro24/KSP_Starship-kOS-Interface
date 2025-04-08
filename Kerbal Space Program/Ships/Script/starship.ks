@@ -2300,8 +2300,8 @@ set quickattitude2:onclick to {
 function AttitudeSteering {
     if time:seconds > TimeSinceLastAttSteering + 0.2 {
         set result to srfprograde * R(- attpitch * cos(attroll), attpitch * sin(attroll), 0).
-        return lookdirup(result:vector, vxcl(velocity:surface, result:vector)).
         set TimeSinceLastAttSteering to time:seconds.
+        return lookdirup(result:vector, vxcl(velocity:surface, result:vector)).
     }
     else {
         return lookdirup(result:vector, vxcl(velocity:surface, result:vector)).
