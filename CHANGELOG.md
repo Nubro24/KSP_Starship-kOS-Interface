@@ -1,5 +1,6 @@
 # V3.4.8 (WIP)
 - Overhauled Booster Landing Guidance
+- Improved Arm Movement
 - Added Throttle Indicator
 - Fixed Ships Thrust Indicator positioning
 
