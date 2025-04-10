@@ -1537,7 +1537,7 @@ local settingscheckboxes is settingsstackvlayout3:addvbox().
 local quicksetting1 is settingscheckboxes:addcheckbox("<b>Auto-Stack</b>").
     set quicksetting1:style:margin:top to 12.
     set quicksetting1:style:margin:left to 10.
-    set quicksetting1:style:fontsize to 18.
+    set quicksetting1:style:fontsize to 14.
     set quicksetting1:style:width to 150.
     set quicksetting1:style:height to 29.
     set quicksetting1:style:overflow:right to -130.
@@ -1546,7 +1546,7 @@ local quicksetting1 is settingscheckboxes:addcheckbox("<b>Auto-Stack</b>").
     set quicksetting1:style:overflow:bottom to -9.
     set quicksetting1:tooltip to "Auto stacks both Ship and Booster (unable in RSS)".
 local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX500</b>").
-    set quicksetting2:style:fontsize to 18.
+    set quicksetting2:style:fontsize to 14.
     set quicksetting2:style:margin:left to 10.
     set quicksetting2:style:bg to "starship_img/starship_toggle_off".
     set quicksetting2:style:on:bg to "starship_img/starship_toggle_on".
@@ -1563,7 +1563,7 @@ local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX500</b>").
     set quicksetting2:tooltip to "kOS CPU speed. KX2000 = 4x faster, but also 4x heavier on performance".
 local quicksetting3 is settingscheckboxes:addcheckbox("<b>Log Data</b>").
     set quicksetting3:toggle to true.
-    set quicksetting3:style:fontsize to 18.
+    set quicksetting3:style:fontsize to 14.
     set quicksetting3:style:margin:left to 10.
     set quicksetting3:style:width to 150.
     set quicksetting3:style:height to 29.
@@ -1572,6 +1572,17 @@ local quicksetting3 is settingscheckboxes:addcheckbox("<b>Log Data</b>").
     set quicksetting3:style:overflow:top to -4.
     set quicksetting3:style:overflow:bottom to -9.
     set quicksetting3:tooltip to "Flight Data Recorder. Saves data in 'KSP folder'/Ships/Script".
+local quicksetting4 is settingscheckboxes:addcheckbox("<b>Hide on F2</b>").
+    set quicksetting4:toggle to true.
+    set quicksetting4:style:fontsize to 14.
+    set quicksetting4:style:margin:left to 10.
+    set quicksetting4:style:width to 150.
+    set quicksetting4:style:height to 29.
+    set quicksetting4:style:overflow:right to -130.
+    set quicksetting4:style:overflow:left to -3.
+    set quicksetting4:style:overflow:top to -4.
+    set quicksetting4:style:overflow:bottom to -9.
+    set quicksetting4:tooltip to "Hide UI and Telemetry on F2".
 
 
 set setting1:onconfirm to {
@@ -1862,6 +1873,17 @@ set quicksetting3:ontoggle to {
     if not pressed {
         SaveToSettings("Log Data", "false").
         set Logging to false.
+    }
+}.
+set quicksetting4:ontoggle to {
+    parameter pressed.
+    if pressed {
+        SaveToSettings("ObeyHideUI", "true").
+        set config:obeyhideui to true.
+    }
+    if not pressed {
+        SaveToSettings("ObeyHideUI", "false").
+        set config:obeyhideui to false.
     }
 }.
 
@@ -5791,6 +5813,12 @@ if addons:tr:available and not startup {
                     if L["Log Data"] = true {
                         set quicksetting3:pressed to true.
                     }
+                }
+                if L:haskey("ObeyHideUI") {
+                    if L["ObeyHideUI"] = true {
+                        set quicksetting4:pressed to true.
+                    }
+                    else set quicksetting4:pressed to false.
                 }
                 if L:haskey("Auto-Stack") {
                     if L["Auto-Stack"] = true {

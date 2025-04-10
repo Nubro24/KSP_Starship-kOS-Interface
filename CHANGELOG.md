@@ -11,7 +11,9 @@
 - Added Gridfin Tilt during Catch
 - Added Throttle Indicator
 - Added Version Display
+- Added Hide UI Setting to Interface Settings
 - Fixed Ships Thrust Indicator positioning
+- Fixed Ship Fuel Calculation
 
 # V3.4.7 (2025-04-06)
 - Overhauled Mechazilla Movement
