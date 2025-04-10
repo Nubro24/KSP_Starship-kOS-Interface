@@ -95,6 +95,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Landings with sub-meter precision
 - Scalable Telemetry
 - IFT - Flight profile option
+- Implement unused Heat Pictograms
 
 
 
