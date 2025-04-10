@@ -1,5 +1,6 @@
 wait until ship:unpacked.
 
+set Scriptversion to "V3.4.8 - WIP".
 
 
 if homeconnection:isconnected {
@@ -252,7 +253,7 @@ local VersionDisplay is missionTimeDisplay:addlabel().
     set VersionDisplay:style:width to 100.
     set VersionDisplay:style:fontsize to 12.
     set VersionDisplay:style:align to "center".
-    set VersionDisplay:text to "V3.4.8 - WIP".
+    set VersionDisplay:text to Scriptversion.
 
 local shipBackground is shipSpace:addlabel().
     set shipBackground:style:width to 726.
@@ -1399,7 +1400,7 @@ function Boostback {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,12,75,true")).
                     }
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
-                    if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,3,0.5").}
+                    if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
                     sendMessage(Vessel(TargetOLM), ("RetractSQD")).
                     when RadarAlt < 3.4 * BoosterHeight and GfC then {
                         sendMessage(Vessel(TargetOLM), "LandingDeluge").

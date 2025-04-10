@@ -2,6 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
+set Scriptversion to "V3.4.8 - WIP".
 
 
 
@@ -110,7 +111,7 @@ local VersionDisplay is sMissionTime:addlabel().
     set VersionDisplay:style:width to 100.
     set VersionDisplay:style:fontsize to 12.
     set VersionDisplay:style:align to "center".
-    set VersionDisplay:text to "V3.4.8 - WIP".
+    set VersionDisplay:text to "".
 
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
@@ -14671,10 +14672,13 @@ function updateTelemetry {
     }
     if Boosterconnected or runningprogram = "LAUNCH" {
         set missionTimeLabel:text to "".
+        set VersionDisplay:test to "".
     } else if TMinus {
         set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
+        set VersionDisplay:test to Scriptversion.
     } else {
         set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
+        set VersionDisplay:test to Scriptversion.
     }
     
 }

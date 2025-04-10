@@ -60,6 +60,8 @@ else {
     }
 }
 set TowerOLMAngle to 1.332.
+set Scale to 1.
+if RSS set Scale to 1.6.
 
 
 //------------Find Parts--------------//
@@ -338,7 +340,7 @@ function LiftOff {
     RenameOLM().
     wait 3.
     MechazillaPushers("0", "0.2", "12", "true").
-    MechazillaHeight("4.5", "0.5").
+    MechazillaHeight(3*Scale, "0.5").
     MechazillaArms("8","10","97.5","true").
     set ship:type to "Base".
     for x in list(OLM,SteelPlate) {
@@ -357,32 +359,28 @@ function LiftOff {
 }
 
 function LandingDeluge {
-    for x in list(OLM,SteelPlate) {
-        if x:hasmodule("ModuleEnginesFX") {
-            if x:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
-                x:getmodule("ModuleEnginesFX"):doevent("activate engine").
+        if SteelPlate:hasmodule("ModuleEnginesFX") {
+            if SteelPlate:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
+                SteelPlate:getmodule("ModuleEnginesFX"):doevent("activate engine").
             }
         }
-        if x:hasmodule("ModuleEnginesRF") {
-            if x:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
-                x:getmodule("ModuleEnginesRF"):doevent("activate engine").
+        if SteelPlate:hasmodule("ModuleEnginesRF") {
+            if SteelPlate:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
+                SteelPlate:getmodule("ModuleEnginesRF"):doevent("activate engine").
             }
         }
-    }
     local waterOn to time:seconds.
     when waterOn + 12 < time:seconds then {
-        for x in list(OLM,SteelPlate) {
-            if x:hasmodule("ModuleEnginesFX") {
-                if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
-                    x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+            if SteelPlate:hasmodule("ModuleEnginesFX") {
+                if SteelPlate:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                    SteelPlate:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
                 }
             }
-            if x:hasmodule("ModuleEnginesRF") {
-                if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
-                    x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+            if SteelPlate:hasmodule("ModuleEnginesRF") {
+                if SteelPlate:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                    SteelPlate:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
                 }
             }
-        }
     }
 }
 
