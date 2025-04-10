@@ -102,6 +102,16 @@ local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
 
+local VersionDisplay is sMissionTime:addlabel().
+    set VersionDisplay:style:wordwrap to false.
+    set VersionDisplay:style:margin:left to 120.
+    set VersionDisplay:style:margin:right to 160.
+    set VersionDisplay:style:margin:top to 90.
+    set VersionDisplay:style:width to 100.
+    set VersionDisplay:style:fontsize to 12.
+    set VersionDisplay:style:align to "center".
+    set VersionDisplay:text to "V3.4.8 - WIP".
+
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
     set sAttitude:style:margin:left to 20.
@@ -14477,23 +14487,13 @@ function updateTelemetry {
     set lox to 0.
     set mlox to 0.
 
-    for res in ship:resources {
-        if res:name = "LqdMethane" {
-            set ch4 to res:amount.
-            set mch4 to res:capacity.
-        }
-        if res:name = "Oxidizer" {
-            set lox to res:amount.
-            set mlox to res:capacity.
-        }
-        if res:name = "LiquidFuel" {
-            set ch4 to res:amount.
-            set mch4 to res:capacity.
-        }
-    }
 
-    if Boosterconnected {
-        for res in Tank:resources {
+    if defined HeaderTank {
+        for res in HeaderTank:resources {
+            if res:name = "LiquidFuel" {
+                set ch4 to res:amount.
+                set mch4 to res:capacity.
+            }
             if res:name = "LqdMethane" {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
@@ -14502,12 +14502,22 @@ function updateTelemetry {
                 set lox to res:amount.
                 set mlox to res:capacity.
             }
-            if res:name = "LiquidFuel" {
-                set ch4 to res:amount.
-                set mch4 to res:capacity.
-            }
         }
     }
+        for res in Tank:resources {
+            if res:name = "LiquidFuel" {
+                set ch4 to ch4 + res:amount.
+                set mch4 to mch4 + res:capacity.
+            }
+            if res:name = "LqdMethane" {
+                set ch4 to ch4 + res:amount.
+                set mch4 to mch4 + res:capacity.
+            }
+            if res:name = "Oxidizer" {
+                set lox to lox + res:amount.
+                set mlox to mlox + res:capacity.
+            }
+        }
 
 
     set shipLOX to lox*100/mlox.
