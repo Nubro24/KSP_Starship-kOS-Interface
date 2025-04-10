@@ -6,9 +6,11 @@
     - Altitude
   - Middle Ring Shutdown Timing now like IRL catches at ~250 km/h
   - Landing Burn Altitude now calculated, not guessed, and constantly updated during descent
+  - Increased Booster Fuel for Catch & Updated Fuel Check for Go-NoGo-Poll
 - Improved Arm Movement
 - Added Gridfin Tilt during Catch
 - Added Throttle Indicator
+- Added Version Display
 - Fixed Ships Thrust Indicator positioning
 
 # V3.4.7 (2025-04-06)
