@@ -598,6 +598,12 @@ until False {
         hudtext("Ship orbit", 3, 3, 14, green, false).
         set ShipBurnComplete to true.
     }
+    else if RECEIVED:content = "ObeyHideUI,true" {
+        set config:obeyhideui to true.
+    }
+    else if RECEIVED:content = "ObeyHideUI,false" {
+        set config:obeyhideui to false.
+    }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
     }

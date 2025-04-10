@@ -1880,10 +1880,16 @@ set quicksetting4:ontoggle to {
     if pressed {
         SaveToSettings("ObeyHideUI", "true").
         set config:obeyhideui to true.
+        if Boosterconnected {
+            sendMessage(processor(volume("Booster")), ("ObeyHideUI,true")).
+        }
     }
     if not pressed {
         SaveToSettings("ObeyHideUI", "false").
         set config:obeyhideui to false.
+        if Boosterconnected {
+            sendMessage(processor(volume("Booster")), ("ObeyHideUI,false")).
+        }
     }
 }.
 
