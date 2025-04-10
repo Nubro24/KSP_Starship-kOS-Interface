@@ -145,6 +145,7 @@ set GTn to false.
 set GD to true.
 set GfC to false.
 set FC to false.
+set PollTimer to 999.
 set HSRJet to false.
 set flipStartTime to -2.
 set cAbort to false.
@@ -242,6 +243,16 @@ local missionTimeLabel is missionTimeDisplay:addlabel().
     set missionTimeLabel:style:width to 160.
     set missionTimeLabel:style:fontsize to 42.
     set missionTimeLabel:style:align to "center".
+
+local VersionDisplay is missionTimeDisplay:addlabel().
+    set VersionDisplay:style:wordwrap to false.
+    set VersionDisplay:style:margin:left to 120.
+    set VersionDisplay:style:margin:right to 160.
+    set VersionDisplay:style:margin:top to 90.
+    set VersionDisplay:style:width to 100.
+    set VersionDisplay:style:fontsize to 12.
+    set VersionDisplay:style:align to "center".
+    set VersionDisplay:text to "V3.4.8 - WIP".
 
 local shipBackground is shipSpace:addlabel().
     set shipBackground:style:width to 726.
@@ -378,7 +389,7 @@ if bodyexists("Earth") {
         set BoosterHeight to 70.6.
         if oldBooster set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
-        set LFBoosterFuelCutOff to 10600.
+        set LFBoosterFuelCutOff to 12000.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.5, 0.25, -10, 10).
         }
@@ -406,7 +417,7 @@ if bodyexists("Earth") {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2250.
+        set LFBoosterFuelCutOff to 2650.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -441,7 +452,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2250.
+        set LFBoosterFuelCutOff to 2650.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -469,7 +480,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2005.
+        set LFBoosterFuelCutOff to 2400.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -2337,30 +2348,40 @@ function PollUpdate {
         set GTn to false.
     }
 
+
     CheckFuel().
-    if LFBooster > LFBoosterCap*0.2 and time:seconds < flipStartTime + 4 and FC and not GFnoGO {
-        set GF to true.
-    } else if LFBooster > LFBoosterCap*0.12 and time:seconds < flipStartTime + 30 and time:seconds > flipStartTime + 3 and not GFnoGO {
-        set GF to true.
-    } else if LFBooster > LFBoosterCap*0.06 and time:seconds < flipStartTime + 45 and time:seconds > flipStartTime + 29 and not GFnoGO {
-        set GF to true.
-    } else if LFBooster > LFBoosterCap*0.02 and time:seconds > flipStartTime + 44 and not GFnoGO {
-        set GF to true.
-    } else {
-        if RadarAlt > 1900 and FC and not Depot {
-                set GF to false.
-                if LFBooster < LFBoosterFuelCutOff {
-                    unlock throttle.
-                    lock throttle to 0.
-                    set BoostBackComplete to true.
-                    set GFnoGO to true.
-                }
-        } else {
-            if not GFnoGO {
-                set GF to true.
-            }
-        }
+
+    if PollTimer < 0 and not GF and FC {
+        set GFnoGO to true.
+        set BoostBackComplete to true.
+        unlock throttle.
+        lock throttle to 0.
     }
+
+    if (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale) and not BoostBackComplete and not GFnoGO and FC {
+        if LFBooster > LFBoosterFuelCutOff * 1.1 {
+            if PollTimer > 30 and LFBooster > LFBoosterFuelCutOff * 3.05 set GF to true.
+            else if PollTimer > 15 and LFBooster > LFBoosterFuelCutOff * 1.55 set GF to true.
+            else if PollTimer > -5 and LFBooster > LFBoosterFuelCutOff * 1.15 set GF to true.
+            else if LFBooster > LFBoosterFuelCutOff * 1.12 set GF to true.
+        } 
+        else set GF to false.
+    } 
+    else if (LngError + 50 > -BoosterGlideDistance) and not BoostBackComplete and not GFnoGO and FC {
+        if LFBooster > LFBoosterFuelCutOff {
+            if PollTimer > -10 and LFBooster > LFBoosterFuelCutOff * 1.15 set GF to true.
+            else if PollTimer > -15 and LFBooster > LFBoosterFuelCutOff * 1.05 set GF to true.
+        } 
+        else if PollTimer > 0 set GF to true. 
+        else set GF to false.
+    } 
+    else if BoostBackComplete and not GFnoGO and FC {
+        if LFBooster > LFBoosterFuelCutOff * 0.9 and not LandingBurnStarted set GF to true.
+        else if LandingBurnStarted set GF to true.
+        else set GF to false.
+    }
+
+
     if GD and GE and GF and GT and GG and GTn {
         set GfC to true.
     } else {
@@ -2492,10 +2513,7 @@ function GUIupdate {
         } else {
             set PollTimer to flipStartTime+40-time:seconds.
         }
-    } else {
-        set PollTimer to 0.
-    }
-    
+    } 
     if GD and GE and GF and GT and GG and GTn {
         set GfC to true.
     } else {
