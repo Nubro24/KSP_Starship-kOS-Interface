@@ -32,7 +32,7 @@ if homeconnection:isconnected {
     }
 }
 
-set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
@@ -245,15 +245,17 @@ local missionTimeLabel is missionTimeDisplay:addlabel().
     set missionTimeLabel:style:fontsize to 42.
     set missionTimeLabel:style:align to "center".
 
-local VersionDisplay is missionTimeDisplay:addlabel().
-    set VersionDisplay:style:wordwrap to false.
-    set VersionDisplay:style:margin:left to 120.
-    set VersionDisplay:style:margin:right to 160.
-    set VersionDisplay:style:margin:top to 90.
-    set VersionDisplay:style:width to 100.
-    set VersionDisplay:style:fontsize to 12.
-    set VersionDisplay:style:align to "center".
-    set VersionDisplay:text to Scriptversion.
+local VersionDisplay is GUI(100).
+    set VersionDisplay:x to 0.
+    set VersionDisplay:y to 36.
+    set VersionDisplay:style:bg to "".
+    local VersionDisplayLabel is VersionDisplay:addlabel().
+        set VersionDisplayLabel:style:wordwrap to false.
+        set VersionDisplayLabel:style:width to 100.
+        set VersionDisplayLabel:style:fontsize to 12.
+        set VersionDisplayLabel:style:align to "center".
+        set VersionDisplayLabel:text to Scriptversion.
+VersionDisplay:show().
 
 local shipBackground is shipSpace:addlabel().
     set shipBackground:style:width to 726.
@@ -488,7 +490,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1450.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 2222.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -502,7 +504,8 @@ else {
         set FinalDeceleration to 6.
     }
 }
-lock RadarAlt to alt:radar - BoosterHeight.
+lock RadarAlt to alt:radar - BoosterHeight*0.8.
+set LandingBurnAlt to 1800.
 
 
 
@@ -1003,7 +1006,7 @@ function Boostback {
             }
             addons:tr:settarget(landingzone).
             set LandSomewhereElse to true.
-            lock RadarAlt to alt:radar - BoosterHeight.
+            lock RadarAlt to alt:radar - BoosterHeight*0.8.
         }
 
         wait 0.01.
@@ -1265,7 +1268,7 @@ function Boostback {
     lock steering to SteeringVector.
     
     set once to false.
-    until alt:radar < TotalstopDist*1.05 {
+    until alt:radar < LandingBurnAlt {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -1298,12 +1301,14 @@ function Boostback {
     }
 
     lock throttle to LandingThrottle().
+    set s0ev to 0.
+    when vAng(ErrorVector,PositionError) < 90 then set s0ev to 1.
     
     hudtext(throttle, 3, 2, 10, white, false).
     if RSS {
-        lock SteeringVector to lookdirup(-0.55 * velocity:surface + 2*up:vector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.45 * velocity:surface + up:vector - s0ev*ErrorVector, ApproachVector).
     } else {
-        lock SteeringVector to lookdirup(-0.69 * velocity:surface + up:vector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.5 * velocity:surface + up:vector - s0ev*ErrorVector, ApproachVector).
     }
 
     when verticalspeed > -170 and GfC then {
@@ -1319,7 +1324,7 @@ function Boostback {
 
     when cAbort then {
         set LandSomewhereElse to true.
-        lock RadarAlt to alt:radar - BoosterHeight.
+        lock RadarAlt to alt:radar - BoosterHeight*0.8.
         set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.05,addons:tr:impactpos:lng-0.02).
         addons:tr:settarget(landingzone).
     }
@@ -1333,7 +1338,7 @@ function Boostback {
     if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not GfC {
         set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.05,addons:tr:impactpos:lng-0.02).
         set LandSomewhereElse to true.
-        lock RadarAlt to alt:radar - BoosterHeight.
+        lock RadarAlt to alt:radar - BoosterHeight*0.8.
         lock SteeringVector to lookdirup(-velocity:surface, ApproachVector).
         lock steering to SteeringVector.
         addons:tr:settarget(landingzone).
@@ -1364,7 +1369,7 @@ function Boostback {
                 set cAbort to true.
                 HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
                 set LandSomewhereElse to true.
-                lock RadarAlt to alt:radar - BoosterHeight.
+                lock RadarAlt to alt:radar - BoosterHeight*0.8.
                 set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.006,addons:tr:impactpos:lng+0.012).
                 addons:tr:settarget(landingzone).
                 lock SteeringVector to lookDirUp(up:vector - 0.08*ErrorVector - 0.02 * velocity:surface, RollVector).
@@ -1441,12 +1446,12 @@ function Boostback {
                     HUDTEXT("Wobbly Tower detected..", 3, 2, 20, red, false).
                     HUDTEXT("Aborting Catch..", 3, 2, 20, yellow, false).
                     sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,10,60,true").
-                    lock RadarAlt to alt:radar - BoosterHeight.
+                    lock RadarAlt to alt:radar - BoosterHeight*0.8.
                     ADDONS:TR:SETTARGET(landingzone).
                 }
                 when RadarAlt < -2 and GfC and not BoosterLanded then {
                     set LandSomewhereElse to true.
-                    lock RadarAlt to alt:radar - BoosterHeight.
+                    lock RadarAlt to alt:radar - BoosterHeight*0.8.
                     HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
                     HUDTEXT("Landing somewhere else..", 10, 2, 20, red, false).
                     lock SteeringVector to lookdirup(-1 * velocity:surface, ApproachVector).
@@ -1456,7 +1461,7 @@ function Boostback {
         }
     }
 
-    when velocity:surface:mag < 69 and not MiddleEnginesShutdown then {
+    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 590 or velocity:surface:mag < 42 and not MiddleEnginesShutdown then {
         PollUpdate().
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -1552,7 +1557,7 @@ function Boostback {
 
             when time:seconds > LandingTime + 4 then {
                 sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.5,0.33,false").
-                lock RadarAlt to alt:radar - BoosterHeight.
+                lock RadarAlt to alt:radar - BoosterHeight*0.8.
             }
 
             when time:seconds > LandingTime + 8 then {
@@ -1738,11 +1743,13 @@ FUNCTION SteeringCorrections {
         print "WobbleCheck: " + wobbleCheckrunning.
         //print " ".
 
+        set LandingBurnAlt to min(TotalstopDist*1.05, 3500).
+
         if altitude < 30000 and not (RSS) or altitude < 50000 and RSS {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
             print "LatCtrl: " + round(LatCtrl, 2) + " / " + round(LatCtrlPID:maxoutput, 1).
             print " ".
-            print "Landing Burn Alt: " + round(TotalstopDist*1.05, 2).
+            print "Landing Burn Alt: " + round(LandingBurnAlt, 2).
             print " ".
             print "Max Decel: " + round(maxDecel, 2).
             print "Radar Alt: " + round(RadarAlt).
@@ -1845,9 +1852,15 @@ function LandingGuidance {
 
     //----------13 Engines-------------
     if not MiddleEnginesShutdown {
-        set Fev to 0.2*Fev.
-        set Fgs to 0.006.
+        set Fev to 0.26*Fev.
+        set Fgs to 0.005.
         set FstarVec to 0.2*FstarVec.
+        if ErrorVector:mag > BoosterHeight * 1.2 {
+            set Fev to Fev * 4.
+            set Fgs to 0.75*Fgs.
+        }
+    } else if ErrorVector:mag > BoosterHeight * 0.6 {
+        set Fev to Fev * 8.
     }
 
 
@@ -1860,6 +1873,16 @@ function LandingGuidance {
         }
     }
 
+    //---------High Error----------
+    if RadarAlt > 6*BoosterHeight {
+        if ErrorVector:mag > BoosterHeight * 0.3 {
+            set Fev to Fev * 2.
+        } 
+        if ErrorVector:mag > PositionError:mag*0.5 and vAng(ErrorVector, PositionError) < 90 {
+            set Fev to Fev * 3.6.
+        }
+    }
+    
 
     //---------Cancel Velocity----------
     if RadarAlt < 4*BoosterHeight {
@@ -2284,9 +2307,9 @@ function setTowerHeadingVector {
 
 function GetBoosterRotation {
     if not (TargetOLM = "false") and RadarAlt < 160 and GfC and not LandSomewhereElse and not cAbort {
-        set TowerHeadingVector to AngleAxis(8, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+        set TowerHeadingVector to AngleAxis(8.4, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
 
-        set varR to vang(vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position), TowerHeadingVector) + 8.4.
+        set varR to vang(vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position), TowerHeadingVector) + 4.2.
         set varPredct to vang(vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + GSVec), vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)).
         
         set varFinal to (varR).
@@ -2358,7 +2381,7 @@ function PollUpdate {
 
     CheckFuel().
 
-    if PollTimer < 0 and not GF and FC {
+    if PollTimer < 0 and not GF and FC and not BoostBackComplete {
         set GFnoGO to true.
         set BoostBackComplete to true.
         unlock throttle.
@@ -2384,7 +2407,9 @@ function PollUpdate {
     } 
     else if BoostBackComplete and not GFnoGO and FC {
         if LFBooster > LFBoosterFuelCutOff * 0.9 and not LandingBurnStarted set GF to true.
-        else if LandingBurnStarted set GF to true.
+        else if LandingBurnStarted {
+            if MiddleEnginesShutdown set GF to true. else set GF to true.
+        }
         else set GF to false.
     }
 

@@ -340,7 +340,7 @@ function LiftOff {
     RenameOLM().
     wait 3.
     MechazillaPushers("0", "0.2", "12", "true").
-    MechazillaHeight(3*Scale, "0.5").
+    MechazillaHeight((3*Scale):tostring, "0.5").
     MechazillaArms("8","10","97.5","true").
     set ship:type to "Base".
     for x in list(OLM,SteelPlate) {

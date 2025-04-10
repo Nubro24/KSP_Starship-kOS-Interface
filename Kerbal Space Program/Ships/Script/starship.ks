@@ -103,15 +103,17 @@ local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
 
-local VersionDisplay is sMissionTime:addlabel().
-    set VersionDisplay:style:wordwrap to false.
-    set VersionDisplay:style:margin:left to 120.
-    set VersionDisplay:style:margin:right to 160.
-    set VersionDisplay:style:margin:top to 90.
-    set VersionDisplay:style:width to 100.
-    set VersionDisplay:style:fontsize to 12.
-    set VersionDisplay:style:align to "center".
-    set VersionDisplay:text to "".
+local VersionDisplay is GUI(100).
+    set VersionDisplay:x to 0.
+    set VersionDisplay:y to 36.
+    set VersionDisplay:style:bg to "".
+    local VersionDisplayLabel is VersionDisplay:addlabel().
+        set VersionDisplayLabel:style:wordwrap to false.
+        set VersionDisplayLabel:style:width to 100.
+        set VersionDisplayLabel:style:fontsize to 12.
+        set VersionDisplayLabel:style:align to "center".
+        set VersionDisplayLabel:text to Scriptversion.
+VersionDisplay:show().
 
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
@@ -14672,13 +14674,13 @@ function updateTelemetry {
     }
     if Boosterconnected or runningprogram = "LAUNCH" {
         set missionTimeLabel:text to "".
-        set VersionDisplay:test to "".
+        VersionDisplay:hide().
     } else if TMinus {
         set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
-        set VersionDisplay:test to Scriptversion.
+        VersionDisplay:show().
     } else {
         set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
-        set VersionDisplay:test to Scriptversion.
+        VersionDisplay:show().
     }
     
 }
