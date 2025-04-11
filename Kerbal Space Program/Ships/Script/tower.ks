@@ -423,7 +423,7 @@ function MechazillaArms {
     set angleerror to targetangle - currentAngle.
     if armsopenangle/2 < angleerror*2 {
         set armsopenangle to round(angleerror*2.04,1).
-        set targetspeed to min(targetspeed*2,12).
+        set targetspeed to min(targetspeed*3,12).
     }
 
     print targetangle.

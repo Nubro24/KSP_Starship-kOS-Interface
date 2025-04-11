@@ -491,7 +491,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 2222.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1500.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -1836,13 +1836,18 @@ function LandingGuidance {
     if vAng(TowerRotationVector, PositionError) < 15 { 
         set Fev to 0.02.
         set Fgs to 0.
-        set FstarVec to 0.001.
+        set FstarVec to 0.0006.
     }
     //---High Lat Error / High Inclination------
+    else if vAng(PositionError, ErrorVector) > 65 { 
+        set Fev to 0.036.
+        set Fgs to 0.
+        set FstarVec to 0.0004.
+    }
     else { 
         set Fev to 0.02.
         set Fgs to 0.
-        set FstarVec to 0.0018.
+        set FstarVec to 0.0008.
     }
 
     //----------13 Engines-------------
@@ -1870,11 +1875,18 @@ function LandingGuidance {
 
     //---------High Error----------
     if RadarAlt > 6*BoosterHeight {
-        if ErrorVector:mag > BoosterHeight * 0.3 {
+        if ErrorVector:mag > BoosterHeight * 0.4 {
             set Fev to Fev * 2.
         } 
         if ErrorVector:mag > PositionError:mag*0.5 and vAng(ErrorVector, PositionError) < 90 {
             set Fev to Fev * 3.6.
+        }
+        if ErrorVector:mag < BoosterHeight * 0.2 {
+            set Fev to Fev / 2.
+        }
+    } else if RadarAlt > 4*BoosterHeight {
+        if ErrorVector:mag > BoosterHeight * 0.2 {
+            set Fev to Fev * 2.
         }
     }
     
@@ -2302,20 +2314,21 @@ function setTowerHeadingVector {
 
 function GetBoosterRotation {
     if not (TargetOLM = "false") and RadarAlt < 160 and GfC and not LandSomewhereElse and not cAbort {
-        set TowerHeadingVector to AngleAxis(8.4, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+        set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
 
-        if RadarAlt > BoosterHeight {
-            set varR to vang(vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position), TowerHeadingVector) + 5.2.
-            set varPredct to vang(vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + GSVec), vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)).
+        if RadarAlt < BoosterHeight {
+            set varVec to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
+            set varPredctVec to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + GSVec).
         } else {
-            set varR to vang(vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position), TowerHeadingVector) + 5.2.
-            set varPredct to vang(vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + GSVec), vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)).
+            set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
+            set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + GSVec).
         }
-        
-        
-        set varFinal to (varR).
+        set varVecFinal to varVec + varPredctVec/2.
+        set varFinal to vang(varVecFinal, TowerHeadingVector).
 
-        set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position),yellow,"Arm Angle",2,drawVecs,0.06).
+        if vAng(vCrs(TowerHeadingVector,up:vector),varVecFinal) < 90 set varFinal to -varFinal.
+
+        set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,varVecFinal,yellow,"Arm Angle",2,drawVecs,0.05).
 
         return min(max(varFinal, -64), 48).
     }

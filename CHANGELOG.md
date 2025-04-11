@@ -7,7 +7,9 @@
   - Middle Ring Shutdown Timing now like IRL catches at ~250 km/h
   - Landing Burn Altitude now calculated, not guessed, and constantly updated during descent
   - Increased Booster Fuel for Catch & Updated Fuel Check for Go-NoGo-Poll
+  - Tested Launch Inclinations of up to 66° (-> successful catch)
 - Improved Arm Movement
+ - Fixed Angle Calculation
 - Added Gridfin Tilt during Catch
 - Added Throttle Indicator
 - Added Version Display

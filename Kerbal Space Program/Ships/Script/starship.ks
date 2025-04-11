@@ -1541,8 +1541,8 @@ local quicksetting1 is settingscheckboxes:addcheckbox("<b>Auto-Stack</b>").
     set quicksetting1:style:margin:top to 12.
     set quicksetting1:style:margin:left to 10.
     set quicksetting1:style:fontsize to 14.
-    set quicksetting1:style:width to 150.
-    set quicksetting1:style:height to 29.
+    set quicksetting1:style:width to 145.
+    set quicksetting1:style:height to 24.
     set quicksetting1:style:overflow:right to -130.
     set quicksetting1:style:overflow:left to -3.
     set quicksetting1:style:overflow:top to -4.
@@ -1557,8 +1557,8 @@ local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX500</b>").
     set quicksetting2:style:hover_on:bg to "starship_img/starship_toggle_hover".
     set quicksetting2:style:active:bg to "starship_img/starship_toggle_off".
     set quicksetting2:style:active_on:bg to "starship_img/starship_toggle_on".
-    set quicksetting2:style:width to 150.
-    set quicksetting2:style:height to 29.
+    set quicksetting2:style:width to 145.
+    set quicksetting2:style:height to 24.
     set quicksetting2:style:overflow:right to -122.
     set quicksetting2:style:overflow:left to -3.
     set quicksetting2:style:overflow:top to -4.
@@ -1568,8 +1568,8 @@ local quicksetting3 is settingscheckboxes:addcheckbox("<b>Log Data</b>").
     set quicksetting3:toggle to true.
     set quicksetting3:style:fontsize to 14.
     set quicksetting3:style:margin:left to 10.
-    set quicksetting3:style:width to 150.
-    set quicksetting3:style:height to 29.
+    set quicksetting3:style:width to 145.
+    set quicksetting3:style:height to 24.
     set quicksetting3:style:overflow:right to -130.
     set quicksetting3:style:overflow:left to -3.
     set quicksetting3:style:overflow:top to -4.
@@ -1579,8 +1579,8 @@ local quicksetting4 is settingscheckboxes:addcheckbox("<b>Hide on F2</b>").
     set quicksetting4:toggle to true.
     set quicksetting4:style:fontsize to 14.
     set quicksetting4:style:margin:left to 10.
-    set quicksetting4:style:width to 150.
-    set quicksetting4:style:height to 29.
+    set quicksetting4:style:width to 145.
+    set quicksetting4:style:height to 24.
     set quicksetting4:style:overflow:right to -130.
     set quicksetting4:style:overflow:left to -3.
     set quicksetting4:style:overflow:top to -4.
