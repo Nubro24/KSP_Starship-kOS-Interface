@@ -428,7 +428,7 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 2435.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1435.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -463,7 +463,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 2435.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1435.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -602,12 +602,6 @@ until False {
     else if RECEIVED:content = "Orbit Insertion" {
         hudtext("Ship orbit", 3, 3, 14, green, false).
         set ShipBurnComplete to true.
-    }
-    else if RECEIVED:content = "ObeyHideUI,true" {
-        set config:obeyhideui to true.
-    }
-    else if RECEIVED:content = "ObeyHideUI,false" {
-        set config:obeyhideui to false.
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
