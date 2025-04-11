@@ -161,6 +161,7 @@ set wobbleCheckrunning to false.
 set TowerRotationVector to -vCrs(north:vector,up:vector).
 set RollVector to vCrs(north:vector,up:vector).
 set PositionError to TowerRotationVector.
+set IFT8Vec to -north:vector.
 set varR to 0.
 set varPredct to 0.
 set angle to 75.
