@@ -35,8 +35,8 @@ PART
 	sepI = 0
 	attm = 0
 	sameVesselCollision = False
-	modCost = 86762
-	modMass = 0.00373541843
+	modCost = 79398.875
+	modMass = 0
 	modSize = 0,0,0
 	link = SEP.23.RAPTOR2.SL.RC_4290498170
 	link = SEP.23.RAPTOR2.SL.RC_4290078346
@@ -45,7 +45,6 @@ PART
 	link = SEP.23.RAPTOR.VAC_4290073530
 	link = SEP.23.RAPTOR.VAC_4290072996
 	link = SEP.23.BOOSTER.HSR_4290866122
-	attN = frosty,Null_0_0|-5.3125|0_0|0.625|0_0|-5.3125|0_0|0.625|0
 	attN = node_bottom,SEP.23.BOOSTER.HSR_4290866122_0|-9.15000248|1.1920929E-06_0|-1.00000012|-1.19209346E-07_0|-9.15000248|1.1920929E-06_0|-1.00000012|-1.19209346E-07
 	attN = node_R2_1,SEP.23.RAPTOR2.SL.RC_4290498170_-0.00348017737|-7.0887928|-0.585802794_-1.78813934E-07|-1|-5.96046448E-08_-0.00348017737|-7.0887928|-0.585802794_-1.78813934E-07|-1|-5.96046448E-08
 	attN = node_R2_2,SEP.23.RAPTOR2.SL.RC_4290078346_-0.505580485|-7.0887928|0.2959162_0|-1.00000012|1.11758709E-07_-0.505580485|-7.0887928|0.2959162_0|-1.00000012|1.11758709E-07
@@ -576,6 +575,23 @@ PART
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
 			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = FMRS_PM
+		isEnabled = True
+		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
 		}
 		UPGRADESAPPLIED
 		{
@@ -1272,24 +1288,6 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Donnager MK-1 Depot
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = ModuleEnginesFX
 		isEnabled = True
 		independentThrottle = False
@@ -1390,69 +1388,9 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleWaterfallFX
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -1621,8 +1559,12 @@ PART
 		baseDiskSpace = 255000
 		baseModuleMass = 0
 		additionalCost = 18677
+		diskSpaceCostFactor = 0.0244140625
+		diskSpaceMassFactor = 4.88289986E-09
 		MaxPartId = 100
-		RequiredPower = 0.400000006
+		ECPerInstruction = 3.99999999E-06
+		ECPerBytePerSecond = 0
+		RequiredPower = 0.200000003
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -1717,22 +1659,6 @@ PART
 	}
 	MODULE
 	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -1776,7 +1702,7 @@ PART
 	{
 		name = LqdMethane
 		amount = 133500
-		maxAmount = 133500
+		maxAmount = 119062.5
 		flowState = True
 		isTweakable = True
 		hideFlow = False
@@ -1787,7 +1713,7 @@ PART
 	{
 		name = Oxidizer
 		amount = 44500
-		maxAmount = 44500
+		maxAmount = 39687.5
 		flowState = True
 		isTweakable = True
 		hideFlow = False
@@ -1800,7 +1726,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4290498170
 	partName = Part
 	persistentId = 4089743998
-	pos = -0.58588171,60.3556824,0.00376171805
+	pos = -0.585881829,60.3556824,0.00376171805
 	attPos = 0,0,0
 	attPos0 = -0.00347936712,-7.8217926,-0.585803151
 	rot = 0,0.707106829,0,0.707106829
@@ -1903,7 +1829,24 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = RaptorC
+		currentSubtype = Unshielded
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		isEnabled = True
+		stagingEnabled = True
+		moduleID = CoverNumbers
+		currentSubtype = None
 		EVENTS
 		{
 		}
@@ -2139,9 +2082,11 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -2157,21 +2102,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -2230,22 +2160,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -2263,7 +2177,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4290078346
 	partName = Part
 	persistentId = 235633610
-	pos = 0.295838207,60.3556824,0.505864143
+	pos = 0.295838267,60.3556824,0.505864263
 	attPos = 0,0,0
 	attPos0 = -0.5055812,-7.8217926,0.295915693
 	rot = 0,0.965925932,0,-0.258819133
@@ -2366,7 +2280,24 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = RaptorC
+		currentSubtype = Unshielded
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		isEnabled = True
+		stagingEnabled = True
+		moduleID = CoverNumbers
+		currentSubtype = None
 		EVENTS
 		{
 		}
@@ -2594,9 +2525,11 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -2612,21 +2545,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -2685,22 +2603,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -2718,7 +2620,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4290077800
 	partName = Part
 	persistentId = 2040988330
-	pos = 0.289811641,60.3556824,-0.50877893
+	pos = 0.289811701,60.3556824,-0.508779049
 	attPos = 0,0,0
 	attPos0 = 0.509060562,-7.8217926,0.289889276
 	rot = 0,0.258819014,0,-0.965925932
@@ -2821,7 +2723,24 @@ PART
 		isEnabled = True
 		stagingEnabled = True
 		moduleID = CoverSwitch
-		currentSubtype = RaptorC
+		currentSubtype = Unshielded
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		isEnabled = True
+		stagingEnabled = True
+		moduleID = CoverNumbers
+		currentSubtype = None
 		EVENTS
 		{
 		}
@@ -3049,9 +2968,11 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -3067,21 +2988,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -3140,22 +3046,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3173,7 +3063,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4290499692
 	partName = Part
 	persistentId = 1727166851
-	pos = 1.93213153,61.2041206,0.000282654481
+	pos = 1.93213201,61.2041206,0.000282654481
 	attPos = 0,0,0
 	attPos0 = -5.57978638E-07,-6.97335434,1.93220687
 	rot = 0,0.707106829,0,0.707106829
@@ -3275,8 +3165,8 @@ PART
 		name = ModuleB9PartSwitch
 		isEnabled = True
 		stagingEnabled = True
-		moduleID = CoverSwitch
-		currentSubtype = RaptorC
+		moduleID = ShieldSwitch
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -3381,9 +3271,11 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -3399,21 +3291,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -3455,22 +3332,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3488,7 +3349,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4290073530
 	partName = Part
 	persistentId = 1011497308
-	pos = -0.966185391,61.2041206,-1.67305815
+	pos = -0.966185749,61.2041206,-1.67305875
 	attPos = 0,0,0
 	attPos0 = 1.67333758,-6.97335434,-0.966105521
 	rot = 0,0.965925932,0,-0.258819133
@@ -3590,8 +3451,8 @@ PART
 		name = ModuleB9PartSwitch
 		isEnabled = True
 		stagingEnabled = True
-		moduleID = CoverSwitch
-		currentSubtype = RaptorC
+		moduleID = ShieldSwitch
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -3696,9 +3557,11 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -3714,21 +3577,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -3770,22 +3618,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -3803,7 +3635,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4290072996
 	partName = Part
 	persistentId = 1871638250
-	pos = -0.966185093,61.2041206,1.67362249
+	pos = -0.966185331,61.2041206,1.67362297
 	attPos = 0,0,0
 	attPos0 = -1.67333746,-6.97335434,-0.966106117
 	rot = 0,0.258819014,0,-0.965925932
@@ -3905,8 +3737,8 @@ PART
 		name = ModuleB9PartSwitch
 		isEnabled = True
 		stagingEnabled = True
-		moduleID = CoverSwitch
-		currentSubtype = RaptorC
+		moduleID = ShieldSwitch
+		currentSubtype = Unshielded
 		EVENTS
 		{
 		}
@@ -4011,9 +3843,11 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -4029,21 +3863,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -4074,22 +3893,6 @@ PART
 	{
 		name = ModuleB9PartInfo
 		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -4439,42 +4242,11 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Behemoth Hot Stage Ring
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = tjs_DecouplerLight
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = EngineLightEffect
-		isEnabled = True
-		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -4490,36 +4262,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -4550,22 +4292,6 @@ PART
 	{
 		name = ModuleB9PartInfo
 		isEnabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -4612,7 +4338,7 @@ PART
 	sepI = 0
 	attm = 0
 	sameVesselCollision = False
-	modCost = 200430
+	modCost = 89313.75
 	modMass = 0
 	modSize = 0,0,0
 	link = SEP.23.BOOSTER.CLUSTER_4290808592
@@ -4622,7 +4348,6 @@ PART
 	link = SEP.23.BOOSTER.GRIDFIN_4290799118
 	link = DC.smallCam.Wide_4290798550
 	link = DC.smallCam_4290797338
-	attN = frosty,Null_0_0|-21.875|0_0|0.625|0_0|-21.875|0_0|0.625|0
 	attN = node_top_regular,SEP.23.BOOSTER.HSR_4290866122_0|22.8750057|-2.38418579E-06_0|1.00000012|-1.1920929E-07_0|22.8750057|-2.38418579E-06_0|1.00000012|-1.1920929E-07
 	attN = node_bottom,SEP.23.BOOSTER.CLUSTER_4290808592_1.4901164E-07|-20.5717487|2.38418579E-06_0|-1.00000012|-1.1920929E-07_1.4901164E-07|-20.5717487|2.38418579E-06_0|-1.00000012|-1.1920929E-07
 	attN = node_gridfin_1,SEP.23.BOOSTER.GRIDFIN_4290799422_2.38194585|22.3105087|-1.37513638_0.866025448|-1.33040601E-07|-0.500000119_2.38194585|22.3105087|-1.37513638_0.866025448|-1.33040601E-07|-0.500000119
@@ -5083,6 +4808,23 @@ PART
 	}
 	MODULE
 	{
+		name = FMRS_PM
+		isEnabled = True
+		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = MechJebCore
 		isEnabled = True
 		running = True
@@ -5189,157 +4931,9 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Behemoth Core
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = tjs_DecouplerLight
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleEnginesFX
-		isEnabled = True
-		independentThrottle = False
-		independentThrottlePercentage = 0
-		staged = False
-		flameout = False
-		EngineIgnited = False
-		engineShutdown = False
-		currentThrottle = 0
-		thrustPercentage = 100
-		manuallyOverridden = False
-		includeinDVCalcs = False
-		stagingEnabled = False
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			OnAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			ShutdownAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			ActivateAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-			ToggleThrottle
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		AXISGROUPS
-		{
-			independentThrottlePercentage
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-			thrustPercentage
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleWaterfallFX
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -5508,8 +5102,12 @@ PART
 		baseDiskSpace = 255000
 		baseModuleMass = 0
 		additionalCost = 0
+		diskSpaceCostFactor = 0.0244140625
+		diskSpaceMassFactor = 4.88289986E-09
 		MaxPartId = 100
-		RequiredPower = 0.400000006
+		ECPerInstruction = 3.99999999E-06
+		ECPerBytePerSecond = 0
+		RequiredPower = 0.200000003
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -5604,22 +5202,6 @@ PART
 	}
 	MODULE
 	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = ModuleTripLogger
 		isEnabled = True
 		stagingEnabled = True
@@ -5652,7 +5234,7 @@ PART
 	{
 		name = LqdMethane
 		amount = 393000
-		maxAmount = 393000
+		maxAmount = 175125
 		flowState = True
 		isTweakable = True
 		hideFlow = False
@@ -5663,7 +5245,7 @@ PART
 	{
 		name = Oxidizer
 		amount = 131000
-		maxAmount = 131000
+		maxAmount = 58375
 		flowState = True
 		isTweakable = True
 		hideFlow = False
@@ -5695,12 +5277,11 @@ PART
 	attm = 0
 	sameVesselCollision = False
 	modCost = 0
-	modMass = 50.7999992
+	modMass = 7.74860382E-07
 	modSize = 0,0,0
 	link = SLE.SS.OLM_4290877052
 	attN = node_top,SEP.23.BOOSTER.INTEGRATED_4290831560_1.4901164E-07|0.283985168|-4.84287739E-07_0|1.00000012|-1.1920929E-07_1.4901164E-07|0.283985168|-4.84287739E-07_0|1.00000012|-1.1920929E-07
 	attN = node_bottom,SLE.SS.OLM_4290877052_1.4901164E-07|-1.92204487|-1.49011612E-07_0|-1.00000012|1.78813934E-07_1.4901164E-07|-1.92204487|-1.49011612E-07_0|-1.00000012|1.78813934E-07
-	attN = node_RC_13_10,Null_0_3.81987846E-08|0.165242821|-0.561546803_0|-1.00000012|1.78813934E-07_3.81987846E-08|0.165242821|-0.561546803_0|-1.00000012|1.78813934E-07
 	attN = node_RB_0,Null_0_0.40514338|0.248112082|-2.57293653_0|-1.00000012|-1.1920929E-07_0.40514338|0.248112082|-2.57293653_0|-1.00000012|-1.1920929E-07
 	attN = node_RB_1,Null_0_1.1803956|0.248112231|-2.32181072_0|-1.00000012|-1.1920929E-07_1.1803956|0.248112231|-2.32181072_0|-1.00000012|-1.1920929E-07
 	attN = node_RB_2,Null_0_1.84010243|0.248111933|-1.84341168_0|-1.00000012|-1.1920929E-07_1.84010243|0.248111933|-1.84341168_0|-1.00000012|-1.1920929E-07
@@ -5721,27 +5302,28 @@ PART
 	attN = node_RB_17,Null_0_-1.843413|0.248111933|-1.8401016_0|-1.00000012|-1.1920929E-07_-1.843413|0.248111933|-1.8401016_0|-1.00000012|-1.1920929E-07
 	attN = node_RB_18,Null_0_-1.18456745|0.248112231|-2.31968832_0|-1.00000012|-1.1920929E-07_-1.18456745|0.248112231|-2.31968832_0|-1.00000012|-1.1920929E-07
 	attN = node_RB_19,Null_0_-0.409767091|0.248112082|-2.57220507_0|-1.00000012|-1.1920929E-07_-0.409767091|0.248112082|-2.57220507_0|-1.00000012|-1.1920929E-07
+	attN = node_RM_9_0,Null_0_1.19362974|0.165235326|-0.501769543_1.49011612E-07|-1.00000012|1.2665987E-07_1.19362974|0.165235326|-0.501769543_1.49011612E-07|-1.00000012|1.2665987E-07
+	attN = node_RM_9_1,Null_0_1.1988287|0.165235177|0.489218175_1.49011612E-07|-1.00000012|1.2665987E-07_1.1988287|0.165235177|0.489218175_1.49011612E-07|-1.00000012|1.2665987E-07
+	attN = node_RM_9_2,Null_0_0.501769662|0.165235102|1.19362915_1.49011612E-07|-1.00000012|1.2665987E-07_0.501769662|0.165235102|1.19362915_1.49011612E-07|-1.00000012|1.2665987E-07
+	attN = node_RM_9_3,Null_0_-1.19362938|0.165235221|0.501769423_1.49011612E-07|-1.00000012|1.2665987E-07_-1.19362938|0.165235221|0.501769423_1.49011612E-07|-1.00000012|1.2665987E-07
+	attN = node_RM_9_4,Null_0_-1.1988281|0.16523537|-0.489218384_1.49011612E-07|-1.00000012|1.2665987E-07_-1.1988281|0.16523537|-0.489218384_1.49011612E-07|-1.00000012|1.2665987E-07
+	attN = node_RM_9_5,Null_0_-0.501769662|0.1652354|-1.1936295_1.49011612E-07|-1.00000012|1.2665987E-07_-0.501769662|0.1652354|-1.1936295_1.49011612E-07|-1.00000012|1.2665987E-07
 	attN = node_RC_9_0,Null_0_0.489218205|0.165235475|-1.19882762_1.49011612E-07|-1.00000012|1.2665987E-07_0.489218205|0.165235475|-1.19882762_1.49011612E-07|-1.00000012|1.2665987E-07
 	attN = node_RC_9_1,Null_0_1.19362974|0.165235326|-0.501769543_1.49011612E-07|-1.00000012|1.2665987E-07_1.19362974|0.165235326|-0.501769543_1.49011612E-07|-1.00000012|1.2665987E-07
 	attN = node_RC_9_2,Null_0_1.1988287|0.165235177|0.489218175_1.49011612E-07|-1.00000012|1.2665987E-07_1.1988287|0.165235177|0.489218175_1.49011612E-07|-1.00000012|1.2665987E-07
-	attN = node_RC_9_3,Null_0_0.501769662|0.165235102|1.19362915_1.49011612E-07|-1.00000012|1.2665987E-07_0.501769662|0.165235102|1.19362915_1.49011612E-07|-1.00000012|1.2665987E-07
-	attN = node_RC_9_4,Null_0_-0.489218235|0.165235102|1.19882774_1.49011612E-07|-1.00000012|1.2665987E-07_-0.489218235|0.165235102|1.19882774_1.49011612E-07|-1.00000012|1.2665987E-07
-	attN = node_RC_9_5,Null_0_-1.19362938|0.165235221|0.501769423_1.49011612E-07|-1.00000012|1.2665987E-07_-1.19362938|0.165235221|0.501769423_1.49011612E-07|-1.00000012|1.2665987E-07
-	attN = node_RC_9_6,Null_0_-1.1988281|0.16523537|-0.489218384_1.49011612E-07|-1.00000012|1.2665987E-07_-1.1988281|0.16523537|-0.489218384_1.49011612E-07|-1.00000012|1.2665987E-07
-	attN = node_RC_9_7,Null_0_-0.501769662|0.1652354|-1.1936295_1.49011612E-07|-1.00000012|1.2665987E-07_-0.501769662|0.1652354|-1.1936295_1.49011612E-07|-1.00000012|1.2665987E-07
-	attN = node_RC_9_8,Null_0_1.09139382E-08|0.165235266|-1.67638063E-07_1.49011612E-07|-1.00000012|1.2665987E-07_1.09139382E-08|0.165235266|-1.67638063E-07_1.49011612E-07|-1.00000012|1.2665987E-07
+	attN = node_RM_13_0,Null_0_0|0.165242851|-1.57518327_0|-1.00000012|1.78813934E-07_0|0.165242851|-1.57518327_0|-1.00000012|1.78813934E-07
+	attN = node_RM_13_1,Null_0_0.925869644|0.165242851|-1.27434981_-2.38418579E-07|-1.00000024|8.94069672E-08_0.925869644|0.165242851|-1.27434981_-2.38418579E-07|-1.00000024|8.94069672E-08
+	attN = node_RM_13_2,Null_0_1.49808884|0.165242776|-0.486758292_-3.87430191E-07|-1.00000012|5.96046448E-08_1.49808884|0.165242776|-0.486758292_-3.87430191E-07|-1.00000012|5.96046448E-08
+	attN = node_RM_13_3,Null_0_1.49808884|0.165242627|0.48675859_-3.27825546E-07|-1.00000012|-5.96046448E-08_1.49808884|0.165242627|0.48675859_-3.27825546E-07|-1.00000012|-5.96046448E-08
+	attN = node_RM_13_4,Null_0_0.925869942|0.165242553|1.27435064_-1.1920929E-07|-1.00000024|-4.91738319E-07_0.925869942|0.165242553|1.27435064_-1.1920929E-07|-1.00000024|-4.91738319E-07
+	attN = node_RM_13_5,Null_0_0|0.165242553|1.57518387_8.74228405E-08|-1.00000012|-4.76837158E-07_0|0.165242553|1.57518387_8.74228405E-08|-1.00000012|-4.76837158E-07
+	attN = node_RM_13_6,Null_0_-0.925869644|0.165242553|1.27435064_1.1920929E-07|-1.00000024|-4.91738319E-07_-0.925869644|0.165242553|1.27435064_1.1920929E-07|-1.00000024|-4.91738319E-07
+	attN = node_RM_13_7,Null_0_-1.49808884|0.165242627|0.486758888_2.98023224E-07|-1.00000012|-1.49011612E-07_-1.49808884|0.165242627|0.486758888_2.98023224E-07|-1.00000012|-1.49011612E-07
+	attN = node_RM_13_8,Null_0_-1.49808884|0.165242776|-0.486758292_4.17232513E-07|-1.00000012|-2.98023224E-08_-1.49808884|0.165242776|-0.486758292_4.17232513E-07|-1.00000012|-2.98023224E-08
+	attN = node_RM_13_9,Null_0_-0.925869882|0.165242851|-1.2743504_2.38418579E-07|-1.00000012|1.11758709E-07_-0.925869882|0.165242851|-1.2743504_2.38418579E-07|-1.00000012|1.11758709E-07
 	attN = node_RC_13_0,Null_0_0|0.165242851|-1.57518327_0|-1.00000012|1.78813934E-07_0|0.165242851|-1.57518327_0|-1.00000012|1.78813934E-07
 	attN = node_RC_13_1,Null_0_0.925869644|0.165242851|-1.27434981_-2.38418579E-07|-1.00000024|8.94069672E-08_0.925869644|0.165242851|-1.27434981_-2.38418579E-07|-1.00000024|8.94069672E-08
 	attN = node_RC_13_2,Null_0_1.49808884|0.165242776|-0.486758292_-3.87430191E-07|-1.00000012|5.96046448E-08_1.49808884|0.165242776|-0.486758292_-3.87430191E-07|-1.00000012|5.96046448E-08
-	attN = node_RC_13_3,Null_0_1.49808884|0.165242627|0.48675859_-3.27825546E-07|-1.00000012|-5.96046448E-08_1.49808884|0.165242627|0.48675859_-3.27825546E-07|-1.00000012|-5.96046448E-08
-	attN = node_RC_13_4,Null_0_0.925869942|0.165242553|1.27435064_-1.1920929E-07|-1.00000024|-4.91738319E-07_0.925869942|0.165242553|1.27435064_-1.1920929E-07|-1.00000024|-4.91738319E-07
-	attN = node_RC_13_5,Null_0_0|0.165242553|1.57518387_8.74228405E-08|-1.00000012|-4.76837158E-07_0|0.165242553|1.57518387_8.74228405E-08|-1.00000012|-4.76837158E-07
-	attN = node_RC_13_6,Null_0_-0.925869644|0.165242553|1.27435064_1.1920929E-07|-1.00000024|-4.91738319E-07_-0.925869644|0.165242553|1.27435064_1.1920929E-07|-1.00000024|-4.91738319E-07
-	attN = node_RC_13_7,Null_0_-1.49808884|0.165242627|0.486758888_2.98023224E-07|-1.00000012|-1.49011612E-07_-1.49808884|0.165242627|0.486758888_2.98023224E-07|-1.00000012|-1.49011612E-07
-	attN = node_RC_13_8,Null_0_-1.49808884|0.165242776|-0.486758292_4.17232513E-07|-1.00000012|-2.98023224E-08_-1.49808884|0.165242776|-0.486758292_4.17232513E-07|-1.00000012|-2.98023224E-08
-	attN = node_RC_13_9,Null_0_-0.925869882|0.165242851|-1.2743504_2.38418579E-07|-1.00000012|1.11758709E-07_-0.925869882|0.165242851|-1.2743504_2.38418579E-07|-1.00000012|1.11758709E-07
-	attN = node_RC_13_11,Null_0_0.486313671|0.165242687|0.280773222_-2.98023224E-07|-1.00000012|-8.94069672E-08_0.486313671|0.165242687|0.280773222_-2.98023224E-07|-1.00000012|-8.94069672E-08
-	attN = node_RC_13_12,Null_0_-0.486313552|0.165242687|0.280773282_2.98023224E-07|-1.00000012|-8.94069672E-08_-0.486313552|0.165242687|0.280773282_2.98023224E-07|-1.00000012|-8.94069672E-08
 	EVENTS
 	{
 	}
@@ -5800,10 +5382,13 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleTundraEngineSwitch
+		name = ModuleSEPEngineSwitch
 		isEnabled = True
 		currentEngineDisplay = All Engines
 		selectedIndex = 0
+		independentThrottle = False
+		independentThrottlePercentage = 0
+		thrustPercentage = 100
 		stagingEnabled = True
 		EVENTS
 		{
@@ -5835,15 +5420,35 @@ PART
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
 			}
-			ToggleEngineModeAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
 			ToggleIndependentThrottleAction
 			{
 				actionGroup = None
 				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		AXISGROUPS
+		{
+			independentThrottlePercentage
+			{
+				axisGroup = None
+				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				axisSpeedMultiplier = 0
+				axisInverted = None
+				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+			}
+			thrustPercentage
+			{
+				axisGroup = None
+				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				axisSpeedMultiplier = 0
+				axisInverted = None
+				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
+				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
 			}
 		}
 		UPGRADESAPPLIED
@@ -5853,7 +5458,7 @@ PART
 	MODULE
 	{
 		name = ModuleEnginesFX
-		isEnabled = True
+		isEnabled = False
 		independentThrottle = False
 		independentThrottlePercentage = 0
 		staged = False
@@ -5936,7 +5541,7 @@ PART
 		engineShutdown = False
 		currentThrottle = 0
 		thrustPercentage = 100
-		manuallyOverridden = True
+		manuallyOverridden = False
 		includeinDVCalcs = False
 		stagingEnabled = True
 		EVENTS
@@ -6010,7 +5615,7 @@ PART
 		engineShutdown = False
 		currentThrottle = 0
 		thrustPercentage = 100
-		manuallyOverridden = True
+		manuallyOverridden = False
 		includeinDVCalcs = False
 		stagingEnabled = True
 		EVENTS
@@ -6119,12 +5724,99 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleSEPEngineGUI
+		name = ModuleSEPProceduralEngineGUI
 		isEnabled = True
-		EngString29 = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
-		EngString33 = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
-		GUIMode = 33 Engines
+		activeEngineType = 0
 		stagingEnabled = True
+		State
+		{
+			version = 3
+			Keys
+			{
+				key = RBCovers
+				key = RC9Heatshield
+				key = RC13Heatshield
+				key = RBoosts
+				key = RMiddles9
+				key = RCenters9
+				key = RMiddles13
+				key = RCenters13
+			}
+			Values
+			{
+				PersistentDictionaryValueTypes`2
+				{
+					RBCover = True
+					Cover.Black.Outer = True
+					Cover.Black_COLLIDER = True
+				}
+				PersistentDictionaryValueTypes`2
+				{
+					Cover.Black9 = True
+				}
+				PersistentDictionaryValueTypes`2
+				{
+					Cover.Black13 = True
+				}
+				PersistentDictionaryValueTypes`2
+				{
+					RB_0 = True
+					RB_1 = True
+					RB_2 = True
+					RB_3 = True
+					RB_4 = True
+					RB_5 = True
+					RB_6 = True
+					RB_7 = True
+					RB_8 = True
+					RB_9 = True
+					RB_10 = True
+					RB_11 = True
+					RB_12 = True
+					RB_13 = True
+					RB_14 = True
+					RB_15 = True
+					RB_16 = True
+					RB_17 = True
+					RB_18 = True
+					RB_19 = True
+				}
+				PersistentDictionaryValueTypes`2
+				{
+					RM_9_0 = True
+					RM_9_1 = True
+					RM_9_2 = True
+					RM_9_3 = True
+					RM_9_4 = True
+					RM_9_5 = True
+				}
+				PersistentDictionaryValueTypes`2
+				{
+					RC_9_0 = True
+					RC_9_1 = True
+					RC_9_2 = True
+				}
+				PersistentDictionaryValueTypes`2
+				{
+					RM_13_0 = True
+					RM_13_1 = True
+					RM_13_2 = True
+					RM_13_3 = True
+					RM_13_4 = True
+					RM_13_5 = True
+					RM_13_6 = True
+					RM_13_7 = True
+					RM_13_8 = True
+					RM_13_9 = True
+				}
+				PersistentDictionaryValueTypes`2
+				{
+					RC_13_0 = True
+					RC_13_1 = True
+					RC_13_2 = True
+				}
+			}
+		}
 		EVENTS
 		{
 		}
@@ -6355,27 +6047,11 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Behemoth "Andrada" Engine Cluster
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -6391,66 +6067,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleWaterfallFX
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleWaterfallFX
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -6492,22 +6108,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = ElectricCharge
@@ -6525,7 +6125,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4290800194
 	partName = Part
 	persistentId = 313876309
-	pos = 1.84623122,57.3191986,3.19832611
+	pos = 1.84623265,57.3191986,3.1983285
 	attPos = 0,0,0
 	attPos0 = -3.1980257,22.3105087,1.84629416
 	rot = 0.50000006,-5.45420491E-08,-0.866025507,5.45420349E-08
@@ -6725,10 +6325,11 @@ PART
 	}
 	MODULE
 	{
-		name = KOSNameTag
+		name = FMRS_PM
 		isEnabled = True
-		nameTag = 
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -6741,8 +6342,9 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
+		name = KOSNameTag
 		isEnabled = True
+		nameTag = 
 		stagingEnabled = True
 		EVENTS
 		{
@@ -6760,7 +6362,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4290799736
 	partName = Part
 	persistentId = 4199071649
-	pos = -1.84638047,57.3191986,3.19832349
+	pos = -1.84638143,57.3191986,3.1983254
 	attPos = 0,0,0
 	attPos0 = -3.1980257,22.3105087,-1.84629893
 	rot = 0.866025507,4.8696247E-08,-0.50000006,-4.86962399E-08
@@ -6952,10 +6554,11 @@ PART
 	}
 	MODULE
 	{
-		name = KOSNameTag
+		name = FMRS_PM
 		isEnabled = True
-		nameTag = 
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -6968,8 +6571,9 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
+		name = KOSNameTag
 		isEnabled = True
+		nameTag = 
 		stagingEnabled = True
 		EVENTS
 		{
@@ -6987,7 +6591,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4290799422
 	partName = Part
 	persistentId = 445109440
-	pos = -1.84638715,57.3191986,-3.19776249
+	pos = -1.84638858,57.3191986,-3.19776487
 	attPos = 0,0,0
 	attPos0 = 3.1980269,22.3105087,-1.84630144
 	rot = -0.866025507,-4.86962435E-08,-0.49999994,-4.86962506E-08
@@ -7179,10 +6783,11 @@ PART
 	}
 	MODULE
 	{
-		name = KOSNameTag
+		name = FMRS_PM
 		isEnabled = True
-		nameTag = 
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -7195,8 +6800,9 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
+		name = KOSNameTag
 		isEnabled = True
+		nameTag = 
 		stagingEnabled = True
 		EVENTS
 		{
@@ -7214,7 +6820,7 @@ PART
 	part = SEP.23.BOOSTER.GRIDFIN_4290799118
 	partName = Part
 	persistentId = 1316263646
-	pos = 1.84622717,57.3191986,-3.19776034
+	pos = 1.84622812,57.3191986,-3.19776225
 	attPos = 0,0,0
 	attPos0 = 3.19802713,22.3105087,1.84629393
 	rot = -0.500000119,5.45420384E-08,-0.866025448,5.45420527E-08
@@ -7406,10 +7012,11 @@ PART
 	}
 	MODULE
 	{
-		name = KOSNameTag
+		name = FMRS_PM
 		isEnabled = True
-		nameTag = 
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -7422,8 +7029,9 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
+		name = KOSNameTag
 		isEnabled = True
+		nameTag = 
 		stagingEnabled = True
 		EVENTS
 		{
@@ -7441,7 +7049,7 @@ PART
 	part = DC.smallCam.Wide_4290798550
 	partName = Part
 	persistentId = 3662615817
-	pos = -2.70620108,57.4641991,0.000282296853
+	pos = -2.70620203,57.4641991,0.000282296853
 	attPos = 0,-0.290931702,0.0322146416
 	attPos0 = 2.39902874E-07,22.7437286,-2.7441256
 	rot = 0.12409094,-0.696133256,0.12409094,0.696133256
@@ -7602,6 +7210,23 @@ PART
 	}
 	MODULE
 	{
+		name = FMRS_PM
+		isEnabled = True
+		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -7633,28 +7258,13 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 }
 PART
 {
 	part = DC.smallCam_4290797338
 	partName = Part
 	persistentId = 2683721266
-	pos = -2.33920383,28.9817657,-2.40970135
+	pos = -2.33920479,28.9817657,-2.4097023
 	attPos = 0,0.0471763611,0.0708539486
 	attPos0 = 2.41001129,-6.07604218,-2.41001105
 	rot = 0.263506234,-0.669965506,0.636160195,0.277508795
@@ -7815,6 +7425,23 @@ PART
 	}
 	MODULE
 	{
+		name = FMRS_PM
+		isEnabled = True
+		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -7835,21 +7462,6 @@ PART
 		isEnabled = True
 		current = 4
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -8455,27 +8067,11 @@ PART
 	}
 	MODULE
 	{
-		name = ModuleDockingNodeNamed
-		isEnabled = True
-		portName = Starship Orbital Launch Mount
-		initialized = True
-		controlTransformName = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -8504,36 +8100,6 @@ PART
 	}
 	MODULE
 	{
-		name = RSE_Coupler
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = kOSProcessor
 		isEnabled = True
 		bootFile = /boot/tower.ks
@@ -8541,8 +8107,12 @@ PART
 		baseDiskSpace = 255000
 		baseModuleMass = 0
 		additionalCost = 0
+		diskSpaceCostFactor = 0.0244140625
+		diskSpaceMassFactor = 4.88289986E-09
 		MaxPartId = 100
-		RequiredPower = 0.400000006
+		ECPerInstruction = 3.99999999E-06
+		ECPerBytePerSecond = 0
+		RequiredPower = 0.200000003
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -8641,22 +8211,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -8674,7 +8228,7 @@ PART
 	part = SLE.SS.SteelPlate_4290861004
 	partName = Part
 	persistentId = 2669527158
-	pos = -6.98704171E-05,1.39508057,0.000278933789
+	pos = -6.98703589E-05,1.39508057,0.000278933672
 	attPos = 0,0,0
 	attPos0 = -7.09201267E-05,0.412070721,-0.000632877112
 	rot = -1.44056614E-10,0,-2.26374683E-10,1
@@ -8912,9 +8466,11 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -8943,39 +8499,8 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = ModuleB9PartInfo
 		isEnabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
 		stagingEnabled = True
 		EVENTS
 		{
@@ -9004,7 +8529,7 @@ PART
 	part = SLE.SS.OLIT.Base_4290860846
 	partName = Part
 	persistentId = 530487789
-	pos = -20.8385811,4.88301468,-0.568815231
+	pos = -20.8385849,4.88301468,-0.568813324
 	attPos = 0,0,0
 	attPos0 = -20.8391418,3.89556837,-0.57510376
 	rot = -1.44056614E-10,0,-2.26374683E-10,1
@@ -9168,6 +8693,23 @@ PART
 	}
 	MODULE
 	{
+		name = FMRS_PM
+		isEnabled = True
+		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = MechJebCore
 		isEnabled = True
 		running = True
@@ -9290,21 +8832,6 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
 		name = LaunchClamp
 		isEnabled = False
 		scaleFactor = 1
@@ -9407,7 +8934,7 @@ PART
 	part = SLE.SS.OLIT.Core_4290857914
 	partName = Part
 	persistentId = 1912766905
-	pos = -20.8377724,8.40195847,-0.593866348
+	pos = -20.8377762,8.40195847,-0.593864441
 	attPos = 0,0,0
 	attPos0 = 0.000808741606,3.51894403,-0.0250510331
 	rot = -1.44056614E-10,0,-2.26374683E-10,1
@@ -9535,6 +9062,186 @@ PART
 		}
 		ACTIONS
 		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
+		name = MuMechModuleHullCameraZoom
+		isEnabled = True
+		stagingEnabled = True
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+			ZoomInAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ZoomOutAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			ActivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			DeactivateCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			NextCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
+			PreviousCameraAction
+			{
+				actionGroup = None
+				wasActiveBeforePartWasAdjusted = False
+			}
 		}
 		UPGRADESAPPLIED
 		{
@@ -9730,9 +9437,11 @@ PART
 	}
 	MODULE
 	{
-		name = EngineLightEffect
+		name = FMRS_PM
 		isEnabled = True
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -9748,21 +9457,6 @@ PART
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
@@ -9812,22 +9506,6 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = MASIdEngineGroup
-		isEnabled = True
-		partId = 0
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 	RESOURCE
 	{
 		name = DelugeWater
@@ -9845,7 +9523,7 @@ PART
 	part = SLE.SS.OLIT.Top_4290851594
 	partName = Part
 	persistentId = 2424439389
-	pos = -20.8374844,81.8808594,-0.615467072
+	pos = -20.8374882,81.8808594,-0.615465164
 	attPos = 0,0,0
 	attPos0 = -0.00478140078,10.4799986,0.0271975007
 	rot = -1.44056614E-10,0,-2.26374683E-10,1
@@ -9961,10 +9639,11 @@ PART
 	}
 	MODULE
 	{
-		name = KOSNameTag
+		name = FMRS_PM
 		isEnabled = True
-		nameTag = 
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -9977,8 +9656,9 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
+		name = KOSNameTag
 		isEnabled = True
+		nameTag = 
 		stagingEnabled = True
 		EVENTS
 		{
@@ -10034,7 +9714,7 @@ PART
 	part = hc.launchcam_4290966898
 	partName = Part
 	persistentId = 2710703539
-	pos = -19.8580399,92.3101044,-5.69216347
+	pos = -19.8580456,92.3101044,-5.69216347
 	attPos = -0.380829453,-0.0707550049,-4.76837158E-07
 	attPos0 = 1.3602879,10.5,-5.07668638
 	rot = -0.103553414,-0.603553593,0.0794594437,-0.786566198
@@ -10179,17 +9859,11 @@ PART
 	}
 	MODULE
 	{
-		name = MASCamera
+		name = FMRS_PM
 		isEnabled = True
-		goalFov = 50
-		currentFov = 50
-		goalPan = 0
-		currentPan = 0
-		goalTilt = 0
-		currentTilt = 0
-		cameraName = Launchpad Camera
-		activeMode = 0
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -10233,28 +9907,13 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 }
 PART
 {
 	part = SLE.SS.OLIT.SQD_4290851420
 	partName = Part
 	persistentId = 1394428468
-	pos = -19.5163822,57.9178085,-1.38233185
+	pos = -19.516386,57.9178085,-1.38233185
 	attPos = 0,0,0
 	attPos0 = 1.32140291,49.5158501,-0.788443983
 	rot = 1.03442943E-07,-0.997030318,-1.16582939E-08,-0.077011764
@@ -10571,10 +10230,11 @@ PART
 	}
 	MODULE
 	{
-		name = KOSNameTag
+		name = FMRS_PM
 		isEnabled = True
-		nameTag = 
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -10587,8 +10247,9 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
+		name = KOSNameTag
 		isEnabled = True
+		nameTag = 
 		stagingEnabled = True
 		EVENTS
 		{
@@ -10606,7 +10267,7 @@ PART
 	part = SLE.SS.OLIT.MZ_4290846692
 	partName = Part
 	persistentId = 79021720
-	pos = -13.3101225,80.6796036,0.374755859
+	pos = -13.3101263,80.6796036,0.374755859
 	attPos = 0,0,0
 	attPos0 = 7.52765656,72.2776489,0.968643427
 	rot = 0.707082331,-0.00588271022,-0.00588274002,-0.707082391
@@ -11372,10 +11033,11 @@ PART
 	}
 	MODULE
 	{
-		name = KOSNameTag
+		name = FMRS_PM
 		isEnabled = True
-		nameTag = 
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -11388,8 +11050,9 @@ PART
 	}
 	MODULE
 	{
-		name = ShipEffectsCollisions
+		name = KOSNameTag
 		isEnabled = True
+		nameTag = 
 		stagingEnabled = True
 		EVENTS
 		{
@@ -11443,7 +11106,7 @@ PART
 	part = DC.smallCam.Wide_4290958602
 	partName = Part
 	persistentId = 3468393557
-	pos = -1.72947431,7.32192993,2.98125815
+	pos = -1.7294755,7.32192993,2.98126006
 	attPos = -0.12176156,-0.149756908,0.523369551
 	attPos0 = -1.58534837,6.44228983,2.39774179
 	rot = 0.393892944,-0.198213786,0.0869499743,0.893308163
@@ -11604,6 +11267,23 @@ PART
 	}
 	MODULE
 	{
+		name = FMRS_PM
+		isEnabled = True
+		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
+		EVENTS
+		{
+		}
+		ACTIONS
+		{
+		}
+		UPGRADESAPPLIED
+		{
+		}
+	}
+	MODULE
+	{
 		name = KOSNameTag
 		isEnabled = True
 		nameTag = 
@@ -11635,28 +11315,13 @@ PART
 		{
 		}
 	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
 }
 PART
 {
 	part = kerbpro_4290957576
 	partName = Part
 	persistentId = 3664768616
-	pos = 0.450890929,14.8372955,-4.46320009
+	pos = 0.450890929,14.8372955,-4.46320105
 	attPos = 0.470120043,0.07289505,0.270808697
 	attPos0 = -0.0215261225,13.7745943,-4.75555992
 	rot = -0.308308005,-0.636353791,0.63635391,-0.308308184
@@ -11802,17 +11467,11 @@ PART
 	}
 	MODULE
 	{
-		name = MASCamera
+		name = FMRS_PM
 		isEnabled = True
-		goalFov = 50
-		currentFov = 50
-		goalPan = 0
-		currentPan = 0
-		goalTilt = 0
-		currentTilt = 0
-		cameraName = KerbPro
-		activeMode = 0
 		stagingEnabled = True
+		MM_DYNAMIC = true
+		parent_vessel = 0
 		EVENTS
 		{
 		}
@@ -11845,21 +11504,6 @@ PART
 		isEnabled = True
 		current = 5
 		showCones = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
-		isEnabled = True
 		stagingEnabled = True
 		EVENTS
 		{
