@@ -1,3 +1,22 @@
+# V3.4.8 (WIP)
+- Overhauled Booster Landing Guidance
+  - Guidance not staged anymore, but consistently determained by:
+    - Landing Position Error
+    - Horizontal Speed
+    - Altitude
+  - Middle Ring Shutdown Timing now like IRL catches at ~250 km/h
+  - Landing Burn Altitude now calculated, not guessed, and constantly updated during descent
+  - Increased Booster Fuel for Catch & Updated Fuel Check for Go-NoGo-Poll
+  - Tested Launch Inclinations of up to 66° (I don't recommend Inclinations > 40° on RSS)
+- Improved Arm Movement
+ - Fixed Angle Calculation
+- Added Gridfin Tilt during Catch
+- Added Throttle Indicator
+- Added Version Display
+- Added Hide UI Setting to Interface Settings
+- Fixed Ships Thrust Indicator positioning
+- Fixed Ship Fuel Calculation
+
 # V3.4.7 (2025-04-06)
 - Overhauled Mechazilla Movement
   - Arms track the vehicle with higher frequency
