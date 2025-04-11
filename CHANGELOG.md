@@ -1,8 +1,8 @@
 # 3.4.9 Should be WIP by the time 3.4.8 releases
 
 # V3.4.8 Nubro, for your information I'm still waiting for you to respond
--Added all the craft files for the new booster on stock size (real size coming soon with part 2 of the update)
--In the telemetry I enabled the booster and ship to look anywhere and so I included more textures for that
+- Added all the craft files for the new booster on stock size (real size coming soon with 3.4.9 of the update)
+- In the telemetry I enabled the booster and ship to look anywhere and so I included more textures for that
 
 # V3.4.7 (2025-04-06)
 - Overhauled Mechazilla Movement
