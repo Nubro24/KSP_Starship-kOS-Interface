@@ -1,6 +1,6 @@
 wait until ship:unpacked.
 
-set Scriptversion to "V3.4.8 - WIP".
+set Scriptversion to "V3.4.8".
 
 
 if homeconnection:isconnected {
