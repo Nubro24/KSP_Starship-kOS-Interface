@@ -1,5 +1,50 @@
-# V3.4.3 Still waiting for Nubro to see my pull request
--small changes to Block1 craft files + new cameras
+# 3.4.9 Should be WIP by the tine 3.4.8 releases
+
+# V3.4.8 Nubro, for your information I'm still waiting for you to respond
+-Added all the craft files for the new booster on stock size (real size coming soon with part 2 of the update)
+-In the telemetry I enabled the booster and ship to look anywhere and so I included more textures for that
+
+# V3.4.7 (2025-04-06)
+- Overhauled Mechazilla Movement
+  - Arms track the vehicle with higher frequency
+  - Arms closure follows a curved behaviuer with a brief slow till vehicle is between the arms
+  - Arms should now barely collide with the vehicle, and never be below the engines
+- Catches should work on all versions
+- Fixed KSRSS Reentry
+- Added Craft files for Real Size PEZ and Stock Size Cargo with the new Booster
+- Fixed Mission Timer showing 60s instead of +1min
+- Fixed Cargo Mass not updating when pressing Reentry&Landing
+
+# V3.4.6 (2025-04-05)
+- RSS patch
+  - Booster and Ship Catch should now be more on target
+  - Reentry fixed
+- NOTE: **Use at your own risk for KSRSS and Stock, its completly untested there**
+
+# V3.4.5 (2025-04-03)
+- Tower should now recognize the new Booster
+- HSR should not explode on Hotstaging anymore
+- Ship Reentry improved
+- Booster Landing should work again (Stock&KSRSS)
+  - added ability to land from high inclination orbit (not perfect though)
+- **changed files:**
+  - GameData/StarshipInterface/kOS.cfg
+  - Ships/Script/starship.ks,  /tower.ks  and /booster.ks
+
+# V3.4.4 (2025-04-03)
+- Added Patches for HSR heat resistance and Booster Thrust
+- New Booster now doesn't allow Catch with HSR (cause it now actually makes a realistic difference)
+- small fixes
+- note: Booster landing might not work atm
+- changed files:
+  - GameData/StarshipInterface/kOS.cfg
+  - Ships/Script/starship.ks and /booster.ks
+
+# V3.4.3 (2025-04-02)
+- little performance improvements
+- **Added support for beta5 (the new booster)**
+  - NOTE: due to the low thrust of the new Booster, will the Booster run out of fuel and can't lift Payloads (I suggest reducing the boosters and ships fuel to 90 %)
+- Added Craft with new Booster (Stock Size)
 
 # V3.4.2 (2025-03-28)
 - various Bug/Error Fixes

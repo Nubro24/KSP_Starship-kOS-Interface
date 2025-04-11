@@ -12,14 +12,14 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ## Current State:
-- Ship landings/catches and Booster catches don't work in RSS
+- Ship landings/catches and Booster might be inconsistent
 - This fork is currently worked on by Nubro.
 
 ### Known Issues:
-- **Using the provided Craft Files you might have to change the Fuel levels back and forth one time in the VAB to prevent Fuel overload on first launch**
+- **Using the (old) provided Craft Files you might have to change the Fuel levels back and forth one time in the VAB to prevent Fuel overload on first launch**
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
-- Booster/Ship krakens on contact with Chopsticks in RSS
+- Booster might land in front of the tower, due to differrent possible descent trajectories with KSP
     - **If your Booster lands beside/in front of the Tower, use [Frisk's fork](https://github.com/Frisk-33/KSP_Starship-kOS-Interface/tree/patch-1) for a potential patch (RSS only)**
 - SQD may not rotate away on Lift-Off (SLE bug I think)
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
@@ -27,9 +27,8 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ## Installation:
-- Download and install all requirements listed below.
-- If you update: first delete the _StarshipInterface_ folder!
-- Download the zip file.
+- **Download and install all requirements listed below.**
+- Download the latest release .zip
 - Extract the contents to a folder.
 - Move the contents of the _/Kerbal Space Program_ folder (_GameData_ and _Ships_ folders) into your /Kerbal Space Program folder (and overwrite if you are updating).
 
@@ -37,28 +36,22 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
   - _Kerbal Space Program/GameData/StarshipInterface_    (location of the patch)
   - _Kerbal Space Program/Ships/Script_                  (here the kOS scripts are saved)
   - _Kerbal Space Program/Ships/VAB_                     (location of the .craft files)
-
-
-> [!IMPORTANT]
-> - Use the provided .craft files (e.g. _Starship Cargo_) located inside the stock craft category in the VAB's vessel loading menu (left hand side). This needs _stock vehicles_ enabled in your savegame.
-> - Real Solar System: use _Starship ... Real Size_.
-
-![Alt text](/Howtoloadcrafts.png)
+      - you can also move the .craft files you need directly to your main save
+        ( *_Kerbal Space Program/saves/<saveTitle>/Ships/VAB_* )
 
 
 ## Requirements:
 - Stock-size Kerbin or Real Solar System or KSRSS or SigmaDimensions (2.5-2.7x)
 - KSP language set to **English**
-- Starship Expansion Project - [github Dev](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with beta4*
-- Starship Launch Expansion - [github Exp](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Experimental)
+- Starship Expansion Project - [github](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with beta5*
+    - with ***all*** dependencies
+- Starship Launch Expansion - [github](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Experimental) - *Experimental branch recommended*
 - kOS - [github](https://github.com/KSP-KOS/KOS/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/165628-ksp-1101-and-111-kos-v1310-kos-scriptable-autopilot-system/)
 - Trajectories - [github](https://github.com/neuoy/KSPTrajectories/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/162324-18-112x-trajectories-v241-2021-06-27-atmospheric-predictions/)
-- Kerbal Joint Reinforcement Continued - [github](https://github.com/KSP-RO/Kerbal-Joint-Reinforcement-Continued/releases) - [Forum](https://forum.kerbalspaceprogram.com/topic/184019-131-14x-15x-16x-17x-kerbal-joint-reinforcement-continued-v340-25-04-2019/)
-- KSP Community Fixes - [github](https://github.com/KSPModdingLibs/KSPCommunityFixes/releases) - [Forum](https://forum.kerbalspaceprogram.com/topic/204002-18-112-kspcommunityfixes-bugfixes-and-qol-tweaks/)
-- HullcamVDS - [github](https://github.com/linuxgurugamer/HullcamVDSContinued/releases)
 ### Recommended:
 - HangarExtender - [github](https://github.com/linuxgurugamer/FShangarExtender/releases)
-- **Of Course I Still Love You** (for multiple Camera Views on your Screen using HullcamVDS) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
+- HullcamVDS - [github](https://github.com/linuxgurugamer/HullcamVDSContinued/releases)
+- Of Course I Still Love You (for multiple Camera Views on your Screen *using HullcamVDS*) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 - When launching empty Starships it is recommended to reduce Booster Fuel load by one stop in the VAB
 
 ### Incompatible:
@@ -69,6 +62,15 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Physics Range Extender
 - Stage Recovery
 - PEKKA's Starship Pack
+
+
+
+> [!IMPORTANT]
+> - Use the provided .craft files (e.g. _Starship Cargo_) located inside the stock craft category in the VAB's vessel loading menu (left hand side). This needs _stock vehicles_ enabled in your savegame.
+> - Real Solar System: use _Starship ... Real Size_.
+> - If you want to create your own craft, use [the guide](https://github.com/Nubro24/KSP_Starship-kOS-Interface/blob/main/HowToMakeACraftFile.md) for important info
+
+![Alt text](/Howtoloadcrafts.png)
 
 
 
