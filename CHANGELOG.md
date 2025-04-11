@@ -1,4 +1,4 @@
-# 3.4.9 Should be WIP by the tine 3.4.8 releases
+# 3.4.9 Should be WIP by the time 3.4.8 releases
 
 # V3.4.8 Nubro, for your information I'm still waiting for you to respond
 -Added all the craft files for the new booster on stock size (real size coming soon with part 2 of the update)
