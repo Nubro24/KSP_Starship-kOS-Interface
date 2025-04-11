@@ -484,15 +484,15 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2400.
+        set LFBoosterFuelCutOff to 2435.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1500.
-        set LngCtrlPID:setpoint to 10. //50
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1660.
+        set LngCtrlPID:setpoint to 40. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 125.
@@ -1791,8 +1791,8 @@ function LandingThrottle {
     if verticalspeed > CatchVS - 3 {
         if verticalspeed > CatchVS - 0.3 {
             set minDecel to ((Planet1G - 0.05) * ship:mass * 1/cos(vang(-velocity:surface, up:vector))) / (max(ship:availablethrust*1.01, 0.000001)).
-            set minDecel to 0.66.
-            if RSS {set minDecel to 0.34.}
+            set minDecel to 0.6.
+            if RSS {set minDecel to 0.33.}
             set Hover to true.
             return minDecel.
         }
@@ -1879,17 +1879,17 @@ function LandingGuidance {
 
     //---------High Error----------
     if RadarAlt > 6*BoosterHeight {
-        if ErrorVector:mag > BoosterHeight * 0.4 {
+        if ErrorVector:mag > BoosterHeight * 0.24 {
             set Fev to Fev * 2.
         } 
         if ErrorVector:mag > PositionError:mag*0.5 and vAng(ErrorVector, PositionError) < 90 {
             set Fev to Fev * 3.6.
         }
-        if ErrorVector:mag < BoosterHeight * 0.2 {
+        if ErrorVector:mag < BoosterHeight * 0.1 {
             set Fev to Fev / 2.
         }
     } else if RadarAlt > 4*BoosterHeight {
-        if ErrorVector:mag > BoosterHeight * 0.2 {
+        if ErrorVector:mag > BoosterHeight * 0.1 {
             set Fev to Fev * 2.
         }
     }
