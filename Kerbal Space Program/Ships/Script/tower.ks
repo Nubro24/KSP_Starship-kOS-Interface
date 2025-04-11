@@ -1,9 +1,44 @@
+wait until ship:unpacked.
+
+
+if homeconnection:isconnected {
+    if config:arch {
+        shutdown.
+    }
+    switch to 0.
+    if exists("1:tower.ksm") {
+        if homeconnection:isconnected {
+            if open("0:tower.ks"):readall:string = open("1:/boot/tower.ks"):readall:string {}
+            else {
+                COMPILE "0:/tower.ks" TO "0:/tower.ksm".
+                if homeconnection:isconnected {
+                    copypath("0:tower.ks", "1:/boot/").
+                    copypath("tower.ksm", "1:").
+                    set core:BOOTFILENAME to "tower.ksm".
+                    reboot.
+                }
+            }
+        }
+    }
+    else {
+        print "tower.ksm doesn't yet exist in boot.. creating..".
+        COMPILE "0:/tower.ks" TO "0:/tower.ksm".
+        copypath("0:tower.ks", "1:/boot/").
+        copypath("tower.ksm", "1:").
+        set core:BOOTFILENAME to "tower.ksm".
+        reboot.
+    }
+}
+
+
 set RSS to false.
 set KSRSS to false.
 set STOCK to false.
 set AfterLaunch to false.
 set oldArms to true.
 set onOLM to false.
+set shipOnOLM to false.
+set LiftOffTime to -999.
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
@@ -35,23 +70,29 @@ set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Bas
 set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
 set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
 set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
-set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+if ship:partsnamed("SLE.SS.OLIT.SQD"):length > 0 {
+    set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+}
 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
 
-set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") {
+    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") {
         set BoosterCore to part.
         set onOLM to true.
     } else if part:name:contains("SEP.23.SHIP.BODY") {
         set ShipTank to part.
+        set shipOnOLM to true.
     } else if part:name:contains("SEP.24.SHIP.CORE") {
         set ShipTank to part.
+        set shipOnOLM to true.
     } else if part:name:contains("SEP.23.SHIP.DEPOT") {
         set ShipTank to part.
+        set shipOnOLM to true.
     }
      else if part:name:contains("BLOCK-2.MAIN.TANK") {
         set ShipTank to part.
+        set shipOnOLM to true.
     }
 }
 if onOLM {
@@ -269,16 +310,20 @@ until False {
         else if command = "DockingForce" {
             SetDockingForce(parameter1).
         }
+        else if command = "Countdown" {
+            set LiftOffTime to time:seconds + 17.
+        }
         else {
             PRINT "Unexpected message: " + RECEIVED:CONTENT.
         }
     }
     if time:seconds > PrevTime + 0.25 {
-        if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 {
+        if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
             RenameOLM().
         }
         set PrevTime to time:seconds.
     }
+    wait 0.03.
 }
 
 // <--------------> Functions <--------------> //
@@ -288,7 +333,7 @@ function LiftOff {
     if OLM:getmodule("ModuleAnimateGeneric"):hasevent("close clamps + qd") {
         OLM:getmodule("ModuleAnimateGeneric"):doevent("close clamps + qd").
     }
-    wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0.
+    wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0.
     RetractSQDArm().
     wait 3.
     RenameOLM().
@@ -326,7 +371,7 @@ function LandingDeluge {
         }
     }
     local waterOn to time:seconds.
-    when waterOn + 15 < time:seconds then {
+    when waterOn + 12 < time:seconds then {
         for x in list(OLM,SteelPlate) {
             if x:hasmodule("ModuleEnginesFX") {
                 if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
@@ -372,21 +417,26 @@ function MechazillaHeight {
 
 
 function MechazillaArms {
-    parameter targetangle.
-    parameter targetspeed.
-    parameter armsopenangle.
+    parameter targetangle. set targetangle to targetangle:toscalar.
+    parameter targetspeed. set targetspeed to targetspeed:toscalar.
+    parameter armsopenangle. set armsopenangle to armsopenangle:toscalar.
     parameter ArmsOpen.
-    //print targetangle.
-    //print targetspeed.
-    //print armsopenangle.
-    //print ArmsOpen.
+
+    set currentAngle to Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("current angle").
+    set angleerror to targetangle - currentAngle.
+    if armsopenangle/2 < angleerror*1.1 set armsopenangle to round(angleerror*2,1).
+
+    print targetangle.
+    print targetspeed.
+    print armsopenangle.
+    print ArmsOpen.
     if targetangle = 999 {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
     } else {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle:toscalar).
+        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle).
     }
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed:toscalar).
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle:toscalar).
+    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed).
+    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle).
     if ArmsOpen = "true" and Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("open arms") {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
     }
@@ -523,7 +573,8 @@ function SetDockingForce {
 
 
 function RenameOLM {
-    if ship:partstitled("Donnager MK-1 Main Body"):length = 0 and ship:partstitled("Donnager MK-1 EXP Main Body"):length = 0 and ship:partstitled("Donnager MK-1 Depot"):length = 0 {
+    if LiftOffTime + 2 < time:seconds set shipOnOLM to false.
+    if not shipOnOLM {
         print "No Ship currently occupying the tower..".
         for var in LaunchSites:keys {
             if round(LaunchSites[var]:split(",")[0]:toscalar(9999), 2) = round(ship:geoposition:lat, 2) and round(LaunchSites[var]:split(",")[1]:toscalar(9999), 2) = round(ship:geoposition:lng, 2) {

@@ -21,7 +21,7 @@
             "$type": "kOS.Safe.Encapsulation.StringValue"
         },
         {
-            "value": "Starship Crew",
+            "value": "Starship-NewBlock1Cargo-StockSize",
             "$type": "kOS.Safe.Encapsulation.StringValue"
         },
         {
@@ -127,6 +127,14 @@
         {
             "value": "false",
             "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "Launch Time",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 22026.397212567481,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
         }
     ],
     "$type": "kOS.Safe.Encapsulation.Lexicon"
