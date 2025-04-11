@@ -2,10 +2,11 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
+set Scriptversion to "V3.4.8 - WIP".
 
 
 
-//--------------Self-Update-------------//
+//---------------Self-Update--------------//
 
 
 
@@ -66,6 +67,7 @@ if exists("0:/settings.json") {
         set missionTimer to L["Launch Time"].
     }
 }
+set RadarAlt to 0.
 
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -101,6 +103,18 @@ local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
 
+local VersionDisplay is GUI(100).
+    set VersionDisplay:x to 0.
+    set VersionDisplay:y to 36.
+    set VersionDisplay:style:bg to "".
+    local VersionDisplayLabel is VersionDisplay:addlabel().
+        set VersionDisplayLabel:style:wordwrap to false.
+        set VersionDisplayLabel:style:width to 100.
+        set VersionDisplayLabel:style:fontsize to 12.
+        set VersionDisplayLabel:style:align to "center".
+        set VersionDisplayLabel:text to Scriptversion.
+VersionDisplay:show().
+
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
     set sAttitude:style:margin:left to 20.
@@ -123,7 +137,7 @@ local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
 local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
     set sLOX:style:wordwrap to false.
     set sLOX:style:margin:left to 50.
-    set sLOX:style:margin:top to 30.
+    set sLOX:style:margin:top to 25.
     set sLOX:style:width to 200.
     set sLOX:style:fontsize to 20.
 local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
@@ -134,7 +148,7 @@ local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
     set sCH4:style:fontsize to 20.
 local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
     set sThrust:style:wordwrap to false.
-    set sThrust:style:margin:left to 10.
+    set sThrust:style:margin:left to 45.
     set sThrust:style:margin:top to 15.
     set sThrust:style:width to 150.
     set sThrust:style:fontsize to 16.
@@ -226,7 +240,6 @@ else {
 }
 set aoa to 60.
 set BoosterAp to 35000.
-set RadarAlt to 0.
 
 set config:obeyhideui to false.
 
@@ -755,6 +768,7 @@ function FindParts {
         set sSpeed:style:textcolor to grey.
         set sLOX:style:textcolor to grey.
         set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
@@ -782,6 +796,7 @@ function FindParts {
         set sSpeed:style:textcolor to grey.
         set sLOX:style:textcolor to grey.
         set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER").
         set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
@@ -1525,16 +1540,16 @@ local settingscheckboxes is settingsstackvlayout3:addvbox().
 local quicksetting1 is settingscheckboxes:addcheckbox("<b>Auto-Stack</b>").
     set quicksetting1:style:margin:top to 12.
     set quicksetting1:style:margin:left to 10.
-    set quicksetting1:style:fontsize to 18.
-    set quicksetting1:style:width to 150.
-    set quicksetting1:style:height to 29.
+    set quicksetting1:style:fontsize to 14.
+    set quicksetting1:style:width to 145.
+    set quicksetting1:style:height to 24.
     set quicksetting1:style:overflow:right to -130.
     set quicksetting1:style:overflow:left to -3.
     set quicksetting1:style:overflow:top to -4.
     set quicksetting1:style:overflow:bottom to -9.
     set quicksetting1:tooltip to "Auto stacks both Ship and Booster (unable in RSS)".
 local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX500</b>").
-    set quicksetting2:style:fontsize to 18.
+    set quicksetting2:style:fontsize to 14.
     set quicksetting2:style:margin:left to 10.
     set quicksetting2:style:bg to "starship_img/starship_toggle_off".
     set quicksetting2:style:on:bg to "starship_img/starship_toggle_on".
@@ -1542,8 +1557,8 @@ local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX500</b>").
     set quicksetting2:style:hover_on:bg to "starship_img/starship_toggle_hover".
     set quicksetting2:style:active:bg to "starship_img/starship_toggle_off".
     set quicksetting2:style:active_on:bg to "starship_img/starship_toggle_on".
-    set quicksetting2:style:width to 150.
-    set quicksetting2:style:height to 29.
+    set quicksetting2:style:width to 145.
+    set quicksetting2:style:height to 24.
     set quicksetting2:style:overflow:right to -122.
     set quicksetting2:style:overflow:left to -3.
     set quicksetting2:style:overflow:top to -4.
@@ -1551,15 +1566,26 @@ local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX500</b>").
     set quicksetting2:tooltip to "kOS CPU speed. KX2000 = 4x faster, but also 4x heavier on performance".
 local quicksetting3 is settingscheckboxes:addcheckbox("<b>Log Data</b>").
     set quicksetting3:toggle to true.
-    set quicksetting3:style:fontsize to 18.
+    set quicksetting3:style:fontsize to 14.
     set quicksetting3:style:margin:left to 10.
-    set quicksetting3:style:width to 150.
-    set quicksetting3:style:height to 29.
+    set quicksetting3:style:width to 145.
+    set quicksetting3:style:height to 24.
     set quicksetting3:style:overflow:right to -130.
     set quicksetting3:style:overflow:left to -3.
     set quicksetting3:style:overflow:top to -4.
     set quicksetting3:style:overflow:bottom to -9.
     set quicksetting3:tooltip to "Flight Data Recorder. Saves data in 'KSP folder'/Ships/Script".
+local quicksetting4 is settingscheckboxes:addcheckbox("<b>Hide on F2</b>").
+    set quicksetting4:toggle to true.
+    set quicksetting4:style:fontsize to 14.
+    set quicksetting4:style:margin:left to 10.
+    set quicksetting4:style:width to 145.
+    set quicksetting4:style:height to 24.
+    set quicksetting4:style:overflow:right to -130.
+    set quicksetting4:style:overflow:left to -3.
+    set quicksetting4:style:overflow:top to -4.
+    set quicksetting4:style:overflow:bottom to -9.
+    set quicksetting4:tooltip to "Hide UI and Telemetry on F2".
 
 
 set setting1:onconfirm to {
@@ -1850,6 +1876,17 @@ set quicksetting3:ontoggle to {
     if not pressed {
         SaveToSettings("Log Data", "false").
         set Logging to false.
+    }
+}.
+set quicksetting4:ontoggle to {
+    parameter pressed.
+    if pressed {
+        SaveToSettings("ObeyHideUI", "true").
+        set config:obeyhideui to true.
+    }
+    if not pressed {
+        SaveToSettings("ObeyHideUI", "false").
+        set config:obeyhideui to false.
     }
 }.
 
@@ -2298,8 +2335,8 @@ set quickattitude2:onclick to {
 function AttitudeSteering {
     if time:seconds > TimeSinceLastAttSteering + 0.2 {
         set result to srfprograde * R(- attpitch * cos(attroll), attpitch * sin(attroll), 0).
-        return lookdirup(result:vector, vxcl(velocity:surface, result:vector)).
         set TimeSinceLastAttSteering to time:seconds.
+        return lookdirup(result:vector, vxcl(velocity:surface, result:vector)).
     }
     else {
         return lookdirup(result:vector, vxcl(velocity:surface, result:vector)).
@@ -5780,6 +5817,12 @@ if addons:tr:available and not startup {
                         set quicksetting3:pressed to true.
                     }
                 }
+                if L:haskey("ObeyHideUI") {
+                    if L["ObeyHideUI"] = true {
+                        set quicksetting4:pressed to true.
+                    }
+                    else set quicksetting4:pressed to false.
+                }
                 if L:haskey("Auto-Stack") {
                     if L["Auto-Stack"] = true {
                         set quicksetting1:pressed to true.
@@ -6278,6 +6321,7 @@ function Launch {
             }
         }
         print "Target Inc: " + round(setting3:text:split("°")[0]:toscalar(0)).
+        
 
         if RSS {
             set LaunchElev to altitude - 108.384.
@@ -6344,6 +6388,10 @@ function Launch {
         //set lv to vecdraw(v(0, 0, 0), LaunchRollVector, green, "LaunchRollVector", 35, true, 0.005, true, true).
 
         if OnOrbitalMount {
+            until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                wait 0.01.
+            }
             InhibitButtons(1, 1, 0).
             set cancel:text to "<b>ABORT</b>".
             set cancel:style:textcolor to red.
@@ -6713,11 +6761,6 @@ function Launch {
 
         if Boosterconnected {
             when apoapsis > BoosterAp - 14000 * Scale then {
-                if RSS {
-                    lock steering to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
-                } else {
-                    lock steering to lookDirUp(2*srfPrograde:vector+0.3*up:vector, LaunchRollVector).
-                }
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
                 } 
@@ -6866,6 +6909,7 @@ function Launch {
             set sSpeed:style:textcolor to white.
             set sLOX:style:textcolor to white.
             set sCH4:style:textcolor to white.
+            set sThrust:style:textcolor to white.
             when time:seconds > HotStageTime + 0.5 then {
                 set quickengine2:pressed to true.
             }
@@ -6881,12 +6925,12 @@ function Launch {
             when time:seconds > HotStageTime + 3 then {
                 lock steering to LaunchSteering().
             }
-            when time:seconds > HotStageTime + 3.9 then {
+            when time:seconds > HotStageTime + 6.9 then {
                 KUniverse:forceactive(vessel("Booster")).
             }
 
             
-            when deltav < 50 and deltav > 0 then {
+            when deltav < 75 and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
 
@@ -6897,7 +6941,7 @@ function Launch {
                 set steeringmanager:pitchtorquefactor to 0.5.
             }
             if RSS {
-                when altitude > targetap - 500 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 750 then {
+                when TargetAp < apoapsis and altitude > TargetAp*0.9 or altitude > targetap - 500 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 750 then {
                     if ShipType = "Depot" {
                         set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0, -7.5, 20).
                     }
@@ -7103,6 +7147,14 @@ Function LaunchSteering {
             set targetpitch to 90 - (11 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
+    } 
+    else if apoapsis > BoosterAp - 14000 * Scale and Boosterconnected {
+        rcs on.
+        if RSS {
+            set result to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
+        } else {
+            set result to lookDirUp(2*srfPrograde:vector+0.3*up:vector, LaunchRollVector).
+        }
     }
     else if Boosterconnected and not lowTWR {
         if RSS {
@@ -7182,8 +7234,8 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if MaintainVS {
             if deltaV > 500*Scale {
-                set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 95.
-                if apoapsis > 1.2*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,24),-24).
+                set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 100.
+                if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,24),-24).
             }
             else {
                 set OrbitBurnPitchCorrectionPID:setpoint to 0.
@@ -10566,7 +10618,7 @@ function ReEntryData {
                         setflaps(0, 87, 1, 0).
                         if not (TargetOLM = "False") {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
-                            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 0.7")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 1")).
                         }
                     }
                 }
@@ -14471,23 +14523,13 @@ function updateTelemetry {
     set lox to 0.
     set mlox to 0.
 
-    for res in ship:resources {
-        if res:name = "LqdMethane" {
-            set ch4 to res:amount.
-            set mch4 to res:capacity.
-        }
-        if res:name = "Oxidizer" {
-            set lox to res:amount.
-            set mlox to res:capacity.
-        }
-        if res:name = "LiquidFuel" {
-            set ch4 to res:amount.
-            set mch4 to res:capacity.
-        }
-    }
 
-    if Boosterconnected {
-        for res in Tank:resources {
+    if defined HeaderTank {
+        for res in HeaderTank:resources {
+            if res:name = "LiquidFuel" {
+                set ch4 to res:amount.
+                set mch4 to res:capacity.
+            }
             if res:name = "LqdMethane" {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
@@ -14496,12 +14538,22 @@ function updateTelemetry {
                 set lox to res:amount.
                 set mlox to res:capacity.
             }
-            if res:name = "LiquidFuel" {
-                set ch4 to res:amount.
-                set mch4 to res:capacity.
-            }
         }
     }
+        for res in Tank:resources {
+            if res:name = "LiquidFuel" {
+                set ch4 to ch4 + res:amount.
+                set mch4 to mch4 + res:capacity.
+            }
+            if res:name = "LqdMethane" {
+                set ch4 to ch4 + res:amount.
+                set mch4 to mch4 + res:capacity.
+            }
+            if res:name = "Oxidizer" {
+                set lox to lox + res:amount.
+                set mlox to mlox + res:capacity.
+            }
+        }
 
 
     set shipLOX to lox*100/mlox.
@@ -14586,7 +14638,7 @@ function updateTelemetry {
         set shipThrust to shipThrust + eng:thrust.
     }
 
-    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN".
+    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + round(throttle,2)*100 + "%".
 
     set missionTimerNow to time:seconds-missionTimer.
     if missionTimerNow < 0 {
@@ -14621,10 +14673,13 @@ function updateTelemetry {
     }
     if Boosterconnected or runningprogram = "LAUNCH" {
         set missionTimeLabel:text to "".
+        VersionDisplay:hide().
     } else if TMinus {
         set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
+        VersionDisplay:show().
     } else {
         set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
+        VersionDisplay:show().
     }
     
 }
