@@ -6321,6 +6321,7 @@ function Launch {
             }
         }
         print "Target Inc: " + round(setting3:text:split("°")[0]:toscalar(0)).
+        
 
         if RSS {
             set LaunchElev to altitude - 108.384.
@@ -6387,6 +6388,10 @@ function Launch {
         //set lv to vecdraw(v(0, 0, 0), LaunchRollVector, green, "LaunchRollVector", 35, true, 0.005, true, true).
 
         if OnOrbitalMount {
+            until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                wait 0.01.
+            }
             InhibitButtons(1, 1, 0).
             set cancel:text to "<b>ABORT</b>".
             set cancel:style:textcolor to red.
@@ -6925,7 +6930,7 @@ function Launch {
             }
 
             
-            when deltav < 50 and deltav > 0 then {
+            when deltav < 75 and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
 

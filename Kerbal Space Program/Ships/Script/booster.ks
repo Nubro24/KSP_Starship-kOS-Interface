@@ -400,7 +400,7 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 4000. else set BoosterGlideDistance to 6400. //3240
+        if oldBooster set BoosterGlideDistance to 4000. else set BoosterGlideDistance to 4000. //3240
         set LngCtrlPID:setpoint to 40. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -421,7 +421,7 @@ if bodyexists("Earth") {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2650.
+        set LFBoosterFuelCutOff to 3000. //2650
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -456,7 +456,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2650.
+        set LFBoosterFuelCutOff to 3000. //2650
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -1297,13 +1297,14 @@ function Boostback {
 
     lock throttle to LandingThrottle().
     set s0ev to 0.
+    lock adev to velocity:surface:mag / 343.
     when vAng(ErrorVector,PositionError) < 90 then set s0ev to 1.
     
     hudtext(throttle, 3, 2, 10, white, false).
     if RSS {
-        lock SteeringVector to lookdirup(-0.45 * velocity:surface + up:vector - s0ev*ErrorVector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.45 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
     } else {
-        lock SteeringVector to lookdirup(-0.5 * velocity:surface + up:vector - s0ev*ErrorVector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.5 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
     }
 
     when verticalspeed > -170 and GfC then {
@@ -1407,6 +1408,10 @@ function Boostback {
                         NoGo:hide().
                         set steeringManager:maxstoppingtime to 0.8.
                     }
+                    when RadarAlt < 2.4 * BoosterHeight and GfC and RSS then {
+                        set steeringManager:maxstoppingtime to 1.2.
+                        rcs on.
+                    }
                     set SentTime to time:seconds.
                     when RadarAlt < 3 * BoosterHeight and RadarAlt > 0.17*BoosterHeight then {
                         if not BoosterLanded {
@@ -1433,7 +1438,7 @@ function Boostback {
                     }
                     when RadarAlt < 0.165*BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + ",3.2,24,false")).
-                        set steeringManager:maxstoppingtime to 0.3.
+                        set steeringManager:maxstoppingtime to 0.3. if RSS set steeringManager:maxstoppingtime to 0.4.
                         sendMessage(Vessel(TargetOLM), ("CloseArms")).
                     }
                 }
@@ -1456,7 +1461,7 @@ function Boostback {
         }
     }
 
-    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 590 or velocity:surface:mag < 42 and not MiddleEnginesShutdown then {
+    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 590 or velocity:surface:mag < 42 and not MiddleEnginesShutdown or velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS then {
         PollUpdate().
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -1738,7 +1743,7 @@ FUNCTION SteeringCorrections {
         print "WobbleCheck: " + wobbleCheckrunning.
         //print " ".
 
-        if not LandingBurnStarted set LandingBurnAlt to min(TotalstopDist*1.05, 3500).
+        if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*1.05, 3003),1200).
 
         if altitude < 30000 and not (RSS) or altitude < 50000 and RSS {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
@@ -1836,18 +1841,21 @@ function LandingGuidance {
     if vAng(TowerRotationVector, PositionError) < 15 { 
         set Fev to 0.02.
         set Fgs to 0.
-        set FstarVec to 0.0006.
+        set FstarVec to 0.0005.
+        set HighIncl to false.
     }
     //---High Lat Error / High Inclination------
     else if vAng(PositionError, ErrorVector) > 65 { 
         set Fev to 0.036.
         set Fgs to 0.
         set FstarVec to 0.0004.
+        set HighIncl to true.
     }
     else { 
-        set Fev to 0.02.
+        set Fev to 0.03.
         set Fgs to 0.
         set FstarVec to 0.0008.
+        set HighIncl to true.
     }
 
     //----------13 Engines-------------
@@ -1856,21 +1864,17 @@ function LandingGuidance {
         set Fgs to 0.005.
         set FstarVec to 0.2*FstarVec.
         if ErrorVector:mag > BoosterHeight * 1.2 {
-            set Fev to Fev * 4.
-            set Fgs to 0.75*Fgs.
+            set Fev to Fev * 5.
+            set Fgs to 0.7*Fgs.
         }
     } else if ErrorVector:mag > BoosterHeight * 0.6 {
         set Fev to Fev * 8.
     }
 
 
-    //--------Case HighInclLaunch-------
+    //--------Case RSS HighInclLaunch-------
     if HighIncl {
-        if RadarAlt < 4.5*BoosterHeight and RadarAlt > 3*BoosterHeight {
-            set Ftrv to -0.014.
-        } else if BoosterHeight*1.5 < RadarAlt and RadarAlt < 2.4*BoosterHeight {
-            set Ftrv to 0.014.
-        }
+        set Fev to Fev/1.2.
     }
 
     //---------High Error----------
@@ -1908,6 +1912,13 @@ function LandingGuidance {
         set Fgs to Fgs*0.8.
         set Fev to 0.
         set Ftrv to 0.0.
+    }
+
+    if RSS {
+        set FstarVec to FstarVec/2.
+        set Fev to Fev/2.2.
+        set Fgs to Fgs/1.3.
+        set Ftrv to Ftrv/2.
     }
     
 
