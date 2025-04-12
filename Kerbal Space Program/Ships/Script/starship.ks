@@ -228,7 +228,6 @@ if ship:name:contains(" Real Size") and (RSS) {
 }
 
 set ShipType to "".
-set BoosterType to "".
 FindParts().
 if Tank:hasmodule("FARPartModule") {
     set FAR to true.
@@ -763,6 +762,7 @@ function FindParts {
     }
 
     if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
+        set oldBooster to true.
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
@@ -790,7 +790,6 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
     } else if ship:partsnamed("SEP.25.BOOSTER.CORE"):length > 0 {
-        set BoosterType to "Block1".
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
@@ -4703,7 +4702,7 @@ set launchbutton:ontoggle to {
                             }
                         }
 
-                        if not BoosterType="Block1" {   
+                        if oldBooster {   
                             set message1:text to "<b>HSR Jettison after Boostback?</b>".
                             set message2:text to "".
                             set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
@@ -6541,8 +6540,8 @@ function Launch {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
             set message2:text to "<b>Expected Engine Count:</b>    28".
             wait 0.4.
-            set message2:text to "<b>Expected Engine Count:</b>    33".
             //last 5 outer ignition
+            set message2:text to "<b>Expected Engine Count:</b>    33".
             
 
             wait 0.2.
