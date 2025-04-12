@@ -32,7 +32,7 @@ if homeconnection:isconnected {
     }
 }
 
-set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
