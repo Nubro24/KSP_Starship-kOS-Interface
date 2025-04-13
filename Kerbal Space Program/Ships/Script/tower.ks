@@ -284,6 +284,9 @@ until False {
         else if command = "getArmsVersion" {
             ArmVersion().
         }
+        else if command = "ReDock" {
+            ReDock().
+        }
         else if command = "MechazillaStabilizers" {
             MechazillaStabilizers(parameter1).
         }
@@ -401,6 +404,12 @@ function ArmVersion {
     } else if not AfterLaunch and not oldArms and onOLM {
         sendMessage(processor(volume("Booster")), "Arms,false").
         sendMessage(processor(volume("Starship")), "Arms,false").
+    }
+}
+
+function ReDock {
+    if OLM:getmodule("ModuleAnimateGeneric"):hasevent("open clamps + qd") {
+        OLM:getmodule("ModuleAnimateGeneric"):doevent("open clamps + qd").
     }
 }
 

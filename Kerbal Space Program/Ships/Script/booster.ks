@@ -32,7 +32,7 @@ if homeconnection:isconnected {
     }
 }
 
-set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
@@ -89,6 +89,19 @@ for part in ship:parts {
     }
 }
 
+set ModulesFound to false.
+set x to 0.
+until x > BoosterEngines[0]:modules:length or ModulesFound {
+    if BoosterEngines[0]:getmodulebyindex(x):name = "ModuleGimbal" {
+        set MidGimbMod to BoosterEngines[0]:getmodulebyindex(x).
+        set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
+        set ModulesFound to true.
+    }
+    set x to x+1.
+    wait 0.
+}
+
+
 wait 0.5.
 set InitialError to -9999.
 set maxDecel to 0.
@@ -96,7 +109,6 @@ set TotalstopTime to 0.
 set TotalstopDist to 0.
 set stopDist3 to 0.
 set landingRatio to 0.
-set maxstabengage to 0.5.  // Defines max closing of the stabilizers after landing.
 set GS to 0.
 set BoostBackComplete to false.
 set lastVesselChange to time:seconds.
@@ -491,7 +503,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1660.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1520.
         set LngCtrlPID:setpoint to 40. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -507,6 +519,19 @@ else {
 }
 lock RadarAlt to alt:radar - BoosterHeight*0.8.
 set LandingBurnAlt to 1800.
+
+set BoosterDockingHeight to 29.8*Scale.
+set maxstabengage to 80.
+set maxpusherengage to 0.33*Scale.
+
+if not oldBooster {
+    set BoosterDockingHeight to 32.22*Scale.
+    set maxstabengage to 100.
+    set maxpusherengage to 0.3*Scale.
+}
+
+
+
 
 
 
@@ -526,7 +551,12 @@ clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
 
-                        
+
+
+
+
+
+
 
 when True then {
     GUIupdate().
@@ -562,7 +592,12 @@ until False {
                     if L["Auto-Stack"] = true {
                         setLandingZone().
                         setTargetOLM().
-                        BoosterDocking().
+                        if not PreDockPos {
+                            AfterLandingTowerOperations().
+                        } else {
+                            BoosterDocking().
+                        }
+                        
                     }
                 }
             }
@@ -668,6 +703,7 @@ function Boostback {
         set CurrentTime to time:seconds.
         set kuniverse:timewarp:warp to 0.
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        MidGimbMod:doaction("lock gimbal", true).
         
         
         
@@ -712,6 +748,7 @@ function Boostback {
                         }
                         set ShipNotFound to true.
                     }
+                    wait 0.
                 }
             }
         } else if starship:contains("Starship") {
@@ -728,7 +765,7 @@ function Boostback {
         set flipStartTime to time:seconds.
 
 
-        when time:seconds > flipStartTime + 2 then { 
+        when time:seconds > flipStartTime + 1 then { 
             set steeringmanager:yawtorquefactor to 0.1.
         }
         when time:seconds > flipStartTime + 5 then {
@@ -760,7 +797,10 @@ function Boostback {
             //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
             //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
         }
-        when time:seconds > flipStartTime + 8 then { 
+        when time:seconds > flipStartTime + 6 then { 
+            set steeringmanager:yawtorquefactor to 0.4.
+        }
+        when time:seconds > flipStartTime + 10 then { 
             set steeringmanager:yawtorquefactor to 0.7.
         }
         when BoostBackComplete then {
@@ -773,7 +813,7 @@ function Boostback {
                 NoGo:hide().
             }
         }
-        when time:seconds > flipStartTime + 150 then { 
+        when time:seconds > flipStartTime + 140 then { 
             set steeringmanager:yawtorquefactor to 1.
         }
         
@@ -782,6 +822,7 @@ function Boostback {
         when (time:seconds > flipStartTime + 4 and verticalspeed > 0 and not (RSS)) or (time:seconds > flipStartTime + 6 and verticalspeed > 0 and (RSS)) then {
             lock throttle to 0.5.
             wait 0.01.
+            MidGimbMod:doaction("free gimbal", true).
             if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
                 set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
             }
@@ -791,19 +832,10 @@ function Boostback {
             set ship:control:neutralize to true.
         }
 
-        if RSS {
-            set SteeringManager:pitchtorquefactor to 0.80.
-            set SteeringManager:yawtorquefactor to 0.90.
-
-        }
-        else if KSRSS {
-            set SteeringManager:pitchtorquefactor to 0.7.
-            set SteeringManager:yawtorquefactor to 0.7.
-        }
-        else {
-            set SteeringManager:pitchtorquefactor to 0.75.
+        
+            set SteeringManager:pitchtorquefactor to 1.
             set SteeringManager:yawtorquefactor to 0.75.
-        }
+        
 
         until vang(vxcl(up:vector, facing:forevector), vxcl(up:vector, -ErrorVector)) < 15 or verticalspeed < -50 {
             SteeringCorrections().
@@ -866,6 +898,12 @@ function Boostback {
                 BoosterCore:activate.
             }
         }
+        when ship:groundspeed < 50 then {
+            CheckFuel().
+            if LFBooster > LFBoosterCap * 0.16 {
+                BoosterCore:activate.
+            }
+        }
         
         
         until (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale) or verticalspeed < -50 or BoostBackComplete {
@@ -906,6 +944,7 @@ function Boostback {
         lock SteeringVector to lookdirup(CurrentVec, ApproachVector:normalized - 0.5 * up:vector:normalized).
         lock steering to SteeringVector.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+        MidGimbMod:doaction("lock gimbal", true).
         CheckFuel().
         if LFBooster > LFBoosterCap * 0.1 {
             BoosterCore:activate.
@@ -1011,6 +1050,7 @@ function Boostback {
         set turnTime to time:seconds.
 
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+        CtrGimbMod:doaction("lock gimbal", true).
 
         set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
 
@@ -1294,11 +1334,17 @@ function Boostback {
     else {
         //set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 7.5.
     }
+    MidGimbMod:doaction("free gimbal", true).
+    CtrGimbMod:doaction("free gimbal", true).
 
     lock throttle to LandingThrottle().
     set s0ev to 0.
-    lock adev to velocity:surface:mag / 343.
-    when vAng(ErrorVector,PositionError) < 90 then set s0ev to 1.
+    lock adev to 0.2.
+    if vAng(landingzone:position-BoosterCore:position, -up:vector) > 40 lock adev to velocity:surface:mag / 343.
+    when vAng(ErrorVector,PositionError) < 90 then {
+        set s0ev to 1.
+        lock adev to velocity:surface:mag / 343.
+    }
     
     hudtext(throttle, 3, 2, 10, white, false).
     if RSS {
@@ -1381,7 +1427,7 @@ function Boostback {
                     }
                     lock steering to SteeringVector.
                 }
-                sendMessage(Vessel(TargetOLM), "MechazillaArms,8.5,24,95,true").
+                sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,24,95,true").
             }
             if Vessel(TargetOLM):distance < 2240 {
                 PollUpdate().
@@ -1396,9 +1442,9 @@ function Boostback {
 
                 when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 124 * Scale and RadarAlt < 7.5 * BoosterHeight and not (WobblyTower) then {
                     if RSS {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,16,75,true")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.4,16,75,true")).
                     } else {
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,12,75,true")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.4,12,75,true")).
                     }
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
                     if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
@@ -1411,6 +1457,9 @@ function Boostback {
                     when RadarAlt < 2.4 * BoosterHeight and GfC and RSS then {
                         set steeringManager:maxstoppingtime to 1.2.
                         rcs on.
+                    }
+                    when RadarAlt < 1.2 * BoosterHeight and GfC then {
+                        set steeringManager:maxstoppingtime to 0.6.
                     }
                     set SentTime to time:seconds.
                     when RadarAlt < 3 * BoosterHeight and RadarAlt > 0.17*BoosterHeight then {
@@ -1445,7 +1494,7 @@ function Boostback {
                 when WobblyTower and RadarAlt < 100 then {
                     HUDTEXT("Wobbly Tower detected..", 3, 2, 20, red, false).
                     HUDTEXT("Aborting Catch..", 3, 2, 20, yellow, false).
-                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,10,60,true").
+                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,10,60,true").
                     lock RadarAlt to alt:radar - BoosterHeight*0.8.
                     ADDONS:TR:SETTARGET(landingzone).
                 }
@@ -1465,6 +1514,7 @@ function Boostback {
         PollUpdate().
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+        MidGimbMod:doaction("lock gimbal", true).
     }
 
 
@@ -1526,6 +1576,7 @@ function Boostback {
 
     DeactivateGridFins().
     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+    CtrGimbMod:doaction("lock gimbal", true).
     CheckFuel().
     if LFBooster > 1 {
         BoosterCore:activate.
@@ -1534,6 +1585,9 @@ function Boostback {
 
     if not (LandSomewhereElse) {
         if not (TargetOLM = "false") {
+            if LFBooster > 1 {
+                BoosterCore:activate.
+            }
             if RSS {
                 HUDTEXT("Booster Landing Confirmed!", 10, 2, 20, green, false).
             }
@@ -1556,66 +1610,12 @@ function Boostback {
             }
 
             when time:seconds > LandingTime + 4 then {
-                sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.5,0.33,false").
                 lock RadarAlt to alt:radar - BoosterHeight*0.8.
             }
 
             when time:seconds > LandingTime + 8 then {
                 CheckFuel().
-                if LFBooster < 2 {
-                    BoosterCore:shutdown.
-                }
-                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.33 * Scale, 2) + ",false")).
-                when time:seconds > LandingTime + 30 then {
-                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,0.25,60,false").
-                }
-                when time:seconds > LandingTime + 10 * Scale then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.33 * Scale, 2) + ",false")).
-                    when kuniverse:canquicksave and time:seconds > LandingTime + 42 and L["Auto-Stack"] = true and not (RSS) and not (LandSomewhereElse) then {
-                        if not oldArms {sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).}
-                        //HUDTEXT("Loading current Booster quicksave for safe docking! (to avoid the Kraken..)", 20, 2, 20, green, false).
-                        sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (12 * Scale) + ",0.2")).
-                        wait 1.5.
-                        if not oldArms {sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").}
-                        when kuniverse:canquicksave and KUniverse:activevessel = ship then {
-                            //kuniverse:quicksave().
-                            wait 0.1.
-                            when kuniverse:canquicksave then {
-                                //kuniverse:quickload().
-                            }
-                        }
-                    }
-                    if not (L["Auto-Stack"] = true) or LandSomewhereElse {
-                        HUDTEXT("Booster recovered!", 10, 2, 5, green, false).
-                    }
-                }
-            }
-
-            until TowerReset or (RSS) {
-                clearscreen.
-                set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - BoosterCore:position).
-                set RollAngle to vang(facing:starvector, AngleAxis(-90, up:vector) * RollVector).
-                print "Roll Angle: " + round(RollAngle,1).
-                if abs(RollAngle) > 30 {
-                    set RollAngleExceeded to true.
-                    set TowerReset to true.
-                    break.
-                }
-            }
-            if not RollAngleExceeded {
-                if not (RSS) {
-                    print "Booster has been secured & Tower has been reset!".
-                    HUDTEXT("Tower has been reset, Booster may now be recovered!", 10, 2, 20, green, false).
-                }
-            }
-            else if 1=2 {
-                sendMessage(Vessel(TargetOLM), "EmergencyStop").
-                print "Emergency Shutdown commanded! Roll Angle exceeded: " + round(RollAngle, 1).
-                print "Continue manually with great care..".
-                HUDTEXT("Emergency Shutdown commanded!", 10, 2, 20, red, false).
-                HUDTEXT("Continue manually with great care..", 10, 2, 20, red, false).
-                wait 3.
-                shutdown.
+                BoosterCore:shutdown.
             }
         }
         else {
@@ -1840,18 +1840,19 @@ function LandingGuidance {
     //----------Low Lat Error----------
     if vAng(TowerRotationVector, PositionError) < 15 { 
         set Fev to 0.02.
+        if STOCK set Fev to 0.028.
         set Fgs to 0.
         set FstarVec to 0.0005.
         set HighIncl to false.
     }
     //---High Lat Error / High Inclination------
-    else if vAng(PositionError, ErrorVector) > 65 { 
+    else if vAng(PositionError, ErrorVector) > 65 and RadarAlt > 5 * BoosterHeight { 
         set Fev to 0.036.
         set Fgs to 0.
         set FstarVec to 0.0004.
         set HighIncl to true.
     }
-    else { 
+    else if RadarAlt > 4 * BoosterHeight { 
         set Fev to 0.03.
         set Fgs to 0.
         set FstarVec to 0.0008.
@@ -1867,6 +1868,9 @@ function LandingGuidance {
             set Fev to Fev * 5.
             set Fgs to 0.7*Fgs.
         }
+        if vAng(ErrorVector,PositionError) > 90 {
+            set Fev to 0.
+        }
     } else if ErrorVector:mag > BoosterHeight * 0.6 {
         set Fev to Fev * 8.
     }
@@ -1879,7 +1883,7 @@ function LandingGuidance {
 
     //---------High Error----------
     if RadarAlt > 6*BoosterHeight {
-        if ErrorVector:mag > BoosterHeight * 0.24 {
+        if ErrorVector:mag > BoosterHeight * 0.2 {
             set Fev to Fev * 2.
         } 
         if ErrorVector:mag > PositionError:mag*0.5 and vAng(ErrorVector, PositionError) < 90 {
@@ -1889,28 +1893,30 @@ function LandingGuidance {
             set Fev to Fev / 2.
         }
     } else if RadarAlt > 4*BoosterHeight {
-        if ErrorVector:mag > BoosterHeight * 0.1 {
-            set Fev to Fev * 2.
+        if ErrorVector:mag > BoosterHeight * 0.05 {
+            set Fev to Fev * 2.4.
         }
     }
     
 
     //---------Cancel Velocity----------
     if RadarAlt < 4*BoosterHeight {
-        set Fev to Fev * 2.
+        if not STOCK set Fev to Fev * 2.
     } 
     if RadarAlt < 3*BoosterHeight {
         set Fgs to 0.012.
         set Ftrv to 0.001.
     } 
     if RadarAlt < 1.5*BoosterHeight {
-        set Fgs to Fgs*2.
+        if STOCK set Fgs to Fgs*1.4.
+        if KSRSS set Fgs to Fgs*2.
+        if RSS set Fgs to Fgs*1.75.
         set Ftrv to 0.
         set Fev to Fev / 1.6.
     }
     if RadarAlt < 0.6*BoosterHeight {
         set Fgs to Fgs*0.8.
-        set Fev to 0.
+        set Fev to Fev*0.2.
         set Ftrv to 0.0.
     }
 
@@ -1926,6 +1932,192 @@ function LandingGuidance {
     set drawGUID to vecDraw(BoosterCore:position,up:vector - Fev*ErrorVector - Fgs*GSVec - Ftrv*TowerRotationVector - FstarVec*IFT8Vec,red,"guidVec",50,drawVecs,0.004).
     return guidVec.
 }
+
+
+
+function AfterLandingTowerOperations {
+    // <---- Command Template ---->
+    // sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,1," + (12.5 * Scale) + ",true").
+    // sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,0.5,24,false").
+    // sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").
+    // sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
+    // <-------------------------->
+
+    bGUI:hide().
+    set stable to false.
+    set PreDockPos to false.
+    set stableTime to time:seconds*10.
+    set lastMessage to time:seconds-12.
+    set ALTOTime to time:seconds.
+    set PreDockPosTime to time:seconds+180.
+    set CenterTime to time:seconds+120.
+    set steeringManager:maxstoppingtime to 0.1.
+    lock steering to lookDirUp(up:vector, RollVector).
+    Stabalize().
+
+    sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + (1 * Scale) + ",false").
+    when velocity:surface:mag > 0.24 then Stabalize().
+
+    lock PosDiff to (vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):dockingports[0]:nodeposition)):mag.
+
+    when stableTime + 10 < time:seconds then sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,0.5,24,false").
+    when PosDiff < 1.4 * Scale then {
+        sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + maxstabengage).
+        sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",false").
+    }
+    when PosDiff < 0.5 then {
+        HUDTEXT("Lowering Booster..", 7, 2, 20, green, false).
+        sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ round(BoosterDockingHeight/2,2) + ",0.4").
+        set CenterTime to time:seconds.
+    } 
+    
+    until PreDockPosTime + 10 < time:seconds {
+        clearScreen.
+        print PosDiff.
+        if CenterTime + 30 < time:seconds and PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 {
+            set PreDockPosTime to time:seconds.
+            SetBoosterActive().
+            wait until kuniverse:canquicksave.
+            kuniverse:quicksaveto("BoosterDocking").
+            set PreDockPos to true.
+            wait 0.1.
+            kuniverse:quickloadfrom("BoosterDocking").
+        }
+        wait 0.05.
+    }
+
+    HUDTEXT("Docking Operations starting..", 7, 2, 20, green, false).
+
+    BoosterDocking().
+
+
+    function Stabalize {
+        set stable to false.
+        until stable {
+            if velocity:surface:mag > 0.2 {}
+            else {
+                wait 2.
+                if velocity:surface:mag > 0.2 {}
+                else {
+                    set stableTime to time:seconds.
+                    set stable to true.
+                    HUDTEXT("Booster stable, continuing Tower Operations..", 7, 2, 20, green, false).
+                }
+            }
+            if lastMessage + 10 < time:seconds {
+                HUDTEXT("Waiting for Booster to stabalize...", 8, 2, 20, yellow, false).
+                set lastMessage to time:seconds.
+            }
+            wait 0.5.
+        }
+    }
+}
+
+
+
+
+function BoosterDocking {
+    wait 3.
+    setTowerHeadingVector().
+    setTargetOLM().
+    set t to time:seconds.
+    lock RollAngle to vang(vxcl(up:vector, facing:topvector), vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position)).
+    lock PosDiff to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):dockingports[0]:nodeposition):mag.
+    when ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 then {
+        clearscreen.
+        print "Roll Angle: " + round(RollAngle,1) + "".
+        print "Position Error: " + round(PosDiff, 2) + "m".
+        wait 0.001.
+        if ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 {
+            preserve.
+        } else {
+            MidGimbMod:doaction("free gimbal", true).
+            CtrGimbMod:doaction("free gimbal", true).
+            sendMessage(Vessel(TargetOLM), ("ReDock")).
+        }
+    }
+    if abs(RollAngle) < 5 and airspeed < 2 and PosDiff < 2.5 * Scale {
+        clearscreen.
+        print "Booster recovery in progress..".
+        HUDTEXT("Wait for Booster docking to start..", 5, 2, 20, green, false).
+        when abs(RollAngle) > 5 and ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 or PosDiff > 1.5 * Scale and ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 then {
+            sendMessage(Vessel(TargetOLM), "EmergencyStop").
+            print "Emergency Shutdown commanded! Roll Angle exceeded: " + round(RollAngle, 1).
+            print "Continue manually with great care..".
+            HUDTEXT("Emergency Shutdown commanded!", 10, 2, 20, red, false).
+            HUDTEXT("Continue manually with great care..", 10, 2, 20, red, false).
+            wait 3.
+            shutdown.
+        }
+
+        when PosDiff > 0.4 * Scale then {
+            HUDTEXT("Wait for Booster to stabilize..", 5, 2, 20, yellow, false).
+            set t to time:seconds.
+            until time:seconds > t + 5 {wait 0.}
+            set t to time:seconds.
+            preserve.
+        }
+        until time:seconds > t + 15 {wait 0.}
+
+        sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + round(BoosterDockingHeight, 2) + ",0.4")).
+        DeactivateGridFins().
+        set LandingTime to time:seconds.
+        clearscreen.
+        HUDTEXT("Booster docking in progress..", 50, 2, 20, green, false).
+
+        when time:seconds > LandingTime + 50 * Scale and not (BoosterDocked) then {
+            HUDTEXT("Docking Booster..", 10, 2, 20, green, false).
+            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + round(BoosterDockingHeight - 0.3*Scale, 2) + ",0.05")).
+            wait 6 * Scale.
+            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + round(BoosterDockingHeight, 2) + ",0.05")).
+            wait 6 * Scale.
+            preserve.
+        }
+        when ship:partstitled("Starship Orbital Launch Integration Tower Base"):length > 0 then {
+            set BoosterDocked to true.
+        }
+
+        when BoosterDocked then {
+            HUDTEXT("Booster Docked! Resetting tower..", 20, 2, 20, green, false).
+            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + round(BoosterDockingHeight + 3*Scale, 2) + ",0.5")).
+            sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,2.5,35,true").
+            set DockedTime to time:seconds.
+            if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
+                if ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("ModuleAnimateGeneric"):hasevent("open clamps + qd") {
+                    ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("ModuleAnimateGeneric"):DoAction("toggle clamps + qd", true).
+                }
+            }
+            when time:seconds > DockedTime + 7.5 then {
+                sendMessage(Vessel(TargetOLM), "MechazillaHeight,0,2").
+                sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,5,35,true").
+                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,1," + (12.5 * Scale) + ",true")).
+                if not oldArms {sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").}
+                when time:seconds > DockedTime + 20 then {
+                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,5,90,true").
+                    when time:seconds > DockedTime + 30 then {
+                        set TowerReset to true.
+                        HUDTEXT("Booster recovery complete, tower has been reset!", 10, 2, 20, green, false).
+                        //if BoosterCore:getmodule("ModuleSepPartSwitchAction"):getfield("current decouple system") = "Decoupler" {
+                        //BoosterCore:getmodule("ModuleSepPartSwitchAction"):DoAction("next decouple system", true).
+                        //}
+                        reboot.
+                    }
+                }
+            }
+        }
+    }
+    else {
+        clearscreen.
+        print "Automated Booster Docking not safe..".
+        print "Continue manually with great care..".
+        HUDTEXT("Automated Booster Docking currently not safe..", 10, 2, 20, yellow, false).
+        HUDTEXT("Continue manually or toggle power on the kOS unit (booster) and try again..", 10, 2, 20, yellow, false).
+        wait 3.
+        shutdown.
+    }
+}
+
+
 
 
 
@@ -2168,102 +2360,6 @@ function setTargetOLM {
 }
 
 
-function BoosterDocking {
-    wait 3.
-    setTowerHeadingVector().
-    setTargetOLM().
-    set t to time:seconds.
-    lock RollAngle to vang(facing:starvector, AngleAxis(-90, up:vector) * RollVector).
-    lock PosDiff to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):dockingports[0]:nodeposition):mag.
-    when ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 then {
-        clearscreen.
-        print "Roll Angle: " + round(RollAngle,1) + "".
-        print "Position Error: " + round(PosDiff, 2) + "m".
-        wait 0.001.
-        if ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 {
-            preserve.
-        }
-    }
-    if abs(RollAngle) < 5 and airspeed < 2 and PosDiff < 2.5 * Scale {
-        clearscreen.
-        print "Booster recovery in progress..".
-        HUDTEXT("Wait for Booster docking to start..", 5, 2, 20, green, false).
-        when abs(RollAngle) > 5 and ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 or PosDiff > 1.5 * Scale and ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 then {
-            sendMessage(Vessel(TargetOLM), "EmergencyStop").
-            print "Emergency Shutdown commanded! Roll Angle exceeded: " + round(RollAngle, 1).
-            print "Continue manually with great care..".
-            HUDTEXT("Emergency Shutdown commanded!", 10, 2, 20, red, false).
-            HUDTEXT("Continue manually with great care..", 10, 2, 20, red, false).
-            wait 3.
-            shutdown.
-        }
-
-        when PosDiff > 0.4 * Scale then {
-            HUDTEXT("Wait for Booster to stabilize..", 5, 2, 20, yellow, false).
-            set t to time:seconds.
-            until time:seconds > t + 5 {}
-            set t to time:seconds.
-            preserve.
-        }
-        until time:seconds > t + 15 {}
-
-        sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (29.9 * Scale) + ",0.5")).
-        DeactivateGridFins().
-        set LandingTime to time:seconds.
-        clearscreen.
-        HUDTEXT("Booster docking in progress..", 50, 2, 20, green, false).
-
-        when time:seconds > LandingTime + 50 * Scale and not (BoosterDocked) then {
-            HUDTEXT("Docking Booster..", 10, 2, 20, green, false).
-            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (29.6 * Scale) + ",0.05")).
-            wait 6 * Scale.
-            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (29.9 * Scale) + ",0.05")).
-            wait 6 * Scale.
-            preserve.
-        }
-        when ship:partstitled("Starship Orbital Launch Integration Tower Base"):length > 0 then {
-            set BoosterDocked to true.
-        }
-
-        when BoosterDocked then {
-            HUDTEXT("Booster Docked! Resetting tower..", 20, 2, 20, green, false).
-            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (32.5 * Scale) + ",0.5")).
-            sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,2.5,35,true").
-            set DockedTime to time:seconds.
-            if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
-                if ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("ModuleAnimateGeneric"):hasevent("open clamps + qd") {
-                    ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("ModuleAnimateGeneric"):DoAction("toggle clamps + qd", true).
-                }
-            }
-            when time:seconds > DockedTime + 7.5 then {
-                sendMessage(Vessel(TargetOLM), "MechazillaHeight,0,2").
-                sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,5,35,true").
-                sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,1," + (12.5 * Scale) + ",true")).
-                if not oldArms {sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").}
-                when time:seconds > DockedTime + 20 then {
-                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,5,90,true").
-                    when time:seconds > DockedTime + 30 then {
-                        set TowerReset to true.
-                        HUDTEXT("Booster recovery complete, tower has been reset!", 10, 2, 20, green, false).
-                        //if BoosterCore:getmodule("ModuleSepPartSwitchAction"):getfield("current decouple system") = "Decoupler" {
-                        //BoosterCore:getmodule("ModuleSepPartSwitchAction"):DoAction("next decouple system", true).
-                        //}
-                        reboot.
-                    }
-                }
-            }
-        }
-    }
-    else {
-        clearscreen.
-        print "Automated Booster Docking not safe..".
-        print "Continue manually with great care..".
-        HUDTEXT("Automated Booster Docking currently not safe..", 10, 2, 20, yellow, false).
-        HUDTEXT("Continue manually or toggle power on the kOS unit (booster) and try again..", 10, 2, 20, yellow, false).
-        wait 3.
-        shutdown.
-    }
-}
 
 
 function ActivateGridFins {
