@@ -540,6 +540,7 @@ set oneSL to false.
 set shipThrust to 0.00001.
 set angle to 75.
 set speed to 12.
+set oldBooster to false.
 
 
 
