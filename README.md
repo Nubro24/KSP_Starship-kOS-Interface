@@ -8,7 +8,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 ### Credits:
 - Original Script: Janus92
-- Vehicle pictograms: Space_I_Isaac
+- Vehicle pictograms: Space_I_Isaac, Vista
 
 
 ## Current State:
