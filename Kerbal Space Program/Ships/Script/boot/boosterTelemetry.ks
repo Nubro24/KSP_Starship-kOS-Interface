@@ -218,33 +218,34 @@ set ConnectedMessage to false.
 
 bTelemetry:show().
 
+
+
 until False {
     GUIupdate().
     if SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 and not ConnectedMessage {
         set ShipConnectedToBooster to false.
-        //print("ShipFalse").
-    } 
+    }
     else {
         set ShipConnectedToBooster to true.
-        //print("ShipTrue").
     }
-    UNTIL NOT CORE:MESSAGES:EMPTY {}
-    SET RECEIVED TO CORE:MESSAGES:POP.
-    IF RECEIVED:CONTENT = "ShipDetected" {
-        set ConnectedMessage to true.
+    if NOT CORE:MESSAGES:EMPTY {
+        SET RECEIVED TO CORE:MESSAGES:POP.
+        IF RECEIVED:CONTENT = "ShipDetected" {
+            set ConnectedMessage to true.
+        }
+        else if RECEIVED:CONTENT = "Countdown" {
+            set missionTimer to time:seconds.
+        }
+        ELSE {
+            PRINT "Unexpected message: " + RECEIVED:CONTENT.
+        }
     }
-    else if RECEIVED:CONTENT = "Countdown" {
-        set missionTimer to time:seconds.
-    }
-    ELSE {
-        PRINT "Unexpected message: " + RECEIVED:CONTENT.
-    }
+    
     wait 0.02.
 }
 
 
 function GUIupdate {
-
     if ShipConnectedToBooster {
         if vAng(facing:vector,up:vector) < 24 {
             set bAttitude:style:bg to "starship_img/Fullstack".

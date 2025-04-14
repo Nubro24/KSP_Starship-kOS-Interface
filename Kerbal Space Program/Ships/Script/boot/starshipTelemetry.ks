@@ -531,9 +531,10 @@ when ship:partstitled("Starship Orbital Launch Mount"):length > 0 then {
     }
 }
 
+sTelemetry:show().
 
 Until false {
-    
+    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 set Boosterconnected to false.
     updateTelemetry().
     wait 0.02.
 }
@@ -546,15 +547,8 @@ Until false {
 
 function sendMessage {
     parameter ves, msg.
-    set tgtves to "".
-    if not ves = processor(Volume("Booster")) {
-        list targets in shiplist.
-        for tgt in shiplist {
-            if tgt:name:contains(ves) set tgtves to tgt.
-        }
-    } else set tgtves to ves.
     
-    set cnx to tgtves:connection.
+    set cnx to ves:connection.
     if cnx:isconnected {
         if cnx:sendmessage(msg) {
             if msg = "ping" {}
@@ -570,6 +564,13 @@ function sendMessage {
         }.
     }
     else {
+        list targets in shiplist.
+        for tgt in shiplist {
+            if tgt:name:contains(ves) {
+                set tgtves to tgt.
+                sendMessage(tgtves,msg).
+            }
+        }
         print "connection could not be established..".
         HUDTEXT("Sending a Message failed due to Connection problems..", 10, 2, 20, red, false).
         set LastMessageSentTime to time:seconds.
