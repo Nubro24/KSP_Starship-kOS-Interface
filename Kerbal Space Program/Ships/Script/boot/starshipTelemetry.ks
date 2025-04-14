@@ -25,7 +25,7 @@ set config:obeyhideui to false.
 //---------------Telemetry GUI-----------------//
 
 set runningprogram to "None".
-set missionTimer to 0.
+set missionTimer to time:seconds + 30.
 if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("Launch Time") {
@@ -34,6 +34,7 @@ if exists("0:/settings.json") {
     }
 }
 set RadarAlt to 0.
+set Boosterconnected to true.
 
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -211,6 +212,7 @@ set startup to false.
 set config:ipu to CPUSPEED.
 set exit to false.
 set LastMessageSentTime to 0.
+set distanceLoad to ship:loaddistance:suborbital:unload.
 
 //---------------Finding Parts-----------------//
 
@@ -522,8 +524,7 @@ if ship:name:contains("OrbitalLaunchMount") {
 print ShipType.
 print "Starship Telemetry startup complete!".
 
-
-when ship:partstitled("Starship Orbital Launch Mount"):length > 0 then {
+when ship:partstitled("Starship Orbital Launch Mount"):length = 0 then {
     if not PostLaunch {
         SaveToSettings("Launch Time", time:seconds).
         set missionTimer to time:seconds.
@@ -532,9 +533,22 @@ when ship:partstitled("Starship Orbital Launch Mount"):length > 0 then {
 }
 
 sTelemetry:show().
+print "Test".
 
-Until false {
-    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 set Boosterconnected to false.
+when not Boosterconnected and not BoosterExists() then {
+    set sAltitude:style:textcolor to white.
+    set sSpeed:style:textcolor to white.
+    set sLOX:style:textcolor to white.
+    set sCH4:style:textcolor to white.
+    set sThrust:style:textcolor to white.
+    set sTelemetry:style:bg to "starship_img/telemetry_bg".
+}
+
+until false {
+    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 {
+        set Boosterconnected to false.
+        //sendMessage(Vessel("Booster"),"HotStage").
+    } 
     updateTelemetry().
     wait 0.02.
 }
@@ -620,7 +634,7 @@ function BoosterExists {
     if shiplist:length > 0 {
         for x in shiplist {
             if x:status = "SUB_ORBITAL" or x:status = "FLYING" {
-                if x:name:contains("Booster") {
+                if x:name:contains("Booster") and x:distance < distanceLoad {
                     return true.
                 }
             }

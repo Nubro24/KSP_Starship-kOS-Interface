@@ -15,7 +15,7 @@ set TScale to 1.
 
 
 set oldBooster to false.
-set missionTimer to 0.
+set missionTimer to time:seconds + 30.
 
 set GFset to false.
 set ECset to false.
@@ -215,15 +215,20 @@ print "Booster Nominal Operation, awaiting command..".
 set OnceShipName to false.
 set ShipConnectedToBooster to true.
 set ConnectedMessage to false.
+set distanceLoad to ship:loaddistance:suborbital:pack.
 
 bTelemetry:show().
 
 
-
+set once to false.
 until False {
     GUIupdate().
-    if SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 and not ConnectedMessage {
+    if SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 {
         set ShipConnectedToBooster to false.
+        if not once {
+            set ship:name to "Booster".
+            set once to true.
+        }
     }
     else {
         set ShipConnectedToBooster to true.
@@ -235,6 +240,9 @@ until False {
         }
         else if RECEIVED:CONTENT = "Countdown" {
             set missionTimer to time:seconds.
+        }
+        else if RECEIVED:CONTENT = "HotStage" {
+            set ShipConnectedToBooster to false.
         }
         ELSE {
             PRINT "Unexpected message: " + RECEIVED:CONTENT.
