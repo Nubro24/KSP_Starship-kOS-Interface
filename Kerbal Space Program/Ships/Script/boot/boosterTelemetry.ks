@@ -6,10 +6,10 @@ set Scriptversion to "Telemetry Only".
 
 set TScale to 1.
 
-// 720p     -   
+// 720p     -   0.67
 // 1080p    -   1
-// 1440p    -   
-// 2160p    -   
+// 1440p    -   1.33
+// 2160p    -   2
 //_________________________________________
 
 
@@ -213,7 +213,6 @@ print "Booster Nominal Operation, awaiting command..".
 
 set OnceShipName to false.
 set ShipConnectedToBooster to true.
-set starship to "".
 set ConnectedMessage to false.
 
 bTelemetry:show().
@@ -228,10 +227,6 @@ until False {
         set ShipConnectedToBooster to true.
         //print("ShipTrue").
     }
-    if not OnceShipName {
-        set starship to ship:name.
-        set OnceShipName to true.
-    }
     UNTIL NOT CORE:MESSAGES:EMPTY {}
     SET RECEIVED TO CORE:MESSAGES:POP.
     IF RECEIVED:CONTENT = "ShipDetected" {
@@ -243,7 +238,7 @@ until False {
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
     }
-    wait 0.01.
+    wait 0.02.
 }
 
 
