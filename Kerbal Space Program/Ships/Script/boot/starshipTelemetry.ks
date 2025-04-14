@@ -546,11 +546,14 @@ Until false {
 
 function sendMessage {
     parameter ves, msg.
-    list targets in shiplist.
     set tgtves to "".
-    for tgt in shiplist {
-        if tgt:name:contains(ves) set tgtves to tgt.
-    }
+    if not ves = processor(Volume("Booster")) {
+        list targets in shiplist.
+        for tgt in shiplist {
+            if tgt:name:contains(ves) set tgtves to tgt.
+        }
+    } else set tgtves to ves.
+    
     set cnx to tgtves:connection.
     if cnx:isconnected {
         if cnx:sendmessage(msg) {

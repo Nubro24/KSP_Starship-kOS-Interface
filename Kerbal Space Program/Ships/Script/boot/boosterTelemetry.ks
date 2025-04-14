@@ -15,6 +15,7 @@ set TScale to 1.
 
 
 set oldBooster to false.
+set missionTimer to 0.
 
 set GFset to false.
 set ECset to false.
