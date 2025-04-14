@@ -2,7 +2,6 @@ wait until ship:unpacked.
 
 set Scriptversion to "Telemetry Only".
 
-
 //<------------Telemtry Scale-------------->
 
 set TScale to 1.
