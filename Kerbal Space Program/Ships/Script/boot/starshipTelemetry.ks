@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
-set Scriptversion to "V3.4.9 - WIP".
+set Scriptversion to "V3.4.8".
 
 
 

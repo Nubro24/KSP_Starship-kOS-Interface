@@ -1,6 +1,17 @@
 wait until ship:unpacked.
 
-set Scriptversion to "V3.4.8".
+set Scriptversion to "V3.4.9 - WIP".
+
+//<------------Telemtry Scale-------------->
+
+set TScale to 1.
+
+// 720p     -   
+// 1080p    -   1
+// 1440p    -   
+// 2160p    -   
+//_________________________________________
+
 
 
 if homeconnection:isconnected {
@@ -182,12 +193,12 @@ set HighIncl to false.
 
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
-    set bTelemetry:style:border:h to 10.
-    set bTelemetry:style:border:v to 10.
+    set bTelemetry:style:border:h to 10*TScale.
+    set bTelemetry:style:border:v to 10*TScale.
     set bTelemetry:style:padding:v to 0.
     set bTelemetry:style:padding:h to 0.
     set bTelemetry:x to 0.
-    set bTelemetry:y to -220.
+    set bTelemetry:y to -220*TScale.
     set bTelemetry:skin:label:textcolor to white.
     set bTelemetry:skin:textfield:textcolor to white.
     set bTelemetry:skin:label:font to "Arial Bold".
@@ -203,75 +214,75 @@ local shipSpace is bAttitudeTelemetry:addvlayout().
 
 local bEngines is boosterCluster:addlabel().
     set bEngines:style:bg to "starship_img/booster0".
-    set bEngines:style:width to 190.
-    set bEngines:style:height to 180.
-    set bEngines:style:margin:top to 20.
-    set bEngines:style:margin:left to 24.
-    set bEngines:style:margin:right to 26.
-    set bEngines:style:margin:bottom to 20.
+    set bEngines:style:width to 190*TScale.
+    set bEngines:style:height to 180*TScale.
+    set bEngines:style:margin:top to 20*TScale.
+    set bEngines:style:margin:left to 24*TScale.
+    set bEngines:style:margin:right to 26*TScale.
+    set bEngines:style:margin:bottom to 20*TScale.
 
 local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
     set bSpeed:style:wordwrap to false.
-    set bSpeed:style:margin:left to 10.
-    set bSpeed:style:margin:top to 20.
-    set bSpeed:style:width to 296.
-    set bSpeed:style:fontsize to 30.
+    set bSpeed:style:margin:left to 10*TScale.
+    set bSpeed:style:margin:top to 20*TScale.
+    set bSpeed:style:width to 296*TScale.
+    set bSpeed:style:fontsize to 30*TScale.
 local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
     set bAltitude:style:wordwrap to false.
-    set bAltitude:style:margin:left to 10.
-    set bAltitude:style:margin:top to 2.
-    set bAltitude:style:width to 296.
-    set bAltitude:style:fontsize to 30.
+    set bAltitude:style:margin:left to 10*TScale.
+    set bAltitude:style:margin:top to 2*TScale.
+    set bAltitude:style:width to 296*TScale.
+    set bAltitude:style:fontsize to 30*TScale.
 local bLOX is boosterStatus:addlabel("<b>LOX  </b>").
     set bLOX:style:wordwrap to false.
-    set bLOX:style:margin:left to 15.
-    set bLOX:style:margin:top to 25.
-    set bLOX:style:width to 200.
-    set bLOX:style:fontsize to 20.
+    set bLOX:style:margin:left to 15*TScale.
+    set bLOX:style:margin:top to 25*TScale.
+    set bLOX:style:width to 200*TScale.
+    set bLOX:style:fontsize to 20*TScale.
 local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
     set bCH4:style:wordwrap to false.
-    set bCH4:style:margin:left to 15.
-    set bCH4:style:margin:top to 4.
-    set bCH4:style:width to 200.
-    set bCH4:style:fontsize to 20.
+    set bCH4:style:margin:left to 15*TScale.
+    set bCH4:style:margin:top to 4*TScale.
+    set bCH4:style:width to 200*TScale.
+    set bCH4:style:fontsize to 20*TScale.
 local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
      set bThrust:style:wordwrap to false.
-     set bThrust:style:margin:left to 10.
-     set bThrust:style:margin:top to 15.
-     set bThrust:style:width to 150.
-     set bThrust:style:fontsize to 16.
+     set bThrust:style:margin:left to 10*TScale.
+     set bThrust:style:margin:top to 15*TScale.
+     set bThrust:style:width to 150*TScale.
+     set bThrust:style:fontsize to 16*TScale.
 
 local bAttitude is boosterAttitude:addlabel().
     set bAttitude:style:bg to "starship_img/booster".
-    set bAttitude:style:margin:left to 20.
-    set bAttitude:style:margin:right to 20.
-    set bAttitude:style:width to 180.
-    set bAttitude:style:height to 180.
-    set bAttitude:style:margin:top to 20.
+    set bAttitude:style:margin:left to 20*TScale.
+    set bAttitude:style:margin:right to 20*TScale.
+    set bAttitude:style:width to 180*TScale.
+    set bAttitude:style:height to 180*TScale.
+    set bAttitude:style:margin:top to 20*TScale.
 
 local missionTimeLabel is missionTimeDisplay:addlabel().
     set missionTimeLabel:style:wordwrap to false.
-    set missionTimeLabel:style:margin:left to 100.
-    set missionTimeLabel:style:margin:right to 160.
-    set missionTimeLabel:style:margin:top to 80.
-    set missionTimeLabel:style:width to 160.
-    set missionTimeLabel:style:fontsize to 42.
+    set missionTimeLabel:style:margin:left to 100*TScale.
+    set missionTimeLabel:style:margin:right to 160*TScale.
+    set missionTimeLabel:style:margin:top to 80*TScale.
+    set missionTimeLabel:style:width to 160*TScale.
+    set missionTimeLabel:style:fontsize to 42*TScale.
     set missionTimeLabel:style:align to "center".
 
 local VersionDisplay is GUI(100).
     set VersionDisplay:x to 0.
-    set VersionDisplay:y to 36.
+    set VersionDisplay:y to 25*TScale.
     set VersionDisplay:style:bg to "".
     local VersionDisplayLabel is VersionDisplay:addlabel().
         set VersionDisplayLabel:style:wordwrap to false.
-        set VersionDisplayLabel:style:width to 100.
-        set VersionDisplayLabel:style:fontsize to 12.
+        set VersionDisplayLabel:style:width to 100*TScale.
+        set VersionDisplayLabel:style:fontsize to 12*TScale.
         set VersionDisplayLabel:style:align to "center".
         set VersionDisplayLabel:text to Scriptversion.
 VersionDisplay:show().
 
 local shipBackground is shipSpace:addlabel().
-    set shipBackground:style:width to 726.
+    set shipBackground:style:width to 726*TScale.
 
 set bTelemetry:draggable to false.
 
