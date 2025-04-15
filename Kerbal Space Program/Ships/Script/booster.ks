@@ -562,22 +562,19 @@ clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
 
-
-
-
-
-
-
-
-when True then {
-    GUIupdate().
-    preserve.
-}
-
 set OnceShipName to false.
 set ShipConnectedToBooster to true.
 set ConnectedMessage to false.
 set PreDockPos to false.
+
+
+when True then {
+    GUIupdate().
+    wait 0.
+    preserve.
+}
+
+
 
 until False {
     if SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 and not ConnectedMessage {
