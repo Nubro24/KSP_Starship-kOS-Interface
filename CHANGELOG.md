@@ -2,6 +2,8 @@
 - Overhauled Tower Operations after Booster Catch
 - Booster now locks gimbal on unused Engines
 - Small Booster Landing Guidance Tweaks
+- Added Option for UI Scale
+- Many small Error fixes
 
 # V3.4.8 (2025-04-11)
 - Overhauled Booster Landing Guidance
