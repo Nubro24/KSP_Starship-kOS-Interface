@@ -1521,10 +1521,10 @@ function Boostback {
         }
     }
 
-    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 590 or 
+    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 440 or 
             velocity:surface:mag < 42 and not MiddleEnginesShutdown or 
             velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
-            velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 420 then {
+            velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 360 then {
         PollUpdate().
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
