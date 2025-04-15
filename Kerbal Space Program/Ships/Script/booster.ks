@@ -105,8 +105,10 @@ set x to 0.
 until x > BoosterEngines[0]:modules:length or ModulesFound {
     if BoosterEngines[0]:getmodulebyindex(x):name = "ModuleGimbal" {
         set MidGimbMod to BoosterEngines[0]:getmodulebyindex(x).
-        set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
+        if BoosterEngines[0]:getmodulebyindex(x+1):name = "ModuleGimbal" set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
+        else if BoosterEngines[0]:getmodulebyindex(x-1):name = "ModuleGimbal" set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x-1).
         set ModulesFound to true.
+        break.
     }
     set x to x+1.
     wait 0.
@@ -1519,7 +1521,10 @@ function Boostback {
         }
     }
 
-    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 590 or velocity:surface:mag < 42 and not MiddleEnginesShutdown or velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS then {
+    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 590 or 
+            velocity:surface:mag < 42 and not MiddleEnginesShutdown or 
+            velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
+            velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 420 then {
         PollUpdate().
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -1741,7 +1746,7 @@ FUNCTION SteeringCorrections {
             }
 
             if LandSomewhereElse {
-                set RadarAlt to alt:radar - BoosterHeight.
+                lock RadarAlt to alt:radar - BoosterHeight.
             }
         } 
 
