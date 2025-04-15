@@ -14464,7 +14464,7 @@ function updateTelemetry {
                 set sAttitude:style:bg to "starship_img/ship315".
             }
         } else if angle < 113 {
-            set sAttitude:style:bg to "starship_img/ship90".
+            set sAttitude:style:bg to "starship_img/ship270".
         } else if angle < 157 {
             set sAttitude:style:bg to "starship_img/ship135".
         } else if angle < 203 {
@@ -14472,7 +14472,7 @@ function updateTelemetry {
         } else if angle < 247 {
             set sAttitude:style:bg to "starship_img/ship225".
         } else if angle < 293 {
-            set sAttitude:style:bg to "starship_img/ship270".
+            set sAttitude:style:bg to "starship_img/ship90".
         } else {
             set sAttitude:style:bg to "starship_img/ship-0".
         }
