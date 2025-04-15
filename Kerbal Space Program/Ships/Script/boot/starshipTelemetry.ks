@@ -9,10 +9,10 @@ set Scriptversion to "Telemetry Only".
 
 set TScale to 1.
 
-// 720p     -   
+// 720p     -   0.67
 // 1080p    -   1
-// 1440p    -   
-// 2160p    -   
+// 1440p    -   1.33
+// 2160p    -   2
 //_________________________________________
 
 
@@ -38,12 +38,12 @@ set Boosterconnected to true.
 
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
-    set sTelemetry:style:border:h to 10.
-    set sTelemetry:style:border:v to 10.
+    set sTelemetry:style:border:h to 10*TScale.
+    set sTelemetry:style:border:v to 10*TScale.
     set sTelemetry:style:padding:v to 0.
     set sTelemetry:style:padding:h to 0.
     set sTelemetry:x to 0.
-    set sTelemetry:y to -220.
+    set sTelemetry:y to -220*TScale.
     set sTelemetry:skin:label:textcolor to white.
     set sTelemetry:skin:textfield:textcolor to white.
     set sTelemetry:skin:label:font to "Arial Bold".
@@ -58,74 +58,74 @@ local ShipStatus is sAttitudeTelemetry:addvlayout().
 local ShipRaptors is sAttitudeTelemetry:addvlayout().
 
 local bSpace is BoosterSpace:addlabel().
-    set bSpace:style:width to 860.
+    set bSpace:style:width to 860*TScale.
 
 local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:margin:left to 0.
-    set missionTimeLabel:style:margin:right to 120.
-    set missionTimeLabel:style:margin:top to 80.
-    set missionTimeLabel:style:width to 160.
-    set missionTimeLabel:style:fontsize to 42.
+    set missionTimeLabel:style:margin:right to 120*TScale.
+    set missionTimeLabel:style:margin:top to 80*TScale.
+    set missionTimeLabel:style:width to 160*TScale.
+    set missionTimeLabel:style:fontsize to 42*TScale.
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
 
 local VersionDisplay is GUI(100).
     set VersionDisplay:x to 0.
-    set VersionDisplay:y to 36.
+    set VersionDisplay:y to 36*TScale.
     set VersionDisplay:style:bg to "".
     local VersionDisplayLabel is VersionDisplay:addlabel().
         set VersionDisplayLabel:style:wordwrap to false.
-        set VersionDisplayLabel:style:width to 100.
-        set VersionDisplayLabel:style:fontsize to 12.
+        set VersionDisplayLabel:style:width to 100*TScale.
+        set VersionDisplayLabel:style:fontsize to 12*TScale.
         set VersionDisplayLabel:style:align to "center".
         set VersionDisplayLabel:text to Scriptversion.
 VersionDisplay:show().
 
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
-    set sAttitude:style:margin:left to 20.
-    set sAttitude:style:margin:right to 20.
-    set sAttitude:style:margin:top to 20.
-    set sAttitude:style:width to 180.
-    set sAttitude:style:height to 180.
+    set sAttitude:style:margin:left to 20*TScale.
+    set sAttitude:style:margin:right to 20*TScale.
+    set sAttitude:style:margin:top to 20*TScale.
+    set sAttitude:style:width to 180*TScale.
+    set sAttitude:style:height to 180*TScale.
 local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
-    set sSpeed:style:margin:left to 45.
-    set sSpeed:style:margin:top to 20.
-    set sSpeed:style:width to 296.
-    set sSpeed:style:fontsize to 30.
+    set sSpeed:style:margin:left to 45*TScale.
+    set sSpeed:style:margin:top to 20*TScale.
+    set sSpeed:style:width to 296*TScale.
+    set sSpeed:style:fontsize to 30*TScale.
 local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
     set sAltitude:style:wordwrap to false.
-    set sAltitude:style:margin:left to 45.
-    set sAltitude:style:margin:top to 2.
-    set sAltitude:style:width to 296.
-    set sAltitude:style:fontsize to 30.
+    set sAltitude:style:margin:left to 45*TScale.
+    set sAltitude:style:margin:top to 2*TScale.
+    set sAltitude:style:width to 296*TScale.
+    set sAltitude:style:fontsize to 30*TScale.
 local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
     set sLOX:style:wordwrap to false.
-    set sLOX:style:margin:left to 50.
-    set sLOX:style:margin:top to 25.
-    set sLOX:style:width to 200.
-    set sLOX:style:fontsize to 20.
+    set sLOX:style:margin:left to 50*TScale.
+    set sLOX:style:margin:top to 25*TScale.
+    set sLOX:style:width to 200*TScale.
+    set sLOX:style:fontsize to 20*TScale.
 local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
     set sCH4:style:wordwrap to false.
-    set sCH4:style:margin:left to 50.
-    set sCH4:style:margin:top to 4.
-    set sCH4:style:width to 200.
-    set sCH4:style:fontsize to 20.
+    set sCH4:style:margin:left to 50*TScale.
+    set sCH4:style:margin:top to 4*TScale.
+    set sCH4:style:width to 200*TScale.
+    set sCH4:style:fontsize to 20*TScale.
 local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
     set sThrust:style:wordwrap to false.
-    set sThrust:style:margin:left to 45.
-    set sThrust:style:margin:top to 15.
-    set sThrust:style:width to 150.
-    set sThrust:style:fontsize to 16.
+    set sThrust:style:margin:left to 45*TScale.
+    set sThrust:style:margin:top to 15*TScale.
+    set sThrust:style:width to 150*TScale.
+    set sThrust:style:fontsize to 16*TScale.
 local sEngines is ShipRaptors:addlabel().
     set sEngines:style:bg to "starship_img/ship0".
-    set sEngines:style:width to 180.
-    set sEngines:style:height to 180.
-    set sEngines:style:margin:top to 20.
-    set sEngines:style:margin:left to 20.
-    set sEngines:style:margin:bottom to 20.
+    set sEngines:style:width to 180*TScale.
+    set sEngines:style:height to 180*TScale.
+    set sEngines:style:margin:top to 20*TScale.
+    set sEngines:style:margin:left to 20*TScale.
+    set sEngines:style:margin:bottom to 20*TScale.
 
 set sTelemetry:draggable to false.
 
