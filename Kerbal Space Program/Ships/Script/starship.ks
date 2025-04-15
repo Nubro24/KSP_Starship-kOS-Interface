@@ -69,6 +69,8 @@ if exists("0:/settings.json") {
 }
 set RadarAlt to 0.
 
+set oldBooster to false.
+
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
     set sTelemetry:style:border:h to 10.
