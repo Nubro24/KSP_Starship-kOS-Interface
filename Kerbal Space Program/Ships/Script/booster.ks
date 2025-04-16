@@ -572,7 +572,6 @@ set PreDockPos to false.
 
 when True then {
     GUIupdate().
-    wait 0.
     preserve.
 }
 
