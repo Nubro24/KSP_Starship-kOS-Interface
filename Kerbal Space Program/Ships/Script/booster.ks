@@ -231,7 +231,134 @@ local shipBackground is shipSpace:addlabel().
 CreateTelemetry().
 
 
+
+set bTelemetry:draggable to false.
+
+
+local bGUI is GUI(150).
+    set bGUI:style:bg to "starship_img/telemetry_bg".
+    set bGUI:style:padding:v to 0.
+    set bGUI:style:padding:h to 0.
+    set bGUI:x to 0.
+    set bGUI:skin:button:bg to  "starship_img/telemetry_bg".
+    set bGUI:skin:button:on:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:hover_on:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:textcolor to white.
+    set bGUI:skin:label:textcolor to white.
+    set bGUI:skin:textfield:textcolor to white.
+
+local bGUIBox is bGUI:addhlayout().
+
+local PollGUI is bGUIBox:addvlayout().
+    
+local leftright is PollGUI:addhlayout().
+local GoNoGoPoll is leftright:addvlayout().
+    set GoNoGoPoll:style:bg to "starship_img/starship_background_dark".
+local Space is leftright:addvlayout().
+local FDDecision is leftright:addvlayout().
+local Space2 is leftright:addvlayout().
+
+local spaceLabel is Space:addlabel("").
+local spaceLabel2 is Space2:addlabel("").
+
+local data1 is GoNoGoPoll:addlabel("Tower: ").
+    set data1:style:wordwrap to false.
+local Vehicle1 is GoNoGoPoll:addhlayout().
+local data2 is Vehicle1:addlabel("Engines: ").
+    set data2:style:wordwrap to false.
+local data25 is Vehicle1:addlabel("Fuel: ").
+    set data25:style:wordwrap to false.
+local Vehicle2 is GoNoGoPoll:addhlayout().
+local data3 is Vehicle2:addlabel("Gridfins: ").
+    set data3:style:wordwrap to false.
+local data35 is Vehicle2:addlabel("Tanks: ").
+    set data35:style:wordwrap to false.
+local data4 is GoNoGoPoll:addlabel("Flight Director: ").
+    set data4:style:wordwrap to false.
+local message0 is FDDecision:addlabel("<b>Flight Director:</b>").
+    set message0:style:wordwrap to false.
+local message1 is FDDecision:addlabel("<color=yellow>Go for Catch?</color>").
+    set message1:style:wordwrap to false.
+local buttonbox is FDDecision:addhlayout().
+local Go to buttonbox:addbutton("<b><color=green>Confirm</color></b>").
+    set Go:style:bg to "starship_img/starship_background_dark".
+local NoGo to buttonbox:addbutton("<b><color=red>Deny</color></b>").
+    set NoGo:style:bg to "starship_img/starship_background_dark".
+local message4 is GoNoGoPoll:addlabel("Current decision: ").
+    set message4:style:wordwrap to false.
+local message3 is FDDecision:addlabel("Poll ending in: ??s").
+    set message3:style:wordwrap to false.
+
+
 function CreateTelemetry {
+    
+    set bGUI:style:border:h to 10*TScale.
+    set bGUI:style:border:v to 10*TScale.
+    set bGUI:y to -402*TScale.
+    set bGUI:skin:button:border:v to 10*TScale.
+    set bGUI:skin:button:border:h to 10*TScale.
+
+    set spaceLabel:style:width to 10*TScale.
+    set spaceLabel2:style:width to 8*TScale.
+
+    set data1:style:margin:left to 10*TScale.
+    set data1:style:margin:top to 10*TScale.
+    set data1:style:width to 230*TScale.
+    set data1:style:fontsize to 16*TScale.
+
+    set data2:style:margin:left to 10*TScale.
+    set data2:style:width to 115*TScale.
+    set data2:style:fontsize to 16*TScale.
+
+    set data25:style:margin:left to 10*TScale.
+    set data25:style:width to 115*TScale.
+    set data25:style:fontsize to 16*TScale.
+
+    set data3:style:margin:left to 10*TScale.
+    set data3:style:width to 115*TScale.
+    set data3:style:fontsize to 16*TScale.
+
+    set data35:style:margin:left to 10*TScale.
+    set data35:style:width to 115*TScale.
+    set data35:style:fontsize to 16*TScale.
+
+    set data4:style:margin:left to 10*TScale.
+    set data4:style:width to 230*TScale.
+    set data4:style:fontsize to 16*TScale.
+
+    set message0:style:margin:left to 10*TScale.
+    set message0:style:margin:top to 15*TScale.
+    set message0:style:width to 200*TScale.
+    set message0:style:fontsize to 21*TScale.
+
+    set message1:style:margin:left to 10*TScale.
+    set message1:style:margin:top to 25*TScale.
+    set message1:style:width to 200*TScale.
+    set message1:style:fontsize to 21*TScale.
+
+    set Go:style:width to 100*TScale.
+    set Go:style:border:h to 10*TScale.
+    set Go:style:border:v to 10*TScale.
+    set Go:style:fontsize to 18*TScale.
+
+    set NoGo:style:width to 100*TScale.
+    set NoGo:style:border:h to 10*TScale.
+    set NoGo:style:border:v to 10*TScale.
+    set NoGo:style:fontsize to 18*TScale.
+
+    set message4:style:margin:left to 10*TScale.
+    set message4:style:margin:top to 10*TScale.
+    set message4:style:width to 230*TScale.
+    set message4:style:fontsize to 16*TScale.
+
+    set message3:style:margin:left to 10*TScale.
+    set message3:style:margin:top to 10*TScale.
+    set message3:style:width to 200*TScale.
+    set message3:style:fontsize to 18*TScale.
+    
+
+
     set bTelemetry:style:border:h to 10*TScale.
     set bTelemetry:style:border:v to 10*TScale.
     set bTelemetry:style:padding:v to 0.
@@ -301,115 +428,6 @@ function CreateTelemetry {
 
     set shipBackground:style:width to 726*TScale.
 }
-
-set bTelemetry:draggable to false.
-
-
-local bGUI is GUI(150).
-    set bGUI:style:bg to "starship_img/telemetry_bg".
-    set bGUI:style:border:h to 10*TScale.
-    set bGUI:style:border:v to 10*TScale.
-    set bGUI:style:padding:v to 0.
-    set bGUI:style:padding:h to 0.
-    set bGUI:x to 0.
-    set bGUI:y to -402*TScale.
-    set bGUI:skin:button:bg to  "starship_img/telemetry_bg".
-    set bGUI:skin:button:on:bg to  "starship_img/starship_background_light".
-    set bGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
-    set bGUI:skin:button:hover_on:bg to  "starship_img/starship_background_light".
-    set bGUI:skin:button:border:v to 10*TScale.
-    set bGUI:skin:button:border:h to 10*TScale.
-    set bGUI:skin:button:textcolor to white.
-    set bGUI:skin:label:textcolor to white.
-    set bGUI:skin:textfield:textcolor to white.
-
-local bGUIBox is bGUI:addhlayout().
-
-local PollGUI is bGUIBox:addvlayout().
-    
-local leftright is PollGUI:addhlayout().
-local GoNoGoPoll is leftright:addvlayout().
-    set GoNoGoPoll:style:bg to "starship_img/starship_background_dark".
-local Space is leftright:addvlayout().
-local FDDecision is leftright:addvlayout().
-local Space2 is leftright:addvlayout().
-
-local spaceLabel is Space:addlabel("").
-    set spaceLabel:style:width to 10*TScale.
-local spaceLabel2 is Space2:addlabel("").
-    set spaceLabel2:style:width to 8*TScale.
-
-local data1 is GoNoGoPoll:addlabel("Tower: ").
-    set data1:style:wordwrap to false.
-    set data1:style:margin:left to 10*TScale.
-    set data1:style:margin:top to 10*TScale.
-    set data1:style:width to 230*TScale.
-    set data1:style:fontsize to 16*TScale.
-local Vehicle1 is GoNoGoPoll:addhlayout().
-local data2 is Vehicle1:addlabel("Engines: ").
-    set data2:style:wordwrap to false.
-    set data2:style:margin:left to 10*TScale.
-    set data2:style:width to 115*TScale.
-    set data2:style:fontsize to 16*TScale.
-local data25 is Vehicle1:addlabel("Fuel: ").
-    set data25:style:wordwrap to false.
-    set data25:style:margin:left to 10*TScale.
-    set data25:style:width to 115*TScale.
-    set data25:style:fontsize to 16*TScale.
-local Vehicle2 is GoNoGoPoll:addhlayout().
-local data3 is Vehicle2:addlabel("Gridfins: ").
-    set data3:style:wordwrap to false.
-    set data3:style:margin:left to 10*TScale.
-    set data3:style:width to 115*TScale.
-    set data3:style:fontsize to 16*TScale.
-local data35 is Vehicle2:addlabel("Tanks: ").
-    set data35:style:wordwrap to false.
-    set data35:style:margin:left to 10*TScale.
-    set data35:style:width to 115*TScale.
-    set data35:style:fontsize to 16*TScale.
-local data4 is GoNoGoPoll:addlabel("Flight Director: ").
-    set data4:style:wordwrap to false.
-    set data4:style:margin:left to 10*TScale.
-    set data4:style:width to 230*TScale.
-    set data4:style:fontsize to 16*TScale.
-local message0 is FDDecision:addlabel("<b>Flight Director:</b>").
-    set message0:style:wordwrap to false.
-    set message0:style:margin:left to 10*TScale.
-    set message0:style:margin:top to 15*TScale.
-    set message0:style:width to 200*TScale.
-    set message0:style:fontsize to 21*TScale.
-local message1 is FDDecision:addlabel("<color=yellow>Go for Catch?</color>").
-    set message1:style:wordwrap to false.
-    set message1:style:margin:left to 10*TScale.
-    set message1:style:margin:top to 25*TScale.
-    set message1:style:width to 200*TScale.
-    set message1:style:fontsize to 21*TScale.
-local buttonbox is FDDecision:addhlayout().
-local Go to buttonbox:addbutton("<b><color=green>Confirm</color></b>").
-    set Go:style:bg to "starship_img/starship_background_dark".
-    set Go:style:width to 100*TScale.
-    set Go:style:border:h to 10*TScale.
-    set Go:style:border:v to 10*TScale.
-    set Go:style:fontsize to 18*TScale.
-local NoGo to buttonbox:addbutton("<b><color=red>Deny</color></b>").
-    set NoGo:style:bg to "starship_img/starship_background_dark".
-    set NoGo:style:width to 100*TScale.
-    set NoGo:style:border:h to 10*TScale.
-    set NoGo:style:border:v to 10*TScale.
-    set NoGo:style:fontsize to 18*TScale.
-local message4 is GoNoGoPoll:addlabel("Current decision: ").
-    set message4:style:wordwrap to false.
-    set message4:style:margin:left to 10*TScale.
-    set message4:style:margin:top to 10*TScale.
-    set message4:style:width to 230*TScale.
-    set message4:style:fontsize to 16*TScale.
-local message3 is FDDecision:addlabel("Poll ending in: ??s").
-    set message3:style:wordwrap to false.
-    set message3:style:margin:left to 10*TScale.
-    set message3:style:margin:top to 10*TScale.
-    set message3:style:width to 200*TScale.
-    set message3:style:fontsize to 18*TScale.
-
 
 
 set Go:onclick to {
