@@ -13,6 +13,12 @@ set TScale to 1.
 //_________________________________________
 
 
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("TelemetryScale") {
+        set TScale to L["TelemetryScale"].
+    }
+}
 
 if homeconnection:isconnected {
     if config:arch {
@@ -193,29 +199,48 @@ set angle to 75.
 set speed to 10.
 set HighIncl to false.
 
+
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
-    set bTelemetry:style:border:h to 10*TScale.
-    set bTelemetry:style:border:v to 10*TScale.
-    set bTelemetry:style:padding:v to 0.
-    set bTelemetry:style:padding:h to 0.
-    set bTelemetry:x to 0.
-    set bTelemetry:y to -220*TScale.
     set bTelemetry:skin:label:textcolor to white.
     set bTelemetry:skin:textfield:textcolor to white.
     set bTelemetry:skin:label:font to "Arial Bold".
     set bTelemetry:skin:textfield:font to "Arial Bold".
-    
-
 local bAttitudeTelemetry is bTelemetry:addhlayout().
 local boosterCluster is bAttitudeTelemetry:addvlayout().
 local boosterStatus is bAttitudeTelemetry:addvlayout().
 local boosterAttitude is bAttitudeTelemetry:addvlayout().
 local missionTimeDisplay is bAttitudeTelemetry:addvlayout().
 local shipSpace is bAttitudeTelemetry:addvlayout().
-
 local bEngines is boosterCluster:addlabel().
     set bEngines:style:bg to "starship_img/booster0".
+local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
+local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
+local bLOX is boosterStatus:addlabel("<b>LOX  </b>").
+local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
+local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
+local bAttitude is boosterAttitude:addlabel().
+    set bAttitude:style:bg to "starship_img/booster".
+local missionTimeLabel is missionTimeDisplay:addlabel().
+local VersionDisplay is GUI(100).
+    local VersionDisplayLabel is VersionDisplay:addlabel().
+        set VersionDisplayLabel:style:align to "center".
+        set VersionDisplayLabel:text to Scriptversion.
+VersionDisplay:show().
+local shipBackground is shipSpace:addlabel().
+CreateTelemetry().
+
+
+function CreateTelemetry {
+    set bTelemetry:style:border:h to 10*TScale.
+    set bTelemetry:style:border:v to 10*TScale.
+    set bTelemetry:style:padding:v to 0.
+    set bTelemetry:style:padding:h to 0.
+    set bTelemetry:x to 0.
+    set bTelemetry:y to 0.
+    set bTelemetry:y to -220*TScale.
+    
+
     set bEngines:style:width to 190*TScale.
     set bEngines:style:height to 180*TScale.
     set bEngines:style:margin:top to 20*TScale.
@@ -223,46 +248,42 @@ local bEngines is boosterCluster:addlabel().
     set bEngines:style:margin:right to 26*TScale.
     set bEngines:style:margin:bottom to 20*TScale.
 
-local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
     set bSpeed:style:wordwrap to false.
     set bSpeed:style:margin:left to 10*TScale.
     set bSpeed:style:margin:top to 20*TScale.
     set bSpeed:style:width to 296*TScale.
     set bSpeed:style:fontsize to 30*TScale.
-local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
+
     set bAltitude:style:wordwrap to false.
     set bAltitude:style:margin:left to 10*TScale.
     set bAltitude:style:margin:top to 2*TScale.
     set bAltitude:style:width to 296*TScale.
     set bAltitude:style:fontsize to 30*TScale.
-local bLOX is boosterStatus:addlabel("<b>LOX  </b>").
+
     set bLOX:style:wordwrap to false.
     set bLOX:style:margin:left to 15*TScale.
     set bLOX:style:margin:top to 25*TScale.
     set bLOX:style:width to 200*TScale.
     set bLOX:style:fontsize to 20*TScale.
-local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
+
     set bCH4:style:wordwrap to false.
     set bCH4:style:margin:left to 15*TScale.
     set bCH4:style:margin:top to 4*TScale.
     set bCH4:style:width to 200*TScale.
     set bCH4:style:fontsize to 20*TScale.
-local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
+
      set bThrust:style:wordwrap to false.
      set bThrust:style:margin:left to 10*TScale.
      set bThrust:style:margin:top to 15*TScale.
      set bThrust:style:width to 150*TScale.
      set bThrust:style:fontsize to 16*TScale.
 
-local bAttitude is boosterAttitude:addlabel().
-    set bAttitude:style:bg to "starship_img/booster".
     set bAttitude:style:margin:left to 20*TScale.
     set bAttitude:style:margin:right to 20*TScale.
     set bAttitude:style:width to 180*TScale.
     set bAttitude:style:height to 180*TScale.
     set bAttitude:style:margin:top to 20*TScale.
 
-local missionTimeLabel is missionTimeDisplay:addlabel().
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:margin:left to 100*TScale.
     set missionTimeLabel:style:margin:right to 160*TScale.
@@ -271,20 +292,15 @@ local missionTimeLabel is missionTimeDisplay:addlabel().
     set missionTimeLabel:style:fontsize to 42*TScale.
     set missionTimeLabel:style:align to "center".
 
-local VersionDisplay is GUI(100).
     set VersionDisplay:x to 0.
     set VersionDisplay:y to 25*TScale.
     set VersionDisplay:style:bg to "".
-    local VersionDisplayLabel is VersionDisplay:addlabel().
         set VersionDisplayLabel:style:wordwrap to false.
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
-        set VersionDisplayLabel:style:align to "center".
-        set VersionDisplayLabel:text to Scriptversion.
-VersionDisplay:show().
 
-local shipBackground is shipSpace:addlabel().
     set shipBackground:style:width to 726*TScale.
+}
 
 set bTelemetry:draggable to false.
 
@@ -614,8 +630,16 @@ until False {
             }
         }
     }
+    set command to "".
     UNTIL NOT CORE:MESSAGES:EMPTY {}
     SET RECEIVED TO CORE:MESSAGES:POP.
+        if RECEIVED:CONTENT:CONTAINS(",") {
+            set message to RECEIVED:CONTENT:SPLIT(",").
+            set command to message[0].
+            if message:length > 1 {
+                set MesParameter to message[1].
+            }
+        }
     IF RECEIVED:CONTENT = "Boostback" {
         set ShipBurnComplete to false.
         Boostback().
@@ -648,6 +672,12 @@ until False {
     else if RECEIVED:content = "Orbit Insertion" {
         hudtext("Ship orbit", 3, 3, 14, green, false).
         set ShipBurnComplete to true.
+    }
+    else if command = "ScaleT" {
+        bTelemetry:hide().
+        set TScale to MesParameter:toscalar.
+        CreateTelemetry().
+        bTelemetry:show().
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.

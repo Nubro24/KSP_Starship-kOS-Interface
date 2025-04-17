@@ -15,6 +15,12 @@ set TScale to 1.
 // 2160p    -   2
 //_________________________________________
 
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("TelemetryScale") {
+        set TScale to L["TelemetryScale"].
+    }
+}
 
 
 //---------------Self-Update--------------//
@@ -81,6 +87,29 @@ if exists("0:/settings.json") {
 set RadarAlt to 0.
 
 local sTelemetry is GUI(150).
+local sAttitudeTelemetry is sTelemetry:addhlayout().
+local BoosterSpace is sAttitudeTelemetry:addvlayout().
+local sMissionTime is sAttitudeTelemetry:addvlayout().
+local ShipAttitude is sAttitudeTelemetry:addvlayout().
+local ShipStatus is sAttitudeTelemetry:addvlayout().
+local ShipRaptors is sAttitudeTelemetry:addvlayout().
+local bSpace is BoosterSpace:addlabel().
+local missionTimeLabel is sMissionTime:addlabel().
+local VersionDisplay is GUI(100).
+VersionDisplay:show().
+local sAttitude is ShipAttitude:addlabel().
+local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
+local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
+local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
+local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
+local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
+local sEngines is ShipRaptors:addlabel().
+set sTelemetry:draggable to false.
+
+CreateTelemetry().
+
+function CreateTelemetry {
+
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
     set sTelemetry:style:border:h to 10*TScale.
     set sTelemetry:style:border:v to 10*TScale.
@@ -92,19 +121,9 @@ local sTelemetry is GUI(150).
     set sTelemetry:skin:textfield:textcolor to white.
     set sTelemetry:skin:label:font to "Arial Bold".
     set sTelemetry:skin:textfield:font to "Arial Bold".
-    
 
-local sAttitudeTelemetry is sTelemetry:addhlayout().
-local BoosterSpace is sAttitudeTelemetry:addvlayout().
-local sMissionTime is sAttitudeTelemetry:addvlayout().
-local ShipAttitude is sAttitudeTelemetry:addvlayout().
-local ShipStatus is sAttitudeTelemetry:addvlayout().
-local ShipRaptors is sAttitudeTelemetry:addvlayout().
-
-local bSpace is BoosterSpace:addlabel().
     set bSpace:style:width to 860*TScale.
 
-local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:margin:left to 0.
     set missionTimeLabel:style:margin:right to 120*TScale.
@@ -114,7 +133,6 @@ local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
 
-local VersionDisplay is GUI(100).
     set VersionDisplay:x to 0.
     set VersionDisplay:y to 36*TScale.
     set VersionDisplay:style:bg to "".
@@ -124,46 +142,44 @@ local VersionDisplay is GUI(100).
         set VersionDisplayLabel:style:fontsize to 12*TScale.
         set VersionDisplayLabel:style:align to "center".
         set VersionDisplayLabel:text to Scriptversion.
-VersionDisplay:show().
 
-local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
     set sAttitude:style:margin:left to 20*TScale.
     set sAttitude:style:margin:right to 20*TScale.
     set sAttitude:style:margin:top to 20*TScale.
     set sAttitude:style:width to 180*TScale.
     set sAttitude:style:height to 180*TScale.
-local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
+
     set sSpeed:style:wordwrap to false.
     set sSpeed:style:margin:left to 45*TScale.
     set sSpeed:style:margin:top to 20*TScale.
     set sSpeed:style:width to 296*TScale.
     set sSpeed:style:fontsize to 30*TScale.
-local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
+
     set sAltitude:style:wordwrap to false.
     set sAltitude:style:margin:left to 45*TScale.
     set sAltitude:style:margin:top to 2*TScale.
     set sAltitude:style:width to 296*TScale.
     set sAltitude:style:fontsize to 30*TScale.
-local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
+
     set sLOX:style:wordwrap to false.
     set sLOX:style:margin:left to 50*TScale.
     set sLOX:style:margin:top to 25*TScale.
     set sLOX:style:width to 200*TScale.
     set sLOX:style:fontsize to 20*TScale.
-local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
+
     set sCH4:style:wordwrap to false.
     set sCH4:style:margin:left to 50*TScale.
     set sCH4:style:margin:top to 4*TScale.
     set sCH4:style:width to 200*TScale.
     set sCH4:style:fontsize to 20*TScale.
-local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
+
     set sThrust:style:wordwrap to false.
     set sThrust:style:margin:left to 45*TScale.
     set sThrust:style:margin:top to 15*TScale.
     set sThrust:style:width to 150*TScale.
     set sThrust:style:fontsize to 16*TScale.
-local sEngines is ShipRaptors:addlabel().
+
     set sEngines:style:bg to "starship_img/ship0".
     set sEngines:style:width to 180*TScale.
     set sEngines:style:height to 180*TScale.
@@ -171,7 +187,8 @@ local sEngines is ShipRaptors:addlabel().
     set sEngines:style:margin:left to 20*TScale.
     set sEngines:style:margin:bottom to 20*TScale.
 
-set sTelemetry:draggable to false.
+
+}
 
 set partsfound to false.
 
@@ -922,8 +939,54 @@ print "Starship Interface startup complete!".
 
 //-------------Start Graphic User Interface-------------//
 
-
-
+local ScaleUI is GUI(300).
+    set ScaleUI:style:bg to "starship_img/starship_background".
+    set ScaleUI:style:border:h to 10.
+    set ScaleUI:style:border:v to 10.
+    set ScaleUI:style:padding:v to 0.
+    set ScaleUI:style:padding:h to 0.
+    set ScaleUI:x to 240.
+    set ScaleUI:y to 240.
+    set ScaleUI:skin:button:bg to "starship_img/starship_background".
+    set ScaleUI:skin:button:on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:hover:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:hover_on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:active:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:active_on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:border:v to 10.
+    set ScaleUI:skin:button:border:h to 10.
+    set ScaleUI:skin:button:textcolor to white.
+    set ScaleUI:skin:label:textcolor to white.
+local ScaleLayout is ScaleUI:addvlayout().
+local ScaleQuest is ScaleLayout:addlabel().
+    set ScaleQuest:text to "Enter your Vertical Resolution (f.e. 1080 for 1080p):".
+    set ScaleQuest:style:margin:top to 12.
+    set ScaleQuest:style:margin:bottom to 12.
+    set ScaleQuest:style:margin:left to 12.
+local ScaleSelect is ScaleLayout:addtextfield().
+    set ScaleSelect:tooltip to "Vertical Resolution".
+    set ScaleSelect:style:margin:bottom to 12.
+    set ScaleSelect:style:margin:left to 12.
+local ScaleConfirm is ScaleLayout:addbutton().
+    set ScaleConfirm:text to "<b><color=green>Confirm</color></b>".
+    set ScaleConfirm:onclick to {
+        sTelemetry:hide().
+        if ScaleSelect:text = "" {}
+        else {
+            set TScale to round(ScaleSelect:text:toscalar/1080,2).
+            CreateTelemetry().
+            if Boosterconnected {
+                sendMessage(processor(Volume("Booster")),"ScaleT,"+TScale:tostring).
+                set sTelemetry:style:bg to "".
+            }
+            SaveToSettings("TelemetryScale",TScale).
+            wait 0.2.
+            sTelemetry:show().
+        }
+        set scalebutton:pressed to false.
+        ScaleUI:hide().
+    }.
+    
 
 
 
@@ -1037,6 +1100,19 @@ local statuslabel to topbuttonbar:addlabel("").
     set statuslabel:style:align to "center".
     set statuslabel:style:vstretch to true.
     set statuslabel:style:hstretch to true.
+local scalebutton is topbuttonbar:addbutton().
+    set scalebutton:toggle to true.
+    set scalebutton:style:width to 35.
+    set scalebutton:style:height to 35.
+    set scalebutton:style:bg to "starship_img/telemetryScale".
+    set scalebutton:style:on:bg to "starship_img/telemetryScale_on".
+    set scalebutton:style:hover:bg to "starship_img/telemetryScale_hover".
+    set scalebutton:style:hover_on:bg to "starship_img/telemetryScale_on".
+    set scalebutton:style:active:bg to "starship_img/telemetryScale_hover".
+    set scalebutton:style:active_on:bg to "starship_img/telemetryScale_hover".
+    set scalebutton:style:border:v to 0.
+    set scalebutton:style:border:h to 0.
+    set scalebutton:tooltip to "Scale Settings for the Telemetry".
 local statusbutton is topbuttonbar:addbutton().
     set statusbutton:toggle to true.
     set statusbutton:style:width to 35.
@@ -1319,7 +1395,17 @@ set attitudebutton:ontoggle to {
     }
     else {mainbox:showonly(flightstack).}
 }.
-    
+
+set scalebutton:ontoggle to {
+    parameter toggle.
+    if toggle {
+        set ScaleSelect:text to "".
+        ScaleUI:show().
+    }
+    else ScaleUI:hide().
+}.
+
+
 set statusbutton:ontoggle to {
     parameter toggle.
     if toggle {
@@ -9047,6 +9133,8 @@ function BackGroundUpdate {
             if LaunchButtonIsRunning or LandButtonIsRunning or AttitudeIsRunning {
                 maneuverbutton:hide().
                 towerbutton:hide().
+                scalebutton:hide().
+                ScaleUI:hide().
                 if AttitudeIsRunning {
                     if landbutton:visible {
                         landbutton:hide().
