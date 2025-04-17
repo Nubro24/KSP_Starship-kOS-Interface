@@ -7207,7 +7207,7 @@ function LaunchThrottle {
             }
         }
     }
-    return thr.
+    return min(max(thr,0),1).
 }
 
 Function LaunchSteering {
@@ -14739,7 +14739,10 @@ function updateTelemetry {
         set shipThrust to shipThrust + eng:thrust.
     }
 
-    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + round(throttle,2)*100 + "%".
+    if Boosterconnected set currentThr to 0.
+    else set currentThr to throttle.
+
+    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + round(currentThr,2)*100 + "%".
 
     set missionTimerNow to time:seconds-missionTimer.
     if missionTimerNow < 0 {

@@ -307,18 +307,18 @@ set bTelemetry:draggable to false.
 
 local bGUI is GUI(150).
     set bGUI:style:bg to "starship_img/telemetry_bg".
-    set bGUI:style:border:h to 10.
-    set bGUI:style:border:v to 10.
+    set bGUI:style:border:h to 10*TScale.
+    set bGUI:style:border:v to 10*TScale.
     set bGUI:style:padding:v to 0.
     set bGUI:style:padding:h to 0.
     set bGUI:x to 0.
-    set bGUI:y to -402.
+    set bGUI:y to -402*TScale.
     set bGUI:skin:button:bg to  "starship_img/telemetry_bg".
     set bGUI:skin:button:on:bg to  "starship_img/starship_background_light".
     set bGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
     set bGUI:skin:button:hover_on:bg to  "starship_img/starship_background_light".
-    set bGUI:skin:button:border:v to 10.
-    set bGUI:skin:button:border:h to 10.
+    set bGUI:skin:button:border:v to 10*TScale.
+    set bGUI:skin:button:border:h to 10*TScale.
     set bGUI:skin:button:textcolor to white.
     set bGUI:skin:label:textcolor to white.
     set bGUI:skin:textfield:textcolor to white.
@@ -335,85 +335,80 @@ local FDDecision is leftright:addvlayout().
 local Space2 is leftright:addvlayout().
 
 local spaceLabel is Space:addlabel("").
-    set spaceLabel:style:width to 10.
+    set spaceLabel:style:width to 10*TScale.
 local spaceLabel2 is Space2:addlabel("").
-    set spaceLabel2:style:width to 8.
+    set spaceLabel2:style:width to 8*TScale.
 
 local data1 is GoNoGoPoll:addlabel("Tower: ").
     set data1:style:wordwrap to false.
-    set data1:style:margin:left to 10.
-    set data1:style:margin:top to 10.
-    set data1:style:width to 230.
-    set data1:style:fontsize to 16.
+    set data1:style:margin:left to 10*TScale.
+    set data1:style:margin:top to 10*TScale.
+    set data1:style:width to 230*TScale.
+    set data1:style:fontsize to 16*TScale.
 local Vehicle1 is GoNoGoPoll:addhlayout().
 local data2 is Vehicle1:addlabel("Engines: ").
     set data2:style:wordwrap to false.
-    set data2:style:margin:left to 10.
-    set data2:style:width to 115.
-    set data2:style:fontsize to 16.
+    set data2:style:margin:left to 10*TScale.
+    set data2:style:width to 115*TScale.
+    set data2:style:fontsize to 16*TScale.
 local data25 is Vehicle1:addlabel("Fuel: ").
     set data25:style:wordwrap to false.
-    set data25:style:margin:left to 10.
-    set data25:style:width to 115.
-    set data25:style:fontsize to 16.
+    set data25:style:margin:left to 10*TScale.
+    set data25:style:width to 115*TScale.
+    set data25:style:fontsize to 16*TScale.
 local Vehicle2 is GoNoGoPoll:addhlayout().
 local data3 is Vehicle2:addlabel("Gridfins: ").
     set data3:style:wordwrap to false.
-    set data3:style:margin:left to 10.
-    set data3:style:width to 115.
-    set data3:style:fontsize to 16.
+    set data3:style:margin:left to 10*TScale.
+    set data3:style:width to 115*TScale.
+    set data3:style:fontsize to 16*TScale.
 local data35 is Vehicle2:addlabel("Tanks: ").
     set data35:style:wordwrap to false.
-    set data35:style:margin:left to 10.
-    set data35:style:width to 115.
-    set data35:style:fontsize to 16.
+    set data35:style:margin:left to 10*TScale.
+    set data35:style:width to 115*TScale.
+    set data35:style:fontsize to 16*TScale.
 local data4 is GoNoGoPoll:addlabel("Flight Director: ").
     set data4:style:wordwrap to false.
-    set data4:style:margin:left to 10.
-    set data4:style:width to 230.
-    set data4:style:fontsize to 16.
+    set data4:style:margin:left to 10*TScale.
+    set data4:style:width to 230*TScale.
+    set data4:style:fontsize to 16*TScale.
 local message0 is FDDecision:addlabel("<b>Flight Director:</b>").
     set message0:style:wordwrap to false.
-    set message0:style:margin:left to 10.
-    set message0:style:margin:top to 15.
-    set message0:style:width to 200.
-    set message0:style:fontsize to 21.
-// local message2 is FDDecision:addlabel("").
-//     set message2:style:wordwrap to false.
-//     set message2:style:margin:left to 10.
-//     set message2:style:width to 200.
-//     set message2:style:fontsize to 11.
+    set message0:style:margin:left to 10*TScale.
+    set message0:style:margin:top to 15*TScale.
+    set message0:style:width to 200*TScale.
+    set message0:style:fontsize to 21*TScale.
 local message1 is FDDecision:addlabel("<color=yellow>Go for Catch?</color>").
     set message1:style:wordwrap to false.
-    set message1:style:margin:left to 10.
-    set message1:style:margin:top to 25.
-    set message1:style:width to 200.
-    set message1:style:fontsize to 21.
+    set message1:style:margin:left to 10*TScale.
+    set message1:style:margin:top to 25*TScale.
+    set message1:style:width to 200*TScale.
+    set message1:style:fontsize to 21*TScale.
 local buttonbox is FDDecision:addhlayout().
 local Go to buttonbox:addbutton("<b><color=green>Confirm</color></b>").
     set Go:style:bg to "starship_img/starship_background_dark".
-    set Go:style:width to 100.
-    set Go:style:border:h to 10.
-    set Go:style:border:v to 10.
-    set Go:style:fontsize to 18.
+    set Go:style:width to 100*TScale.
+    set Go:style:border:h to 10*TScale.
+    set Go:style:border:v to 10*TScale.
+    set Go:style:fontsize to 18*TScale.
 local NoGo to buttonbox:addbutton("<b><color=red>Deny</color></b>").
     set NoGo:style:bg to "starship_img/starship_background_dark".
-    set NoGo:style:width to 100.
-    set NoGo:style:border:h to 10.
-    set NoGo:style:border:v to 10.
-    set NoGo:style:fontsize to 18.
+    set NoGo:style:width to 100*TScale.
+    set NoGo:style:border:h to 10*TScale.
+    set NoGo:style:border:v to 10*TScale.
+    set NoGo:style:fontsize to 18*TScale.
 local message4 is GoNoGoPoll:addlabel("Current decision: ").
     set message4:style:wordwrap to false.
-    set message4:style:margin:left to 10.
-    set message4:style:margin:top to 10.
-    set message4:style:width to 230.
-    set message4:style:fontsize to 16.
+    set message4:style:margin:left to 10*TScale.
+    set message4:style:margin:top to 10*TScale.
+    set message4:style:width to 230*TScale.
+    set message4:style:fontsize to 16*TScale.
 local message3 is FDDecision:addlabel("Poll ending in: ??s").
     set message3:style:wordwrap to false.
-    set message3:style:margin:left to 10.
-    set message3:style:margin:top to 10.
-    set message3:style:width to 200.
-    set message3:style:fontsize to 18.
+    set message3:style:margin:left to 10*TScale.
+    set message3:style:margin:top to 10*TScale.
+    set message3:style:width to 200*TScale.
+    set message3:style:fontsize to 18*TScale.
 
 
 
@@ -441,7 +436,7 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 4000. else set BoosterGlideDistance to 4000. //3240
+        if oldBooster set BoosterGlideDistance to 5000. else set BoosterGlideDistance to 6120. //4500
         set LngCtrlPID:setpoint to 40. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -469,7 +464,7 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1435.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1470.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -504,7 +499,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1435.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1470.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -532,7 +527,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1520.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1600.
         set LngCtrlPID:setpoint to 40. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -588,7 +583,6 @@ set PreDockPos to false.
 
 when True then {
     GUIupdate().
-    wait 0.
     preserve.
 }
 
@@ -1964,7 +1958,7 @@ function LandingGuidance {
         set Ftrv to 0.0.
     }
 
-    if RSS {
+    if RSS and velocity:surface:mag < 80 {
         set FstarVec to FstarVec/2.
         set Fev to Fev/2.2.
         set Fgs to Fgs/1.3.
