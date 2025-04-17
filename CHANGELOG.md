@@ -5,7 +5,7 @@
 - Added Option for UI Scale
   - possible Ingame and in booster.ks + starship.ks
   - Ingame Rescale somehow pushes Telemetry upwards
-  - > Can be fixed by reverting to launch (Setting will be saved)
+  > Can be fixed by reverting to launch (Setting will be saved)
 - Many small Error fixes
 
 # V3.4.8 (2025-04-11)
