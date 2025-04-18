@@ -228,7 +228,6 @@ local VersionDisplay is GUI(100).
         set VersionDisplayLabel:text to Scriptversion.
 VersionDisplay:show().
 local shipBackground is shipSpace:addlabel().
-CreateTelemetry().
 
 
 
@@ -289,6 +288,9 @@ local message4 is GoNoGoPoll:addlabel("Current decision: ").
     set message4:style:wordwrap to false.
 local message3 is FDDecision:addlabel("Poll ending in: ??s").
     set message3:style:wordwrap to false.
+
+
+CreateTelemetry().
 
 
 function CreateTelemetry {
