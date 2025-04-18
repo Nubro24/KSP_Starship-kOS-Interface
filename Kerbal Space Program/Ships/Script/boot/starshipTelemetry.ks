@@ -526,13 +526,13 @@ when ship:partstitled("Starship Orbital Launch Mount"):length = 0 then {
 sTelemetry:show().
 print "Test".
 
-when not Boosterconnected and not BoosterExists() then {
+when not Boosterconnected then {
     set sAltitude:style:textcolor to white.
     set sSpeed:style:textcolor to white.
     set sLOX:style:textcolor to white.
     set sCH4:style:textcolor to white.
     set sThrust:style:textcolor to white.
-    set sTelemetry:style:bg to "starship_img/telemetry_bg".
+    when not BoosterExists() then set sTelemetry:style:bg to "starship_img/telemetry_bg".
 }
 
 until false {
