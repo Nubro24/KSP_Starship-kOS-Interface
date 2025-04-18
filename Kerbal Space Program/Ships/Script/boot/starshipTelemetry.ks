@@ -229,6 +229,7 @@ set config:ipu to CPUSPEED.
 set exit to false.
 set LastMessageSentTime to 0.
 set distanceLoad to ship:loaddistance:suborbital:unload.
+set PostLaunch to false.
 
 //---------------Finding Parts-----------------//
 
@@ -490,6 +491,7 @@ function FindParts {
     }
     else {
         set Boosterconnected to false.
+        set PostLaunch to true.
         if not BoosterExists() {
             set sTelemetry:style:bg to "starship_img/telemetry_bg".
         }
