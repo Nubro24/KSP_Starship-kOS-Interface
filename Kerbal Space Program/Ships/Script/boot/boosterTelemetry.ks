@@ -13,6 +13,12 @@ set TScale to 1.
 //_________________________________________
 
 
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("TelemetryScale") {
+        set TScale to L["TelemetryScale"].
+    }
+}
 
 set oldBooster to false.
 set missionTimer to time:seconds + 30.
@@ -279,10 +285,10 @@ function GUIupdate {
     set boosterSpeed to ship:airspeed.
     set boosterThrust to BoosterEngines[0]:thrust.
     for res in BoosterCore:resources {
-        if res:name = "Oxidizer" {
+        if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" {
             set boosterLOX to res:amount*100/res:capacity.
         }
-        if res:name = "LqdMethane" {
+        if res:name = "LqdMethane" or res:name = "cooledLCH4" or res:name = "CooledLqdMethane" {
             set boosterCH4 to res:amount*100/res:capacity.
             set methane to true.
         }

@@ -16,118 +16,134 @@ set TScale to 1.
 //_________________________________________
 
 
-
 // if set to true, hides Telemetry on F2
 set config:obeyhideui to false.
+
+
+
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("TelemetryScale") {
+        set TScale to L["TelemetryScale"].
+    }
+}
 
 
 
 //---------------Telemetry GUI-----------------//
 
 set runningprogram to "None".
-set missionTimer to time:seconds + 30.
+set missionTimer to 0.
 if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("Launch Time") {
         set missionTimer to L["Launch Time"].
-        set PostLaunch to true.
     }
 }
 set RadarAlt to 0.
-set Boosterconnected to true.
 
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
-    set sTelemetry:style:border:h to 10*TScale.
-    set sTelemetry:style:border:v to 10*TScale.
-    set sTelemetry:style:padding:v to 0.
-    set sTelemetry:style:padding:h to 0.
-    set sTelemetry:x to 0.
-    set sTelemetry:y to -220*TScale.
     set sTelemetry:skin:label:textcolor to white.
     set sTelemetry:skin:textfield:textcolor to white.
     set sTelemetry:skin:label:font to "Arial Bold".
     set sTelemetry:skin:textfield:font to "Arial Bold".
-    
-
 local sAttitudeTelemetry is sTelemetry:addhlayout().
 local BoosterSpace is sAttitudeTelemetry:addvlayout().
 local sMissionTime is sAttitudeTelemetry:addvlayout().
 local ShipAttitude is sAttitudeTelemetry:addvlayout().
 local ShipStatus is sAttitudeTelemetry:addvlayout().
 local ShipRaptors is sAttitudeTelemetry:addvlayout().
-
 local bSpace is BoosterSpace:addlabel().
-    set bSpace:style:width to 860*TScale.
-
 local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:wordwrap to false.
+    set missionTimeLabel:style:align to "center".
+    set missionTimeLabel:text to "Startup".
+local VersionDisplay is GUI(100).
+    set VersionDisplay:style:bg to "".
+    local VersionDisplayLabel is VersionDisplay:addlabel().
+        set VersionDisplayLabel:style:wordwrap to false.
+        set VersionDisplayLabel:style:align to "center".
+        set VersionDisplayLabel:text to Scriptversion.
+VersionDisplay:show().
+local sAttitude is ShipAttitude:addlabel().
+    set sAttitude:style:bg to "starship_img/ship".
+local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
+    set sSpeed:style:wordwrap to false.
+local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
+    set sAltitude:style:wordwrap to false.
+local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
+    set sLOX:style:wordwrap to false.
+local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
+    set sCH4:style:wordwrap to false.
+local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
+    set sThrust:style:wordwrap to false.
+local sEngines is ShipRaptors:addlabel().
+    set sEngines:style:bg to "starship_img/ship0".
+set sTelemetry:draggable to false.
+
+CreateTelemetry().
+
+function CreateTelemetry {
+    set sTelemetry:style:border:h to 10*TScale.
+    set sTelemetry:style:border:v to 10*TScale.
+    set sTelemetry:style:padding:v to 0.
+    set sTelemetry:style:padding:h to 0.
+    set sTelemetry:x to 0.
+    set sTelemetry:y to -220*TScale.
+
+    set bSpace:style:width to 860*TScale.
+
     set missionTimeLabel:style:margin:left to 0.
     set missionTimeLabel:style:margin:right to 120*TScale.
     set missionTimeLabel:style:margin:top to 80*TScale.
     set missionTimeLabel:style:width to 160*TScale.
     set missionTimeLabel:style:fontsize to 42*TScale.
-    set missionTimeLabel:style:align to "center".
-    set missionTimeLabel:text to "Startup".
 
-local VersionDisplay is GUI(100).
     set VersionDisplay:x to 0.
     set VersionDisplay:y to 36*TScale.
-    set VersionDisplay:style:bg to "".
-    local VersionDisplayLabel is VersionDisplay:addlabel().
-        set VersionDisplayLabel:style:wordwrap to false.
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
-        set VersionDisplayLabel:style:align to "center".
-        set VersionDisplayLabel:text to Scriptversion.
-VersionDisplay:show().
 
-local sAttitude is ShipAttitude:addlabel().
-    set sAttitude:style:bg to "starship_img/ship".
     set sAttitude:style:margin:left to 20*TScale.
     set sAttitude:style:margin:right to 20*TScale.
     set sAttitude:style:margin:top to 20*TScale.
     set sAttitude:style:width to 180*TScale.
     set sAttitude:style:height to 180*TScale.
-local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
-    set sSpeed:style:wordwrap to false.
+
     set sSpeed:style:margin:left to 45*TScale.
     set sSpeed:style:margin:top to 20*TScale.
     set sSpeed:style:width to 296*TScale.
     set sSpeed:style:fontsize to 30*TScale.
-local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
-    set sAltitude:style:wordwrap to false.
+
     set sAltitude:style:margin:left to 45*TScale.
     set sAltitude:style:margin:top to 2*TScale.
     set sAltitude:style:width to 296*TScale.
     set sAltitude:style:fontsize to 30*TScale.
-local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
-    set sLOX:style:wordwrap to false.
+
     set sLOX:style:margin:left to 50*TScale.
     set sLOX:style:margin:top to 25*TScale.
     set sLOX:style:width to 200*TScale.
     set sLOX:style:fontsize to 20*TScale.
-local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
-    set sCH4:style:wordwrap to false.
+
     set sCH4:style:margin:left to 50*TScale.
     set sCH4:style:margin:top to 4*TScale.
     set sCH4:style:width to 200*TScale.
     set sCH4:style:fontsize to 20*TScale.
-local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
-    set sThrust:style:wordwrap to false.
+
     set sThrust:style:margin:left to 45*TScale.
     set sThrust:style:margin:top to 15*TScale.
     set sThrust:style:width to 150*TScale.
     set sThrust:style:fontsize to 16*TScale.
-local sEngines is ShipRaptors:addlabel().
-    set sEngines:style:bg to "starship_img/ship0".
+
     set sEngines:style:width to 180*TScale.
     set sEngines:style:height to 180*TScale.
     set sEngines:style:margin:top to 20*TScale.
     set sEngines:style:margin:left to 20*TScale.
     set sEngines:style:margin:bottom to 20*TScale.
 
-set sTelemetry:draggable to false.
+
+}
 
 set partsfound to false.
 
@@ -137,7 +153,7 @@ set partsfound to false.
 //------------Initial Setup-------------//
 
 print "starting initial setup".
-wait 1.
+wait 0.6.
 
 set RSS to false.
 set KSRSS to false.
@@ -479,33 +495,6 @@ function FindParts {
         }
     }
 
-    if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
-        set OnOrbitalMount to True.
-        set OLM to ship:partstitled("Starship Orbital Launch Mount")[0].
-        set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
-        set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
-        set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
-        set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
-        set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
-        set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
-        Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
-        if RSS {
-            set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 12.
-        }
-        else {
-            set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 7.5.
-        }
-        //SaveToSettings("ArmsHeight", ArmsHeight).
-        set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - TowerTop:mass - Mechazilla:mass.
-        print("Stack mass: " + StackMass).
-        print(ship:mass).
-    }
-    else {
-        set OnOrbitalMount to False.
-        set OLM to false.
-        set StackMass to ship:mass.
-        //print("Stack mass (no OLM found): " + StackMass).
-    }
     set partsfound to true.
 
 
@@ -680,11 +669,11 @@ function updateTelemetry {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
             }
-            if res:name = "LqdMethane" {
+            if res:name = "LqdMethane" or res:name = "cooledLCH4" or res:name = "CooledLqdMethane" {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
             }
-            if res:name = "Oxidizer" {
+            if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" {
                 set lox to res:amount.
                 set mlox to res:capacity.
             }
@@ -695,11 +684,11 @@ function updateTelemetry {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
             }
-            if res:name = "LqdMethane" {
+            if res:name = "LqdMethane" or res:name = "cooledLCH4" or res:name = "CooledLqdMethane" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
             }
-            if res:name = "Oxidizer" {
+            if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" {
                 set lox to lox + res:amount.
                 set mlox to mlox + res:capacity.
             }
