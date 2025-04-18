@@ -93,7 +93,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - better Ship Catch Abort
 - Gridfin Tilt for Hotstaging
 - Landings with sub-meter precision
-- Scalable Telemetry
+- Scalable Telemetry (WIP)
 - IFT - Flight profile option
 - Implement unused Heat Pictograms
 
