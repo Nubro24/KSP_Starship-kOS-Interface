@@ -6699,22 +6699,22 @@ function Launch {
                 print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.4, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.36 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.37 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {
                 lock throttle to 0.9. 
-                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.36, 2)).
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.37, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.33 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.34 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {
                 lock throttle to 0.95. 
-                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.33, 2)).
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.34, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.28 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.3 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {
                 lock throttle to 1. 
-                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.28, 2)).
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.3, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.24 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}

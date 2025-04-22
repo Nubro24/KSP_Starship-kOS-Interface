@@ -62,7 +62,37 @@ for part in ship:parts {
         set HSset to true.
     }
 }
-
+if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") {
+    set BoosterSingleEngines to true.
+    set BoosterSingleEnginesRB to list().
+    set BoosterSingleEnginesRC to list().
+    set x to 0.
+    until x > 12 {
+        BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
+        set x to x + 1.
+    }
+    until x > 32 {
+        BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
+        set x to x + 1.
+    }
+} 
+else if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") {
+    set BoosterSingleEngines to true.
+    set BoosterSingleEnginesRB to list().
+    set BoosterSingleEnginesRC to list().
+    set x to 0.
+    until x > 19 {
+        BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
+        set x to x + 1.
+    }
+    until x > 32 {
+        BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
+        set x to x + 1.
+    }
+} 
+else {
+    set BoosterSingleEngines to false.
+}
 
 set RSS to false.
 set KSRSS to false.
@@ -283,7 +313,25 @@ function GUIupdate {
 
     set boosterAltitude to RadarAlt.
     set boosterSpeed to ship:airspeed.
+
+    
+        set boosterThrust to 0.
+        set ActiveRB to 0.
+        set ActiveRC to 0.
+
     set boosterThrust to BoosterEngines[0]:thrust.
+    if BoosterSingleEngines {
+        for eng in BoosterSingleEnginesRB set boosterThrust to boosterThrust + eng:thrust.
+        for eng in BoosterSingleEnginesRC set boosterThrust to boosterThrust + eng:thrust.
+        
+        for eng in BoosterSingleEnginesRB {
+            if eng:thrust > 0 set ActiveRB to ActiveRB + 1.
+        }
+        for eng in BoosterSingleEnginesRC {
+            if eng:thrust > 0 set ActiveRC to ActiveRC + 1.
+        }
+    }
+    
     for res in BoosterCore:resources {
         if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" {
             set boosterLOX to res:amount*100/res:capacity.
@@ -298,20 +346,30 @@ function GUIupdate {
         }
     }
     set Mode to "NaN".
-    if throttle > 0 and BoosterEngines[0]:thrust > 0 {
-        if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
-            set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
-        }
+    if throttle > 0 {
+        if not BoosterSingleEngines and boosterThrust > 0 {
+            if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
+                set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
+            }
         
 
-        if Mode = "Center Three" {
-            set bEngines:style:bg to "starship_img/booster3".
-        } else if Mode = "Middle Inner" {
-            set bEngines:style:bg to "starship_img/booster13".
-        } else if Mode = "All Engines" {
-            set bEngines:style:bg to "starship_img/booster33".
-        } else if Mode = "NaN" {
-            print("Mode not found").
+            if Mode = "Center Three" {
+                set bEngines:style:bg to "starship_img/booster3".
+            } else if Mode = "Middle Inner" {
+                set bEngines:style:bg to "starship_img/booster13".
+            } else if Mode = "All Engines" {
+                set bEngines:style:bg to "starship_img/booster33".
+            } else if Mode = "NaN" {
+                print("Mode not found").
+            }
+        } else if boosterThrust > 0 {
+            if ActiveRB > 0 {
+                set bEngines:style:bg to "starship_img/booster33".
+            } else if ActiveRC > 3 {
+                set bEngines:style:bg to "starship_img/booster13".
+            } else {
+                set bEngines:style:bg to "starship_img/booster3".
+            }
         }
     } else {
         set bEngines:style:bg to "starship_img/booster0".

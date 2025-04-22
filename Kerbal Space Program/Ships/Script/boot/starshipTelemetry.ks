@@ -441,6 +441,37 @@ function FindParts {
         set sCH4:style:textcolor to grey.
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
+        if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") {
+            set BoosterSingleEngines to true.
+            set BoosterSingleEnginesRB to list().
+            set BoosterSingleEnginesRC to list().
+            set x to 0.
+            until x > 12 {
+                BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
+                set x to x + 1.
+            }
+            until x > 32 {
+                BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
+                set x to x + 1.
+            }
+        } 
+        else if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") {
+            set BoosterSingleEngines to true.
+            set BoosterSingleEnginesRB to list().
+            set BoosterSingleEnginesRC to list().
+            set x to 0.
+            until x > 19 {
+                BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
+                set x to x + 1.
+            }
+            until x > 32 {
+                BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
+                set x to x + 1.
+            }
+        } 
+        else {
+            set BoosterSingleEngines to false.
+        }
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
@@ -468,6 +499,37 @@ function FindParts {
         set sCH4:style:textcolor to grey.
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER").
+        if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") {
+            set BoosterSingleEngines to true.
+            set BoosterSingleEnginesRB to list().
+            set BoosterSingleEnginesRC to list().
+            set x to 0.
+            until x > 12 {
+                BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
+                set x to x + 1.
+            }
+            until x > 32 {
+                BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
+                set x to x + 1.
+            }
+        } 
+        else if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") {
+            set BoosterSingleEngines to true.
+            set BoosterSingleEnginesRB to list().
+            set BoosterSingleEnginesRC to list().
+            set x to 0.
+            until x > 19 {
+                BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
+                set x to x + 1.
+            }
+            until x > 32 {
+                BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
+                set x to x + 1.
+            }
+        } 
+        else {
+            set BoosterSingleEngines to false.
+        }
         set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
