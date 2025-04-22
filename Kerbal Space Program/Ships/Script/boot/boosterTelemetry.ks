@@ -105,27 +105,174 @@ set Tminus to false.
 
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
-    set bTelemetry:style:border:h to 10*TScale.
-    set bTelemetry:style:border:v to 10*TScale.
-    set bTelemetry:style:padding:v to 0.
-    set bTelemetry:style:padding:h to 0.
-    set bTelemetry:x to 0.
-    set bTelemetry:y to -220*TScale.
     set bTelemetry:skin:label:textcolor to white.
     set bTelemetry:skin:textfield:textcolor to white.
     set bTelemetry:skin:label:font to "Arial Bold".
     set bTelemetry:skin:textfield:font to "Arial Bold".
-    
-
 local bAttitudeTelemetry is bTelemetry:addhlayout().
 local boosterCluster is bAttitudeTelemetry:addvlayout().
 local boosterStatus is bAttitudeTelemetry:addvlayout().
 local boosterAttitude is bAttitudeTelemetry:addvlayout().
 local missionTimeDisplay is bAttitudeTelemetry:addvlayout().
 local shipSpace is bAttitudeTelemetry:addvlayout().
-
 local bEngines is boosterCluster:addlabel().
     set bEngines:style:bg to "starship_img/booster0".
+local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
+local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
+local bLOX is boosterStatus:addlabel("<b>LOX  </b>").
+local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
+local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
+local bAttitude is boosterAttitude:addlabel().
+    set bAttitude:style:bg to "starship_img/booster".
+local missionTimeLabel is missionTimeDisplay:addlabel().
+local VersionDisplay is GUI(100).
+    local VersionDisplayLabel is VersionDisplay:addlabel().
+        set VersionDisplayLabel:style:align to "center".
+        set VersionDisplayLabel:text to Scriptversion.
+VersionDisplay:show().
+local shipBackground is shipSpace:addlabel().
+
+
+
+set bTelemetry:draggable to false.
+
+
+local bGUI is GUI(150).
+    set bGUI:style:bg to "starship_img/telemetry_bg".
+    set bGUI:style:padding:v to 0.
+    set bGUI:style:padding:h to 0.
+    set bGUI:x to 0.
+    set bGUI:skin:button:bg to  "starship_img/telemetry_bg".
+    set bGUI:skin:button:on:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:hover_on:bg to  "starship_img/starship_background_light".
+    set bGUI:skin:button:textcolor to white.
+    set bGUI:skin:label:textcolor to white.
+    set bGUI:skin:textfield:textcolor to white.
+
+local bGUIBox is bGUI:addhlayout().
+
+local PollGUI is bGUIBox:addvlayout().
+    
+local leftright is PollGUI:addhlayout().
+local GoNoGoPoll is leftright:addvlayout().
+    set GoNoGoPoll:style:bg to "starship_img/starship_background_dark".
+local Space is leftright:addvlayout().
+local FDDecision is leftright:addvlayout().
+local Space2 is leftright:addvlayout().
+
+local spaceLabel is Space:addlabel("").
+local spaceLabel2 is Space2:addlabel("").
+
+local data1 is GoNoGoPoll:addlabel("Tower: ").
+    set data1:style:wordwrap to false.
+local Vehicle1 is GoNoGoPoll:addhlayout().
+local data2 is Vehicle1:addlabel("Engines: ").
+    set data2:style:wordwrap to false.
+local data25 is Vehicle1:addlabel("Fuel: ").
+    set data25:style:wordwrap to false.
+local Vehicle2 is GoNoGoPoll:addhlayout().
+local data3 is Vehicle2:addlabel("Gridfins: ").
+    set data3:style:wordwrap to false.
+local data35 is Vehicle2:addlabel("Tanks: ").
+    set data35:style:wordwrap to false.
+local data4 is GoNoGoPoll:addlabel("Flight Director: ").
+    set data4:style:wordwrap to false.
+local message0 is FDDecision:addlabel("<b>Flight Director:</b>").
+    set message0:style:wordwrap to false.
+local message1 is FDDecision:addlabel("<color=yellow>Go for Catch?</color>").
+    set message1:style:wordwrap to false.
+local buttonbox is FDDecision:addhlayout().
+local Go to buttonbox:addbutton("<b><color=green>Confirm</color></b>").
+    set Go:style:bg to "starship_img/starship_background_dark".
+local NoGo to buttonbox:addbutton("<b><color=red>Deny</color></b>").
+    set NoGo:style:bg to "starship_img/starship_background_dark".
+local message4 is GoNoGoPoll:addlabel("Current decision: ").
+    set message4:style:wordwrap to false.
+local message3 is FDDecision:addlabel("Poll ending in: ??s").
+    set message3:style:wordwrap to false.
+
+
+CreateTelemetry().
+
+
+function CreateTelemetry {
+    
+    set bGUI:style:border:h to 10*TScale.
+    set bGUI:style:border:v to 10*TScale.
+    set bGUI:y to -402*TScale.
+    set bGUI:skin:button:border:v to 10*TScale.
+    set bGUI:skin:button:border:h to 10*TScale.
+
+    set spaceLabel:style:width to 10*TScale.
+    set spaceLabel2:style:width to 8*TScale.
+
+    set data1:style:margin:left to 10*TScale.
+    set data1:style:margin:top to 10*TScale.
+    set data1:style:width to 230*TScale.
+    set data1:style:fontsize to 16*TScale.
+
+    set data2:style:margin:left to 10*TScale.
+    set data2:style:width to 115*TScale.
+    set data2:style:fontsize to 16*TScale.
+
+    set data25:style:margin:left to 10*TScale.
+    set data25:style:width to 115*TScale.
+    set data25:style:fontsize to 16*TScale.
+
+    set data3:style:margin:left to 10*TScale.
+    set data3:style:width to 115*TScale.
+    set data3:style:fontsize to 16*TScale.
+
+    set data35:style:margin:left to 10*TScale.
+    set data35:style:width to 115*TScale.
+    set data35:style:fontsize to 16*TScale.
+
+    set data4:style:margin:left to 10*TScale.
+    set data4:style:width to 230*TScale.
+    set data4:style:fontsize to 16*TScale.
+
+    set message0:style:margin:left to 10*TScale.
+    set message0:style:margin:top to 15*TScale.
+    set message0:style:width to 200*TScale.
+    set message0:style:fontsize to 21*TScale.
+
+    set message1:style:margin:left to 10*TScale.
+    set message1:style:margin:top to 25*TScale.
+    set message1:style:width to 200*TScale.
+    set message1:style:fontsize to 21*TScale.
+
+    set Go:style:width to 100*TScale.
+    set Go:style:border:h to 10*TScale.
+    set Go:style:border:v to 10*TScale.
+    set Go:style:fontsize to 18*TScale.
+
+    set NoGo:style:width to 100*TScale.
+    set NoGo:style:border:h to 10*TScale.
+    set NoGo:style:border:v to 10*TScale.
+    set NoGo:style:fontsize to 18*TScale.
+
+    set message4:style:margin:left to 10*TScale.
+    set message4:style:margin:top to 10*TScale.
+    set message4:style:width to 230*TScale.
+    set message4:style:fontsize to 16*TScale.
+
+    set message3:style:margin:left to 10*TScale.
+    set message3:style:margin:top to 10*TScale.
+    set message3:style:width to 200*TScale.
+    set message3:style:fontsize to 18*TScale.
+    
+
+
+    set bTelemetry:style:border:h to 10*TScale.
+    set bTelemetry:style:border:v to 10*TScale.
+    set bTelemetry:style:padding:v to 0.
+    set bTelemetry:style:padding:h to 0.
+    set bTelemetry:x to 0.
+    set bTelemetry:y to 0.
+    set bTelemetry:y to -220*TScale.
+    
+
     set bEngines:style:width to 190*TScale.
     set bEngines:style:height to 180*TScale.
     set bEngines:style:margin:top to 20*TScale.
@@ -133,46 +280,42 @@ local bEngines is boosterCluster:addlabel().
     set bEngines:style:margin:right to 26*TScale.
     set bEngines:style:margin:bottom to 20*TScale.
 
-local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
     set bSpeed:style:wordwrap to false.
     set bSpeed:style:margin:left to 10*TScale.
     set bSpeed:style:margin:top to 20*TScale.
     set bSpeed:style:width to 296*TScale.
     set bSpeed:style:fontsize to 30*TScale.
-local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
+
     set bAltitude:style:wordwrap to false.
     set bAltitude:style:margin:left to 10*TScale.
     set bAltitude:style:margin:top to 2*TScale.
     set bAltitude:style:width to 296*TScale.
     set bAltitude:style:fontsize to 30*TScale.
-local bLOX is boosterStatus:addlabel("<b>LOX  </b>").
+
     set bLOX:style:wordwrap to false.
     set bLOX:style:margin:left to 15*TScale.
     set bLOX:style:margin:top to 25*TScale.
     set bLOX:style:width to 200*TScale.
     set bLOX:style:fontsize to 20*TScale.
-local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
+
     set bCH4:style:wordwrap to false.
     set bCH4:style:margin:left to 15*TScale.
     set bCH4:style:margin:top to 4*TScale.
     set bCH4:style:width to 200*TScale.
     set bCH4:style:fontsize to 20*TScale.
-local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
+
      set bThrust:style:wordwrap to false.
      set bThrust:style:margin:left to 10*TScale.
      set bThrust:style:margin:top to 15*TScale.
      set bThrust:style:width to 150*TScale.
      set bThrust:style:fontsize to 16*TScale.
 
-local bAttitude is boosterAttitude:addlabel().
-    set bAttitude:style:bg to "starship_img/booster".
     set bAttitude:style:margin:left to 20*TScale.
     set bAttitude:style:margin:right to 20*TScale.
     set bAttitude:style:width to 180*TScale.
     set bAttitude:style:height to 180*TScale.
     set bAttitude:style:margin:top to 20*TScale.
 
-local missionTimeLabel is missionTimeDisplay:addlabel().
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:margin:left to 100*TScale.
     set missionTimeLabel:style:margin:right to 160*TScale.
@@ -181,21 +324,15 @@ local missionTimeLabel is missionTimeDisplay:addlabel().
     set missionTimeLabel:style:fontsize to 42*TScale.
     set missionTimeLabel:style:align to "center".
 
-local VersionDisplay is GUI(100).
     set VersionDisplay:x to 0.
-    set VersionDisplay:y to 36*TScale.
+    set VersionDisplay:y to 25*TScale.
     set VersionDisplay:style:bg to "".
-    local VersionDisplayLabel is VersionDisplay:addlabel().
         set VersionDisplayLabel:style:wordwrap to false.
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
-        set VersionDisplayLabel:style:align to "center".
-        set VersionDisplayLabel:text to Scriptversion.
-VersionDisplay:hide().
 
-local shipBackground is shipSpace:addlabel().
     set shipBackground:style:width to 726*TScale.
-
+}
 set bTelemetry:draggable to false.
 
 
