@@ -70,7 +70,7 @@ function LandingGuidance {
                      - Ftrv * TowerRotationVector.
 
     set guidVec to lookDirUp(offsetVec, RollVector).
-    set drawGUID to vecDraw(BoosterCore:position, guidVec, red, "guidVec", 50, drawVecs, 0.004).
+    set drawGUID to vecDraw(BoosterCore:position, offsetVec, red, "guidVec", 50, drawVecs, 0.004).
     
     // --- Debug
     set drawFev   to vecDraw(BoosterCore:position, -Fev * blendVector, green,   "Fev",   50, drawVecs, 0.004).

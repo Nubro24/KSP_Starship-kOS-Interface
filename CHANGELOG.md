@@ -1,7 +1,7 @@
 # V3.4.9 (WIP)
 - Overhauled Tower Operations after Booster Catch
 - Booster now locks gimbal on unused Engines
-- Small Booster Landing Guidance Tweaks
+- Booster Landing Guidance Overhaul upgrade
 - Added Option for UI Scale
   - possible Ingame and in booster.ks + starship.ks
   - Ingame Rescale somehow pushes Telemetry upwards

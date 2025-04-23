@@ -49,7 +49,7 @@ if homeconnection:isconnected {
     }
 }
 
-set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
@@ -547,7 +547,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1600.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1999.
         set LngCtrlPID:setpoint to 40. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -941,7 +941,7 @@ function Boostback {
         else {
             lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
-        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector).
+        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(24,facing:forevector)).
         lock steering to SteeringVector.
 
         print "Available Thrust: " + round(max(ship:availablethrust, 0.000001)) + "kN".
@@ -995,9 +995,6 @@ function Boostback {
         }
 
         lock GSVec to vxcl(up:vector,velocity:surface).
-        set CurrentVec to facing:forevector.
-        lock SteeringVector to lookdirup(CurrentVec, ApproachVector:normalized - 0.5 * up:vector:normalized).
-        lock steering to SteeringVector.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
         MidGimbMod:doaction("lock gimbal", true).
         CheckFuel().
@@ -1886,7 +1883,7 @@ function LandingThrottle {
 
 
 function LandingGuidance {
-    wait 0.02.
+    wait 0.
 
     // --- Init
     set RadarRatio to RadarAlt / BoosterHeight.
@@ -1900,11 +1897,11 @@ function LandingGuidance {
     set blendVector to (1 - vBlend) * PositionError + vBlend * ErrorVector.
 
     // --- Fev dynamic
-    set baseFev to 0.02 + 0.01 * min(1, max(0, (RadarRatio - 4) / 2)).
+    set baseFev to 0.005 + 0.01 * min(2, max(0, (RadarRatio - 4) / 2)).
     if vAng(TowerRotationVector, PositionError) > 15 {
         set baseFev to baseFev + 0.01.
     }
-    if RSS set baseFev to baseFev * 1.2.
+    if RSS set baseFev to baseFev * 0.8.
     if STOCK set baseFev to baseFev * 1.4.
 
     set fevBoost to 1 + min(1, max(0, (ErrorVector:mag - 0.5 * BoosterHeight) / BoosterHeight)).
@@ -1946,6 +1943,12 @@ function LandingGuidance {
         set Ftrv to Ftrv * 0.5.
     }
 
+    // --- before MiddleShutdown
+    if not MiddleEnginesShutdown {
+        set Fev to Fev * 0.36.
+        set Fgs to Fgs * 1.
+    }
+
     // --- Final vector
     set offsetVec to up:vector 
                      - Fev * blendVector 
@@ -1953,8 +1956,7 @@ function LandingGuidance {
                      - Ftrv * TowerRotationVector.
 
     set guidVec to lookDirUp(offsetVec, RollVector).
-    set drawGUID to vecDraw(BoosterCore:position, guidVec, red, "guidVec", 50, drawVecs, 0.004).
-    
+
     // --- Debug
     set drawFev   to vecDraw(BoosterCore:position, -Fev * blendVector, green,   "Fev",   50, drawVecs, 0.004).
     set drawFgs   to vecDraw(BoosterCore:position, -Fgs * GSVec,       cyan,    "Fgs",   50, drawVecs, 0.004).
