@@ -62,33 +62,25 @@ for part in ship:parts {
         set HSset to true.
     }
 }
-if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") {
+
+if not BoosterEngines[0]:children:length = 0 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
     set BoosterSingleEngines to true.
     set BoosterSingleEnginesRB to list().
     set BoosterSingleEnginesRC to list().
     set x to 0.
-    until x > 12 {
-        BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
-        set x to x + 1.
+    until x > BoosterEngines[0]:children:length - 1 {
+        if BoosterEngines[0]:children[x]:name:contains("SEP.23.RAPTOR2.SL.RC") {
+            BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
+            set x to x+1.
+        } 
+        else if BoosterEngines[0]:children[x]:name:contains("SEP.23.RAPTOR2.SL.RB") {
+            BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
+            set x to x+1.
+        } 
+        else set x to x+1.
     }
-    until x > 32 {
-        BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
-        set x to x + 1.
-    }
-} 
-else if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") {
-    set BoosterSingleEngines to true.
-    set BoosterSingleEnginesRB to list().
-    set BoosterSingleEnginesRC to list().
-    set x to 0.
-    until x > 19 {
-        BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
-        set x to x + 1.
-    }
-    until x > 32 {
-        BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
-        set x to x + 1.
-    }
+    if BoosterSingleEnginesRB:length = 0 or BoosterSingleEnginesRC:length = 0 
+        set BoosterSingleEngines to false.
 } 
 else {
     set BoosterSingleEngines to false.
@@ -456,18 +448,20 @@ function GUIupdate {
         set ActiveRB to 0.
         set ActiveRC to 0.
 
-    set boosterThrust to BoosterEngines[0]:thrust.
     if BoosterSingleEngines {
-        for eng in BoosterSingleEnginesRB set boosterThrust to boosterThrust + eng:thrust.
-        for eng in BoosterSingleEnginesRC set boosterThrust to boosterThrust + eng:thrust.
+        for eng in BoosterSingleEnginesRB 
+            set boosterThrust to boosterThrust + eng:thrust.
+        for eng in BoosterSingleEnginesRC 
+            set boosterThrust to boosterThrust + eng:thrust.
         
         for eng in BoosterSingleEnginesRB {
-            if eng:thrust > 0 set ActiveRB to ActiveRB + 1.
+            if eng:thrust > 85 set ActiveRB to ActiveRB + 1.
         }
         for eng in BoosterSingleEnginesRC {
-            if eng:thrust > 0 set ActiveRC to ActiveRC + 1.
+            if eng:thrust > 85 set ActiveRC to ActiveRC + 1.
         }
-    }
+    } 
+    else set boosterThrust to BoosterEngines[0]:thrust.
     
     for res in BoosterCore:resources {
         if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" {
@@ -499,15 +493,19 @@ function GUIupdate {
             } else if Mode = "NaN" {
                 print("Mode not found").
             }
-        } else if boosterThrust > 0 {
+        } 
+        else if boosterThrust > 0 {
             if ActiveRB > 0 {
                 set bEngines:style:bg to "starship_img/booster33".
-            } else if ActiveRC > 3 {
+            } 
+            else if ActiveRC > 3 {
                 set bEngines:style:bg to "starship_img/booster13".
-            } else {
+            } 
+            else {
                 set bEngines:style:bg to "starship_img/booster3".
             }
-        }
+        } 
+        else set bEngines:style:bg to "starship_img/booster0".
     } else {
         set bEngines:style:bg to "starship_img/booster0".
     }
