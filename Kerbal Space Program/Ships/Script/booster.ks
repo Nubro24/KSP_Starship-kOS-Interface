@@ -1330,9 +1330,9 @@ function Boostback {
     
     lock steering to SteeringVector.
 
-    until alt:radar < 12000 {
+    until alt:radar < 18000 {
         SteeringCorrections().
-        if altitude > 28000 and RSS or altitude > 26000 and not (RSS) {
+        if altitude > 32000 and RSS or altitude > 28000 and not (RSS) {
             rcs on.
         }
         else {
@@ -1344,9 +1344,6 @@ function Boostback {
         wait 0.05.
     }
 
-    if ShipType="Depot" and Stock and GfC {
-        set LngCtrlPID:setpoint to 0.
-    }
 
     lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
 
