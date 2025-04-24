@@ -3,84 +3,87 @@ lock LandingTime to sqrt((RadarAlt/verticalSpeed)^2 + (PositionError:mag/grounds
 
 //----------------------------------------new------------------------------------------------
 function LandingGuidance {
-    wait 0.02.
+    wait 0.01.
 
-    // --- Init
-    set RadarRatio to RadarAlt / BoosterHeight.
-    set hSpeed to ship:groundspeed.
-    set timeToTarget to PositionError:mag / max(hSpeed, 0.1).
-    set timeToLand to RadarAlt / max(-verticalSpeed, 0.1).
+    // === Distance ===
+    set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
+    set distNorm to min(max(landDistance / (2*BoosterHeight), 0), 1). 
 
-    // --- ErrorVector or PositionError (0 = only PosError, 1 = only ErrorVector)
-    set vBlend to min(1, max(0, (RadarRatio - 1.5) / 3)). // Transition between 1.5x and 4.5x BoosterHeight
+    // === Base Factors ===
+    set FposBase to 0.01.
+    set FerrBase to 0.01.
+    set FgsBase to 0.05.
+    set FtrvBase to 0.002.
 
-    set blendVector to (1 - vBlend) * PositionError + vBlend * ErrorVector.
+    // === Dynamic Time based Scaling ===
+    set Fpos to FposBase * (1 - distNorm)^1.5.
+    if landDistance > BoosterHeight and PositionError:mag > BoosterHeight * 0.5 set Ferr to FerrBase * (distNorm)^1.4.
+    else set Ferr to FerrBase * ((0.05 + distNorm)*3)^1.4.
+    set Fgs to FgsBase * (1 - distNorm)^1.1.
+    set Ftrv to 0.
 
-    // --- Fev dynamic
-    set baseFev to 0.02 + 0.01 * min(1, max(0, (RadarRatio - 4) / 2)).
-    if vAng(TowerRotationVector, PositionError) > 15 {
-        set baseFev to baseFev + 0.01.
-    }
-    if RSS set baseFev to baseFev * 1.2.
-    if STOCK set baseFev to baseFev * 1.4.
-
-    set fevBoost to 1 + min(1, max(0, (ErrorVector:mag - 0.5 * BoosterHeight) / BoosterHeight)).
-    set Fev to baseFev * fevBoost.
-
-    // --- GS-correction
-    set Fgs to 0.004 + 0.006 * min(1, max(0, (4 - RadarRatio) / 2)).
-    if RadarAlt < 1.5 * BoosterHeight {
-        if RSS set Fgs to Fgs * 1.75.
-        if KSRSS set Fgs to Fgs * 2.
-        if STOCK set Fgs to Fgs * 1.4.
+    // === 13 Engines Phase ===
+    if not MiddleEnginesShutdown {
+        set Fpos to Fpos * 0.1.
+        set Ferr to Ferr * 0.5.
+        set Fgs to Fgs * 0.3.
     }
 
-    // --- Tower-Direction-Compensation
-    set Ftrv to 0.001 * min(1, max(0, (3 - RadarRatio) / 2)).
+    // === DotProduct-basierte Bewertung der horizontalen Zielannäherung ===
+    set projVelMag to vDot(GSVec,PositionError).
+    set angleToTarget to vAng(GSVec, PositionError). // optional für Logging
 
-    // --- Factors for low velocity
-    if RSS and velocity:surface:mag < 50 {
-        set Fev to Fev / 2.2.
-        set Fgs to Fgs / 1.3.
-        set Ftrv to Ftrv / 2.
+    if projVelMag < 5 and PositionError:mag > BoosterHeight * 2.4 {
+        // Geschwindigkeit bringt nichts: mehr korrigieren
+        set Fpos to Fpos * 1.6.
+        set Fgs to Fgs * 0.6.
     }
 
-    // --- Factors for low Altitude
-    if RadarAlt < 0.6 * BoosterHeight {
-        set Fev to Fev * 0.2.
-        set Fgs to Fgs * 0.8.
-        set Ftrv to 0.
+    // === High Incl ===
+    set trvAngle to vAng(PositionError, TowerRotationVector).
+    if trvAngle > 30 {
+        set Ftrv to FtrvBase * min(max((trvAngle - 30)/60, 0), 1) * (1 - distNorm).
     }
 
-    // --- Factors shortly before touchdown
-    if timeToTarget < 5 {
-        set Fev to Fev * (1 + (5 - timeToTarget)/5).
-        set Fgs to Fgs * (1 + (5 - timeToTarget)/5).
-    }
-    if timeToLand < 3 {
-        set Fev to Fev * 0.8.
-        set Fgs to Fgs * 1.2.
-        set Ftrv to Ftrv * 0.5.
-    }
-
-    // --- Final vector
-    set offsetVec to up:vector 
-                     - Fev * blendVector 
-                     - Fgs * GSVec 
-                     - Ftrv * TowerRotationVector.
-
-    set guidVec to lookDirUp(offsetVec, RollVector).
-    set drawGUID to vecDraw(BoosterCore:position, offsetVec, red, "guidVec", 50, drawVecs, 0.004).
     
-    // --- Debug
-    set drawFev   to vecDraw(BoosterCore:position, -Fev * blendVector, green,   "Fev",   50, drawVecs, 0.004).
-    set drawFgs   to vecDraw(BoosterCore:position, -Fgs * GSVec,       cyan,    "Fgs",   50, drawVecs, 0.004).
-    set drawFtrv  to vecDraw(BoosterCore:position, -Ftrv * TowerRotationVector, yellow, "Ftrv", 50, drawVecs, 0.004).
-    set drawTotal to vecDraw(BoosterCore:position, offsetVec,          white,   "Total", 50, drawVecs, 0.004).
 
 
-    return guidVec.
+    // === Offset Vector ===
+    set offsetVec to up:vector
+        - Fpos * PositionError
+        - Ferr * ErrorVector
+        - Fgs * GSVec
+        - Ftrv * TowerRotationVector.
+
+    // === TVC compensation ===
+    set steeringOffset to vAng(offsetVec,BoosterCore:facing:forevector).
+
+    set steerDamp to min(max((steeringOffset - 1) / 15, 0), 1).
+
+    set Fpos to Fpos * (1 - 0.6 * steerDamp).
+    set Ferr to Ferr * (1 - 0.6 * steerDamp).
+    set Fgs to Fgs * (1 - 0.4 * steerDamp).
+
+
+    // === Final Vector ===
+    set FinalVec to up:vector
+        - Fpos * PositionError
+        - Ferr * ErrorVector
+        - Fgs * GSVec
+        - Ftrv * TowerRotationVector.
+
+    // === Debug Draw ===
+    if drawVecs {
+        set drawPos to vecDraw(BoosterCore:position, -Fpos * PositionError, green, "FevPos", 50, drawVecs, 0.004).
+        set drawErr to vecDraw(BoosterCore:position, -Ferr * ErrorVector, cyan, "FevErr", 50, drawVecs, 0.004).
+        set drawGsv to vecDraw(BoosterCore:position, -Fgs * GSVec, red, "Fgs", 50, drawVecs, 0.004).
+        set drawTrv to vecDraw(BoosterCore:position, -Ftrv * TowerRotationVector, yellow, "Ftrv", 50, drawVecs, 0.004).
+        set drawTot to vecDraw(BoosterCore:position, FinalVec, white, "Total", 50, drawVecs, 0.004).
+    }
+
+    return lookDirUp(FinalVec, RollVector).
 }
+
 
 
 

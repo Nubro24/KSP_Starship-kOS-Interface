@@ -49,7 +49,7 @@ if homeconnection:isconnected {
     }
 }
 
-set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
@@ -198,6 +198,8 @@ set varPredct to 0.
 set angle to 75.
 set speed to 10.
 set HighIncl to false.
+set landDistance to 500.
+set distNorm to 1. 
 
 
 local bTelemetry is GUI(150).
@@ -540,14 +542,14 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2435.
+        set LFBoosterFuelCutOff to 2450.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1999.
+        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 2300.
         set LngCtrlPID:setpoint to 40. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -941,11 +943,9 @@ function Boostback {
         else {
             lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
-        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(24,facing:forevector)).
+        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(6,facing:forevector)).
         lock steering to SteeringVector.
 
-        print "Available Thrust: " + round(max(ship:availablethrust, 0.000001)) + "kN".
-        wait 0.1.
 
         when time:seconds > flipStartTime + 30 then {
             CheckFuel().
@@ -1107,7 +1107,7 @@ function Boostback {
         set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
 
         set SteeringManager:pitchtorquefactor to 1.
-        set SteeringManager:yawtorquefactor to 0.1.
+        set SteeringManager:yawtorquefactor to 0.
         
 
         CheckFuel().
@@ -1148,7 +1148,7 @@ function Boostback {
             rcs off.
 
             set SteeringManager:maxstoppingtime to 5.
-            lock SteeringVector to lookdirup(up:vector, -up:vector).
+            lock SteeringVector to lookdirup(up:vector, RollVector).
             lock steering to SteeringVector.
         }
 
@@ -1160,8 +1160,9 @@ function Boostback {
             CheckFuel().
             wait 0.05.
         }
-
-        lock SteeringVector to lookdirup(up:vector - 0.0015*GSVec, RollVector).
+        
+        set SteeringManager:yawtorquefactor to 0.
+        lock SteeringVector to lookdirup(up:vector - 0.0014*GSVec, RollVector).
         set SteeringManager:maxstoppingtime to 2.
 
         until vang(facing:forevector, up:vector - 0.0015*GSVec) < 2 or time:seconds - turnTime > 35 {
@@ -1388,7 +1389,7 @@ function Boostback {
 
     lock throttle to LandingThrottle().
     set s0ev to 0.
-    lock adev to 0.2.
+    lock adev to 0.1.
     if vAng(landingzone:position-BoosterCore:position, -up:vector) > 40 lock adev to velocity:surface:mag / 343.
     when vAng(ErrorVector,PositionError) < 90 then {
         set s0ev to 1.
@@ -1397,12 +1398,12 @@ function Boostback {
     
     hudtext(throttle, 3, 2, 10, white, false).
     if RSS {
-        lock SteeringVector to lookdirup(-0.45 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.44 * velocity:surface + 2*up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
     } else {
-        lock SteeringVector to lookdirup(-0.5 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
+        lock SteeringVector to lookdirup(-0.4 * velocity:surface + 2*up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
     }
 
-    when verticalspeed > -170 and GfC then {
+    when verticalspeed > -180 and GfC then {
         lock SteeringVector to LandingGuidance().
     }
     PollUpdate().
@@ -1452,6 +1453,7 @@ function Boostback {
 
     when RadarAlt < 1500 and not (LandSomewhereElse) then {
         if not (TargetOLM = "false") and TowerExists {
+            setTowerHeadingVector().
             PollUpdate().
             set landingzone to latlng(landingzone:lat, landingzone:lng - 0.00004).
             addons:tr:settarget(landingzone).
@@ -1573,9 +1575,6 @@ function Boostback {
     until verticalspeed > CatchVS - 0.5 and RadarAlt < 5 or verticalspeed > -0.05 and RadarAlt < 2000 or hover {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
-        if GfC and not cAbort and RadarAlt < 1500 {
-            setTowerHeadingVector().
-        }
         PollUpdate().
         SetBoosterActive().
         CheckFuel().
@@ -1795,7 +1794,7 @@ FUNCTION SteeringCorrections {
         print "WobbleCheck: " + wobbleCheckrunning.
         //print " ".
 
-        if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*1.05, 3003),1200).
+        if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*0.9, 3003),1200).
 
         if altitude < 30000 and not (RSS) or altitude < 50000 and RSS {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
@@ -1804,7 +1803,7 @@ FUNCTION SteeringCorrections {
             print "Landing Burn Alt: " + round(LandingBurnAlt, 1).
             print " ".
             print "Max Decel: " + round(maxDecel, 2).
-            print "Radar Alt: " + round(RadarAlt).
+            print "Radar Alt: " + round(RadarAlt, 1).
             print "Stop Time: " + round(TotalstopTime, 2).
             print "Stop Distance: " + round(TotalstopDist, 2).
             print "Stop Distance 3: " + round(stopDist3, 2).
@@ -1817,6 +1816,7 @@ FUNCTION SteeringCorrections {
             print " ".
             print "varR: " + round(varR, 2).
             print "varPredct: " + round(varPredct, 2).
+            print "Dist.: " + round(landDistance,1) + "     Norm: " + round(distNorm,1).
         }
     }
     else {
@@ -1883,88 +1883,85 @@ function LandingThrottle {
 
 
 function LandingGuidance {
-    wait 0.
+    wait 0.01.
 
-    // --- Init
-    set RadarRatio to RadarAlt / BoosterHeight.
-    set hSpeed to ship:groundspeed.
-    set timeToTarget to PositionError:mag / max(hSpeed, 0.1).
-    set timeToLand to RadarAlt / max(-verticalSpeed, 0.1).
+    // === Distance ===
+    set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
+    set distNorm to min(max(landDistance / (2*BoosterHeight), 0), 1). 
 
-    // --- ErrorVector or PositionError (0 = only PosError, 1 = only ErrorVector)
-    set vBlend to min(1, max(0, (RadarRatio - 1.5) / 3)). // Transition between 1.5x and 4.5x BoosterHeight
+    // === Base Factors ===
+    set FposBase to 0.01.
+    set FerrBase to 0.01.
+    set FgsBase to 0.05.
+    set FtrvBase to 0.002.
 
-    set blendVector to (1 - vBlend) * PositionError + vBlend * ErrorVector.
+    // === Dynamic Time based Scaling ===
+    set Fpos to FposBase * (1 - distNorm)^1.5.
+    if landDistance > BoosterHeight and PositionError:mag > BoosterHeight * 0.5 set Ferr to FerrBase * (distNorm)^1.4.
+    else set Ferr to FerrBase * ((0.05 + distNorm)*3)^1.4.
+    set Fgs to FgsBase * (1 - distNorm)^1.1.
+    set Ftrv to 0.
 
-    // --- Fev dynamic
-    set baseFev to 0.005 + 0.01 * min(2, max(0, (RadarRatio - 4) / 2)).
-    if vAng(TowerRotationVector, PositionError) > 15 {
-        set baseFev to baseFev + 0.01.
-    }
-    if RSS set baseFev to baseFev * 0.8.
-    if STOCK set baseFev to baseFev * 1.4.
-
-    set fevBoost to 1 + min(1, max(0, (ErrorVector:mag - 0.5 * BoosterHeight) / BoosterHeight)).
-    set Fev to baseFev * fevBoost.
-
-    // --- GS-correction
-    set Fgs to 0.004 + 0.006 * min(1, max(0, (4 - RadarRatio) / 2)).
-    if RadarAlt < 1.5 * BoosterHeight {
-        if RSS set Fgs to Fgs * 1.75.
-        if KSRSS set Fgs to Fgs * 2.
-        if STOCK set Fgs to Fgs * 1.4.
-    }
-
-    // --- Tower-Direction-Compensation
-    set Ftrv to 0.001 * min(1, max(0, (3 - RadarRatio) / 2)).
-
-    // --- Factors for low velocity
-    if RSS and velocity:surface:mag < 50 {
-        set Fev to Fev / 2.2.
-        set Fgs to Fgs / 1.3.
-        set Ftrv to Ftrv / 2.
-    }
-
-    // --- Factors for low Altitude
-    if RadarAlt < 0.6 * BoosterHeight {
-        set Fev to Fev * 0.2.
-        set Fgs to Fgs * 0.8.
-        set Ftrv to 0.
-    }
-
-    // --- Factors shortly before touchdown
-    if timeToTarget < 5 {
-        set Fev to Fev * (1 + (5 - timeToTarget)/5).
-        set Fgs to Fgs * (1 + (5 - timeToTarget)/5).
-    }
-    if timeToLand < 3 {
-        set Fev to Fev * 0.8.
-        set Fgs to Fgs * 1.2.
-        set Ftrv to Ftrv * 0.5.
-    }
-
-    // --- before MiddleShutdown
+    // === 13 Engines Phase ===
     if not MiddleEnginesShutdown {
-        set Fev to Fev * 0.36.
-        set Fgs to Fgs * 1.
+        set Fpos to Fpos * 0.1.
+        set Ferr to Ferr * 0.5.
+        set Fgs to Fgs * 0.3.
     }
 
-    // --- Final vector
-    set offsetVec to up:vector 
-                     - Fev * blendVector 
-                     - Fgs * GSVec 
-                     - Ftrv * TowerRotationVector.
+    // === DotProduct-basierte Bewertung der horizontalen Zielannäherung ===
+    set projVelMag to vDot(GSVec,PositionError).
+    set angleToTarget to vAng(GSVec, PositionError). // optional für Logging
 
-    set guidVec to lookDirUp(offsetVec, RollVector).
+    if projVelMag < 5 and PositionError:mag > BoosterHeight * 2.4 {
+        // Geschwindigkeit bringt nichts: mehr korrigieren
+        set Fpos to Fpos * 1.6.
+        set Fgs to Fgs * 0.6.
+    }
 
-    // --- Debug
-    set drawFev   to vecDraw(BoosterCore:position, -Fev * blendVector, green,   "Fev",   50, drawVecs, 0.004).
-    set drawFgs   to vecDraw(BoosterCore:position, -Fgs * GSVec,       cyan,    "Fgs",   50, drawVecs, 0.004).
-    set drawFtrv  to vecDraw(BoosterCore:position, -Ftrv * TowerRotationVector, yellow, "Ftrv", 50, drawVecs, 0.004).
-    set drawTotal to vecDraw(BoosterCore:position, offsetVec,          white,   "Total", 50, drawVecs, 0.004).
+    // === High Incl ===
+    set trvAngle to vAng(PositionError, TowerRotationVector).
+    if trvAngle > 30 {
+        set Ftrv to FtrvBase * min(max((trvAngle - 30)/60, 0), 1) * (1 - distNorm).
+    }
+
+    
 
 
-    return guidVec.
+    // === Offset Vector ===
+    set offsetVec to up:vector
+        - Fpos * PositionError
+        - Ferr * ErrorVector
+        - Fgs * GSVec
+        - Ftrv * TowerRotationVector.
+
+    // === TVC compensation ===
+    set steeringOffset to vAng(offsetVec,BoosterCore:facing:forevector).
+
+    set steerDamp to min(max((steeringOffset - 1) / 15, 0), 1).
+
+    set Fpos to Fpos * (1 - 0.6 * steerDamp).
+    set Ferr to Ferr * (1 - 0.6 * steerDamp).
+    set Fgs to Fgs * (1 - 0.4 * steerDamp).
+
+
+    // === Final Vector ===
+    set FinalVec to up:vector
+        - Fpos * PositionError
+        - Ferr * ErrorVector
+        - Fgs * GSVec
+        - Ftrv * TowerRotationVector.
+
+    // === Debug Draw ===
+    if drawVecs {
+        set drawPos to vecDraw(BoosterCore:position, -Fpos * PositionError, green, "FevPos", 50, drawVecs, 0.004).
+        set drawErr to vecDraw(BoosterCore:position, -Ferr * ErrorVector, cyan, "FevErr", 50, drawVecs, 0.004).
+        set drawGsv to vecDraw(BoosterCore:position, -Fgs * GSVec, red, "Fgs", 50, drawVecs, 0.004).
+        set drawTrv to vecDraw(BoosterCore:position, -Ftrv * TowerRotationVector, yellow, "Ftrv", 50, drawVecs, 0.004).
+        set drawTot to vecDraw(BoosterCore:position, FinalVec, white, "Total", 50, drawVecs, 0.004).
+    }
+
+    return lookDirUp(FinalVec, RollVector).
 }
 
 
