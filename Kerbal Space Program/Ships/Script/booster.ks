@@ -1909,12 +1909,11 @@ function LandingGuidance {
         set Fgs to Fgs * 0.3.
     }
 
-    // === DotProduct-basierte Bewertung der horizontalen Zielannäherung ===
+    // === DotProduct-based corrections regarding horizontal closure ===
     set projVelMag to vDot(GSVec,PositionError).
-    set angleToTarget to vAng(GSVec, PositionError). // optional für Logging
+    set angleToTarget to vAng(GSVec, PositionError). // optional for Logging
 
     if projVelMag < 5 and PositionError:mag > BoosterHeight * 2.4 {
-        // Geschwindigkeit bringt nichts: mehr korrigieren
         set Fpos to Fpos * 1.6.
         set Fgs to Fgs * 0.6.
     }
@@ -1924,9 +1923,6 @@ function LandingGuidance {
     if trvAngle > 30 {
         set Ftrv to FtrvBase * min(max((trvAngle - 30)/60, 0), 1) * (1 - distNorm).
     }
-
-    
-
 
     // === Offset Vector ===
     set offsetVec to up:vector
