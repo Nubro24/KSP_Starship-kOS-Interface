@@ -1,5 +1,5 @@
 wait until ship:unpacked.
-
+set config:stat to true.
 set Scriptversion to "V3.4.9 - WIP".
 
 //<------------Telemtry Scale-------------->
@@ -200,7 +200,9 @@ set speed to 10.
 set HighIncl to false.
 set landDistance to 500.
 set distNorm to 1. 
-
+set angleToTarget to 0.
+set LandingVector to up:vector.
+set SteeringUpdateTime to 0.
 
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -1107,7 +1109,8 @@ function Boostback {
         set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
 
         set SteeringManager:pitchtorquefactor to 1.
-        set SteeringManager:yawtorquefactor to 0.
+        set SteeringManager:yawtorquefactor to 0.1.
+        set BoosterCore:yawenabled to false.
         
 
         CheckFuel().
@@ -1158,10 +1161,11 @@ function Boostback {
             SetBoosterActive().
             if time:seconds - turnTime > 5 rcs on.
             CheckFuel().
-            wait 0.05.
+            wait 0.067.
         }
         
-        set SteeringManager:yawtorquefactor to 0.
+        set SteeringManager:yawtorquefactor to 1.
+        set BoosterCore:yawenabled to true.
         lock SteeringVector to lookdirup(up:vector - 0.0014*GSVec, RollVector).
         set SteeringManager:maxstoppingtime to 2.
 
@@ -1171,7 +1175,7 @@ function Boostback {
             SetBoosterActive().
             rcs on.
             CheckFuel().
-            wait 0.05.
+            wait 0.067.
         }
         
 
@@ -1184,7 +1188,7 @@ function Boostback {
             SetBoosterActive().
             PollUpdate().
             CheckFuel().
-            wait 0.05.
+            wait 0.067.
         }
 
         HUDTEXT("Starship will continue its orbit insertion..", 10, 2, 20, green, false).
@@ -1196,7 +1200,7 @@ function Boostback {
             SetBoosterActive().
             PollUpdate().
             CheckFuel().
-            wait 0.05.
+            wait 0.067.
         }
 
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 5).
@@ -1206,7 +1210,7 @@ function Boostback {
         set rebooted to true.
     }
     PollUpdate().
-    wait 0.03.
+    wait 0.05.
 
     if GfC and rebooted {
         when not GfC then {
@@ -1404,7 +1408,7 @@ function Boostback {
     }
 
     when verticalspeed > -180 and GfC then {
-        lock SteeringVector to LandingGuidance().
+        lock SteeringVector to LandingVector.
     }
     PollUpdate().
 
@@ -1524,6 +1528,7 @@ function Boostback {
                                 set SentTime to time:seconds.
                             }
                         }
+                        wait 0.
                         if not BoosterLanded and RadarAlt > 0.17*BoosterHeight preserve.
                     }
                     when RadarAlt < 0.5*BoosterHeight then {
@@ -1572,27 +1577,27 @@ function Boostback {
     }
 
 
-    until verticalspeed > CatchVS - 0.5 and RadarAlt < 5 or verticalspeed > -0.05 and RadarAlt < 2000 or hover {
+    until verticalspeed > CatchVS - 0.5 and RadarAlt < 5 or verticalspeed > -0.1 and RadarAlt < 200 or hover {
         SteeringCorrections().
+        if time:seconds > SteeringUpdateTime {
+            set LandingVector to LandingGuidance().
+            set SteeringUpdateTime to time:seconds + 0.05.
+        }
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         PollUpdate().
         SetBoosterActive().
-        CheckFuel().
         DetectWobblyTower().
         wait 0.05.
     }
 
 
-    set once to false.
-    until ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 or verticalSpeed > -0.05 and RadarAlt < 1 {
-        
-        SteeringCorrections().
+    until ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 or verticalSpeed > -0.1 and RadarAlt < 1 {
         
         print "slowly lowering down booster..".
         rcs on.
         wait 0.01.
     }
-    
+
 
     if GfC {
         set ship:control:translation to v(0, 0, 0).
@@ -1816,7 +1821,9 @@ FUNCTION SteeringCorrections {
             print " ".
             print "varR: " + round(varR, 2).
             print "varPredct: " + round(varPredct, 2).
-            print "Dist.: " + round(landDistance,1) + "     Norm: " + round(distNorm,1).
+            print "Dist.: " + round(landDistance,1) + "m     Ratio: " + round(distNorm,1).
+            print "Direction Angle: " + round(angleToTarget,1) + "°".
+            print " ".
         }
     }
     else {
@@ -1835,7 +1842,6 @@ FUNCTION SteeringCorrections {
     print "Steering Error: " + round(SteeringManager:angleerror, 2).
     //print "OPCodes left: " + opcodesleft.
     LogBoosterFlightData().
-    wait 0.01.
 }
 
 
@@ -1873,7 +1879,6 @@ function LandingThrottle {
             set thro to max((landingRatio * min(maxDecel3, 20)) / maxDecel3, 0.33).
         }
     }
-    wait 0.01.
     if thro > 1 {
         return 1.
     } else {
@@ -1883,7 +1888,6 @@ function LandingThrottle {
 
 
 function LandingGuidance {
-    wait 0.01.
 
     // === Distance ===
     set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
@@ -1897,7 +1901,7 @@ function LandingGuidance {
 
     // === Dynamic Time based Scaling ===
     set Fpos to FposBase * (1 - distNorm)^1.5.
-    if landDistance > BoosterHeight and PositionError:mag > BoosterHeight * 0.5 set Ferr to FerrBase * (distNorm)^1.4.
+    if landDistance > BoosterHeight and PositionError:mag > BoosterHeight set Ferr to FerrBase * (distNorm)^1.4.
     else set Ferr to FerrBase * ((0.05 + distNorm)*3)^1.4.
     set Fgs to FgsBase * (1 - distNorm)^1.1.
     set Ftrv to 0.
@@ -2008,9 +2012,9 @@ function AfterLandingTowerOperations {
             kuniverse:quicksaveto("BoosterDocking").
             set PreDockPos to true.
             wait 0.1.
-            kuniverse:quickloadfrom("BoosterDocking").
+            //kuniverse:quickloadfrom("BoosterDocking").
         }
-        wait 0.05.
+        wait 0.1.
     }
 
     HUDTEXT("Docking Operations starting..", 7, 2, 20, green, false).
