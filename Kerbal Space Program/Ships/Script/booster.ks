@@ -1483,9 +1483,9 @@ function Boostback {
             if Vessel(TargetOLM):distance < 2240 {
                 PollUpdate().
                 if not RSS 
-                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 3.3.
+                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 4.
                 else 
-                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 1.6.
+                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 1.7.
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
 
@@ -1584,7 +1584,7 @@ function Boostback {
 
 
     set once to false.
-    until ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 {
+    until ship:status = "LANDED" and verticalspeed > -0.1 or RadarAlt < -1 or verticalSpeed > -0.05 and RadarAlt < 1 {
         
         SteeringCorrections().
         
@@ -1762,7 +1762,7 @@ FUNCTION SteeringCorrections {
             else {
                 set TotalstopTime to airspeed / min(maxDecel3, FinalDeceleration).
                 set TotalstopDist to (airspeed / 2) * TotalstopTime.
-                set landingRatio to TotalstopDist / (RadarAlt - 0.3).
+                set landingRatio to TotalstopDist / (RadarAlt - 0.2).
                 set LngCtrlPID:setpoint to 0.
             }
 
