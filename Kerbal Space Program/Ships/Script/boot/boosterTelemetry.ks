@@ -2,6 +2,10 @@ wait until ship:unpacked.
 
 set Scriptversion to "Telemetry Only".
 
+//<==== Countdown Start (T- ... ) ====>
+set CountdownStart to 240.
+
+
 //<------------Telemtry Scale-------------->
 
 set TScale to 1.
@@ -21,7 +25,7 @@ if exists("0:/settings.json") {
 }
 
 set oldBooster to false.
-set missionTimer to time:seconds + 30.
+set missionTimer to time:seconds + CountdownStart.
 
 set GFset to false.
 set ECset to false.
