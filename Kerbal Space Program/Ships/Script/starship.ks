@@ -11403,10 +11403,10 @@ function LngLatError {
             }
             else {
                 if STOCK {
-                    set LngLatOffset to -60.
+                    set LngLatOffset to -52.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -80.
+                    set LngLatOffset to -60.
                 }
                 else {
                     set LngLatOffset to -95.
@@ -14741,7 +14741,7 @@ function updateTelemetry {
     if Boosterconnected set currentThr to 0.
     else set currentThr to throttle.
 
-    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + round(currentThr,2)*100 + "%".
+    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + min(round(currentThr,2)*100,100) + "%".
 
     set missionTimerNow to time:seconds-missionTimer.
     if missionTimerNow < 0 {
