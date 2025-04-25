@@ -1,8 +1,13 @@
 # V3.4.9 (WIP)
-- Overhauled Tower Operations after Booster Catch
+- **Overhauled Tower Operations after Booster Catch**
+  - Oszilation has to stop (just wait for it)
+  - There will be a Quicksave Load to avoid kraken
+  - *Docking will prevent revert to Launch*
 - Booster now locks gimbal on unused Engines
-- Booster Landing Guidance Overhaul upgrade
-- Added Option for UI Scale
+- **Booster Landing Guidance Overhaul upgrade**
+  - Improved Guidance to be more dynamic
+  - Landing Pos between the arms should be more reliable
+- **Added Option for UI Scale**
   - possible Ingame and in booster.ks + starship.ks
   - Ingame Rescale somehow pushes Telemetry upwards
     > Can be fixed by reverting to launch (Setting will be saved)
