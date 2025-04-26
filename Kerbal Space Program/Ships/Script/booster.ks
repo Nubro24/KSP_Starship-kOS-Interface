@@ -1134,7 +1134,7 @@ function Boostback {
             wait 0.2.
             BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
             wait 0.01.
-            when time:seconds - turnTime > 14 and FuelDump then {
+            when vAng(facing:forevector, up:vector) < 24 and FuelDump then {
                 BoosterCore:activate.
             }
             set RenameHSR to false.
@@ -1909,7 +1909,7 @@ function LandingGuidance {
     // === Base Factors ===
     set FposBase to 0.01.
     set FerrBase to 0.01.
-    set FgsBase to 0.02 + 0.02 * constant:e^(-(RadarRatio^2)/2) - 0.005 * constant:e^(-((RadarRatio-3)^2)/2).
+    set FgsBase to 0.02 + 0.025 * constant:e^(-(RadarRatio^2)/2) - 0.005 * constant:e^(-((RadarRatio-3)^2)/2).
     set FtrvBase to 0.002.
     set FerrSide to 0.
 
@@ -2491,7 +2491,7 @@ function setTargetOLM {
         for x in OLMTargets {
             if x:name:contains("OrbitalLaunchMount") {
                 set TowerExists to true.
-                if vxcl(up:vector, x:position - landingzone:position):mag < 100 {
+                if vxcl(up:vector, x:position - landingzone:position):mag < 200 {
                     set TargetOLM to x:name.
                 }
             }
