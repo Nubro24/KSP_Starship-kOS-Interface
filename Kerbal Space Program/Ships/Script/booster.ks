@@ -1809,7 +1809,7 @@ FUNCTION SteeringCorrections {
         print "WobbleCheck: " + wobbleCheckrunning.
         //print " ".
 
-        if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*0.98, 3003),1200).
+        if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*0.98, 3100),1200).
 
         if altitude < 30000 and not (RSS) or altitude < 50000 and RSS {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
