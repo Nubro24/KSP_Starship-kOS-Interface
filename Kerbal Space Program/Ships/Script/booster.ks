@@ -462,7 +462,9 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 5000. else set BoosterGlideDistance to 6120. //4500
+        if oldBooster set BoosterGlideDistance to 5000. 
+        else set BoosterGlideDistance to 6120. //4500
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set LngCtrlPID:setpoint to 40. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -490,7 +492,9 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1470.
+        if oldBooster set BoosterGlideDistance to 1990. 
+        else set BoosterGlideDistance to 1550.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -525,7 +529,9 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. else set BoosterGlideDistance to 1470.
+        if oldBooster set BoosterGlideDistance to 1990. 
+        else set BoosterGlideDistance to 1550.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -946,7 +952,7 @@ function Boostback {
         else {
             lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
-        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(6,facing:forevector)).
+        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
         lock steering to SteeringVector.
 
 
@@ -1905,6 +1911,7 @@ function LandingGuidance {
     set FerrBase to 0.01.
     set FgsBase to 0.02 + 0.02 * constant:e^(-(RadarRatio^2)/2) - 0.005 * constant:e^(-((RadarRatio-3)^2)/2).
     set FtrvBase to 0.002.
+    set FerrSide to 0.
 
     // === Dynamic Time based Scaling ===
     set Fpos to FposBase * (1 - distNorm)^1.5.
@@ -1948,16 +1955,20 @@ function LandingGuidance {
     }
 
     // === Offset Vector ===
+    set FerrSide to Ferr * 0.3.
+    set Ferr to Ferr * 0.9.
     if RadarAlt < 2*BoosterHeight {
         set offsetVec to up:vector
             - Fpos * vxcl(vCrs(GSVec,up:vector),PositionError)
-            - Ferr * ErrorVector
+            - Ferr * vxcl(vCrs(GSVec,up:vector),ErrorVector)
+            - FerrSide * vxcl(GSVec,ErrorVector)
             - Fgs * GSVec
             - Ftrv * TowerRotationVector.
     } else {
         set offsetVec to up:vector
             - Fpos * PositionError
-            - Ferr * ErrorVector
+            - Ferr * vxcl(vCrs(GSVec,up:vector),ErrorVector)
+            - FerrSide * vxcl(GSVec,ErrorVector)
             - Fgs * GSVec
             - Ftrv * TowerRotationVector.
     }
@@ -1969,6 +1980,7 @@ function LandingGuidance {
 
     set Fpos to Fpos * (1 - 0.6 * steerDamp).
     set Ferr to Ferr * (1 - 0.6 * steerDamp).
+    set FerrSide to FerrSide * (1 - 0.7 * steerDamp).
     set Fgs to Fgs * (1 - 0.4 * steerDamp).
 
 
@@ -1976,13 +1988,15 @@ function LandingGuidance {
     if RadarAlt < 2*BoosterHeight {
         set FinalVec to up:vector
             - Fpos * vxcl(vCrs(GSVec,up:vector),PositionError)
-            - Ferr * ErrorVector
+            - Ferr * vxcl(vCrs(GSVec,up:vector),ErrorVector)
+            - FerrSide * vxcl(GSVec,ErrorVector)
             - Fgs * GSVec
             - Ftrv * TowerRotationVector.
     } else {
         set FinalVec to up:vector
             - Fpos * PositionError
-            - Ferr * ErrorVector
+            - Ferr * vxcl(vCrs(GSVec,up:vector),ErrorVector)
+            - FerrSide * vxcl(GSVec,ErrorVector)
             - Fgs * GSVec
             - Ftrv * TowerRotationVector.
     }
@@ -2012,6 +2026,7 @@ function AfterLandingTowerOperations {
     bGUI:hide().
     set stable to false.
     set PreDockPos to false.
+    set procceed to false.
     set stableTime to time:seconds*10.
     set lastMessage to time:seconds-12.
     set ALTOTime to time:seconds.
@@ -2020,6 +2035,9 @@ function AfterLandingTowerOperations {
     set steeringManager:maxstoppingtime to 0.1.
     lock steering to lookDirUp(up:vector, RollVector).
     Stabalize().
+    setTowerHeadingVector().
+    setTargetOLM().
+    wait 0.2.
 
     sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + (2 * maxpusherengage) + ",false").
     when velocity:surface:mag > 0.24 then Stabalize().
@@ -2031,17 +2049,19 @@ function AfterLandingTowerOperations {
     when PosDiff < 2.4 * Scale then {
         sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + 0.5*maxstabengage).
     }
+
     when PosDiff < 1.4 * Scale then {
         sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + maxstabengage).
         sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",false").
     }
+
     when PosDiff < 0.5 then {
         HUDTEXT("Lowering Booster..", 7, 2, 20, green, false).
         sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ round(BoosterDockingHeight/2,2) + ",0.4").
         set CenterTime to time:seconds.
-        
     }
-    if PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and RadarAlt < 24 and time:seconds < ALTOTime + 2 {
+
+    if PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and RadarAlt < 24 and time:seconds < ALTOTime + 6 {
         if RollAngle > 4 or PosDiff > 0.14 * Scale {
             sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + 0.2*maxstabengage).
             sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",true").
@@ -2053,10 +2073,11 @@ function AfterLandingTowerOperations {
             wait 1.
         }
         set PreDockPos to true.
+        HUDTEXT("Docking Operations starting..", 7, 2, 20, green, false).
         BoosterDocking().
-    }
+    } else set procceed to true.
 
-    until PreDockPosTime + 10 < time:seconds {
+    until PreDockPosTime + 10 < time:seconds and procceed {
         clearScreen.
         print PosDiff.
         if CenterTime + 30 < time:seconds and PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 {
