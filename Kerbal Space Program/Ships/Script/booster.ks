@@ -463,7 +463,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 5000. 
-        else set BoosterGlideDistance to 6120. //4500
+        else set BoosterGlideDistance to 5000. //4500
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set LngCtrlPID:setpoint to 40. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -493,7 +493,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1990. 
-        else set BoosterGlideDistance to 1550.
+        else set BoosterGlideDistance to 1450.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -530,7 +530,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1990. 
-        else set BoosterGlideDistance to 1550.
+        else set BoosterGlideDistance to 1450.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -560,7 +560,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1800. 
-        else set BoosterGlideDistance to 1500.
+        else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         set LngCtrlPID:setpoint to 40. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -621,8 +621,6 @@ when True then {
 }
 
 
-        print BoosterCore:getmodule("ModuleRCSFX"):allfields.
-         print BoosterCore:getmodule("ModuleRCSFX"):allactions.
 
 until False {
     if SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 and not ConnectedMessage {
@@ -1013,7 +1011,7 @@ function Boostback {
             BoosterCore:shutdown.
         }
 
-        until (LngError + 50 > -BoosterGlideDistance) or verticalspeed < -250 or BoostBackComplete {
+        until (LngError + 50 > -BoosterGlideDistance and LFBooster < LFBoosterFuelCutOff * 2) or (LngError + 50 > -BoosterGlideDistance*1.1) or verticalspeed < -250 or BoostBackComplete {
             if GfC {
                 setLandingZone().
                 setTargetOLM().
@@ -1134,7 +1132,7 @@ function Boostback {
             wait 0.2.
             BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
             wait 0.01.
-            when vAng(facing:forevector, up:vector) < 24 and FuelDump then {
+            when vAng(facing:forevector, up:vector) < 42 and FuelDump then {
                 BoosterCore:activate.
             }
             set RenameHSR to false.
@@ -1410,15 +1408,17 @@ function Boostback {
     
     hudtext(throttle, 3, 2, 10, white, false).
     lock SteeringVector to lookdirup(-0.4 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
+    lock steering to SteeringVector.
 
     when velocity:surface:mag < 150 or ErrorVector:mag < 0.24 * BoosterHeight then {
         set LandingVector to LandingGuidance().
-        lock SteeringVector to LandingVector.
+        lock steering to LandingVector.
+        unlock SteeringVector.
+        unlock adev.
     }
 
     PollUpdate().
 
-    lock steering to SteeringVector.
 
 
     set LandingBurnStarted to true.
@@ -1831,6 +1831,7 @@ FUNCTION SteeringCorrections {
             print " ".
             print "varR: " + round(varR, 2).
             print "varPredct: " + round(varPredct, 2).
+            print " ".
             print "Dist.: " + round(landDistance,1) + "m     Ratio: " + round(distNorm,1).
             print "Direction Angle: " + round(angleToTarget,1) + "°".
             print " ".
@@ -1909,7 +1910,7 @@ function LandingGuidance {
     // === Base Factors ===
     set FposBase to 0.01.
     set FerrBase to 0.01.
-    set FgsBase to 0.02 + 0.025 * constant:e^(-(RadarRatio^2)/2) - 0.005 * constant:e^(-((RadarRatio-3)^2)/2).
+    set FgsBase to 0.02 + 0.022 * constant:e^(-(RadarRatio^2)/2) - 0.005 * constant:e^(-((RadarRatio-3)^2)/2).
     set FtrvBase to 0.002.
     set FerrSide to 0.
 
@@ -1923,7 +1924,7 @@ function LandingGuidance {
 
     // === DotProduct-based corrections regarding horizontal closure ===
     set projVelMag to vDot(GSVec,PositionError).
-    set angleToTarget to vAng(GSVec, PositionError). // optional for Logging
+    set angleToTarget to vAng(GSVec, PositionError). 
 
     if projVelMag < max(4, 0.05*PositionError:mag) and PositionError:mag > BoosterHeight * 2.4 {
         set Fpos to Fpos * 1.6.
@@ -2550,7 +2551,12 @@ function setTowerHeadingVector {
                 }
             }
             if GfC {
-                lock RollVector to AngleAxis(2.9, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - BoosterCore:position).
+                lock RollVector to AngleAxis(2.9, up:vector) 
+                    * vxcl(up:vector, 
+                        (Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position 
+                            + 0.5*(Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position 
+                                - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position)) 
+                        - BoosterCore:position).
             } else {
                 lock RollVector to vxcl(up:vector, velocity:surface).
             }

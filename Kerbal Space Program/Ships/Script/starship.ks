@@ -6890,7 +6890,6 @@ function Launch {
                 //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 lock throttle to 0.5.
-                unlock steering.
                 LogToFile("Starting stage-separation").
                 set message1:text to "<b>Hot staging..</b>".
                 set message2:text to "".
@@ -6928,6 +6927,7 @@ function Launch {
                     LaunchLabelData().
                     wait 0.1.
                 }
+                unlock steering.
                 if not cancelconfirmed {
                     sendMessage(Processor(volume("Booster")), "Boostback").
                 }
@@ -7247,7 +7247,6 @@ Function LaunchSteering {
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     } 
     else if apoapsis > BoosterAp - 14000 * Scale and Boosterconnected {
-        rcs on.
         if RSS {
             set result to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
         } else {
