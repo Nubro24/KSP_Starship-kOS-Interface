@@ -205,6 +205,8 @@ set distNorm to 1.
 set angleToTarget to 0.
 set LandingVector to up:vector.
 set SteeringUpdateTime to 0.
+set Fpos to 0.
+set FposBase to 0.
 
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -720,7 +722,7 @@ function Boostback {
     wait 0.001.
     set ShipConnectedToBooster to false.
     
-    rcs on.
+    rcs off.
     set bAttitude:style:bg to "starship_img/booster".
 
     when not core:messages:empty then {
@@ -850,14 +852,12 @@ function Boostback {
             }
         }
         //show Poll HUD
-        when time:seconds > flipStartTime + 5 then {
-            set FC to true.
-            bGUI:show().
-        }
         //activate yaw and neutralize on
         when time:seconds > flipStartTime + 6 then {
             set steeringmanager:yawtorquefactor to 0.4.
             set ship:control:neutralize to true.
+            set FC to true.
+            bGUI:show().
         }
         //first Booster Wobble check
         when time:seconds > flipStartTime + 9 then {
@@ -881,9 +881,12 @@ function Boostback {
             }
         }
         //increase yaw steering
-        when time:seconds > flipStartTime + 10 then 
+        when time:seconds > flipStartTime + 10 then {
             set steeringmanager:yawtorquefactor to 0.7.
-        
+        }
+        when time:seconds > flipStartTime + 15 then {
+            rcs on.
+        }
         when BoostBackComplete then 
             set steeringmanager:yawtorquefactor to 0.1.
 
@@ -1221,6 +1224,9 @@ function Boostback {
     wait 0.05.
 
     if GfC and rebooted {
+        setLandingZone().
+        setTargetOLM().
+        SteeringCorrections().
         when not GfC then {
             set cAbort to true.
             set landingzone to offshoreSite.
@@ -1231,6 +1237,7 @@ function Boostback {
             set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
         }
     } else if not GfC and rebooted {
+        setLandingZone().
         set landingzone to offshoreSite.
         addons:tr:settarget(landingzone).
         NoGo:hide().
@@ -1401,7 +1408,7 @@ function Boostback {
 
     lock throttle to LandingThrottle().
     set s0ev to 0.
-    lock adev to 0.1.
+    lock adev to 0.05.
     if vAng(landingzone:position-BoosterCore:position, -up:vector) > 40 lock adev to velocity:surface:mag / 343.
     when vAng(ErrorVector,PositionError) < 90 then {
         set s0ev to 1.
@@ -1409,10 +1416,10 @@ function Boostback {
     }
     
     hudtext(throttle, 3, 2, 10, white, false).
-    lock SteeringVector to lookdirup(-0.4 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
+    lock SteeringVector to lookdirup(-0.42 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
     lock steering to SteeringVector.
 
-    when velocity:surface:mag < 150 or ErrorVector:mag < 0.24 * BoosterHeight then {
+    when velocity:surface:mag < 150 or ErrorVector:mag < 0.7 * BoosterHeight then {
         set LandingVector to LandingGuidance().
         lock steering to LandingVector.
         unlock SteeringVector.
@@ -1814,7 +1821,7 @@ FUNCTION SteeringCorrections {
 
         if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*0.98, 3100),1200).
 
-        if altitude < 30000 and not (RSS) or altitude < 50000 and RSS {
+        if altitude < 30000 and not (RSS) or altitude < 50000 and RSS and False {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
             print "LatCtrl: " + round(LatCtrl, 2) + " / " + round(LatCtrlPID:maxoutput, 1).
             print " ".
@@ -1830,7 +1837,7 @@ FUNCTION SteeringCorrections {
             print "MZ Rotation: " + Round(BoosterRot,1).
             print "Ship Mass: " + round(ship:mass,3).
             print "Descent Angle: " + round(vang(-velocity:surface, up:vector), 1).
-            print "GS: " + round(groundspeed).
+            print "GS: " + round(groundspeed,2).
             print " ".
             print "varR: " + round(varR, 2).
             print "varPredct: " + round(varPredct, 2).
@@ -1903,55 +1910,68 @@ function LandingThrottle {
 
 
 function LandingGuidance {
-
     set RadarRatio to RadarAlt/BoosterHeight.
 
     // === Distance ===
     set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
-    set distNorm to min(max(landDistance / (2*BoosterHeight), 0), 1). 
+    set distNorm to min(max(landDistance / (0.36*LandingBurnAlt), 0), 1). 
 
     // === Base Factors ===
     set FposBase to max(min(-0.0005 * RadarRatio + 0.007, 0.012),0).
-    set FerrBase to min(max(0.002 * RadarRatio + 0.005, 0.005),0.02).
-    set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0),0.04).
+    set FerrBase to min(max(0.002 * RadarRatio + 0.005, 0.012),0.024).
+    set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0.0002),0.04).
     if RadarRatio < 1 and RadarRatio > 0.5 set FgsBase to 0.03.
     if RadarRatio < 0.5 set FgsBase to min(max(-0.01 * RadarRatio + 0.035, 0),0.035).
     set FtrvBase to 0.002.
     set FerrSide to 0.
 
     // === Dynamic Time based Scaling ===
-    set Fpos to FposBase * max((1 - distNorm)^1.5,0.75).
-    if landDistance > BoosterHeight and PositionError:mag > BoosterHeight set Ferr to FerrBase * max((distNorm)^1.4,0.8).
-    else set Ferr to FerrBase * max(((0.05 + distNorm)*3)^1.4,0.8).
-    set Fgs to FgsBase * max((1 - distNorm)^1.1,0.75).
+    set Fpos to FposBase.
+    set Ferr to FerrBase * min(max((distNorm)^1.4,0.75),1).
+    set Fgs to FgsBase.
     set Ftrv to 0.
 
 
-    // === DotProduct-based corrections regarding horizontal closure ===
-    set projVelMag to vDot(GSVec,PositionError).
+    // === horizontal closure ===
     set angleToTarget to vAng(GSVec, PositionError). 
 
-    if projVelMag < max(4, 0.05*PositionError:mag) and PositionError:mag > BoosterHeight * 2.4 {
-        set Fpos to Fpos * 1.6.
-        set Fgs to Fgs * 0.6.
+    set gsRatio to PositionError:mag*2/GSVec:mag.
+    print round(gsRatio,3).
+    set vertRatio to RadarAlt*2/-verticalSpeed.
+    print round(vertRatio,3).
+    set closureRatio to gsRatio/vertRatio.
+    print round(closureRatio,3).
+
+    if closureRatio > 1 {
+        set Fgs to Fgs * 0.7.
+        set Fpos to Fpos * 2.
+        set Ferr to Ferr * 0.9.
+    } else if closureRatio < 0.6 {
+        set Fgs to Fgs * 1.8.
+        set Fpos to Fpos * 0.2.
+        set Ferr to Ferr * 1.5.
+    } else {
+        set Fgs to Fgs * 1.1.
+        set Fpos to Fpos * 1.
+        set Ferr to Ferr * 1.1.
     }
 
     // === High Incl ===
     set trvAngle to vAng(PositionError, TowerRotationVector).
     if trvAngle > 30 {
-        set Ftrv to FtrvBase * min(max((trvAngle - 30)/60, 0), 1) * (1 - distNorm).
+        set Ftrv to FtrvBase * min(max((trvAngle - 30)/60, 0), 1) * (1.1 - max(distNorm,0.1)).
     }
 
     // === Low Altitude look up ===
     if RadarAlt < 0.4 * BoosterHeight {
-        set Fgs to Fgs * 0.5.
+        set Fgs to Fgs * 0.6.
     }
 
     // === 13 Engines Phase ===
     if not MiddleEnginesShutdown {
         set Fpos to Fpos * 0.05.
         set Ferr to Ferr * 1.
-        set Fgs to Fgs * 0.4.
+        set Fgs to Fgs * 0.45.
     }
 
     // === Overshoot ===
@@ -1985,10 +2005,9 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 15, 0))^1.2, 1).
 
     set Fpos to Fpos * (1 - 0.6 * steerDamp).
-    set Ferr to Ferr * (1 - 0.6 * steerDamp).
+    set Ferr to Ferr * (1 - 0.7 * steerDamp).
     set FerrSide to FerrSide * (1 - 0.7 * steerDamp).
-    set Fgs to Fgs * (1 - 0.4 * steerDamp).
-
+    set Fgs to Fgs * (1 - 0.5 * steerDamp).
 
     // === Final Vector ===
     if RadarAlt < 2*BoosterHeight {
@@ -2013,6 +2032,7 @@ function LandingGuidance {
         set drawErr to vecDraw(BoosterCore:position, -Ferr * ErrorVector, cyan, "FevErr", 50, drawVecs, 0.004).
         set drawGsv to vecDraw(BoosterCore:position, -Fgs * GSVec, red, "Fgs", 50, drawVecs, 0.004).
         set drawTrv to vecDraw(BoosterCore:position, -Ftrv * TowerRotationVector, yellow, "Ftrv", 50, drawVecs, 0.004).
+        set drawOff to vecDraw(BoosterCore:position, offsetVec, gray, "Offset", 50, drawVecs, 0.004).
         set drawTot to vecDraw(BoosterCore:position, FinalVec, white, "Total", 50, drawVecs, 0.004).
     }
 
@@ -2685,6 +2705,7 @@ function PollUpdate {
         }
         else set GF to false.
     }
+    if rebooted set GF to true.
 
 
     if GD and GE and GF and GT and GG and GTn {
