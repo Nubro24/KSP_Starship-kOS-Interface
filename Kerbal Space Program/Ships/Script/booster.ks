@@ -48,7 +48,7 @@ if homeconnection:isconnected {
     }
 }
 
-set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
@@ -493,7 +493,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1990. 
-        else set BoosterGlideDistance to 1450.
+        else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -530,7 +530,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1990. 
-        else set BoosterGlideDistance to 1450.
+        else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -560,7 +560,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1800. 
-        else set BoosterGlideDistance to 1400.
+        else set BoosterGlideDistance to 1300.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         set LngCtrlPID:setpoint to 40. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -1132,7 +1132,7 @@ function Boostback {
             wait 0.2.
             BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
             wait 0.01.
-            when vAng(facing:forevector, up:vector) < 42 and FuelDump then {
+            when vAng(facing:forevector, up:vector) < 52 and FuelDump then {
                 BoosterCore:activate.
             }
             set RenameHSR to false.
@@ -1150,7 +1150,7 @@ function Boostback {
             rcs on.
             when ShortBurst + 1.24 < time:seconds then rcs off.
         }
-        HUDTEXT("Booster Coast Phase - Timewarp unlocked", 15, 2, 20, green, false).
+        HUDTEXT("Booster Coast Phase - Timewarp available", 15, 2, 20, green, false).
         
         when time:seconds - turnTime > 0.5 then {
             
@@ -1169,13 +1169,14 @@ function Boostback {
             SetBoosterActive().
             if time:seconds - turnTime > 5 rcs on.
             CheckFuel().
+            if kuniverse:timewarp:warp > 1 {set kuniverse:timewarp:warp to 1.}
             wait 0.067.
         }
         
         set SteeringManager:yawtorquefactor to 0.1.
 
-        lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/90)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/90))):normalized, ApproachVector).
-        set SteeringManager:maxstoppingtime to 0.5.
+        lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/85)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/85))):normalized, ApproachVector).
+        set SteeringManager:maxstoppingtime to 0.69.
 
         until time:seconds - turnTime > 90 {
             SteeringCorrections().
@@ -1183,6 +1184,7 @@ function Boostback {
             SetBoosterActive().
             rcs on.
             CheckFuel().
+            if kuniverse:timewarp:warp > 1 {set kuniverse:timewarp:warp to 1.}
             wait 0.067.
         }
         set SteeringManager:yawtorquefactor to 1.
@@ -1422,6 +1424,7 @@ function Boostback {
 
 
     set LandingBurnStarted to true.
+    set config:ipu to 2400.
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
     when cAbort then {
@@ -1867,28 +1870,28 @@ function LandingThrottle {
             return minDecel.
         }
         if RSS {
-            set thro to max(((landingRatio * min(maxDecel3, 20)) / maxDecel3)*0.95, 0.29).
+            set thro to max(((landingRatio * min(maxDecel3, 20)) / maxDecel3) * 1/cos(vAng(facing:forevector,up:vector))*0.95, 0.29).
         }
         else if KSRSS {
-            set thro to max(((landingRatio * min(maxDecel3, 20)) / maxDecel3)*0.95, 0.43).
+            set thro to max(((landingRatio * min(maxDecel3, 20)) / maxDecel3) * 1/cos(vAng(facing:forevector,up:vector))*0.95, 0.43).
         }
         else {
-            set thro to max(((landingRatio * min(maxDecel3, 20)) / maxDecel3)*0.95, 0.36).
+            set thro to max(((landingRatio * min(maxDecel3, 20)) / maxDecel3) * 1/cos(vAng(facing:forevector,up:vector))*0.95, 0.36).
         }
     } 
     set thro to 0.
     if RSS {
-        set thro to max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.29).
+        set thro to max((landingRatio * min(maxDecel, 50) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.29).
     }
     else {
-        set thro to max((landingRatio * min(maxDecel, 50)) / maxDecel, 0.33).
+        set thro to max((landingRatio * min(maxDecel, 50) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.33).
     }
     if MiddleEnginesShutdown {
         if RSS {
-            set thro to max((landingRatio * min(maxDecel3, 20)) / maxDecel3, 0.29).
+            set thro to max((landingRatio * min(maxDecel3, 20) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel3, 0.29).
         }
         else {
-            set thro to max((landingRatio * min(maxDecel3, 20)) / maxDecel3, 0.33).
+            set thro to max((landingRatio * min(maxDecel3, 20) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel3, 0.33).
         }
     }
     if thro > 1 {
@@ -1908,17 +1911,19 @@ function LandingGuidance {
     set distNorm to min(max(landDistance / (2*BoosterHeight), 0), 1). 
 
     // === Base Factors ===
-    set FposBase to 0.01.
-    set FerrBase to 0.01.
-    set FgsBase to 0.02 + 0.022 * constant:e^(-(RadarRatio^2)/2) - 0.005 * constant:e^(-((RadarRatio-3)^2)/2).
+    set FposBase to max(min(-0.0005 * RadarRatio + 0.007, 0.012),0).
+    set FerrBase to min(max(0.002 * RadarRatio + 0.005, 0.005),0.02).
+    set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0),0.04).
+    if RadarRatio < 1 and RadarRatio > 0.5 set FgsBase to 0.03.
+    if RadarRatio < 0.5 set FgsBase to min(max(-0.01 * RadarRatio + 0.035, 0),0.035).
     set FtrvBase to 0.002.
     set FerrSide to 0.
 
     // === Dynamic Time based Scaling ===
-    set Fpos to FposBase * (1 - distNorm)^1.5.
-    if landDistance > BoosterHeight and PositionError:mag > BoosterHeight set Ferr to FerrBase * (distNorm)^1.4.
-    else set Ferr to FerrBase * ((0.05 + distNorm)*3)^1.4.
-    set Fgs to FgsBase * (1 - distNorm)^1.1.
+    set Fpos to FposBase * max((1 - distNorm)^1.5,0.75).
+    if landDistance > BoosterHeight and PositionError:mag > BoosterHeight set Ferr to FerrBase * max((distNorm)^1.4,0.8).
+    else set Ferr to FerrBase * max(((0.05 + distNorm)*3)^1.4,0.8).
+    set Fgs to FgsBase * max((1 - distNorm)^1.1,0.75).
     set Ftrv to 0.
 
 
@@ -2223,9 +2228,10 @@ function BoosterDocking {
                 }
             }
             when time:seconds > DockedTime + 7.5 then {
-                sendMessage(Vessel(TargetOLM), "MechazillaHeight,0,2").
+                sendMessage(Vessel(TargetOLM), "MechazillaHeight,0,0.6").
                 sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,5,35,true").
                 sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,1," + (12.5 * Scale) + ",true")).
+                sendMessage(Vessel(TargetOLM), "MechazillaHeight,1,1.2").
                 if not oldArms {sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").}
                 when time:seconds > DockedTime + 20 then {
                     sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,5,90,true").

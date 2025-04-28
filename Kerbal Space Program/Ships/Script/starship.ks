@@ -10464,7 +10464,7 @@ function ReEntryData {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 30).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 40).
                 }
             }
             else {
@@ -10810,7 +10810,7 @@ function ReEntryData {
                 setflaps(60, 60, 1, 0).
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
-                    if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 5.5.
+                    if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 6.4.
                     else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 11.5.
                 }
                 set ship:control:neutralize to true.
@@ -11118,7 +11118,7 @@ function LandingVector {
                         }
                     } 
                     else if not twoSL {
-                        if ErrorVector:MAG > 7 * Scale and ship:groundspeed > 3.5 {
+                        if ErrorVector:MAG > 9 * Scale and ship:groundspeed > 3.5 {
                             set result to 1.4 * up:vector - 0.015 * GSVec - 0.011 * vxcl(TowerRotationVector, ErrorVector) - 0.007 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
                         } else {
                             set result to 1.8 * up:vector - 0.02 * GSVec - 0.01 * vxcl(TowerRotationVector, ErrorVector) - 0.002 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
