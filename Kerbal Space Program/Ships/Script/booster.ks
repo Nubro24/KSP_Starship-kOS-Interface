@@ -1469,7 +1469,6 @@ function Boostback {
         when Vessel(TargetOLM):distance < 2000 then {
             set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Integration Tower Base")[0]:position).
             lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
-            lock IFT8Vec to vxcl(TowerRotationVector, PositionError).
         }
         when Vessel(TargetOLM):distance < 1500 then {
             set Vessel(TargetOLM):loaddistance:landed:unpack to 1200.
@@ -1590,10 +1589,10 @@ function Boostback {
         }
     }
 
-    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 440 or 
+    when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 540 or 
             velocity:surface:mag < 42 and not MiddleEnginesShutdown or 
             velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
-            velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 360 then {
+            velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 460 then {
         PollUpdate().
         set MiddleEnginesShutdown to true.
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -1840,7 +1839,7 @@ FUNCTION SteeringCorrections {
             print "Stop Distance 3: " + round(stopDist3, 2).
             print "Landing Ratio: " + round(landingRatio, 2).
             print " ".
-            print "MZ Rotation: " + Round(BoosterRot,1).
+            //print "MZ Rotation: " + Round(BoosterRot,1).
             print "Ship Mass: " + round(ship:mass,3).
             print "Descent Angle: " + round(vang(-velocity:surface, up:vector), 1).
             print "GS: " + round(groundspeed,2).
@@ -1849,7 +1848,6 @@ FUNCTION SteeringCorrections {
             print "varPredct: " + round(varPredct, 2).
             print " ".
             print "Dist.: " + round(landDistance,1) + "m     Ratio: " + round(distNorm,1).
-            print "Direction Angle: " + round(angleToTarget,1) + "°".
             print " ".
         }
     }
@@ -1930,7 +1928,9 @@ function LandingGuidance {
     set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0.0002),0.04).
     if RadarRatio < 1 and RadarRatio > 0.5 set FgsBase to 0.03.
     if RadarRatio < 0.5 set FgsBase to min(max(-0.01 * RadarRatio + 0.035, 0),0.035).
-    set FtrvBase to 0.006 * sin(3*constant:pi * distNorm - 3.3).
+    set Term to 2*constant:pi * distNorm - 0.2.
+    set TermDegree to Term * 180 / constant:pi.
+    set FtrvBase to min(0.006 * sin(TermDegree),0.004).
     set FerrSide to 0.
 
     // === Dynamic Time based Scaling ===
@@ -1967,11 +1967,11 @@ function LandingGuidance {
     set trvAngle to vAng(PositionError, TowerRotationVector).
     if trvAngle > 24 {
         set HighIncl to true.
-        set Ftrv to -FtrvBase * min(max((trvAngle)/40, 0.4), 2).
+        set Ftrv to FtrvBase * min(max((trvAngle)/40, 0.4), 2).
     }
-    if ErrorVector:mag > 0.5*BoosterHeight and HighIncl
+    if ErrorVector:mag > 0.7*BoosterHeight and HighIncl
         set Ferr to Ferr * 1.2.
-    if ErrorVector:mag > BoosterHeight and HighIncl
+    if ErrorVector:mag > 1.4*BoosterHeight and HighIncl
         set Ferr to Ferr * 1.8.
     if angleToTarget > 12 and HighIncl {
         set Ferr to Ferr * 1.5.
@@ -2000,6 +2000,13 @@ function LandingGuidance {
         set Fgs to Fgs * 0.9.
     }
 
+    // === Low Altitude Correction
+    if RadarAlt < 1.7 * BoosterHeight {
+        if vAng(GSVec, Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position) > 50 or closureRatio > 2 {
+            set Ftrv to 0.004 * RadarRatio.
+        }
+    }
+
     // === Over- Under- and Side- shooting ===
     if vAng(ErrorVector, PositionError) > 90 {
         set Ferr to Ferr * 2.5.
@@ -2020,7 +2027,7 @@ function LandingGuidance {
         set Fpos to Fpos * 0.05.
         set Ferr to Ferr * 0.5.
         set Fgs to Fgs * 0.44.
-        set Ftrv to Ftrv * 0.7.
+        set Ftrv to Ftrv * 0.8.
     }
 
     // === Offset Vector ===
@@ -2643,7 +2650,7 @@ function setTowerHeadingVector {
                 lock RollVector to AngleAxis(2.9, up:vector) 
                     * vxcl(up:vector, 
                         (Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position 
-                            + 0.5*(Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position 
+                            + 0.38*(Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position 
                                 - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position)) 
                         - BoosterCore:position).
             } else {

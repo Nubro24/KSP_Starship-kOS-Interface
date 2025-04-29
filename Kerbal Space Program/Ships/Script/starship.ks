@@ -6510,9 +6510,6 @@ function Launch {
                 wait 0.01.
                 lock throttle to 0.5.
             }
-            when x - time:seconds < 1 then {
-                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-            }
             until x < time:seconds or cancelconfirmed {
                 set message1:text to "<b>All Systems:               <color=green>GO</color></b>".
                 set message3:text to "<b>Time to Ignition:         </b>" + round(x - time:seconds) + "<b> seconds</b>".
@@ -6625,6 +6622,8 @@ function Launch {
                     fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", true).
                 }
             }
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+            
             wait 0.02. 
             
             BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
@@ -6722,6 +6721,7 @@ function Launch {
             //if 1=1 {}
             else {
                 print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.24, 2)).
+                g:show().
                 set message1:text to "<b>Launch Abort: </b>Thrust anomaly!".
                 set message2:text to "<b>Thrust Range: </b>" + round(StackMass * Planet1G * 1.24) + "kN - " + round(StackMass * Planet1G * 2) + "kN".
                 set message3:text to "<b>Actual Thrust: </b>" + round(BoosterEngines[0]:thrust) + "kN".
