@@ -1926,15 +1926,15 @@ set quicksetting1:ontoggle to {
 set quicksetting2:ontoggle to {
     parameter pressed.
     if pressed {
-        SaveToSettings("CPU_SPD", "500").
-        set quicksetting2:text to "<b>  KX500</b>".
-        set CPUSPEED to 500.
+        SaveToSettings("CPU_SPD", "800").
+        set quicksetting2:text to "<b>  KX800</b>".
+        set CPUSPEED to 800.
         set config:ipu to CPUSPEED.
     }
     if not pressed {
-        SaveToSettings("CPU_SPD", "2000").
-        set quicksetting2:text to "<b>  KX2000</b>".
-        set CPUSPEED to 2000.
+        SaveToSettings("CPU_SPD", "2400").
+        set quicksetting2:text to "<b>  KX2400</b>".
+        set CPUSPEED to 2400.
         set config:ipu to CPUSPEED.
     }
 }.
@@ -5933,7 +5933,7 @@ if addons:tr:available and not startup {
                     set setting1:text to LandingCoords.
                 }
                 if L:haskey("CPU_SPD") {
-                    if L["CPU_SPD"] = "500" {
+                    if L["CPU_SPD"] = "800" {
                         set quicksetting2:pressed to true.
                     }
                     else {
@@ -7629,7 +7629,8 @@ Function AbortLaunch {
             lock throttle to 0.
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
-            Nose:activate.
+            if ShipType:contains("Block1") HeaderTank:activate.
+            else if not ShipType:contains("EXP") Nose:activate.
             Tank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
