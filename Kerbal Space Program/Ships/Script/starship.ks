@@ -6655,6 +6655,8 @@ function Launch {
                 
                 BackGroundUpdate().
             }
+
+            g:hide().
             
             set message1:text to "".
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
@@ -7089,6 +7091,8 @@ function Launch {
             //print "OPCodes left    until: " + opcodesleft.
             wait 0.1.
         }
+        
+        g:show().
 
         unlock steering.
         SteeringManager:RESETTODEFAULT().

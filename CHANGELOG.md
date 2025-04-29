@@ -8,6 +8,7 @@
 - **Booster Landing Guidance Overhaul upgrade**
   - Improved Guidance to be more dynamic
   - Landing Pos between the arms should be more reliable
+- Interface now hides during Launch (Telemetry still visible)
 - **Added Option for UI Scale**
   - possible Ingame and in booster.ks + starship.ks
   - Ingame Rescale somehow pushes Telemetry upwards

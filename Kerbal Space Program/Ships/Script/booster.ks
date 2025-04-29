@@ -494,7 +494,7 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. 
+        if oldBooster set BoosterGlideDistance to 1600. 
         else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
@@ -531,7 +531,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1990. 
+        if oldBooster set BoosterGlideDistance to 1600. 
         else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
@@ -561,8 +561,8 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1800. 
-        else set BoosterGlideDistance to 1300.
+        if oldBooster set BoosterGlideDistance to 1450. 
+        else set BoosterGlideDistance to 1240.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         set LngCtrlPID:setpoint to 30. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -1124,6 +1124,9 @@ function Boostback {
         if LFBooster > LFBoosterFuelCutOff {
             BoosterCore:activate.
         }
+
+        BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 40).
+
         set FuelDump to false.
         when time:seconds - turnTime > 1.8 and defined HSR and HSRJet then {
             if BoosterCore:thrust > 0 {
@@ -1133,7 +1136,7 @@ function Boostback {
             wait 0.2.
             BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
             wait 0.01.
-            when vAng(facing:forevector, up:vector) < 56 and FuelDump then {
+            when vAng(facing:forevector, up:vector) < 64 and FuelDump then {
                 BoosterCore:activate.
             }
             set RenameHSR to false.
@@ -1177,7 +1180,7 @@ function Boostback {
         set SteeringManager:yawtorquefactor to 0.1.
 
         lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/85)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/85))):normalized, ApproachVector).
-        set SteeringManager:maxstoppingtime to 0.69.
+        set SteeringManager:maxstoppingtime to 1.5.
 
         until time:seconds - turnTime > 90 {
             SteeringCorrections().
@@ -1189,6 +1192,8 @@ function Boostback {
             wait 0.067.
         }
         set SteeringManager:yawtorquefactor to 1.
+        BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        set SteeringManager:maxstoppingtime to 0.7.
 
         set switchTime to time:seconds.
         until time:seconds > switchTime + 0.5 {
@@ -1407,7 +1412,7 @@ function Boostback {
 
     lock throttle to LandingThrottle().
 
-    when time:seconds - LandingBurnTime > 0.2 then
+    when time:seconds - LandingBurnTime > 0.3 then
         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
 
     set s0ev to 0.
@@ -1434,7 +1439,7 @@ function Boostback {
 
 
     set LandingBurnStarted to true.
-    set config:ipu to 1243.
+    set config:ipu to 1500.
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
     when cAbort then {
@@ -1917,7 +1922,7 @@ function LandingGuidance {
 
     // === Distance ===
     set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
-    set distNorm to min(max(landDistance / (0.36*LandingBurnAlt), 0), 1). 
+    set distNorm to min(max(landDistance / (0.4*LandingBurnAlt), 0), 1). 
 
     // === Base Factors ===
     set FposBase to max(min(-0.0005 * RadarRatio + 0.007, 0.012),0).
@@ -1925,9 +1930,7 @@ function LandingGuidance {
     set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0.0002),0.04).
     if RadarRatio < 1 and RadarRatio > 0.5 set FgsBase to 0.03.
     if RadarRatio < 0.5 set FgsBase to min(max(-0.01 * RadarRatio + 0.035, 0),0.035).
-    set FtrvBase to 0.03 * sin(2.3*constant:pi * distNorm - 2).
-    if distNorm < 0.75 and FtrvBase < 0 set FtrvBase to 0.
-    if FtrvBase < -0.018 set FtrvBase to -0.018.
+    set FtrvBase to 0.006 * sin(3*constant:pi * distNorm - 3.3).
     set FerrSide to 0.
 
     // === Dynamic Time based Scaling ===
@@ -1964,24 +1967,24 @@ function LandingGuidance {
     set trvAngle to vAng(PositionError, TowerRotationVector).
     if trvAngle > 24 {
         set HighIncl to true.
-        set Ftrv to -FtrvBase * min(max((trvAngle)/40, 0.4), 2.3).
+        set Ftrv to -FtrvBase * min(max((trvAngle)/40, 0.4), 2).
     }
     if ErrorVector:mag > 0.5*BoosterHeight and HighIncl
-        set Ferr to Ferr * 1.5.
+        set Ferr to Ferr * 1.2.
     if ErrorVector:mag > BoosterHeight and HighIncl
-        set Ferr to Ferr * 2.
+        set Ferr to Ferr * 1.8.
     if angleToTarget > 12 and HighIncl {
-        set Ferr to Ferr * 2.
+        set Ferr to Ferr * 1.5.
         set Fgs to Fgs * 1.2.
-        if angleToTarget > 24 and HighIncl{
+        if angleToTarget > 24 {
             set Ferr to Ferr * 1.5.
             set Fpos to Fpos * 1.1.
-            set Fgs to Fgs * 1.4.
+            set Fgs to Fgs * 1.2.
         }
     }
     else if angleFromTarget < 100
         set Fpos to Fpos * 1.5.
-        set Fgs to Fgs * 1.5.
+        set Fgs to Fgs * 1.3.
 
     // === Low Altitude look up ===
     if RadarAlt < 0.4 * BoosterHeight {
@@ -1990,6 +1993,11 @@ function LandingGuidance {
     if RadarAlt < 1 * BoosterHeight {
         set Fpos to Fpos * 0.4.
         set Ferr to Ferr * 0.3.
+    }
+    if RadarAlt < 2 * BoosterHeight and RadarAlt > 1 * BoosterHeight {
+        set Fpos to Fpos * 0.8.
+        set Ferr to Ferr * 0.8.
+        set Fgs to Fgs * 0.9.
     }
 
     // === Over- Under- and Side- shooting ===
@@ -2003,15 +2011,16 @@ function LandingGuidance {
         set Ferr to Ferr * 1.8.
         set Fpos to Fpos / 1.8.
     }
-    
+
     // === prevent overcorrection ===
-    if GSVec:mag < 4.2 set Fgs to Fgs * 0.6.
+    if GSVec:mag < 5.2 and GSVec:mag > 1.2 set Fgs to Fgs * 0.6.
 
     // === 13 Engines Phase ===
     if not MiddleEnginesShutdown {
         set Fpos to Fpos * 0.05.
-        set Ferr to Ferr * 0.9.
+        set Ferr to Ferr * 0.5.
         set Fgs to Fgs * 0.44.
+        set Ftrv to Ftrv * 0.7.
     }
 
     // === Offset Vector ===
@@ -2039,11 +2048,14 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 10, 0))^1.2, 1).
     if RadarAlt < BoosterHeight 
         set steerDamp to min((max((steeringOffset - 1) / 5, 0))^1.2, 1).
+    if not MiddleEnginesShutdown
+        set steerDamp to min((max((steeringOffset - 1) / 5, 0))^1.2, 1).
 
-    set Fpos to Fpos * (1 - 0.5 * steerDamp).
+    set Fpos to Fpos * (1 - 0.6 * steerDamp).
     set Ferr to Ferr * (1 - 0.6 * steerDamp).
     set FerrSide to FerrSide * (1 - 0.6 * steerDamp).
-    set Fgs to Fgs * (1 - 0.5 * steerDamp).
+    set Fgs to Fgs * (1 - 0.6 * steerDamp).
+    set Ftrv to Ftrv * (1 - 0.6 * steerDamp).
 
     // === Final Vector ===
     if RadarAlt < 2*BoosterHeight {
@@ -2074,6 +2086,8 @@ function LandingGuidance {
     print round(gsRatio,3).
     print round(vertRatio,3).
     print round(closureRatio,3).
+    print "".
+    print round(Ftrv,3).
 
 
 
