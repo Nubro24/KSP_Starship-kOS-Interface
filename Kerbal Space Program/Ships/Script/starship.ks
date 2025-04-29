@@ -1932,9 +1932,9 @@ set quicksetting2:ontoggle to {
         set config:ipu to CPUSPEED.
     }
     if not pressed {
-        SaveToSettings("CPU_SPD", "2400").
-        set quicksetting2:text to "<b>  KX2400</b>".
-        set CPUSPEED to 2400.
+        SaveToSettings("CPU_SPD", "2000").
+        set quicksetting2:text to "<b>  KX2000</b>".
+        set CPUSPEED to 2000.
         set config:ipu to CPUSPEED.
     }
 }.
@@ -6623,7 +6623,7 @@ function Launch {
                 }
             }
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-            
+
             wait 0.02. 
             
             BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).

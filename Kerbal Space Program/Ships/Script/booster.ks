@@ -1439,7 +1439,7 @@ function Boostback {
 
 
     set LandingBurnStarted to true.
-    set config:ipu to 1500.
+    set config:ipu to 1400.
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
     when cAbort then {
@@ -1610,7 +1610,7 @@ function Boostback {
         PollUpdate().
         SetBoosterActive().
         DetectWobblyTower().
-        wait 0.05.
+        wait 0.034.
     }
 
 
@@ -1619,7 +1619,7 @@ function Boostback {
         print "slowly lowering down booster..".
         set LandingVector to LandingGuidance().
         rcs on.
-        wait 0.01.
+        wait 0.034.
     }
 
 
