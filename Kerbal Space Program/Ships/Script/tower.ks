@@ -79,7 +79,7 @@ set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
 
 
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") {
+    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("SEP.23.BOOSTER") or part:name:contains("SEP.24.BOOSTER") {
         set BoosterCore to part.
         set onOLM to true.
     } else if part:name:contains("SEP.23.SHIP.BODY") {
@@ -284,6 +284,9 @@ until False {
         else if command = "getArmsVersion" {
             ArmVersion().
         }
+        else if command = "ReDock" {
+            ReDock().
+        }
         else if command = "MechazillaStabilizers" {
             MechazillaStabilizers(parameter1).
         }
@@ -401,6 +404,12 @@ function ArmVersion {
     } else if not AfterLaunch and not oldArms and onOLM {
         sendMessage(processor(volume("Booster")), "Arms,false").
         sendMessage(processor(volume("Starship")), "Arms,false").
+    }
+}
+
+function ReDock {
+    if OLM:getmodule("ModuleAnimateGeneric"):hasevent("open clamps + qd") {
+        OLM:getmodule("ModuleAnimateGeneric"):doevent("open clamps + qd").
     }
 }
 

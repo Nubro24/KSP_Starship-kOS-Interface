@@ -2,8 +2,25 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
-set Scriptversion to "V3.4.8".
+set Scriptversion to "V3.4.9".
 
+
+//<------------Telemtry Scale-------------->
+
+set TScale to 1.
+
+// 720p     -   0.67
+// 1080p    -   1
+// 1440p    -   1.33
+// 2160p    -   2
+//_________________________________________
+
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("TelemetryScale") {
+        set TScale to L["TelemetryScale"].
+    }
+}
 
 
 //---------------Self-Update--------------//
@@ -69,100 +86,108 @@ if exists("0:/settings.json") {
 }
 set RadarAlt to 0.
 
-set oldBooster to false.
-
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
-    set sTelemetry:style:border:h to 10.
-    set sTelemetry:style:border:v to 10.
-    set sTelemetry:style:padding:v to 0.
-    set sTelemetry:style:padding:h to 0.
-    set sTelemetry:x to 0.
-    set sTelemetry:y to -220.
     set sTelemetry:skin:label:textcolor to white.
     set sTelemetry:skin:textfield:textcolor to white.
     set sTelemetry:skin:label:font to "Arial Bold".
     set sTelemetry:skin:textfield:font to "Arial Bold".
-    
-
 local sAttitudeTelemetry is sTelemetry:addhlayout().
 local BoosterSpace is sAttitudeTelemetry:addvlayout().
 local sMissionTime is sAttitudeTelemetry:addvlayout().
 local ShipAttitude is sAttitudeTelemetry:addvlayout().
 local ShipStatus is sAttitudeTelemetry:addvlayout().
 local ShipRaptors is sAttitudeTelemetry:addvlayout().
-
 local bSpace is BoosterSpace:addlabel().
-    set bSpace:style:width to 860.
-
 local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:wordwrap to false.
-    set missionTimeLabel:style:margin:left to 0.
-    set missionTimeLabel:style:margin:right to 120.
-    set missionTimeLabel:style:margin:top to 80.
-    set missionTimeLabel:style:width to 160.
-    set missionTimeLabel:style:fontsize to 42.
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
-
 local VersionDisplay is GUI(100).
-    set VersionDisplay:x to 0.
-    set VersionDisplay:y to 36.
     set VersionDisplay:style:bg to "".
     local VersionDisplayLabel is VersionDisplay:addlabel().
         set VersionDisplayLabel:style:wordwrap to false.
-        set VersionDisplayLabel:style:width to 100.
-        set VersionDisplayLabel:style:fontsize to 12.
         set VersionDisplayLabel:style:align to "center".
         set VersionDisplayLabel:text to Scriptversion.
 VersionDisplay:show().
-
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
-    set sAttitude:style:margin:left to 20.
-    set sAttitude:style:margin:right to 20.
-    set sAttitude:style:margin:top to 20.
-    set sAttitude:style:width to 180.
-    set sAttitude:style:height to 180.
 local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
-    set sSpeed:style:margin:left to 45.
-    set sSpeed:style:margin:top to 20.
-    set sSpeed:style:width to 296.
-    set sSpeed:style:fontsize to 30.
 local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
     set sAltitude:style:wordwrap to false.
-    set sAltitude:style:margin:left to 45.
-    set sAltitude:style:margin:top to 2.
-    set sAltitude:style:width to 296.
-    set sAltitude:style:fontsize to 30.
 local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
     set sLOX:style:wordwrap to false.
-    set sLOX:style:margin:left to 50.
-    set sLOX:style:margin:top to 25.
-    set sLOX:style:width to 200.
-    set sLOX:style:fontsize to 20.
 local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
     set sCH4:style:wordwrap to false.
-    set sCH4:style:margin:left to 50.
-    set sCH4:style:margin:top to 4.
-    set sCH4:style:width to 200.
-    set sCH4:style:fontsize to 20.
 local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
     set sThrust:style:wordwrap to false.
-    set sThrust:style:margin:left to 45.
-    set sThrust:style:margin:top to 15.
-    set sThrust:style:width to 150.
-    set sThrust:style:fontsize to 16.
 local sEngines is ShipRaptors:addlabel().
     set sEngines:style:bg to "starship_img/ship0".
-    set sEngines:style:width to 180.
-    set sEngines:style:height to 180.
-    set sEngines:style:margin:top to 20.
-    set sEngines:style:margin:left to 20.
-    set sEngines:style:margin:bottom to 20.
-
 set sTelemetry:draggable to false.
+
+CreateTelemetry().
+
+function CreateTelemetry {
+    set sTelemetry:style:border:h to 10*TScale.
+    set sTelemetry:style:border:v to 10*TScale.
+    set sTelemetry:style:padding:v to 0.
+    set sTelemetry:style:padding:h to 0.
+    set sTelemetry:x to 0.
+    set sTelemetry:y to -220*TScale.
+
+    set bSpace:style:width to 860*TScale.
+
+    set missionTimeLabel:style:margin:left to 0.
+    set missionTimeLabel:style:margin:right to 120*TScale.
+    set missionTimeLabel:style:margin:top to 80*TScale.
+    set missionTimeLabel:style:width to 160*TScale.
+    set missionTimeLabel:style:fontsize to 42*TScale.
+
+    set VersionDisplay:x to 0.
+    set VersionDisplay:y to 36*TScale.
+        set VersionDisplayLabel:style:width to 100*TScale.
+        set VersionDisplayLabel:style:fontsize to 12*TScale.
+
+    set sAttitude:style:margin:left to 20*TScale.
+    set sAttitude:style:margin:right to 20*TScale.
+    set sAttitude:style:margin:top to 20*TScale.
+    set sAttitude:style:width to 180*TScale.
+    set sAttitude:style:height to 180*TScale.
+
+    set sSpeed:style:margin:left to 45*TScale.
+    set sSpeed:style:margin:top to 20*TScale.
+    set sSpeed:style:width to 296*TScale.
+    set sSpeed:style:fontsize to 30*TScale.
+
+    set sAltitude:style:margin:left to 45*TScale.
+    set sAltitude:style:margin:top to 2*TScale.
+    set sAltitude:style:width to 296*TScale.
+    set sAltitude:style:fontsize to 30*TScale.
+
+    set sLOX:style:margin:left to 50*TScale.
+    set sLOX:style:margin:top to 25*TScale.
+    set sLOX:style:width to 200*TScale.
+    set sLOX:style:fontsize to 20*TScale.
+
+    set sCH4:style:margin:left to 50*TScale.
+    set sCH4:style:margin:top to 4*TScale.
+    set sCH4:style:width to 200*TScale.
+    set sCH4:style:fontsize to 20*TScale.
+
+    set sThrust:style:margin:left to 45*TScale.
+    set sThrust:style:margin:top to 15*TScale.
+    set sThrust:style:width to 150*TScale.
+    set sThrust:style:fontsize to 16*TScale.
+
+    set sEngines:style:width to 180*TScale.
+    set sEngines:style:height to 180*TScale.
+    set sEngines:style:margin:top to 20*TScale.
+    set sEngines:style:margin:left to 20*TScale.
+    set sEngines:style:margin:bottom to 20*TScale.
+
+
+}
 
 set partsfound to false.
 
@@ -542,6 +567,7 @@ set oneSL to false.
 set shipThrust to 0.00001.
 set angle to 75.
 set speed to 12.
+set oldBooster to false.
 
 
 
@@ -700,7 +726,14 @@ function FindParts {
                 }
                 else if x:name:contains("NOSE.PEZ.BLOCK-2") or x:title:contains("BLOCK-2 PEZ") {
                     set Nose to x.
+                    set HeaderTank to x.
                     set ShipType to "Block2PEZSEPOv".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("NOSE.CARGO.BLOCK-2") or x:title:contains("BLOCK-2 Cargo") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set ShipType to "Block2CargoSEPOv".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.23.SHIP.CREW") {
@@ -819,7 +852,63 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
-    }
+    } else if ship:partsnamed("SEP.23.Booster"):length > 0  and ship:partstitled("Super Heavy V1 Integrated"):length > 0  {
+        set Boosterconnected to true.
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOX:style:textcolor to grey.
+        set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
+        set BoosterEngines to SHIP:PARTSNAMED("BOOSTER.CLUSTER").
+        set GridFins to SHIP:PARTSNAMED("SEP.GridFin").
+        set HSR to SHIP:PARTSNAMED("SEP.HSR.1").
+        set BoosterCore to SHIP:PARTSNAMED("SEP.23.Booster").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to false.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("SEP.24.Booster"):length > 0  and ship:partstitled("Super Heavy V2 Integrated"):length > 0  {
+        set Boosterconnected to true.
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOX:style:textcolor to grey.
+        set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
+        set BoosterEngines to SHIP:PARTSNAMED("BOOSTER.CLUSTER").
+        set GridFins to SHIP:PARTSNAMED("SEP.GridFin").
+        set HSR to SHIP:PARTSNAMED("SEP.HSR.2").
+        set BoosterCore to SHIP:PARTSNAMED("SEP.24.Booster").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to false.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } 
     else {
         set Boosterconnected to false.
         if not runningprogram = "LAUNCH" {
@@ -912,8 +1001,54 @@ print "Starship Interface startup complete!".
 
 //-------------Start Graphic User Interface-------------//
 
-
-
+local ScaleUI is GUI(300).
+    set ScaleUI:style:bg to "starship_img/starship_background".
+    set ScaleUI:style:border:h to 10.
+    set ScaleUI:style:border:v to 10.
+    set ScaleUI:style:padding:v to 0.
+    set ScaleUI:style:padding:h to 0.
+    set ScaleUI:x to 240.
+    set ScaleUI:y to 240.
+    set ScaleUI:skin:button:bg to "starship_img/starship_background".
+    set ScaleUI:skin:button:on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:hover:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:hover_on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:active:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:active_on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:border:v to 10.
+    set ScaleUI:skin:button:border:h to 10.
+    set ScaleUI:skin:button:textcolor to white.
+    set ScaleUI:skin:label:textcolor to white.
+local ScaleLayout is ScaleUI:addvlayout().
+local ScaleQuest is ScaleLayout:addlabel().
+    set ScaleQuest:text to "Enter your Vertical Resolution (f.e. 1080 for 1080p):".
+    set ScaleQuest:style:margin:top to 12.
+    set ScaleQuest:style:margin:bottom to 12.
+    set ScaleQuest:style:margin:left to 12.
+local ScaleSelect is ScaleLayout:addtextfield().
+    set ScaleSelect:tooltip to "Vertical Resolution".
+    set ScaleSelect:style:margin:bottom to 12.
+    set ScaleSelect:style:margin:left to 12.
+local ScaleConfirm is ScaleLayout:addbutton().
+    set ScaleConfirm:text to "<b><color=green>Confirm</color></b>".
+    set ScaleConfirm:onclick to {
+        sTelemetry:hide().
+        if ScaleSelect:text = "" {}
+        else {
+            set TScale to round(ScaleSelect:text:toscalar/1080,2).
+            CreateTelemetry().
+            if Boosterconnected {
+                sendMessage(processor(Volume("Booster")),"ScaleT,"+TScale:tostring).
+                set sTelemetry:style:bg to "".
+            }
+            SaveToSettings("TelemetryScale",TScale).
+            wait 0.2.
+            sTelemetry:show().
+        }
+        set scalebutton:pressed to false.
+        ScaleUI:hide().
+    }.
+    
 
 
 
@@ -1027,6 +1162,19 @@ local statuslabel to topbuttonbar:addlabel("").
     set statuslabel:style:align to "center".
     set statuslabel:style:vstretch to true.
     set statuslabel:style:hstretch to true.
+local scalebutton is topbuttonbar:addbutton().
+    set scalebutton:toggle to true.
+    set scalebutton:style:width to 35.
+    set scalebutton:style:height to 35.
+    set scalebutton:style:bg to "starship_img/telemetryScale".
+    set scalebutton:style:on:bg to "starship_img/telemetryScale_on".
+    set scalebutton:style:hover:bg to "starship_img/telemetryScale_hover".
+    set scalebutton:style:hover_on:bg to "starship_img/telemetryScale_on".
+    set scalebutton:style:active:bg to "starship_img/telemetryScale_hover".
+    set scalebutton:style:active_on:bg to "starship_img/telemetryScale_hover".
+    set scalebutton:style:border:v to 0.
+    set scalebutton:style:border:h to 0.
+    set scalebutton:tooltip to "Scale Settings for the Telemetry".
 local statusbutton is topbuttonbar:addbutton().
     set statusbutton:toggle to true.
     set statusbutton:style:width to 35.
@@ -1309,7 +1457,17 @@ set attitudebutton:ontoggle to {
     }
     else {mainbox:showonly(flightstack).}
 }.
-    
+
+set scalebutton:ontoggle to {
+    parameter toggle.
+    if toggle {
+        set ScaleSelect:text to "".
+        ScaleUI:show().
+    }
+    else ScaleUI:hide().
+}.
+
+
 set statusbutton:ontoggle to {
     parameter toggle.
     if toggle {
@@ -1831,9 +1989,9 @@ set quicksetting1:ontoggle to {
 set quicksetting2:ontoggle to {
     parameter pressed.
     if pressed {
-        SaveToSettings("CPU_SPD", "500").
-        set quicksetting2:text to "<b>  KX500</b>".
-        set CPUSPEED to 500.
+        SaveToSettings("CPU_SPD", "800").
+        set quicksetting2:text to "<b>  KX800</b>".
+        set CPUSPEED to 800.
         set config:ipu to CPUSPEED.
     }
     if not pressed {
@@ -2851,7 +3009,7 @@ set quickengine1:onclick to {
     for eng in SLEngines {eng:shutdown.}.
     for eng in VACEngines {eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1Exp") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block1PEZ") and not (ShipType = "Block2PEZSEPOv") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1Exp") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block1PEZ") and not (ShipType = "Block2PEZSEPOv") and not (ShipType = "Block2CargoSEPOv") {
         Nose:shutdown.
     } else if (ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ") {
         HeaderTank:shutdown.
@@ -5838,7 +5996,7 @@ if addons:tr:available and not startup {
                     set setting1:text to LandingCoords.
                 }
                 if L:haskey("CPU_SPD") {
-                    if L["CPU_SPD"] = "500" {
+                    if L["CPU_SPD"] = "800" {
                         set quicksetting2:pressed to true.
                     }
                     else {
@@ -6001,7 +6159,7 @@ if addons:tr:available and not startup {
             }
             Watchdog:activate().
         }
-        if ShipType = "Block2PEZSEPOv" {
+        if ShipType = "Block2PEZSEPOv" and not (ShipType = "Block2CargoSEPOv") {
             set cargo1text:text to "Closed".
             cargobutton:show().
             set Watchdog to SHIP:partsnamed("NOSE.PEZ.Block-2").
@@ -6415,9 +6573,6 @@ function Launch {
                 wait 0.01.
                 lock throttle to 0.5.
             }
-            when x - time:seconds < 1 then {
-                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-            }
             until x < time:seconds or cancelconfirmed {
                 set message1:text to "<b>All Systems:               <color=green>GO</color></b>".
                 set message3:text to "<b>Time to Ignition:         </b>" + round(x - time:seconds) + "<b> seconds</b>".
@@ -6530,6 +6685,8 @@ function Launch {
                     fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", true).
                 }
             }
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+
             wait 0.02. 
             
             BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
@@ -6538,10 +6695,12 @@ function Launch {
             set message1:text to "<b>Ignition Sequence</b>".
             set message2:text to "<b>Expected Engine Count:</b>    13".
             set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
-            wait 1.0. 
+            wait 1.0.
+
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
             set message2:text to "<b>Expected Engine Count:</b>    28".
             wait 0.4.
+            
             //last 5 outer ignition
             set message2:text to "<b>Expected Engine Count:</b>    33".
             
@@ -6558,6 +6717,8 @@ function Launch {
                 
                 BackGroundUpdate().
             }
+
+            g:hide().
             
             set message1:text to "".
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
@@ -6601,28 +6762,29 @@ function Launch {
                 print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.4, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.36 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.37 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {
                 lock throttle to 0.9. 
-                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.36, 2)).
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.37, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.33 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.34 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {
                 lock throttle to 0.95. 
-                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.33, 2)).
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.34, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.28 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
+            if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.3 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             else {
                 lock throttle to 1. 
-                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.28, 2)).
+                print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.3, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
             if BoosterEngines[0]:thrust > StackMass * Planet1G * 1.24 and BoosterEngines[0]:thrust < StackMass * Planet1G * 2 {}
             //if 1=1 {}
             else {
                 print(round(BoosterEngines[0]:thrust, 2) + "<" + round(StackMass * Planet1G * 1.24, 2)).
+                g:show().
                 set message1:text to "<b>Launch Abort: </b>Thrust anomaly!".
                 set message2:text to "<b>Thrust Range: </b>" + round(StackMass * Planet1G * 1.24) + "kN - " + round(StackMass * Planet1G * 2) + "kN".
                 set message3:text to "<b>Actual Thrust: </b>" + round(BoosterEngines[0]:thrust) + "kN".
@@ -6661,7 +6823,7 @@ function Launch {
             if BoosterEngines[0]:thrust/(StackMass * Planet1G) < 1.3 set lowTWR to true.
             wait 0.01.
             set SteeringManager:rollts to 5.
-            if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or (ShipType = "Block2PEZSEPOv"){
+            if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or (ShipType = "Block2PEZSEPOv") or (ShipType = "Block2CargoSEPOv") {
                 InhibitButtons(1, 1, 1).
             }
             if OnOrbitalMount {
@@ -6793,7 +6955,6 @@ function Launch {
                 //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 lock throttle to 0.5.
-                unlock steering.
                 LogToFile("Starting stage-separation").
                 set message1:text to "<b>Hot staging..</b>".
                 set message2:text to "".
@@ -6831,6 +6992,7 @@ function Launch {
                     LaunchLabelData().
                     wait 0.1.
                 }
+                unlock steering.
                 if not cancelconfirmed {
                     sendMessage(Processor(volume("Booster")), "Boostback").
                 }
@@ -6992,6 +7154,8 @@ function Launch {
             //print "OPCodes left    until: " + opcodesleft.
             wait 0.1.
         }
+        
+        g:show().
 
         unlock steering.
         SteeringManager:RESETTODEFAULT().
@@ -7109,7 +7273,7 @@ function LaunchThrottle {
             }
         }
     }
-    return thr.
+    return min(max(thr,0),1).
 }
 
 Function LaunchSteering {
@@ -7150,7 +7314,6 @@ Function LaunchSteering {
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     } 
     else if apoapsis > BoosterAp - 14000 * Scale and Boosterconnected {
-        rcs on.
         if RSS {
             set result to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
         } else {
@@ -7533,7 +7696,8 @@ Function AbortLaunch {
             lock throttle to 0.
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
-            Nose:activate.
+            if ShipType:contains("Block1") HeaderTank:activate.
+            else if not ShipType:contains("EXP") Nose:activate.
             Tank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
@@ -9035,6 +9199,8 @@ function BackGroundUpdate {
             if LaunchButtonIsRunning or LandButtonIsRunning or AttitudeIsRunning {
                 maneuverbutton:hide().
                 towerbutton:hide().
+                scalebutton:hide().
+                ScaleUI:hide().
                 if AttitudeIsRunning {
                     if landbutton:visible {
                         landbutton:hide().
@@ -9924,12 +10090,11 @@ function ReEntryAndLand {
         //if Tank:getmodule("ModuleSepPartSwitchAction"):getfield("current docking system") = "QD" {
         //    Tank:getmodule("ModuleSepPartSwitchAction"):DoAction("next docking system", true).
         //}
-        if not ShipType = "Block2PEZSEPOv" {
         for res in HeaderTank:resources {
             if not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                 set res:enabled to true.
             } 
-        }}
+        }
         ShowButtons(0).
         InhibitButtons(1, 1, 0).
         if not ShipType = "Block2PEZSEPOv" {
@@ -10366,7 +10531,7 @@ function ReEntryData {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 30).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 40).
                 }
             }
             else {
@@ -10712,7 +10877,7 @@ function ReEntryData {
                 setflaps(60, 60, 1, 0).
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
-                    if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 5.5.
+                    if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 6.4.
                     else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 11.5.
                 }
                 set ship:control:neutralize to true.
@@ -11020,7 +11185,7 @@ function LandingVector {
                         }
                     } 
                     else if not twoSL {
-                        if ErrorVector:MAG > 7 * Scale and ship:groundspeed > 3.5 {
+                        if ErrorVector:MAG > 9 * Scale and ship:groundspeed > 3.5 {
                             set result to 1.4 * up:vector - 0.015 * GSVec - 0.011 * vxcl(TowerRotationVector, ErrorVector) - 0.007 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
                         } else {
                             set result to 1.8 * up:vector - 0.02 * GSVec - 0.01 * vxcl(TowerRotationVector, ErrorVector) - 0.002 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
@@ -11304,10 +11469,10 @@ function LngLatError {
             }
             else {
                 if STOCK {
-                    set LngLatOffset to -60.
+                    set LngLatOffset to -52.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -80.
+                    set LngLatOffset to -60.
                 }
                 else {
                     set LngLatOffset to -95.
@@ -12096,7 +12261,7 @@ function updateCargoPage {
                     }
                 }
             }
-            if ShipType = "Crew" or ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" or (ShipType = "Block2PEZSEPOv"){
+            if ShipType = "Crew" or ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" or (ShipType = "Block2PEZSEPOv") or (ShipType = "Block2CargoSEPOv") {
                 for x in range(0, Nose:modules:length) {
                     if ShipType = "Crew" {
                         if Nose:getmodulebyindex(x):hasaction("toggle airlock") {
@@ -12118,7 +12283,7 @@ function updateCargoPage {
                             }
                         }
                     }
-                    if ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp"  or ShipType = "Block1PEZ" or (ShipType = "Block2PEZSEPOv"){
+                    if ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp"  or ShipType = "Block1PEZ" or (ShipType = "Block2PEZSEPOv") or (ShipType = "Block2CargoSEPOv") {
                         if Nose:getmodulebyindex(x):hasaction("toggle cargo door") {
                             set DockingHatchStatus to Nose:getmodulebyindex(x):getfield("status").
                         } else if Nose:getmodulebyindex(x):hasaction("toggle pez door") {
@@ -13317,7 +13482,7 @@ function DisengageYawRCS {
 function VehicleSelfCheck {
     set FuelFail to false.
     if STOCK and 1=2{
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block2PEZSEPOv") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -13566,7 +13731,7 @@ function VehicleSelfCheck {
         }
     }
     if KSRSS and 1=2{
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block2PEZSEPOv") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -13815,7 +13980,7 @@ function VehicleSelfCheck {
         }
     }
     if RSS and 1=2 {
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block2PEZSEPOv") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -14230,7 +14395,7 @@ function CheckFullTanks {
         set FullTanks to true.
         local amount to 0.
         local cap to 0.
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block2PEZSEPOv") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                     set res:enabled to true.
@@ -14290,7 +14455,7 @@ function CheckFullTanks {
                     set LowCargoMass to true.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ"  or (ShipType = "Block2PEZSEPOv") {
+                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
                     for res2 in Tank:resources {
                         if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass > 16000 {
                             for res3 in BoosterCore[0]:resources {
@@ -14334,7 +14499,7 @@ function CheckFullTanks {
                     set LowCargoMass to true.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ"  or (ShipType = "Block2PEZSEPOv") {
+                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
                     for res2 in Tank:resources {
                         if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass > 16000 {
                             for res3 in BoosterCore[0]:resources {
@@ -14639,7 +14804,10 @@ function updateTelemetry {
         set shipThrust to shipThrust + eng:thrust.
     }
 
-    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + round(throttle,2)*100 + "%".
+    if Boosterconnected set currentThr to 0.
+    else set currentThr to throttle.
+
+    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + min(round(currentThr,2)*100,100) + "%".
 
     set missionTimerNow to time:seconds-missionTimer.
     if missionTimerNow < 0 {
