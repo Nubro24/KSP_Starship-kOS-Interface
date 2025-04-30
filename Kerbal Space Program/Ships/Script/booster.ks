@@ -48,7 +48,7 @@ if homeconnection:isconnected {
     }
 }
 
-set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
@@ -488,8 +488,8 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 5000. 
-        else set BoosterGlideDistance to 5000. //4500
+        if oldBooster set BoosterGlideDistance to 4000. 
+        else set BoosterGlideDistance to 3000. //3200
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set LngCtrlPID:setpoint to 40. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -880,7 +880,7 @@ function Boostback {
         when time:seconds > flipStartTime + 6 then {
             set steeringmanager:yawtorquefactor to 0.4.
             set ship:control:neutralize to true.
-            set steeringManager:rollcontrolanglerange to 60.
+            set steeringManager:rollcontrolanglerange to 80.
             set FC to true.
             bGUI:show().
         }
@@ -1219,6 +1219,8 @@ function Boostback {
         set SteeringManager:yawtorquefactor to 1.
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         set SteeringManager:maxstoppingtime to 0.7.
+        if RSS 
+            set SteeringManager:maxstoppingtime to 1.5.
 
         set switchTime to time:seconds.
         until time:seconds > switchTime + 0.5 {
@@ -1377,7 +1379,7 @@ function Boostback {
     
     lock steering to SteeringVector.
 
-    until alt:radar < 18000 {
+    until alt:radar < 24000 and RSS or alt:radar < 18000 {
         SteeringCorrections().
         if altitude > 32000 and RSS or altitude > 28000 and not (RSS) {
             rcs on.
@@ -2033,7 +2035,8 @@ function LandingGuidance {
     // === Low Altitude Correction
     if RadarAlt < 1.7 * BoosterHeight {
         if vAng(GSVec, Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position) > 50 or closureRatio > 2 {
-            set Ftrv to 0.004 * RadarRatio.
+            if not RSS set Ftrv to 0.003 * RadarRatio.
+            else set Ftrv to 0.0033 * RadarRatio.
         }
     }
 
@@ -2056,7 +2059,8 @@ function LandingGuidance {
     if not MiddleEnginesShutdown {
         set Fpos to Fpos * 0.05.
         set Ferr to Ferr * 0.5.
-        set Fgs to Fgs * 0.44.
+        if not RSS set Fgs to Fgs * 0.44.
+        else set Fgs to Fgs * 0.66.
         set Ftrv to Ftrv * 0.8.
     }
 
