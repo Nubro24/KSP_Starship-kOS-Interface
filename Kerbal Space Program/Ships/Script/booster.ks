@@ -2063,6 +2063,10 @@ function LandingGuidance {
     // === Offset Vector ===
     set FerrSide to Ferr * 0.3.
     set Ferr to Ferr * 0.9.
+    if not MiddleEnginesShutdown {
+        set FerrSide to Ferr * 0.1.
+        set Ferr to Ferr * 0.95.
+    }
     if RadarAlt < 2*BoosterHeight {
         set offsetVec to up:vector
             - Fpos * vxcl(vCrs(GSVec,up:vector),PositionError)
