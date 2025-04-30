@@ -1,4 +1,4 @@
-# V3.4.9 (WIP)
+# V3.4.9
 - **Overhauled Tower Operations after Booster Catch**
   - Oszilation has to stop (just wait for it)
   - There will be a Quicksave Load to avoid kraken
