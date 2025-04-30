@@ -726,7 +726,14 @@ function FindParts {
                 }
                 else if x:name:contains("NOSE.PEZ.BLOCK-2") or x:title:contains("BLOCK-2 PEZ") {
                     set Nose to x.
+                    set HeaderTank to x.
                     set ShipType to "Block2PEZSEPOv".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("NOSE.CARGO.BLOCK-2") or x:title:contains("BLOCK-2 Cargo") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set ShipType to "Block2CargoSEPOv".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.23.SHIP.CREW") {
@@ -828,6 +835,90 @@ function FindParts {
         set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to false.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("SEP.23.Booster") and ship:partstitled("Super Heavy V1 Integrated") {
+        set Boosterconnected to true.
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOX:style:textcolor to grey.
+        set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
+        set BoosterEngines to SHIP:PARTSNAMED("BOOSTER.CLUSTER").
+        set GridFins to SHIP:PARTSNAMED("SEP.GridFin").
+        set HSR to SHIP:PARTSNAMED("SEP.HSR.1").
+        set BoosterCore to SHIP:PARTSNAMED("SEP.23.Booster").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to false.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("SEP.23.Booster") and ship:partstitled("Super Heavy V1 Integrated") {
+        set Boosterconnected to true.
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOX:style:textcolor to grey.
+        set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
+        set BoosterEngines to SHIP:PARTSNAMED("BOOSTER.CLUSTER").
+        set GridFins to SHIP:PARTSNAMED("SEP.GridFin").
+        set HSR to SHIP:PARTSNAMED("SEP.HSR.1").
+        set BoosterCore to SHIP:PARTSNAMED("SEP.23.Booster").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to false.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("SEP.24.Booster") and ship:partstitled("Super Heavy V2 Integrated") {
+        set Boosterconnected to true.
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOX:style:textcolor to grey.
+        set sCH4:style:textcolor to grey.
+        set sThrust:style:textcolor to grey.
+        set BoosterEngines to SHIP:PARTSNAMED("BOOSTER.CLUSTER").
+        set GridFins to SHIP:PARTSNAMED("SEP.GridFin").
+        set HSR to SHIP:PARTSNAMED("SEP.HSR.2").
+        set BoosterCore to SHIP:PARTSNAMED("SEP.24.Booster").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             //print(round(BoosterCore[0]:drymass)).
@@ -2946,7 +3037,7 @@ set quickengine1:onclick to {
     for eng in SLEngines {eng:shutdown.}.
     for eng in VACEngines {eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1Exp") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block1PEZ") and not (ShipType = "Block2PEZSEPOv") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1Exp") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block1PEZ") and not (ShipType = "Block2PEZSEPOv") and not (ShipType = "Block2CargoSEPOv") {
         Nose:shutdown.
     } else if (ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ") {
         HeaderTank:shutdown.
@@ -6096,7 +6187,7 @@ if addons:tr:available and not startup {
             }
             Watchdog:activate().
         }
-        if ShipType = "Block2PEZSEPOv" {
+        if ShipType = "Block2PEZSEPOv" and not (ShipType = "Block2CargoSEPOv") {
             set cargo1text:text to "Closed".
             cargobutton:show().
             set Watchdog to SHIP:partsnamed("NOSE.PEZ.Block-2").
@@ -6760,7 +6851,7 @@ function Launch {
             if BoosterEngines[0]:thrust/(StackMass * Planet1G) < 1.3 set lowTWR to true.
             wait 0.01.
             set SteeringManager:rollts to 5.
-            if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or (ShipType = "Block2PEZSEPOv"){
+            if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or (ShipType = "Block2PEZSEPOv") or (ShipType = "Block2CargoSEPOv") {
                 InhibitButtons(1, 1, 1).
             }
             if OnOrbitalMount {
@@ -10027,12 +10118,11 @@ function ReEntryAndLand {
         //if Tank:getmodule("ModuleSepPartSwitchAction"):getfield("current docking system") = "QD" {
         //    Tank:getmodule("ModuleSepPartSwitchAction"):DoAction("next docking system", true).
         //}
-        if not ShipType = "Block2PEZSEPOv" {
         for res in HeaderTank:resources {
             if not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                 set res:enabled to true.
             } 
-        }}
+        }
         ShowButtons(0).
         InhibitButtons(1, 1, 0).
         if not ShipType = "Block2PEZSEPOv" {
@@ -12199,7 +12289,7 @@ function updateCargoPage {
                     }
                 }
             }
-            if ShipType = "Crew" or ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" or (ShipType = "Block2PEZSEPOv"){
+            if ShipType = "Crew" or ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" or (ShipType = "Block2PEZSEPOv") or (ShipType = "Block2CargoSEPOv") {
                 for x in range(0, Nose:modules:length) {
                     if ShipType = "Crew" {
                         if Nose:getmodulebyindex(x):hasaction("toggle airlock") {
@@ -12221,7 +12311,7 @@ function updateCargoPage {
                             }
                         }
                     }
-                    if ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp"  or ShipType = "Block1PEZ" or (ShipType = "Block2PEZSEPOv"){
+                    if ShipType = "Cargo" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp"  or ShipType = "Block1PEZ" or (ShipType = "Block2PEZSEPOv") or (ShipType = "Block2CargoSEPOv") {
                         if Nose:getmodulebyindex(x):hasaction("toggle cargo door") {
                             set DockingHatchStatus to Nose:getmodulebyindex(x):getfield("status").
                         } else if Nose:getmodulebyindex(x):hasaction("toggle pez door") {
@@ -13420,7 +13510,7 @@ function DisengageYawRCS {
 function VehicleSelfCheck {
     set FuelFail to false.
     if STOCK and 1=2{
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block2PEZSEPOv") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -13669,7 +13759,7 @@ function VehicleSelfCheck {
         }
     }
     if KSRSS and 1=2{
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block2PEZSEPOv") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -13918,7 +14008,7 @@ function VehicleSelfCheck {
         }
     }
     if RSS and 1=2 {
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block2PEZSEPOv") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if Methane {
                     if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
@@ -14333,7 +14423,7 @@ function CheckFullTanks {
         set FullTanks to true.
         local amount to 0.
         local cap to 0.
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block2PEZSEPOv") {
+        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                     set res:enabled to true.
@@ -14393,7 +14483,7 @@ function CheckFullTanks {
                     set LowCargoMass to true.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ"  or (ShipType = "Block2PEZSEPOv") {
+                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
                     for res2 in Tank:resources {
                         if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass > 16000 {
                             for res3 in BoosterCore[0]:resources {
@@ -14437,7 +14527,7 @@ function CheckFullTanks {
                     set LowCargoMass to true.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ"  or (ShipType = "Block2PEZSEPOv") {
+                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
                     for res2 in Tank:resources {
                         if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass > 16000 {
                             for res3 in BoosterCore[0]:resources {

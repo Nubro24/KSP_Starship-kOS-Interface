@@ -80,12 +80,24 @@ for part in ship:parts {
         set BoosterCore to part.
         set BTset to true.
     }
+    if part:name:contains("SEP.23.BOOSTER") and not BTset {
+        set BoosterCore to part.
+        set BTset to true.
+    }
+    if part:name:contains("SEP.24.BOOSTER") and not BTset {
+        set BoosterCore to part.
+        set BTset to true.
+    }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
         set ECset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
+        set ECset to true.
+    }
+    if part:name:contains("BOOSTER.CLUSTER") and not ECset {
+        set BoosterEngines to ship:partsnamed("BOOSTER.CLUSTER").
         set ECset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
@@ -96,11 +108,23 @@ for part in ship:parts {
         set Gridfins to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN").
         set GFset to true.
     }
+    if part:name:contains("SEP.Gridfin") and not GFset {
+        set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
+        set GFset to true.
+    }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
         set HSR to part.
         set HSset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
+        set HSR to part.
+        set HSset to true.
+    }
+    if part:name:contains("SEP.HSR.1") and not HSset {
+        set HSR to part.
+        set HSset to true.
+    }
+    if part:name:contains("SEP.HSR.2") and not HSset {
         set HSR to part.
         set HSset to true.
     }
@@ -856,6 +880,7 @@ function Boostback {
         when time:seconds > flipStartTime + 6 then {
             set steeringmanager:yawtorquefactor to 0.4.
             set ship:control:neutralize to true.
+            set steeringManager:rollcontrolanglerange to 60.
             set FC to true.
             bGUI:show().
         }
@@ -1332,6 +1357,8 @@ function Boostback {
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 1.}
     }
     
+    set steeringManager:rollcontrolanglerange to 10.
+    
     if ErrorVector:mag < 1.2*BoosterGlideDistance and not GF {
         set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
         set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
@@ -1531,6 +1558,7 @@ function Boostback {
                         sendMessage(Vessel(TargetOLM), "LandingDeluge").
                         NoGo:hide().
                         set steeringManager:maxstoppingtime to 0.8.
+                        set steeringManager:rollcontrolanglerange to 24.
                     }
                     when RadarAlt < 2.4 * BoosterHeight and GfC and RSS then {
                         set steeringManager:maxstoppingtime to 1.2.
@@ -2647,7 +2675,7 @@ function setTowerHeadingVector {
                 }
             }
             if GfC {
-                lock RollVector to AngleAxis(2.9, up:vector) 
+                lock RollVector to AngleAxis(0.2, up:vector) //2.9
                     * vxcl(up:vector, 
                         (Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position 
                             + 0.38*(Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position 
