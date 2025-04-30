@@ -1,5 +1,5 @@
 wait until ship:unpacked.
-set Scriptversion to "V3.4.9 - WIP".
+set Scriptversion to "V3.4.9".
 
 //<------------Telemtry Scale-------------->
 
