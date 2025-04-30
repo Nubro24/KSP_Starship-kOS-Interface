@@ -79,7 +79,7 @@ set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
 
 
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name("SEP.23.BOOSTER") or part:name("SEP.24.BOOSTER") {
+    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name = ("SEP.23.BOOSTER") or part:name = ("SEP.24.BOOSTER") {
         set BoosterCore to part.
         set onOLM to true.
     } else if part:name:contains("SEP.23.SHIP.BODY") {
