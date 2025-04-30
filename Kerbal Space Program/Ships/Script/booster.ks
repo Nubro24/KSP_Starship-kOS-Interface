@@ -2682,9 +2682,7 @@ function setTowerHeadingVector {
             if GfC {
                 lock RollVector to AngleAxis(0.2, up:vector) //2.9
                     * vxcl(up:vector, 
-                        (Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position 
-                            + 0.38*(Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position 
-                                - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position)) 
+                        Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position
                         - BoosterCore:position).
             } else {
                 lock RollVector to vxcl(up:vector, velocity:surface).
