@@ -852,7 +852,7 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
-    } else if ship:partsnamed("SEP.23.Booster") and ship:partstitled("Super Heavy V1 Integrated") {
+    } else if ship:partsnamed("SEP.23.Booster"):length > 0  and ship:partstitled("Super Heavy V1 Integrated"):length > 0  {
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
@@ -880,35 +880,7 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
-    } else if ship:partsnamed("SEP.23.Booster") and ship:partstitled("Super Heavy V1 Integrated") {
-        set Boosterconnected to true.
-        set sAltitude:style:textcolor to grey.
-        set sSpeed:style:textcolor to grey.
-        set sLOX:style:textcolor to grey.
-        set sCH4:style:textcolor to grey.
-        set sThrust:style:textcolor to grey.
-        set BoosterEngines to SHIP:PARTSNAMED("BOOSTER.CLUSTER").
-        set GridFins to SHIP:PARTSNAMED("SEP.GridFin").
-        set HSR to SHIP:PARTSNAMED("SEP.HSR.1").
-        set BoosterCore to SHIP:PARTSNAMED("SEP.23.Booster").
-        if BoosterCore:length > 0 {
-            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
-            //print(round(BoosterCore[0]:drymass)).
-            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
-                set BoosterCorrectVariant to true.
-            }
-            else {
-                set BoosterCorrectVariant to false.
-            }
-            if ShipType = "Depot" {
-                sendMessage(processor(volume("Booster")),"Depot").
-            }
-            sendMessage(processor(volume("Booster")), "ShipDetected").
-        }
-        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
-        set missionTimeLabel:text to "".
-        print(BoosterCore[0]:mass).
-    } else if ship:partsnamed("SEP.24.Booster") and ship:partstitled("Super Heavy V2 Integrated") {
+    } else if ship:partsnamed("SEP.24.Booster"):length > 0  and ship:partstitled("Super Heavy V2 Integrated"):length > 0  {
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
@@ -936,7 +908,7 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
-    }
+    } 
     else {
         set Boosterconnected to false.
         if not runningprogram = "LAUNCH" {

@@ -1975,8 +1975,8 @@ function LandingGuidance {
 
     if closureRatio > 1 {
         set Fgs to Fgs * 0.7.
-        set Fpos to Fpos * 1.5.
-        set Ferr to Ferr * 0.9.
+        set Fpos to Fpos * 1.4.
+        set Ferr to Ferr * 1.
     } else if closureRatio < 0.65 {
         set Fgs to Fgs * 1.9.
         set Fpos to Fpos * 0.2.
@@ -2010,9 +2010,10 @@ function LandingGuidance {
             set Fgs to Fgs * 1.2.
         }
     }
-    else if angleFromTarget < 100
+    else if angleFromTarget < 100{
         set Fpos to Fpos * 1.5.
         set Fgs to Fgs * 1.3.
+    }
 
     // === Low Altitude look up ===
     if RadarAlt < 0.4 * BoosterHeight {
@@ -2037,12 +2038,12 @@ function LandingGuidance {
 
     // === Over- Under- and Side- shooting ===
     if vAng(ErrorVector, PositionError) > 90 {
-        set Ferr to Ferr * 2.5.
+        set Ferr to Ferr * 2.
         set Fpos to Fpos / 2.
     }
-    else if ErrorVector:mag > 2*BoosterHeight
+    else if ErrorVector:mag > 3*BoosterHeight
         set Ferr to Ferr * 2.
-    if ErrorVector:mag > 0.7*PositionError:mag {
+    if ErrorVector:mag > 0.5*PositionError:mag {
         set Ferr to Ferr * 1.8.
         set Fpos to Fpos / 1.8.
     }
