@@ -1459,6 +1459,7 @@ function Boostback {
         lock steering to LandingVector.
         unlock SteeringVector.
         unlock adev.
+        set steeringManager:maxstoppingtime to 0.6.
     }
 
     PollUpdate().
@@ -2081,17 +2082,18 @@ function LandingGuidance {
     // === TVC compensation ===
     set steeringOffset to vAng(offsetVec,facing:forevector).
 
-    set steerDamp to min((max((steeringOffset - 1) / 10, 0))^1.2, 1).
+    set steerDamp to min((max((steeringOffset - 1) / 12, 0))^1.2, 1).
     if RadarAlt < BoosterHeight 
-        set steerDamp to min((max((steeringOffset - 1) / 5, 0))^1.2, 1).
+        set steerDamp to min((max((steeringOffset - 1) / 6, 0))^1.2, 1).
     if not MiddleEnginesShutdown
-        set steerDamp to min((max((steeringOffset - 1) / 5, 0))^1.2, 1).
+        set steerDamp to min((max((steeringOffset - 1) / 3, 0))^1.2, 1).
 
     set Fpos to Fpos * (1 - 0.6 * steerDamp).
     set Ferr to Ferr * (1 - 0.6 * steerDamp).
     set FerrSide to FerrSide * (1 - 0.6 * steerDamp).
     set Fgs to Fgs * (1 - 0.6 * steerDamp).
     set Ftrv to Ftrv * (1 - 0.6 * steerDamp).
+    set Ffwd to steerDamp.
 
     // === Final Vector ===
     if RadarAlt < 2*BoosterHeight {
@@ -2100,14 +2102,16 @@ function LandingGuidance {
             - Ferr * vxcl(vCrs(GSVec,up:vector),ErrorVector)
             - FerrSide * vxcl(GSVec,ErrorVector)
             - Fgs * GSVec
-            - Ftrv * TowerRotationVector.
+            - Ftrv * TowerRotationVector
+            + Ffwd * facing:forevector.
     } else {
         set FinalVec to up:vector
             - Fpos * PositionError
             - Ferr * vxcl(vCrs(GSVec,up:vector),ErrorVector)
             - FerrSide * vxcl(GSVec,ErrorVector)
             - Fgs * GSVec
-            - Ftrv * TowerRotationVector.
+            - Ftrv * TowerRotationVector
+            + Ffwd * facing:forevector.
     }
 
     // === Debug Draw ===
