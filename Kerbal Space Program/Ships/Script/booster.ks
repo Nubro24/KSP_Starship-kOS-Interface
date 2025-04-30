@@ -80,11 +80,11 @@ for part in ship:parts {
         set BoosterCore to part.
         set BTset to true.
     }
-    if part:name:contains("SEP.23.BOOSTER") and not BTset {
+    if part:name = ("SEP.23.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
     }
-    if part:name:contains("SEP.24.BOOSTER") and not BTset {
+    if part:name = ("SEP.24.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
     }
@@ -96,7 +96,7 @@ for part in ship:parts {
         set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
         set ECset to true.
     }
-    if part:name:contains("BOOSTER.CLUSTER") and not ECset {
+    if part:name = ("BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("BOOSTER.CLUSTER").
         set ECset to true.
     }
@@ -108,7 +108,7 @@ for part in ship:parts {
         set Gridfins to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN").
         set GFset to true.
     }
-    if part:name:contains("SEP.Gridfin") and not GFset {
+    if part:name = ("SEP.Gridfin") and not GFset {
         set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
         set GFset to true.
     }
@@ -120,11 +120,11 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
-    if part:name:contains("SEP.HSR.1") and not HSset {
+    if part:name = ("SEP.HSR.1") and not HSset {
         set HSR to part.
         set HSset to true.
     }
-    if part:name:contains("SEP.HSR.2") and not HSset {
+    if part:name = ("SEP.HSR.2") and not HSset {
         set HSR to part.
         set HSset to true.
     }
