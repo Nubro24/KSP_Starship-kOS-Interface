@@ -7150,7 +7150,7 @@ function Launch {
         ShowHomePage().
         LogToFile("Launch Complete").
         wait 3.
-        HUDTEXT("Booster: Automated Return is in progress..", 15, 2, 22, white, false).
+        if not RSS HUDTEXT("Booster: Automated Return is in progress..", 15, 2, 22, white, false).
         LogToFile("Launch Program Ended").
         print "Launch Program Ended".
         SetLoadDistances(ship, "default").
@@ -7274,10 +7274,10 @@ Function LaunchSteering {
     else if Boosterconnected and not lowTWR {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -7311,10 +7311,10 @@ Function LaunchSteering {
     else if Boosterconnected and lowTWR {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1400)).
+                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
         }
         else if KSRSS {
@@ -10151,7 +10151,7 @@ function ReEntryAndLand {
         when altitude < 44000 and Stock or altitude < 45000 and KSRSS or altitude < 74000 and RSS then {
             set TRJCorrection to 1.5*TRJCorrection.
         }
-        when altitude < 12000 and Stock or altitude < 13000 and KSRSS or altitude < 16000 and RSS then {
+        when altitude < 12000 and Stock or altitude < 13000 and KSRSS or altitude < 17000 and RSS then {
             set TRJCorrection to 0.
         }
 
@@ -11399,7 +11399,7 @@ function LngLatError {
                     if ShipType:contains("Block1"){
                         set LngLatOffset to -111.
                     } else {
-                        set LngLatOffset to -106.
+                        set LngLatOffset to -116.
                     }
                 }
             }
@@ -11411,7 +11411,7 @@ function LngLatError {
                     set LngLatOffset to -60.
                 }
                 else {
-                    set LngLatOffset to -95.
+                    set LngLatOffset to -112.
                     
                     
                 }
