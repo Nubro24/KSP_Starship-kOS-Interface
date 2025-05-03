@@ -6,6 +6,7 @@
 - Added minor realism details
   - Added Booster short Vent just before LiftOff
   - Booster should'nt oversteer during Flip anymore
+  - Ealier Hotstage --> lower Booster Apogee
 
 # V3.4.9 (2025-04-30)
 - **Overhauled Tower Operations after Booster Catch**
