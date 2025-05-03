@@ -1,4 +1,13 @@
-# V3.4.9
+# V3.5.0 (2025-05-04)
+- RSS Patch
+  - Fixed RSS Orbit Insertion
+  - Booster Catch should be more realistic
+  - Adjusted values to account for Real Size
+- Added minor realism details
+  - Added Booster short Vent just before LiftOff
+  - Booster should'nt oversteer during Flip anymore
+
+# V3.4.9 (2025-04-30)
 - **Overhauled Tower Operations after Booster Catch**
   - Oszilation has to stop (just wait for it)
   - There will be a Quicksave Load to avoid kraken
