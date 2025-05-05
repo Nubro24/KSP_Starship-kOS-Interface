@@ -1,6 +1,10 @@
 # V3.5.1 (WIP)
 - Booster Catch Position precision improved
 - Improved Ship Reentry Flap Movement
+- Changed Ship Landing Coordinates Setting
+  - former: KSC (Florida only) --> now: Launch Site (where ever the last Ship launched from)
+- Fixed Booster Quick Save Loop
+- Fixed an Error during Booster Docking
 
 # V3.5.0 (2025-05-04)
 - RSS Patch

@@ -284,7 +284,7 @@ if RSS {         // Real Solar System
     set BoosterMinPusherDistance to 0.48.
     set ShipMinPusherDistance to 1.12.
     set towerhgt to 96.
-    set LaunchSites to lexicon("KSC", "28.6084,-80.6496").
+    set LaunchSites to lexicon("Launch Site", "28.6084,-80.6496").
     set DefaultLaunchSite to "28.60839,-80.64962".
     set FuelVentCutOffValue to 3000.
     set FuelBalanceSpeed to 50.
@@ -325,12 +325,12 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set ShipMinPusherDistance to 0.7.
     set towerhgt to 60.
     if RESCALE and bodyexists("Kerbin") {
-        set LaunchSites to lexicon("KSC", "-0.0970,-74.5833", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
+        set LaunchSites to lexicon("Launch Site", "-0.0970,-74.5833", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set DefaultLaunchSite to "-0.0970,-74.5833".
         set FuelVentCutOffValue to 1250.
     }
     else {
-        set LaunchSites to lexicon("KSC", "28.497545,-80.535394").
+        set LaunchSites to lexicon("Launch Site", "28.497545,-80.535394").
         set DefaultLaunchSite to "28.497545,-80.535394".
         set FuelVentCutOffValue to 1250.
     }
@@ -371,7 +371,7 @@ else {       // Stock Kerbin
     set BoosterMinPusherDistance to 0.3.
     set ShipMinPusherDistance to 0.7.
     set towerhgt to 60.
-    set LaunchSites to lexicon("KSC", "-0.0972,-74.5562", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
+    set LaunchSites to lexicon("Launch Site", "-0.0972,-74.5562", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
     set DefaultLaunchSite to "-0.0972,-74.5562".
     set FuelVentCutOffValue to 1050.
     set FuelBalanceSpeed to 20.
@@ -568,8 +568,6 @@ set shipThrust to 0.00001.
 set angle to 75.
 set speed to 12.
 set oldBooster to false.
-
-
 
 
 
@@ -1615,11 +1613,11 @@ local TargetLZPicker is settingsstackvlayout2:addpopupmenu().
     set TargetLZPicker:style:focused_on:bg to "starship_img/starship_background_light".
     if RSS or KSRSS {
         set TargetLZPicker:maxvisible to 6.
-        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>KSC</color></b>", "<b><color=white>Off-Shore</color></b>", "<b><color=white>Off-Shore Boca Chica</color></b>").
+        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>Launch Site</color></b>", "<b><color=white>Off-Shore</color></b>", "<b><color=white>Off-Shore Boca Chica</color></b>").
     }
     else {
         set TargetLZPicker:maxvisible to 8.
-        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>KSC</color></b>", "<b><color=white>Dessert</color></b>", "<b><color=white>Woomerang</color></b>", "<b><color=white>Off-Shore</color></b>","<b><color=white>Baikerbanur</color></b>").
+        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>Launch Site</color></b>", "<b><color=white>Dessert</color></b>", "<b><color=white>Woomerang</color></b>", "<b><color=white>Off-Shore</color></b>","<b><color=white>Baikerbanur</color></b>").
     }
     set TargetLZPicker:tooltip to "Select a predefined Landing Zone here:  e.g.  KSC, Off-Shore".
 local setting3label is settingsstackvlayout1:addlabel("<b>Launch Inclination (°)</b>").
@@ -1749,28 +1747,46 @@ set setting2:ontoggle to {
 
 set TargetLZPicker:onchange to {
     parameter choice.
-    if choice = "<b><color=white>KSC</color></b>" {
+    if choice = "<b><color=white>Launch Site</color></b>" {
         if RSS {
-            set setting1:text to "28.497545,-80.535394".
-            set landingzone to latlng(28.497545,-80.535394).
+            if exists("0:/settings.json") {
+                set L to readjson("0:/settings.json").
+                if L:haskey("Launch Coordinates") {
+                    set LSCoords to L["Launch Coordinates"].
+                }
+            }
+            set setting1:text to LSCoords.
+            set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
             if homeconnection:isconnected {
-                SaveToSettings("Landing Coordinates", "28.497545,-80.535394").
+                SaveToSettings("Landing Coordinates", LSCoords).
             }
         }
         else if KSRSS {
             if RESCALE and bodyexists("Kerbin") {
-                set setting1:text to "-0.0970,-74.5833".
-                set landingzone to latlng(-0.0970,-74.5833).
+                if exists("0:/settings.json") {
+                    set L to readjson("0:/settings.json").
+                    if L:haskey("Launch Coordinates") {
+                        set LSCoords to L["Launch Coordinates"].
+                    }
+                }
+                set setting1:text to LSCoords.
+                set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
                 if homeconnection:isconnected {
-                    SaveToSettings("Landing Coordinates", "-0.0970,-74.5833").
+                    SaveToSettings("Landing Coordinates", LSCoords).
                 }
             }
             else {
-                set setting1:text to "28.50895,-81.20396".
-                set landingzone to latlng(28.50895,-81.20396).
-                if homeconnection:isconnected {
-                    SaveToSettings("Landing Coordinates", "28.50895,-81.20396").
+                if exists("0:/settings.json") {
+                set L to readjson("0:/settings.json").
+                if L:haskey("Launch Coordinates") {
+                    set LSCoords to L["Launch Coordinates"].
                 }
+            }
+            set setting1:text to LSCoords.
+            set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
+            if homeconnection:isconnected {
+                SaveToSettings("Landing Coordinates", LSCoords).
+            }
             }
         }
         else {
@@ -12634,7 +12650,7 @@ function LandAtOLM {
         if shiplist:length > 0 {
             for x in shiplist {
                 if x:name:contains("OrbitalLaunchMount") {
-                    if vxcl(up:vector, x:position - landingzone:position):mag < 500 {
+                    if vxcl(up:vector, x:position - landingzone:position):mag < 800 {
                         set TargetOLM to x:name.
                         LogToFile(("TargetOLM set to " + TargetOLM)).
                         SetRadarAltitude().

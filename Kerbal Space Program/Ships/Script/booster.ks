@@ -2208,6 +2208,7 @@ function AfterLandingTowerOperations {
     Stabalize().
     setTowerHeadingVector().
     setTargetOLM().
+    print TowerExists.
     wait 0.2.
 
     sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + (2 * maxpusherengage) + ",false").
@@ -2240,7 +2241,7 @@ function AfterLandingTowerOperations {
         set CenterTime to time:seconds.
     }
 
-    if PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and RadarAlt < 24 and time:seconds < ALTOTime + 6 {
+    if PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and RadarAlt < 30 * Scale and time:seconds < ALTOTime + 6 {
         if RollAngle > 4 or PosDiff > 0.14 * Scale {
             sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + 0.2*maxstabengage).
             sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",true").
@@ -2259,7 +2260,7 @@ function AfterLandingTowerOperations {
     until PreDockPosTime + 10 < time:seconds and procceed {
         clearScreen.
         print PosDiff.
-        if CenterTime + 30 < time:seconds and PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and RadarAlt > 17 * Scale {
+        if CenterTime + 30 < time:seconds and PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and RadarAlt > 20 * Scale {
             set PreDockPosTime to time:seconds.
             set PreDockPos to true.
             SetBoosterActive().
@@ -2671,7 +2672,7 @@ function setTargetOLM {
         for x in OLMTargets {
             if x:name:contains("OrbitalLaunchMount") {
                 set TowerExists to true.
-                if vxcl(up:vector, x:position - landingzone:position):mag < 200 {
+                if vxcl(up:vector, x:position - landingzone:position):mag < 200 or vxcl(up:vector, BoosterCore:position - x:position):mag < 70 {
                     set TargetOLM to x:name.
                 }
             }
