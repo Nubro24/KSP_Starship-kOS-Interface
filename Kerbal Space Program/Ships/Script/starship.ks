@@ -84,6 +84,16 @@ if exists("0:/settings.json") {
         set missionTimer to L["Launch Time"].
     }
 }
+
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("Launch Coordinates") {
+        set LSCoords to L["Launch Coordinates"].
+    }
+    else set LSCoords to ("0,0").
+} 
+else set LSCoords to ("0,0").
+
 set RadarAlt to 0.
 
 local sTelemetry is GUI(150).
@@ -1790,10 +1800,16 @@ set TargetLZPicker:onchange to {
             }
         }
         else {
-            set setting1:text to "-0.0972,-74.5577".
-            set landingzone to latlng(-0.0972,-74.5577).
+            if exists("0:/settings.json") {
+                set L to readjson("0:/settings.json").
+                if L:haskey("Launch Coordinates") {
+                    set LSCoords to L["Launch Coordinates"].
+                }
+            }
+            set setting1:text to LSCoords.
+            set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
             if homeconnection:isconnected {
-                SaveToSettings("Landing Coordinates", "-0.0972,-74.5577").
+                SaveToSettings("Landing Coordinates", LSCoords).
             }
         }
         if KUniverse:activevessel = vessel(ship:name) {
@@ -10129,25 +10145,25 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00005, 0, 0, -25, 30 - TRJCorrection).
+                set PitchPID to PIDLOOP(0.00003, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
                 set PitchPID to PIDLOOP(0.0001, 0.00001, 0.000001, -25, 30 - TRJCorrection).
-                set YawPID to PIDLOOP(0.0025, 0, 0, -50, 50).
+                set YawPID to PIDLOOP(0.0012, 0, 0, -50, 50).
             }
         }
         else if KSRSS {
-            when airspeed < ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)) then {
-                set PitchPID to PIDLOOP(0.0025, 0, 0, -25, 30 + TRJCorrection).
+            when airspeed < ChangeOverSensitivity then {
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 30 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
             }
-            set YawPID to PIDLOOP(0.0125, 0, 0, -50, 50).
+            set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
         else {
-            when airspeed < ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)) then {
-                set PitchPID to PIDLOOP(0.0025, 0, 0, -25, 30 - TRJCorrection).
+            when airspeed < ChangeOverSensitivity then {
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
-            set YawPID to PIDLOOP(0.0125, 0, 0, -50, 50).
+            set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
 
         when altitude < 39000 and STOCK then {
@@ -10172,7 +10188,7 @@ function ReEntryAndLand {
         }
 
         lock STEERING to ReEntrySteering().
-        
+
         when altitude < body:atm:height then {
             //set quickstatus1:pressed to true.
             //LogToFile("<Atmosphere Height, Body-Flaps Activated").
@@ -10184,13 +10200,14 @@ function ReEntryAndLand {
                         set YawPID to PIDLOOP(0.0175, 0.015, 0.005, -50, 50).
                     }
                     else {
-                        set PitchPID:kp to 0.001. //0.0025
+                        set PitchPID:kp to 0.0005. //0.0025
                     }
                 }
                 else {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 12).
-                    set PitchPID:kp to 0.0005.
+                    set PitchPID:kp to 0.0004.
                 }
+
                 when airspeed < 300 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 750 and ship:body:atm:sealevelpressure < 0.5 and KSRSS or airspeed < 2000 and ship:body:atm:sealevelpressure < 0.5 and RSS or airspeed < 450 and ship:body:atm:sealevelpressure < 0.5 and STOCK then {
                     CheckLZReachable().
                     set t to time:seconds.
@@ -10199,27 +10216,27 @@ function ReEntryAndLand {
                         set aoa to LandingAoA.
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
-                            set PitchPID:kp to 0.175.
-                            set PitchPID:ki to 0.15.
-                            set PitchPID:kd to 0.125.
+                            set PitchPID:kp to 0.04.
+                            set PitchPID:ki to 0.04.
+                            set PitchPID:kd to 0.055.
                             set YawPID:kp to 0.025.
                             set YawPID:ki to 0.0125.
                             set YawPID:kd to 0.01.
                             set maxDeltaV to 450.
                         }
                         else if KSRSS {
-                            set PitchPID:kp to 0.05. //0.25
-                            set PitchPID:ki to 0.025. //0.0225
-                            set PitchPID:kd to 0.03. //0.02
-                            set YawPID:kp to 0.1.
-                            set YawPID:ki to 0.075.
-                            set YawPID:kd to 0.025.
+                            set PitchPID:kp to 0.01. //0.25
+                            set PitchPID:ki to 0.01. //0.0225
+                            set PitchPID:kd to 0.005. //0.03
+                            set YawPID:kp to 0.02. //0.1
+                            set YawPID:ki to 0.045. //0.75
+                            set YawPID:kd to 0.012. //0.25
                             set maxDeltaV to 400.
                         }
                         else {
-                            set PitchPID:kp to 0.005. //0.03
-                            set PitchPID:ki to 0.035.
-                            set PitchPID:kd to 0.028.
+                            set PitchPID:kp to 0.0012. //0.03
+                            set PitchPID:ki to 0.01. //0.035
+                            set PitchPID:kd to 0.008. //0.028
                             set YawPID:kp to 0.02. //0.1
                             set YawPID:ki to 0.045. //0.075
                             set YawPID:kd to 0.015. //0.025
@@ -10839,8 +10856,8 @@ function ReEntryData {
                 
 
                 if TargetOLM {
-                    when RadarAlt < 18 * ShipHeight then {
-                        when RadarAlt < 16 * ShipHeight then {
+                    when RadarAlt < 24 * ShipHeight then {
+                        when RadarAlt < 22 * ShipHeight then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,26,80,true")).
                             sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,2," + round(5 * Scale, 2) + ",true")).
                             sendMessage(Vessel(TargetOLM), ("RetractSQD")).
@@ -11003,7 +11020,7 @@ function ClosingSpeed {
     if currentSpeed = 0 set currentSpeed to 0.00001.
     if currentSpeed < 0 set currentSpeed to -currentSpeed.
 
-    set speed to min(max((angle/(currentSpeed/currentDec))*1.5,1),12).
+    set speed to min(max((angle/(currentSpeed/currentDec))*1.5,2),12).
 
     if currentSpeed < 10 set speed to currentSpeed.
 
@@ -11158,6 +11175,7 @@ function LandingVector {
                                 set result to up:vector - 0.024 * GSVec - 0.021*facing:topvector - 0.026*facing:starvector.
                             }
                         }
+                        if vAng(result, facing:forevector) > 3 set result to facing:forevector + result.
                     }
                 }
 
@@ -11263,15 +11281,15 @@ function LandingVector {
 
             if TargetOLM {
                 when time:seconds > ShutdownProcedureStart + 5 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(0.82 * Scale,2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(1.32 * Scale,2) + ",false")).
                     sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
                 }
                 when time:seconds > ShutdownProcedureStart + 10 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.82 * Scale, 2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(1.32 * Scale, 2) + ",false")).
                     sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
                 }
                 when time:seconds > ShutdownProcedureStart + 15 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.82 * Scale, 2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(1.32 * Scale, 2) + ",false")).
                 }
             }
 
@@ -11406,9 +11424,9 @@ function LngLatError {
                 }
                 else if KSRSS {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -38.
+                        set LngLatOffset to -36.
                     } else {
-                        set LngLatOffset to -39.
+                        set LngLatOffset to -36.
                     }
                 }
                 else {
@@ -12654,18 +12672,12 @@ function LandAtOLM {
                         set TargetOLM to x:name.
                         LogToFile(("TargetOLM set to " + TargetOLM)).
                         SetRadarAltitude().
-                        if homeconnection:isconnected {
-                            if exists("0:/settings.json") {
-                                set L to readjson("0:/settings.json").
-                                if L:haskey("TowerHeadingVector") {
-                                    set TowerHeadingVector to vxcl(up:vector, L["TowerHeadingVector"]).
-                                }
-                            }
-                        }
+                        set TowerHeadingVector to angleAxis(-6,up:vector) * vCrs(up:vector, north:vector).
                         if alt:radar > 1000 and alt:radar < 10100 {
                             if not (Vessel(TargetOLM):isdead) {
                                 when Vessel(TargetOLM):unpacked then {
                                     wait 0.01.
+                                    set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                                     sendMessage(Vessel(TargetOLM), "MechazillaHeight,0.5,2").
                                     sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,10,90,true").
                                     sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,1,12,false").
