@@ -1,5 +1,5 @@
 wait until ship:unpacked.
-set Scriptversion to "V3.5.0".
+set Scriptversion to "V3.5.1 - WIP".
 
 //<------------Telemtry Scale-------------->
 
@@ -138,8 +138,8 @@ set x to 0.
 until x > BoosterEngines[0]:modules:length or ModulesFound {
     if BoosterEngines[0]:getmodulebyindex(x):name = "ModuleGimbal" {
         set MidGimbMod to BoosterEngines[0]:getmodulebyindex(x).
-        if BoosterEngines[0]:getmodulebyindex(x+1):name = "ModuleGimbal" set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
-        else if BoosterEngines[0]:getmodulebyindex(x-1):name = "ModuleGimbal" set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x-1).
+        if x < BoosterEngines[0]:modules:length if BoosterEngines[0]:getmodulebyindex(x+1):name = "ModuleGimbal" set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
+        else if x > 0 if BoosterEngines[0]:getmodulebyindex(x-1):name = "ModuleGimbal" set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x-1).
         set ModulesFound to true.
         break.
     }
@@ -519,7 +519,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1600. 
-        else set BoosterGlideDistance to 1400.
+        else set BoosterGlideDistance to 1350.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -556,7 +556,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1600. 
-        else set BoosterGlideDistance to 1400.
+        else set BoosterGlideDistance to 1350.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -586,7 +586,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1450. 
-        else set BoosterGlideDistance to 1240.
+        else set BoosterGlideDistance to 800. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -745,6 +745,7 @@ function Boostback {
     wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
     wait 0.001.
     set ShipConnectedToBooster to false.
+    set ConnectedMessage to false.
     
     rcs off.
     set bAttitude:style:bg to "starship_img/booster".
@@ -863,7 +864,7 @@ function Boostback {
 
 
         when time:seconds > flipStartTime + 1 then { 
-            set steeringmanager:yawtorquefactor to 0.5.
+            set steeringmanager:yawtorquefactor to 0.6.
         }
         //Middle Restart
         when (time:seconds > flipStartTime + 4 and verticalspeed > 0 and not (RSS)) or (time:seconds > flipStartTime + 6 and verticalspeed > 0 and (RSS)) then {
@@ -877,16 +878,18 @@ function Boostback {
                 BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
             }
         }
+
         //show Poll HUD
         //activate yaw and neutralize on
-        when time:seconds > flipStartTime + 6 then {
-            set steeringmanager:yawtorquefactor to 0.7.
+        when time:seconds > flipStartTime + 6 or time:seconds > flipStartTime + 6 and not RSS then {
+            set steeringmanager:yawtorquefactor to 0.9.
             set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 0.6.
             set steeringManager:rollcontrolanglerange to 80.
             set FC to true.
             bGUI:show().
         }
+
         //first Booster Wobble check
         when time:seconds > flipStartTime + 9 then {
             lock throttle to 0.66.
@@ -1402,6 +1405,9 @@ function Boostback {
 
     if not RSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.72*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    when LngError > -75*Scale then {
+        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.5*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    }
 
     if not GE {
         lock SteeringVector to lookDirUp(-velocity:surface:normalized + heading(facing:yaw,0),facing:topvector).
@@ -1490,6 +1496,8 @@ function Boostback {
         HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
         HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
         set cAbort to true.
+        lock steering to retrograde.
+        when airspeed < 30 then lock steering to up.
     }
 
     if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not GfC {
@@ -1864,7 +1872,8 @@ FUNCTION SteeringCorrections {
         print "WobbleCheck: " + wobbleCheckrunning.
         //print " ".
 
-        if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*0.98, 3100),1200).
+        if HSRJet if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*0.98, 3100),1200).
+        else if not LandingBurnStarted set LandingBurnAlt to max(min(TotalstopDist*0.99, 3500),1300).
 
         if altitude < 30000 and not (RSS) or altitude < 50000 and RSS {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
@@ -1963,7 +1972,7 @@ function LandingGuidance {
     set distNorm to min(max(landDistance / (0.4*LandingBurnAlt), 0), 1). 
 
     // === Base Factors ===
-    set FposBase to max(min(-0.0005 * RadarRatio + 0.007, 0.012),0).
+    set FposBase to max(min(-0.0005 * RadarRatio + 0.006, 0.012),0).
     set FerrBase to min(max(0.002 * RadarRatio + 0.005, 0.012),0.024).
     set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0.0002),0.04).
     if RadarRatio < 1 and RadarRatio > 0.5 set FgsBase to 0.03.
@@ -1977,6 +1986,7 @@ function LandingGuidance {
     set Fpos to FposBase.
     set Ferr to FerrBase.
     set Fgs to FgsBase.
+    if PositionError:mag < BoosterHeight and RadarAlt > 2*BoosterHeight set Fgs to FgsBase * 1.5.
     set Ftrv to 0.
 
 
@@ -1985,19 +1995,19 @@ function LandingGuidance {
     set vertRatio to RadarAlt*2/-verticalSpeed.
     set closureRatio to gsRatio/vertRatio.
 
-    if closureRatio > 1 {
+    if closureRatio > 1 and RadarAlt > 1.4 * BoosterHeight {
         set Fgs to Fgs * 0.8.
         set Fpos to Fpos * 1.3.
         set Ferr to Ferr * 1.
-    } else if closureRatio < 0.65 or closureRatio < 0.7 and RSS {
+    } else if closureRatio < 0.7 or closureRatio < 0.7 and RSS {
         set Fgs to Fgs * 1.9.
         set Fpos to Fpos * 0.2.
         set Ferr to Ferr * 1.5.
-    } else if closureRatio < 0.5 or closureRatio < 0.58 and RSS {
+    } else if closureRatio < 0.6 or closureRatio < 0.6 and RSS {
         set Fgs to Fgs * 2.1.
         set Fpos to Fpos * 0.12.
         set Ferr to Ferr * 1.7.
-    } else if closureRatio < 0.4 or closureRatio < 0.5 and RSS {
+    } else if closureRatio < 0.5 or closureRatio < 0.5 and RSS {
         set Fgs to Fgs * 2.5.
         set Fpos to Fpos * 0.07.
         set Ferr to Ferr * 1.9.
@@ -2057,16 +2067,22 @@ function LandingGuidance {
 
     // === Over- Under- and Side- shooting ===
     if vAng(ErrorVector, PositionError) > 90 {
-        set Ferr to Ferr * 2.
+        if ErrorVector:mag > 0.5*BoosterHeight set Ferr to Ferr * 2.2.
         set Fpos to Fpos / 2.
     } else if RSS {
         set Fpos to Fpos / 1.4.
+    } else if ErrorVector:mag < 0.2*BoosterHeight {
+        set Ferr to Ferr * 0.4.
+        set Fpos to Fpos * 0.4.
     }
     else if ErrorVector:mag > 3*BoosterHeight
         set Ferr to Ferr * 2.
     if ErrorVector:mag > 0.5*PositionError:mag {
         set Ferr to Ferr * 1.8.
         set Fpos to Fpos / 1.8.
+    }
+    if PositionError:mag < 2*BoosterHeight and closureRatio < 0.85 {
+        set Fpos to Fpos * 0.7.
     }
 
     // === prevent overcorrection ===
@@ -2075,16 +2091,15 @@ function LandingGuidance {
         set Fgs to Fgs * 0.7.
         set Ferr to Ferr * 0.9.
     }
-    if GSVec:mag < 5.5 and GSVec:mag > 1 or GSVec:mag < 6.5 and RSS and GSVec:mag > 1 set Fgs to Fgs * 0.6.
+    if GSVec:mag < 6.3 and GSVec:mag > 1 or GSVec:mag < 7.8 and RSS and GSVec:mag > 1.5 set Fgs to Fgs * 0.6.
 
     // === After Landing swing reduction ===
-    if RadarAlt < 0.03 * BoosterHeight and GSVec:mag > 1 set Fgs to -Fgs*5.
+    if RadarAlt < 0.03 * BoosterHeight and GSVec:mag > 0.9 set Fgs to -Fgs*5.
     
-
     // === 13 Engines Phase ===
     if not MiddleEnginesShutdown {
         set Fpos to Fpos * 0.05.
-        if vAng(ErrorVector, PositionError) > 90 set Ferr to Ferr * 0.7.
+        if vAng(ErrorVector, PositionError) > 90 set Ferr to Ferr * 0.85.
         else set Ferr to Ferr * 0.4.
         if not RSS set Fgs to Fgs * 0.44.
         else set Fgs to Fgs * 0.66.

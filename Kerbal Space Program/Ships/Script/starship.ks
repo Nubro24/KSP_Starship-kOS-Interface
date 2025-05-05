@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
-set Scriptversion to "V3.5.0".
+set Scriptversion to "V3.5.1 - WIP".
 
 
 //<------------Telemtry Scale-------------->
@@ -702,7 +702,7 @@ function FindParts {
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
-                else if x:name:contains("SEP.24.SHIP.PEZ") {
+                else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
@@ -7266,9 +7266,9 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 14000 * Scale and Boosterconnected {
         if RSS {
-            set result to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
+            set result to lookDirUp(2*srfPrograde:vector+0.4*up:vector, LaunchRollVector).
         } else {
-            set result to lookDirUp(2*srfPrograde:vector+0.3*up:vector, LaunchRollVector).
+            set result to lookDirUp(2*srfPrograde:vector+0.2*up:vector, LaunchRollVector).
         }
     }
     else if Boosterconnected and not lowTWR {
@@ -10160,7 +10160,7 @@ function ReEntryAndLand {
         when altitude < body:atm:height then {
             //set quickstatus1:pressed to true.
             //LogToFile("<Atmosphere Height, Body-Flaps Activated").
-            when airspeed < 2150 then {
+            when airspeed < 2150 or airspeed < 7100 and RSS then {
                 set t to time:seconds.
                 if ship:body:atm:sealevelpressure < 0.5 {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
@@ -10168,12 +10168,12 @@ function ReEntryAndLand {
                         set YawPID to PIDLOOP(0.0175, 0.015, 0.005, -50, 50).
                     }
                     else {
-                        set PitchPID:kp to 0.0025.
+                        set PitchPID:kp to 0.001. //0.0025
                     }
                 }
                 else {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 12).
-                    set PitchPID:kp to 0.0025.
+                    set PitchPID:kp to 0.0005.
                 }
                 when airspeed < 300 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 750 and ship:body:atm:sealevelpressure < 0.5 and KSRSS or airspeed < 2000 and ship:body:atm:sealevelpressure < 0.5 and RSS or airspeed < 450 and ship:body:atm:sealevelpressure < 0.5 and STOCK then {
                     CheckLZReachable().
@@ -10193,20 +10193,20 @@ function ReEntryAndLand {
                         }
                         else if KSRSS {
                             set PitchPID:kp to 0.05. //0.25
-                            set PitchPID:ki to 0.045. //0.0225
-                            set PitchPID:kd to 0.04. //0.02
+                            set PitchPID:ki to 0.025. //0.0225
+                            set PitchPID:kd to 0.03. //0.02
                             set YawPID:kp to 0.1.
                             set YawPID:ki to 0.075.
                             set YawPID:kd to 0.025.
                             set maxDeltaV to 400.
                         }
                         else {
-                            set PitchPID:kp to 0.03. 
+                            set PitchPID:kp to 0.005. //0.03
                             set PitchPID:ki to 0.035.
                             set PitchPID:kd to 0.028.
-                            set YawPID:kp to 0.1.
-                            set YawPID:ki to 0.075.
-                            set YawPID:kd to 0.025.
+                            set YawPID:kp to 0.02. //0.1
+                            set YawPID:ki to 0.045. //0.075
+                            set YawPID:kd to 0.015. //0.025
                             set maxDeltaV to 400.
                         }
                     }
