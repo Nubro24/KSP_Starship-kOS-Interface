@@ -7076,7 +7076,7 @@ function Launch {
             }
 
             
-            when deltav < 75 and deltav > 0 then {
+            when deltav < 89 and deltav > 0 or throttle < 0.4 and deltav > 0then {
                 set quickengine3:pressed to false.
             }
 
@@ -10057,6 +10057,8 @@ function ReEntryAndLand {
         SetPlanetData().
         set FlipAltitude to 700.
 
+        set steeringManager:maxstoppingtime to 0.3.
+
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
         LogToFile("Re-Entry & Landing Program Started").
@@ -10145,7 +10147,7 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00003, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.000009, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
@@ -10182,6 +10184,9 @@ function ReEntryAndLand {
         
         when altitude < 44000 and Stock or altitude < 45000 and KSRSS or altitude < 74000 and RSS then {
             set TRJCorrection to 1.5*TRJCorrection.
+        }
+        when altitude < 39000 and RSS then {
+            set TRJCorrection to 0.5*TRJCorrection.
         }
         when altitude < 12000 and Stock or altitude < 13000 and KSRSS or altitude < 17000 and RSS then {
             set TRJCorrection to 0.
@@ -10702,6 +10707,7 @@ function ReEntryData {
             set config:ipu to 1000.
             unlock throttle.
             rcs off.
+            set steeringManager:maxstoppingtime to 2.
             set LandingFlipStart to time:seconds.
             set ship:control:pitch to 1.
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
@@ -10865,6 +10871,7 @@ function ReEntryData {
 
                         when RadarAlt < 2.85 * ShipHeight then {
                             setflaps(0, 85, 1, 0).
+                            set steeringManager:maxstoppingtime to 1.
                         }
 
                         when RadarAlt < 2.8 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {

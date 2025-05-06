@@ -492,10 +492,10 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 3500. 
-        else set BoosterGlideDistance to 2000. //3200
+        if oldBooster set BoosterGlideDistance to 2400. 
+        else set BoosterGlideDistance to 1800. //3200
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
-        set LngCtrlPID:setpoint to 24. //84
+        set LngCtrlPID:setpoint to 12. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -589,7 +589,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1450. 
+        if oldBooster set BoosterGlideDistance to 1100. 
         else set BoosterGlideDistance to 800. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         set LngCtrlPID:setpoint to 10. //50
@@ -1019,7 +1019,7 @@ function Boostback {
         }
         
         
-        until (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale) or verticalspeed < -50 or BoostBackComplete {
+        until (ErrorVector:mag < BoosterGlideDistance + 5400 * Scale) or verticalspeed < -60 or BoostBackComplete {
             if GfC {
                 setLandingZone().
                 setTargetOLM().
@@ -1062,7 +1062,7 @@ function Boostback {
             BoosterCore:shutdown.
         }
 
-        until (LngError + 50 > -BoosterGlideDistance and LFBooster < LFBoosterFuelCutOff * 2) or (LngError + 50 > -BoosterGlideDistance*1.1) or verticalspeed < -250 or BoostBackComplete {
+        until (LngError + 50 > -BoosterGlideDistance and LFBooster < LFBoosterFuelCutOff * 2) or (LngError + 50 > -BoosterGlideDistance*1.1) or verticalspeed < -280 or BoostBackComplete {
             if GfC {
                 setLandingZone().
                 setTargetOLM().
@@ -1422,8 +1422,11 @@ function Boostback {
 
     if not RSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.72*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    when LngError > -75*Scale then {
-        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.5*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    when LngError > -BoosterGlideDistance*0.15 then {
+        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.4*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        when LngError > 0 then {
+            lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.6*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        }
     }
 
     if not GE {
@@ -1722,16 +1725,11 @@ function Boostback {
     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
     CtrGimbMod:doaction("lock gimbal", true).
     CheckFuel().
-    if LFBooster > 1 {
         BoosterCore:activate.
-    }
 
 
     if not (LandSomewhereElse) {
         if not (TargetOLM = "false") {
-            if LFBooster > 1 {
-                BoosterCore:activate.
-            }
             if RSS {
                 HUDTEXT("Booster Landing Confirmed!", 10, 2, 20, green, false).
             }
@@ -1748,16 +1746,17 @@ function Boostback {
             print "Tower Operation in Progress..".
             sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
             
-            CheckFuel().
-            if LFBooster < 2 {
-                BoosterCore:shutdown.
-            }
-
             when time:seconds > LandingTime + 4 then {
                 lock RadarAlt to alt:radar - BoosterHeight*0.6.
+                
+                        for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 15).
+                        for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 0).
+                        Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                        Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                        for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", false).
             }
 
-            when time:seconds > LandingTime + 8 then {
+            when time:seconds > LandingTime + 6 then {
                 CheckFuel().
                 BoosterCore:shutdown.
             }
@@ -1776,6 +1775,12 @@ function Boostback {
     //if BoosterCore:getmodule("ModuleSepPartSwitchAction"):getfield("current decouple system") = "Decoupler" {
     //    BoosterCore:getmodule("ModuleSepPartSwitchAction"):DoAction("next decouple system", true).
     //}
+    until time:seconds - LandingTime > 6 and LFBooster < 5 {
+        CheckFuel().
+        clearScreen.
+        print "LF onboard: " + round(LFBooster).
+        wait 0.5.
+    }
 
     HUDTEXT("Booster may now be recovered!", 10, 2, 20, green, false).
     clearscreen.
@@ -2012,7 +2017,7 @@ function LandingGuidance {
     set vertRatio to RadarAlt*2/-verticalSpeed.
     set closureRatio to gsRatio/vertRatio.
 
-    if closureRatio > 1 and RadarAlt > BoosterHeight {
+    if closureRatio > 1 and RadarAlt > BoosterHeight and MiddleEnginesShutdown {
         set Fgs to Fgs * 0.8.
         set Fpos to Fpos * 1.3.
         set Ferr to Ferr * 1.
@@ -2136,7 +2141,7 @@ function LandingGuidance {
         if vAng(ErrorVector, PositionError) > 90 set Ferr to Ferr * 0.8.
         else set Ferr to Ferr * 0.44.
         if not RSS set Fgs to Fgs * 0.44.
-        else set Fgs to Fgs * 0.66.
+        else set Fgs to Fgs * 0.69.
         set Ftrv to Ftrv * 0.8.
     }
 
