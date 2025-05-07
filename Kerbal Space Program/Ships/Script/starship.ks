@@ -7076,7 +7076,7 @@ function Launch {
             }
 
             
-            when deltav < 89 and deltav > 0 or throttle < 0.4 and deltav > 0then {
+            when deltav < 89 and deltav > 0 or throttle < 0.44 and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
 
@@ -10057,7 +10057,7 @@ function ReEntryAndLand {
         SetPlanetData().
         set FlipAltitude to 700.
 
-        set steeringManager:maxstoppingtime to 0.3.
+        set steeringManager:maxstoppingtime to 0.9.
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
