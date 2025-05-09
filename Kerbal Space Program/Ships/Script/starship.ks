@@ -6548,7 +6548,7 @@ function Launch {
                 else {
                     set message2:text to "<b>Booster/Ship:             <color=green>Start-Up Confirmed..</color></b>".
                 }
-                if x - time:seconds < 8 {
+                if x - time:seconds < 9 {
                     for k in list(OLM) {
                         if k:hasmodule("ModuleEnginesFX") {
                             if k:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
@@ -6563,7 +6563,7 @@ function Launch {
                     }
                     
                 }
-                if x - time:seconds < 2 {
+                if x - time:seconds < 3 {
                     for p in list(SteelPlate) {
                         if p:hasmodule("ModuleEnginesFX") {
                             if P:getmodule("ModuleEnginesFX"):hasevent("activate engine") {

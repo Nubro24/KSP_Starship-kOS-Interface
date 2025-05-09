@@ -1,9 +1,11 @@
 # V3.5.1 (WIP)
-- Booster Catch Position precision improved
+- **Booster Catch Position precision improved**
 - Improved Ship Reentry Flap Movement
-- Changed Ship Landing Coordinates Setting
+- **Changed Ship Landing Coordinates Setting**
   - former: KSC (Florida only) --> now: Launch Site (where ever the last Ship launched from)
+- **Improved Booster Landing Burn Altitude Calculation to account for drag**
 - Fixed Booster Quick Save Loop
+- Fixed a Guidance Mistake during early Landing Burn
 - Fixed an Error during Booster Docking
 - Fixed Booster Flip after Hotstage
 

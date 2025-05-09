@@ -12,7 +12,7 @@ set TScale to 1.
 //_________________________________________
 
 
-set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
 
 
 
@@ -1491,12 +1491,12 @@ function Boostback {
     lock SteeringVector to lookdirup(-0.44 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
     lock steering to SteeringVector.
 
-    when velocity:surface:mag < 150 or ErrorVector:mag < 0.5 * BoosterHeight then {
+    when velocity:surface:mag < 250 or ErrorVector:mag < 0.5 * BoosterHeight then {
         set LandingVector to LandingGuidance().
         lock steering to LandingVector.
         unlock SteeringVector.
         unlock adev.
-        set steeringManager:maxstoppingtime to 0.6.
+        set steeringManager:maxstoppingtime to 0.8.
     }
 
     PollUpdate().
@@ -1546,6 +1546,7 @@ function Boostback {
     hudtext(throttle, 3, 2, 10, white, false).
 
     when RadarAlt < 1500 and not (LandSomewhereElse) then {
+        set steeringManager:maxstoppingtime to 1.2.
         if not (TargetOLM = "false") and TowerExists {
             //setTowerHeadingVector().
             PollUpdate().
@@ -1728,14 +1729,16 @@ function Boostback {
         if BoosterEngines[0]:hasphysics {BoosterEngines[0]:shutdown.}
     }
     
+    set LandingTime to time:seconds.
+    
     SetLoadDistances("default").
 
     DeactivateGridFins().
     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
     CtrGimbMod:doaction("lock gimbal", true).
     CheckFuel().
-        BoosterCore:activate.
 
+    when time:seconds > LandingTime + 3 then BoosterCore:activate.
 
     if not (LandSomewhereElse) {
         if not (TargetOLM = "false") {
@@ -1745,7 +1748,6 @@ function Boostback {
             else {
                 HUDTEXT("Booster Landing Confirmed! Stand by for Mechazilla operation..", 30, 2, 20, green, false).
             }
-            set LandingTime to time:seconds.
             set TowerReset to false.
             set RollAngleExceeded to false.
             if not (RSS) {
@@ -1902,11 +1904,11 @@ FUNCTION SteeringCorrections {
 
         if not LandingBurnStarted {
             if HSRJet {
-                if airspeed < 305 set dragFactor to 1 - 0.06 * (airspeed/305)^2.
+                if airspeed < 305 set dragFactor to 1 - 0.07 * (airspeed/305)^2.
                 else set dragFactor to 1 - 0.07 * (1 + 0.8*((airspeed/305)^2 - 1)).
             }
             else {
-                if airspeed < 305 set dragFactor to 1 - 0.05 * (airspeed/305)^2.
+                if airspeed < 305 set dragFactor to 1 - 0.06 * (airspeed/305)^2.
                 else set dragFactor to 1 - 0.06 * (1 + 0.6*((airspeed/305)^2 - 1)).
             }
             
@@ -2013,7 +2015,7 @@ function LandingGuidance {
     // === Base Factors ===
     set FposBase to max(min(-0.0005 * RadarRatio + 0.006, 0.012),0).
     set FerrBase to min(max(0.002 * RadarRatio + 0.005, 0.012),0.024).
-    set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0.0002),0.04).
+    set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0.003),0.04).
     if RadarRatio < 1 and RadarRatio > 0.5 set FgsBase to 0.03.
     if RadarRatio < 0.5 set FgsBase to min(max(-0.01 * RadarRatio + 0.035, 0),0.035).
     set Term to 2*constant:pi * distNorm - 0.2.
@@ -2084,7 +2086,8 @@ function LandingGuidance {
 
     // === Low Altitude Correction
     if RadarAlt < 1.7 * BoosterHeight {
-        if vAng(GSVec, Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position) > 50 or closureRatio > 2 {
+        if (vAng(GSVec, Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position) > 50 or closureRatio > 2) 
+                and (PositionError:mag > 0.3 * BoosterHeight or ErrorVector:mag > 4) {
             if not RSS set Ftrv to 0.003 * RadarRatio.
             else set Ftrv to 0.0033 * RadarRatio.
         }
@@ -2121,7 +2124,7 @@ function LandingGuidance {
         set Fgs to Fgs * 0.7.
         set Ferr to Ferr * 0.9.
     }
-    if (GSVec:mag < 7 and GSVec:mag > 1) or (GSVec:mag < 7.5 and RSS and GSVec:mag > 1.5) set Fgs to Fgs * 0.6.
+    if (GSVec:mag < 7 and GSVec:mag > 0.5) or (GSVec:mag < 7.5 and RSS and GSVec:mag > 1) set Fgs to Fgs * 0.6.
 
     // === After Landing swing reduction ===
     if RadarAlt < 0.03 * BoosterHeight and GSVec:mag > 0.6 set Fgs to -Fgs*5.
@@ -2133,11 +2136,14 @@ function LandingGuidance {
 
         if vAng(ErrorVector, PositionError) > 90 {
             set Ferr to Ferr * 1.4.
-            if ErrorVector:mag > 0.5*BoosterHeight set Ferr to Ferr * 2.
+            if ErrorVector:mag > 0.5*BoosterHeight {
+                set Ferr to Ferr * 2.
+                set Fgs to Fgs * 1.5.
+            }
         }
         else set Ferr to Ferr * 0.4.
-        
-        if not RSS set Fgs to Fgs * 0.6 * (0.95/closureRatio).
+
+        if not RSS set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1/(closureRatio^4)).
         else set Fgs to Fgs * 0.69.
 
         set Ftrv to Ftrv * 0.8.
@@ -2177,7 +2183,7 @@ function LandingGuidance {
 
     set Fpos to Fpos * (1 - 0.6 * steerDamp).
     set Ferr to Ferr * (1 - 0.5 * steerDamp).
-    set FerrSide to FerrSide * (1 - 0.6 * steerDamp).
+    set FerrSide to FerrSide * (1 - 0.5 * steerDamp).
     set Fgs to Fgs * (1 - 0.5 * steerDamp).
     set Ftrv to Ftrv * (1 - 0.6 * steerDamp).
     set Ffwd to steerDamp.
@@ -2636,14 +2642,14 @@ function CheckFuel {
         if res:name = "LiquidFuel" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
-            if LFBooster < LFBoosterFuelCutOff {
+            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded {
                 BoosterCore:shutdown.
             }
         }
         if res:name = "LqdMethane" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
-            if LFBooster < LFBoosterFuelCutOff {
+            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded {
                 BoosterCore:shutdown.
             }
         }
