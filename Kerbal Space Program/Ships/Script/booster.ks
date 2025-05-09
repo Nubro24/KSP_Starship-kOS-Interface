@@ -522,8 +522,8 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1600. 
-        else set BoosterGlideDistance to 1350.
+        if oldBooster set BoosterGlideDistance to 1500. 
+        else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -559,8 +559,8 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1600. 
-        else set BoosterGlideDistance to 1350.
+        if oldBooster set BoosterGlideDistance to 1500. 
+        else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -1838,7 +1838,7 @@ FUNCTION SteeringCorrections {
         set LngError to vdot(ApproachVector, ErrorVector).
 
 
-        if altitude < 30000 * Scale and GfC or KUniverse:activevessel = vessel(ship:name) and GfC and not cAbort {
+        if altitude < 30000 * Scale and GfC or KUniverse:activevessel = vessel(ship:name) {
             set GS to groundspeed.
 
             if InitialError = -9999 and addons:tr:hasimpact {
@@ -2015,7 +2015,7 @@ function LandingGuidance {
     // === Base Factors ===
     set FposBase to max(min(-0.0005 * RadarRatio + 0.006, 0.012),0).
     set FerrBase to min(max(0.002 * RadarRatio + 0.005, 0.012),0.024).
-    set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0.003),0.04).
+    set FgsBase to min(max(-0.01 * RadarRatio + 0.04, 0.0024),0.04).
     if RadarRatio < 1 and RadarRatio > 0.5 set FgsBase to 0.03.
     if RadarRatio < 0.5 set FgsBase to min(max(-0.01 * RadarRatio + 0.035, 0),0.035).
     set Term to 2*constant:pi * distNorm - 0.2.
@@ -2085,7 +2085,7 @@ function LandingGuidance {
     }
 
     // === Low Altitude Correction
-    if RadarAlt < 1.7 * BoosterHeight {
+    if RadarAlt < 1.7 * BoosterHeight and GfC {
         if (vAng(GSVec, Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position) > 50 or closureRatio > 2) 
                 and (PositionError:mag > 0.3 * BoosterHeight or ErrorVector:mag > 4) {
             if not RSS set Ftrv to 0.003 * RadarRatio.
