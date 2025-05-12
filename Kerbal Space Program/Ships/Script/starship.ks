@@ -10513,10 +10513,10 @@ function ReEntryData {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
                 }
                 else if not (RSS) or altitude > 10000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 25).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 20).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 24).
                 }
             }
         }
