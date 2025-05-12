@@ -10147,7 +10147,7 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.000009, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.00002, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
@@ -10222,8 +10222,8 @@ function ReEntryAndLand {
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
                             set PitchPID:kp to 0.04.
-                            set PitchPID:ki to 0.04.
-                            set PitchPID:kd to 0.055.
+                            set PitchPID:ki to 0.03.
+                            set PitchPID:kd to 0.025.
                             set YawPID:kp to 0.025.
                             set YawPID:ki to 0.0125.
                             set YawPID:kd to 0.01.
