@@ -424,20 +424,22 @@ function CreateTelemetry {
     set bAltitude:style:wordwrap to false.
     set bAltitude:style:margin:left to 10*TScale.
     set bAltitude:style:margin:top to 2*TScale.
-    set bAltitude:style:width to 96*TScale.
+    set bAltitude:style:width to 296*TScale.
     set bAltitude:style:fontsize to 30*TScale.
 
     set bLOXLabel:style:wordwrap to false.
     set bLOXLabel:style:margin:left to 15*TScale.
-    set bLOXLabel:style:margin:top to 25*TScale.
-    set bLOXLabel:style:width to 200*TScale.
+    set bLOXLabel:style:margin:top to 10*TScale.
+    set bLOXLabel:style:width to 60*TScale.
     set bLOXLabel:style:fontsize to 20*TScale.
 
     set bLOXSlider:min to 0.
     set bLOXSlider:max to 100.
     set bLOXSlider:value to 0.
-    set bLOXSlider:style:margin:left to 5*TScale.
-    set bLOXSlider:style:width to 195*TScale.
+    set bLOXSlider:style:margin:left to 10*TScale.
+    set bLOXSlider:style:margin:top to 20*TScale.
+    set bLOXSlider:style:width to 240*TScale.
+    set bLOXSlider:style:height to 8*TScale.
 
     set bCH4:style:wordwrap to false.
     set bCH4:style:margin:left to 15*TScale.
@@ -3001,7 +3003,7 @@ function GUIupdate {
     }
     set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
 
-    set bLOXLabel:text to "<b>LOX</b> " + round(boosterLOX,1) + " %".
+    set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
     set bLOXSlider:value to round(boosterLOX,1).
     if methane {
         set bCH4:text to "<b>CH4</b>       " + round(boosterCH4,1) + " %". 

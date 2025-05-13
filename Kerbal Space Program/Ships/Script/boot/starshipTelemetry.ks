@@ -684,6 +684,7 @@ function SetRadarAltitude {
 
 function BoosterExists {
     list targets in shiplist.
+    set distanceLoad to ship:loaddistance:suborbital:unload.
     if shiplist:length > 0 {
         for x in shiplist {
             if x:status = "SUB_ORBITAL" or x:status = "FLYING" {
