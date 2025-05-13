@@ -8,6 +8,7 @@
 - Fixed a Guidance Mistake during early Landing Burn
 - Fixed an Error during Booster Docking
 - Fixed Booster Flip after Hotstage
+- Fixed an Error with the Nosecone watchdog program
 - Known Issues: RSS Ship Reentry still overshoots, KSRSS Ship might loose control during transition to sub-sonic
 
 # V3.5.0 (2025-05-04)

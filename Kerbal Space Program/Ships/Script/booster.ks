@@ -3001,7 +3001,8 @@ function GUIupdate {
     }
     set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
 
-    set bLOX:text to "<b>LOX</b>       " + round(boosterLOX,1) + " %".
+    set bLOXLabel:text to "<b>LOX</b> " + round(boosterLOX,1) + " %".
+    set bLOXSlider:value to round(boosterLOX,1).
     if methane {
         set bCH4:text to "<b>CH4</b>       " + round(boosterCH4,1) + " %". 
     } else {
