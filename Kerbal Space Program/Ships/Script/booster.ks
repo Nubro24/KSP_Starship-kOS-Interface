@@ -252,7 +252,9 @@ local bEngines is boosterCluster:addlabel().
     set bEngines:style:bg to "starship_img/booster0".
 local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
 local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
-local bLOX is boosterStatus:addlabel("<b>LOX  </b>").
+local bLOX is boosterStatus:addhlayout().
+local bLOXLabel is bLOX:addlabel("<b>LOX  </b>").
+local bLOXSlider is bLOX:addhslider().
 local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
 local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
 local bAttitude is boosterAttitude:addlabel().
@@ -422,14 +424,20 @@ function CreateTelemetry {
     set bAltitude:style:wordwrap to false.
     set bAltitude:style:margin:left to 10*TScale.
     set bAltitude:style:margin:top to 2*TScale.
-    set bAltitude:style:width to 296*TScale.
+    set bAltitude:style:width to 96*TScale.
     set bAltitude:style:fontsize to 30*TScale.
 
-    set bLOX:style:wordwrap to false.
-    set bLOX:style:margin:left to 15*TScale.
-    set bLOX:style:margin:top to 25*TScale.
-    set bLOX:style:width to 200*TScale.
-    set bLOX:style:fontsize to 20*TScale.
+    set bLOXLabel:style:wordwrap to false.
+    set bLOXLabel:style:margin:left to 15*TScale.
+    set bLOXLabel:style:margin:top to 25*TScale.
+    set bLOXLabel:style:width to 200*TScale.
+    set bLOXLabel:style:fontsize to 20*TScale.
+
+    set bLOXSlider:min to 0.
+    set bLOXSlider:max to 100.
+    set bLOXSlider:value to 0.
+    set bLOXSlider:style:margin:left to 5*TScale.
+    set bLOXSlider:style:width to 195*TScale.
 
     set bCH4:style:wordwrap to false.
     set bCH4:style:margin:left to 15*TScale.
@@ -786,7 +794,6 @@ function Boostback {
 
     set ApproachUPVector to (landingzone:position - body:position):normalized.
     set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
-    //set ApproachVectorDraw to vecdraw(v(0,0,0), 5 * ApproachVector, green, "ApproachVector", 20, true, 0.005, true, true).
 
     if verticalspeed > 0 {
         set rebooted to false.
@@ -794,12 +801,15 @@ function Boostback {
             set Block1HSR to true.
         }
         set SeparationTime to time:seconds.
+
+        set LaunchPitch to vAng(up:vector, facing:forevector).
+        set PitchStrength to ((LaunchPitch)/45)^2.
         if vang(facing:topvector, north:vector) < 90 {
-            set ship:control:pitch to -2.
+            set ship:control:pitch to -2 * PitchStrength.
             set ship:control:yaw to -1.
         }
         else {
-            set ship:control:pitch to 2.
+            set ship:control:pitch to 2 * PitchStrength.
             set ship:control:yaw to -1.
         }
         unlock steering.
@@ -959,7 +969,7 @@ function Boostback {
                 set Block1HSR to true.
             }
             //set ErrorVectorDraw to vecdraw(v(0,0,0), -40 * ErrorVector:normalized, blue, "ErrorVector", 20, true, 0.005, true, true).
-            if (RadarAlt < 30000 and RSS) or (RadarAlt < 69000 and not (RSS)) {
+            if (RadarAlt < 95000 and RSS) or (RadarAlt < 69000 and not (RSS)) {
                 if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             }
             if ErrorVector = v(0,0,0) and not FailureMessage and time:seconds > flipStartTime + 1 {
@@ -2886,7 +2896,7 @@ function PollUpdate {
         lock throttle to 0.
     }
 
-    if (ErrorVector:mag < BoosterGlideDistance + 3200 * Scale) and not BoostBackComplete and not GFnoGO and FC {
+    if (ErrorVector:mag < BoosterGlideDistance + 3600 * Scale) and not BoostBackComplete and not GFnoGO and FC {
         if LFBooster > LFBoosterFuelCutOff * 1.1 {
             if PollTimer > 30 and LFBooster > LFBoosterFuelCutOff * 3.05 set GF to true.
             else if PollTimer > 15 and LFBooster > LFBoosterFuelCutOff * 1.55 set GF to true.
@@ -2960,6 +2970,7 @@ function GUIupdate {
             set methane to false.
         }
     }
+
     set Mode to "NaN".
     if throttle > 0 and BoosterEngines[0]:thrust > 0 {
         if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
