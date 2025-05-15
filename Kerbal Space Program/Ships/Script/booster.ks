@@ -12,7 +12,7 @@ set TScale to 1.
 //_________________________________________
 
 
-set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 
 
 
@@ -251,11 +251,30 @@ local shipSpace is bAttitudeTelemetry:addvlayout().
 local bEngines is boosterCluster:addlabel().
     set bEngines:style:bg to "starship_img/booster0".
 local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
+    set bSpeed:style:wordwrap to false.
 local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
+    set bAltitude:style:wordwrap to false.
+
 local bLOX is boosterStatus:addhlayout().
 local bLOXLabel is bLOX:addlabel("<b>LOX  </b>").
-local bLOXSlider is bLOX:addhslider().
-local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
+    set bLOXLabel:style:wordwrap to false.
+local bLOXBorder is bLOX:addlabel("").
+    set bLOXBorder:style:align to "CENTER".
+    set bLOXBorder:style:bg to "starship_img/telemetry_bg".
+local bLOXSlider is bLOX:addlabel().
+    set bLOXSlider:style:align to "CENTER".
+    set bLOXSlider:style:bg to "starship_img/telemetry_fuel".
+
+local bCH4 is boosterStatus:addhlayout().
+local bCH4Label is bCH4:addlabel("<b>CH4  </b>").
+    set bCH4Label:style:wordwrap to false.
+local bCH4Border is bCH4:addlabel("").
+    set bCH4Border:style:align to "CENTER".
+    set bCH4Border:style:bg to "starship_img/telemetry_bg".
+local bCH4Slider is bCH4:addlabel().
+    set bCH4Slider:style:align to "CENTER".
+    set bCH4Slider:style:bg to "starship_img/telemetry_fuel".
+
 local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
 local bAttitude is boosterAttitude:addlabel().
     set bAttitude:style:bg to "starship_img/booster".
@@ -415,37 +434,65 @@ function CreateTelemetry {
     set bEngines:style:margin:right to 26*TScale.
     set bEngines:style:margin:bottom to 20*TScale.
 
-    set bSpeed:style:wordwrap to false.
     set bSpeed:style:margin:left to 10*TScale.
     set bSpeed:style:margin:top to 20*TScale.
     set bSpeed:style:width to 296*TScale.
     set bSpeed:style:fontsize to 30*TScale.
 
-    set bAltitude:style:wordwrap to false.
     set bAltitude:style:margin:left to 10*TScale.
     set bAltitude:style:margin:top to 2*TScale.
     set bAltitude:style:width to 296*TScale.
     set bAltitude:style:fontsize to 30*TScale.
 
-    set bLOXLabel:style:wordwrap to false.
     set bLOXLabel:style:margin:left to 15*TScale.
     set bLOXLabel:style:margin:top to 10*TScale.
     set bLOXLabel:style:width to 60*TScale.
     set bLOXLabel:style:fontsize to 20*TScale.
 
-    set bLOXSlider:min to 0.
-    set bLOXSlider:max to 100.
-    set bLOXSlider:value to 0.
-    set bLOXSlider:style:margin:left to 10*TScale.
-    set bLOXSlider:style:margin:top to 20*TScale.
-    set bLOXSlider:style:width to 240*TScale.
-    set bLOXSlider:style:height to 8*TScale.
+    set bLOXBorder:style:margin:left to 0*TScale.
+    set bLOXBorder:style:margin:top to 19*TScale.
+    set bLOXBorder:style:width to 240*TScale.
+    set bLOXBorder:style:height to 8*TScale.
+    set bLOXBorder:style:border:h to 8*TScale.
+    set bLOXBorder:style:border:v to 0*TScale.
+    set bLOXBorder:style:overflow:left to 0*TScale.
+    set bLOXBorder:style:overflow:right to 0*TScale.
+    set bLOXBorder:style:overflow:bottom to 1*TScale.
 
-    set bCH4:style:wordwrap to false.
-    set bCH4:style:margin:left to 15*TScale.
-    set bCH4:style:margin:top to 4*TScale.
-    set bCH4:style:width to 200*TScale.
-    set bCH4:style:fontsize to 20*TScale.
+    set bLOXSlider:style:margin:left to 0*TScale.
+    set bLOXSlider:style:margin:top to 19*TScale.
+    set bLOXSlider:style:width to 1*TScale.
+    set bLOXSlider:style:height to 8*TScale.
+    set bLOXSlider:style:border:h to 4*TScale.
+    set bLOXSlider:style:border:v to 0*TScale.
+    set bLOXSlider:style:overflow:left to 250*TScale.
+    set bLOXSlider:style:overflow:right to 0*TScale.
+    set bLOXSlider:style:overflow:bottom to 1*TScale.
+
+    set bCH4Label:style:margin:left to 15*TScale.
+    set bCH4Label:style:margin:top to 4*TScale.
+    set bCH4Label:style:width to 60*TScale.
+    set bCH4Label:style:fontsize to 20*TScale.
+
+    set bCH4Border:style:margin:left to 0*TScale.
+    set bCH4Border:style:margin:top to 12*TScale.
+    set bCH4Border:style:width to 240*TScale.
+    set bCH4Border:style:height to 8*TScale.
+    set bCH4Border:style:border:h to 8*TScale.
+    set bCH4Border:style:border:v to 0*TScale.
+    set bCH4Border:style:overflow:left to 0*TScale.
+    set bCH4Border:style:overflow:right to 0*TScale.
+    set bCH4Border:style:overflow:bottom to 1*TScale.
+
+    set bCH4Slider:style:margin:left to 0*TScale.
+    set bCH4Slider:style:margin:top to 12*TScale.
+    set bCH4Slider:style:width to 1*TScale.
+    set bCH4Slider:style:height to 8*TScale.
+    set bCH4Slider:style:border:h to 4*TScale.
+    set bCH4Slider:style:border:v to 0*TScale.
+    set bCH4Slider:style:overflow:left to 250*TScale.
+    set bCH4Slider:style:overflow:right to 0*TScale.
+    set bCH4Slider:style:overflow:bottom to 1*TScale.
 
      set bThrust:style:wordwrap to false.
      set bThrust:style:margin:left to 10*TScale.
@@ -2140,7 +2187,7 @@ function LandingGuidance {
         set Fgs to Fgs * 0.7.
         set Ferr to Ferr * 0.9.
     }
-    if (GSVec:mag < 7 and GSVec:mag > 0.5) or (GSVec:mag < 7.5 and RSS and GSVec:mag > 1) set Fgs to Fgs * 0.6.
+    if (GSVec:mag < 7 and GSVec:mag > 0.1) or (GSVec:mag < 7.5 and RSS and GSVec:mag > 0.2) set Fgs to Fgs * 0.7.
 
     // === After Landing swing reduction ===
     if RadarAlt < 0.03 * BoosterHeight and GSVec:mag > 0.6 set Fgs to -Fgs*5.
@@ -3004,11 +3051,14 @@ function GUIupdate {
     set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
 
     set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
-    set bLOXSlider:value to round(boosterLOX,1).
+    set bLOXSlider:style:overflow:right to -250 + 2.5*round(boosterLOX,1).
+
     if methane {
-        set bCH4:text to "<b>CH4</b>       " + round(boosterCH4,1) + " %". 
+        set bCH4Label:text to "<b>CH4</b>   ".// + round(boosterCH4,1) + " %".
+        set bCH4Slider:style:overflow:right to -250 + 2.5*round(boosterCH4,1).
     } else {
-        set bCH4:text to "<b>Fuel</b>      " + round(boosterCH4,1) + " %". 
+        set bCH4Label:text to "<b>Fuel</b>   ".// + round(boosterCH4,1) + " %".
+        set bCH4Slider:style:overflow:right to -250 + 2.5*round(boosterCH4,1).
     }
     
     set missionTimerNow to time:seconds-missionTimer.

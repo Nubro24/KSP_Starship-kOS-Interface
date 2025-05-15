@@ -1,6 +1,7 @@
 # V3.5.1 (WIP)
 - **Booster Catch Position precision improved**
-- Improved Ship Reentry Flap Movement
+- Improved Ship Reentry Flap Movement?
+- **Changed Fuel Indicators from numeral to graphical**
 - **Changed Ship Landing Coordinates Setting**
   - former: KSC (Florida only) --> now: Launch Site (where ever the last Ship launched from)
 - **Improved Booster Landing Burn Altitude Calculation to account for drag**

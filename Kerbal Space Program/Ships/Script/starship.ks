@@ -126,10 +126,27 @@ local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
 local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
     set sAltitude:style:wordwrap to false.
-local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
-    set sLOX:style:wordwrap to false.
-local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
-    set sCH4:style:wordwrap to false.
+
+local sLOX is ShipStatus:addhlayout().
+local sLOXLabel is sLOX:addlabel("<b>LOX  </b>").
+    set sLOXLabel:style:wordwrap to false.
+local sLOXBorder is sLOX:addlabel("").
+    set sLOXBorder:style:align to "CENTER".
+    set sLOXBorder:style:bg to "starship_img/telemetry_bg".
+local sLOXSlider is sLOX:addlabel().
+    set sLOXSlider:style:align to "CENTER".
+    set sLOXSlider:style:bg to "starship_img/telemetry_fuel".
+
+local sCH4 is ShipStatus:addhlayout().
+local sCH4Label is sCH4:addlabel("<b>CH4  </b>").
+    set sCH4Label:style:wordwrap to false.
+local sCH4Border is sCH4:addlabel("").
+    set sCH4Border:style:align to "CENTER".
+    set sCH4Border:style:bg to "starship_img/telemetry_bg".
+local sCH4Slider is sCH4:addlabel().
+    set sCH4Slider:style:align to "CENTER".
+    set sCH4Slider:style:bg to "starship_img/telemetry_fuel".
+
 local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
     set sThrust:style:wordwrap to false.
 local sEngines is ShipRaptors:addlabel().
@@ -175,15 +192,55 @@ function CreateTelemetry {
     set sAltitude:style:width to 296*TScale.
     set sAltitude:style:fontsize to 30*TScale.
 
-    set sLOX:style:margin:left to 50*TScale.
-    set sLOX:style:margin:top to 25*TScale.
-    set sLOX:style:width to 200*TScale.
-    set sLOX:style:fontsize to 20*TScale.
+    set sLOXLabel:style:margin:left to 50*TScale.
+    set sLOXLabel:style:margin:top to 10*TScale.
+    set sLOXLabel:style:width to 60*TScale.
+    set sLOXLabel:style:fontsize to 20*TScale.
 
-    set sCH4:style:margin:left to 50*TScale.
-    set sCH4:style:margin:top to 4*TScale.
-    set sCH4:style:width to 200*TScale.
-    set sCH4:style:fontsize to 20*TScale.
+    set sLOXBorder:style:margin:left to 0*TScale.
+    set sLOXBorder:style:margin:top to 19*TScale.
+    set sLOXBorder:style:width to 240*TScale.
+    set sLOXBorder:style:height to 8*TScale.
+    set sLOXBorder:style:border:h to 8*TScale.
+    set sLOXBorder:style:border:v to 0*TScale.
+    set sLOXBorder:style:overflow:left to 0*TScale.
+    set sLOXBorder:style:overflow:right to 0*TScale.
+    set sLOXBorder:style:overflow:bottom to 1*TScale.
+
+    set sLOXSlider:style:margin:left to 0*TScale.
+    set sLOXSlider:style:margin:top to 19*TScale.
+    set sLOXSlider:style:width to 1*TScale.
+    set sLOXSlider:style:height to 8*TScale.
+    set sLOXSlider:style:border:h to 4*TScale.
+    set sLOXSlider:style:border:v to 0*TScale.
+    set sLOXSlider:style:overflow:left to 250*TScale.
+    set sLOXSlider:style:overflow:right to 0*TScale.
+    set sLOXSlider:style:overflow:bottom to 1*TScale.
+
+    set sCH4Label:style:margin:left to 50*TScale.
+    set sCH4Label:style:margin:top to 4*TScale.
+    set sCH4Label:style:width to 60*TScale.
+    set sCH4Label:style:fontsize to 20*TScale.
+
+    set sCH4Border:style:margin:left to 0*TScale.
+    set sCH4Border:style:margin:top to 12*TScale.
+    set sCH4Border:style:width to 240*TScale.
+    set sCH4Border:style:height to 8*TScale.
+    set sCH4Border:style:border:h to 8*TScale.
+    set sCH4Border:style:border:v to 0*TScale.
+    set sCH4Border:style:overflow:left to 0*TScale.
+    set sCH4Border:style:overflow:right to 0*TScale.
+    set sCH4Border:style:overflow:bottom to 1*TScale.
+
+    set sCH4Slider:style:margin:left to 0*TScale.
+    set sCH4Slider:style:margin:top to 12*TScale.
+    set sCH4Slider:style:width to 1*TScale.
+    set sCH4Slider:style:height to 8*TScale.
+    set sCH4Slider:style:border:h to 4*TScale.
+    set sCH4Slider:style:border:v to 0*TScale.
+    set sCH4Slider:style:overflow:left to 250*TScale.
+    set sCH4Slider:style:overflow:right to 0*TScale.
+    set sCH4Slider:style:overflow:bottom to 1*TScale.
 
     set sThrust:style:margin:left to 45*TScale.
     set sThrust:style:margin:top to 15*TScale.
@@ -786,8 +843,10 @@ function FindParts {
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
-        set sLOX:style:textcolor to grey.
-        set sCH4:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
         for x in BoosterEngines[0]:children {
@@ -822,8 +881,10 @@ function FindParts {
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
-        set sLOX:style:textcolor to grey.
-        set sCH4:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER").
         for x in BoosterEngines[0]:children {
@@ -7053,8 +7114,10 @@ function Launch {
         when StageSepComplete then {
             set sAltitude:style:textcolor to white.
             set sSpeed:style:textcolor to white.
-            set sLOX:style:textcolor to white.
-            set sCH4:style:textcolor to white.
+            set sLOXLabel:style:textcolor to white.
+            set sLOXSlider:style:bg to "starship_img/telemetry_fuel".
+            set sCH4Label:style:textcolor to white.
+            set sCH4Slider:style:bg to "starship_img/telemetry_fuel".
             set sThrust:style:textcolor to white.
             when time:seconds > HotStageTime + 0.5 then {
                 set quickengine2:pressed to true.
@@ -11051,7 +11114,7 @@ function LandingThrottle {
         return minDecel.
     }
     set maxDecel to max(ship:availablethrust, 0.000001) / ship:mass - Planet1G.
-    set DesiredDecel to 0.4 * maxDecel.
+    set DesiredDecel to 0.6 * maxDecel.
     set stopTime to airspeed / DesiredDecel.
     set stopDist to 0.5 * airspeed * stopTime.
     if not (TargetOLM = "False") {
@@ -14763,12 +14826,17 @@ function updateTelemetry {
         set sAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(shipAltitude) + " <size=24>M</size>".
     }
 
-    set sLOX:text to "<b>LOX</b>       " + round(shipLOX,1) + " %". 
+    set sLOXLabel:text to "<b>LOX</b>   ".// + round(shipLOX,1) + " %".
+    set sLOXSlider:style:overflow:right to -250 + 2.5*round(shipLOX,1).
+
     if methane {
-        set sCH4:text to "<b>CH4</b>       " + round(shipCH4,1) + " %". 
+        set sCH4Label:text to "<b>CH4</b>   ".// + round(shipCH4,1) + " %".
+        set sCH4Slider:style:overflow:right to -250 + 2.5*round(shipCH4,1).
     } else {
-        set sCH4:text to "<b>Fuel</b>      " + round(shipCH4,1) + " %". 
+        set sCH4Label:text to "<b>Fuel</b>   ".// + round(shipCH4,1) + " %".
+        set sCH4Slider:style:overflow:right to -250 + 2.5*round(shipCH4,1).
     }
+
     set shipThrust to 0.
     for eng in SLEngines {
         set shipThrust to shipThrust + eng:thrust.
