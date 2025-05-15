@@ -3050,6 +3050,7 @@ function GUIupdate {
     }
     set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
 
+
     set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
     set bLOXSlider:style:overflow:right to -250 + 2.5*round(boosterLOX,1).
 
