@@ -671,12 +671,10 @@ set maxpusherengage to 0.33*Scale.
 
 if not oldBooster {
     set BoosterDockingHeight to 32.6*Scale.
+    if RSS set BoosterDockingHeight to BoosterDockingHeight + 0.5.
     set maxstabengage to 100.
     set maxpusherengage to 0.3*Scale.
 }
-
-
-
 
 
 
@@ -2366,7 +2364,7 @@ function AfterLandingTowerOperations {
         clearScreen.
         print PosDiff.
         if vAng(up:vector, facing:forevector) > 0.6 and airspeed < 0.1 StabReset().
-        if CenterTime + 30 < time:seconds and PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and RadarAlt > 20 * Scale {
+        if CenterTime + 30 < time:seconds and PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and (RadarAlt > 20 and not RSS or RadarAlt > 45 and RSS) {
             set PreDockPosTime to time:seconds.
             set PreDockPos to true.
             SetBoosterActive().
@@ -3052,14 +3050,14 @@ function GUIupdate {
 
 
     set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
-    set bLOXSlider:style:overflow:right to -250 + 2.5*round(boosterLOX,1).
+    set bLOXSlider:style:overflow:right to -251 + 2.5*round(boosterLOX,1).
 
     if methane {
         set bCH4Label:text to "<b>CH4</b>   ".// + round(boosterCH4,1) + " %".
-        set bCH4Slider:style:overflow:right to -250 + 2.5*round(boosterCH4,1).
+        set bCH4Slider:style:overflow:right to -251 + 2.5*round(boosterCH4,1).
     } else {
         set bCH4Label:text to "<b>Fuel</b>   ".// + round(boosterCH4,1) + " %".
-        set bCH4Slider:style:overflow:right to -250 + 2.5*round(boosterCH4,1).
+        set bCH4Slider:style:overflow:right to -251 + 2.5*round(boosterCH4,1).
     }
     
     set missionTimerNow to time:seconds-missionTimer.
