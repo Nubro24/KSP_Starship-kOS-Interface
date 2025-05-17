@@ -12,7 +12,7 @@ set TScale to 1.
 //_________________________________________
 
 
-set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
 
 
 
@@ -264,6 +264,9 @@ local bLOXBorder is bLOX:addlabel("").
 local bLOXSlider is bLOX:addlabel().
     set bLOXSlider:style:align to "CENTER".
     set bLOXSlider:style:bg to "starship_img/telemetry_fuel".
+local bLOXNumber is bLOX:addlabel("100%").
+    set bLOXNumber:style:wordwrap to false.
+    set bLOXNumber:style:align to "LEFT".
 
 local bCH4 is boosterStatus:addhlayout().
 local bCH4Label is bCH4:addlabel("<b>CH4  </b>").
@@ -274,6 +277,9 @@ local bCH4Border is bCH4:addlabel("").
 local bCH4Slider is bCH4:addlabel().
     set bCH4Slider:style:align to "CENTER".
     set bCH4Slider:style:bg to "starship_img/telemetry_fuel".
+local bCH4Number is bCH4:addlabel("100%").
+    set bCH4Number:style:wordwrap to false.
+    set bCH4Number:style:align to "LEFT".
 
 local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
 local bAttitude is boosterAttitude:addlabel().
@@ -416,7 +422,7 @@ function CreateTelemetry {
     set message3:style:width to 200*TScale.
     set message3:style:fontsize to 18*TScale.
     
-
+//--------------
 
     set bTelemetry:style:border:h to 10*TScale.
     set bTelemetry:style:border:v to 10*TScale.
@@ -451,23 +457,32 @@ function CreateTelemetry {
 
     set bLOXBorder:style:margin:left to 0*TScale.
     set bLOXBorder:style:margin:top to 19*TScale.
-    set bLOXBorder:style:width to 240*TScale.
+    set bLOXBorder:style:width to 190*TScale.
     set bLOXBorder:style:height to 8*TScale.
     set bLOXBorder:style:border:h to 8*TScale.
     set bLOXBorder:style:border:v to 0*TScale.
     set bLOXBorder:style:overflow:left to 0*TScale.
-    set bLOXBorder:style:overflow:right to 0*TScale.
+    set bLOXBorder:style:overflow:right to 8*TScale.
     set bLOXBorder:style:overflow:bottom to 1*TScale.
 
     set bLOXSlider:style:margin:left to 0*TScale.
     set bLOXSlider:style:margin:top to 19*TScale.
-    set bLOXSlider:style:width to 1*TScale.
+    set bLOXSlider:style:width to 0*TScale.
     set bLOXSlider:style:height to 8*TScale.
     set bLOXSlider:style:border:h to 4*TScale.
     set bLOXSlider:style:border:v to 0*TScale.
-    set bLOXSlider:style:overflow:left to 250*TScale.
+    set bLOXSlider:style:overflow:left to 200*TScale.
     set bLOXSlider:style:overflow:right to 0*TScale.
     set bLOXSlider:style:overflow:bottom to 1*TScale.
+
+    set bLOXNumber:style:padding:left to 0*TScale.
+    set bLOXNumber:style:margin:left to 10*TScale.
+    set bLOXNumber:style:margin:top to 13*TScale.
+    set bLOXNumber:style:width to 20*TScale.
+    set bLOXNumber:style:fontsize to 12*TScale.
+    set bLOXNumber:style:overflow:left to 80*TScale.
+    set bLOXNumber:style:overflow:right to 0*TScale.
+    set bLOXNumber:style:overflow:bottom to 0*TScale.
 
     set bCH4Label:style:margin:left to 15*TScale.
     set bCH4Label:style:margin:top to 4*TScale.
@@ -475,24 +490,33 @@ function CreateTelemetry {
     set bCH4Label:style:fontsize to 20*TScale.
 
     set bCH4Border:style:margin:left to 0*TScale.
-    set bCH4Border:style:margin:top to 12*TScale.
-    set bCH4Border:style:width to 240*TScale.
+    set bCH4Border:style:margin:top to 13*TScale.
+    set bCH4Border:style:width to 190*TScale.
     set bCH4Border:style:height to 8*TScale.
     set bCH4Border:style:border:h to 8*TScale.
     set bCH4Border:style:border:v to 0*TScale.
     set bCH4Border:style:overflow:left to 0*TScale.
-    set bCH4Border:style:overflow:right to 0*TScale.
+    set bCH4Border:style:overflow:right to 8*TScale.
     set bCH4Border:style:overflow:bottom to 1*TScale.
 
     set bCH4Slider:style:margin:left to 0*TScale.
-    set bCH4Slider:style:margin:top to 12*TScale.
-    set bCH4Slider:style:width to 1*TScale.
+    set bCH4Slider:style:margin:top to 13*TScale.
+    set bCH4Slider:style:width to 0*TScale.
     set bCH4Slider:style:height to 8*TScale.
     set bCH4Slider:style:border:h to 4*TScale.
     set bCH4Slider:style:border:v to 0*TScale.
-    set bCH4Slider:style:overflow:left to 250*TScale.
+    set bCH4Slider:style:overflow:left to 200*TScale.
     set bCH4Slider:style:overflow:right to 0*TScale.
     set bCH4Slider:style:overflow:bottom to 1*TScale.
+
+    set bCH4Number:style:padding:left to 0*TScale.
+    set bCH4Number:style:margin:left to 10*TScale.
+    set bCH4Number:style:margin:top to 7*TScale.
+    set bCH4Number:style:width to 20*TScale.
+    set bCH4Number:style:fontsize to 12*TScale.
+    set bCH4Number:style:overflow:left to 80*TScale.
+    set bCH4Number:style:overflow:right to 0*TScale.
+    set bCH4Number:style:overflow:bottom to 0*TScale.
 
      set bThrust:style:wordwrap to false.
      set bThrust:style:margin:left to 10*TScale.
@@ -549,8 +573,8 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 2500. 
-        else set BoosterGlideDistance to 2000. //3200
+        if oldBooster set BoosterGlideDistance to 2200. 
+        else set BoosterGlideDistance to 1600. //3200 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set LngCtrlPID:setpoint to 12. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -666,13 +690,13 @@ lock RadarAlt to alt:radar - BoosterHeight*0.6.
 set LandingBurnAlt to 1800.
 
 set BoosterDockingHeight to 29.8*Scale.
-set maxstabengage to 80.
+set maxstabengage to 80 * Scale.
 set maxpusherengage to 0.33*Scale.
 
 if not oldBooster {
     set BoosterDockingHeight to 32.6*Scale.
-    if RSS set BoosterDockingHeight to BoosterDockingHeight + 0.5.
-    set maxstabengage to 100.
+    if RSS set BoosterDockingHeight to BoosterDockingHeight + 0.55.
+    set maxstabengage to 100 * Scale.
     set maxpusherengage to 0.3*Scale.
 }
 
@@ -818,7 +842,7 @@ function Boostback {
     wait 0.001.
     set ShipConnectedToBooster to false.
     set ConnectedMessage to false.
-    
+    set config:ipu to 500.
     rcs off.
     set bAttitude:style:bg to "starship_img/booster".
 
@@ -1561,7 +1585,7 @@ function Boostback {
 
 
     set LandingBurnStarted to true.
-    set config:ipu to 1400.
+    set config:ipu to 1500.
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
     when cAbort then {
@@ -2126,15 +2150,16 @@ function LandingGuidance {
     }
 
     // === Low Altitude look up ===
-    if RadarAlt < 0.2 * BoosterHeight {
+    if RadarAlt < 0.15 * BoosterHeight {
         set Fpos to Fpos * 0.2.
         set Ferr to Ferr * 0.2.
-        set Fgs to Fgs * 0.4.
+        set Fgs to Fgs * 0.3.
     }
     if RadarAlt < 1 * BoosterHeight {
         set Fpos to Fpos * 0.4.
         set Ferr to Ferr * 0.3.
-        if GSVec:mag < 1 set Fgs to Fgs * 0.3.
+        if GSVec:mag < 6 set Fgs to Fgs * 0.75.
+        if GSVec:mag < 2 set Fgs to Fgs * 0.3.
     }
     if RadarAlt < 2.4 * BoosterHeight and RadarAlt > 1 * BoosterHeight {
         set Fpos to Fpos * 0.8.
@@ -2185,7 +2210,7 @@ function LandingGuidance {
         set Fgs to Fgs * 0.7.
         set Ferr to Ferr * 0.9.
     }
-    if (GSVec:mag < 7 and GSVec:mag > 0.1) or (GSVec:mag < 7.5 and RSS and GSVec:mag > 0.2) set Fgs to Fgs * 0.7.
+    if (GSVec:mag < 6.5 and GSVec:mag > 0.1) or (GSVec:mag < 7 and RSS and GSVec:mag > 0.2) set Fgs to Fgs * 0.7.
 
     // === After Landing swing reduction ===
     if RadarAlt < 0.03 * BoosterHeight and GSVec:mag > 0.6 set Fgs to -Fgs*5.
@@ -2196,18 +2221,20 @@ function LandingGuidance {
         set SideFactor to 0.2.
 
         if vAng(ErrorVector, PositionError) > 90 {
-            set Ferr to Ferr * 1.4.
-            if ErrorVector:mag > 0.5*BoosterHeight {
+            set Ferr to Ferr * 1.4 * (1.06/(closureRatio^4)).
+            if ErrorVector:mag > 0.2*BoosterHeight {
                 set Ferr to Ferr * 2.
                 set Fgs to Fgs * 1.5.
             }
         }
         else set Ferr to Ferr * 0.4.
 
-        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1/(closureRatio^4)).
-        //if not RSS  else set Fgs to Fgs * 0.69.
+        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.04/(closureRatio^4)).
+        if RSS set Fgs to Fgs * (1/(closureRatio^4)).
 
         set Ftrv to Ftrv * 0.8.
+    } else if RSS {
+        set Fgs to Fgs * 0.9.
     }
 
     // === Offset Vector ===
@@ -2235,12 +2262,15 @@ function LandingGuidance {
 
     // === TVC compensation ===
     set steeringOffset to vAng(offsetVec,facing:forevector).
+    set streamOffset to vAng(offsetVec,-velocity:surface).
 
+    set MidsteerDamp to 0.
     set steerDamp to min((max((steeringOffset - 1) / 12, 0))^1.2, 1).
     if RadarAlt < BoosterHeight 
         set steerDamp to min((max((steeringOffset - 1) / 6, 0))^1.2, 1).
     if not MiddleEnginesShutdown
         set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.2, 1).
+        set MidsteerDamp to min((max((streamOffset - 1) / 12, 0))^1.2, 1).
 
     set Fpos to Fpos * (1 - 0.6 * steerDamp).
     set Ferr to Ferr * (1 - 0.5 * steerDamp).
@@ -2248,6 +2278,7 @@ function LandingGuidance {
     set Fgs to Fgs * (1 - 0.5 * steerDamp).
     set Ftrv to Ftrv * (1 - 0.6 * steerDamp).
     set Ffwd to steerDamp.
+    set Fair to 0.005*MidsteerDamp.
 
     // === Final Vector ===
     if RadarAlt < 2*BoosterHeight {
@@ -2257,7 +2288,8 @@ function LandingGuidance {
             - FerrSide * vxcl(GSVec,ErrorVector)
             - Fgs * GSVec
             - Ftrv * TowerRotationVector
-            + Ffwd * facing:forevector.
+            + Ffwd * facing:forevector
+            - Fair * velocity:surface.
     } else {
         set FinalVec to up:vector
             - Fpos * PositionError
@@ -2265,7 +2297,8 @@ function LandingGuidance {
             - FerrSide * vxcl(GSVec,ErrorVector)
             - Fgs * GSVec
             - Ftrv * TowerRotationVector
-            + Ffwd * facing:forevector.
+            + Ffwd * facing:forevector
+            - Fair * velocity:surface.
     }
 
     // === Debug Draw ===
@@ -3050,16 +3083,26 @@ function GUIupdate {
 
 
     set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
-    set bLOXSlider:style:overflow:right to -251 + 2.5*round(boosterLOX,1).
+    set bLOXSlider:style:overflow:right to -196 + 2*round(boosterLOX,1).
+    set bLOXNumber:text to round(boosterLOX,1) + "%".
 
     if methane {
         set bCH4Label:text to "<b>CH4</b>   ".// + round(boosterCH4,1) + " %".
-        set bCH4Slider:style:overflow:right to -251 + 2.5*round(boosterCH4,1).
+        set bCH4Slider:style:overflow:right to -196 + 2*round(boosterCH4,1).
+        set bCH4Number:text to round(boosterCH4,1) + "%".
     } else {
         set bCH4Label:text to "<b>Fuel</b>   ".// + round(boosterCH4,1) + " %".
-        set bCH4Slider:style:overflow:right to -251 + 2.5*round(boosterCH4,1).
+        set bCH4Slider:style:overflow:right to -196 + 2*round(boosterCH4,1).
+        set bCH4Number:text to round(boosterCH4,1) + "%".
     }
-    
+
+    if boosterLOX < 1 and boosterLOX > 0.5 set bLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+    else if boosterLOX < 0.5 set bLOXSlider:style:bg to "".
+    else set bLOXSlider:style:bg to "starship_img/telemetry_fuel".
+    if boosterCH4 < 1 and boosterCH4 > 0.5 set bCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+    else if boosterCH4 < 0.5 set bCH4Slider:style:bg to "".
+    else set bCH4Slider:style:bg to "starship_img/telemetry_fuel".
+
     set missionTimerNow to time:seconds-missionTimer.
     if missionTimerNow < 0 {
         set missionTimerNow to -missionTimerNow.
