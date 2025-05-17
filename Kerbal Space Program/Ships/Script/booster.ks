@@ -542,7 +542,7 @@ if bodyexists("Earth") {
         set BoosterHeight to 70.6.
         if oldBooster set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
-        set LFBoosterFuelCutOff to 12000.
+        set LFBoosterFuelCutOff to 10000.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.5, 0.25, -10, 10).
         }
