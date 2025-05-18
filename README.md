@@ -32,6 +32,8 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Extract the contents to a folder.
 - Move the contents of the _/Kerbal Space Program_ folder (_GameData_ and _Ships_ folders) into your /Kerbal Space Program folder (and overwrite if you are updating).
 
+- **When updating SEP you need to create a new craft file if there are no provided**
+
 **Correct folder structure:**
   - _Kerbal Space Program/GameData/StarshipInterface_    (location of the patch)
   - _Kerbal Space Program/Ships/Script_                  (here the kOS scripts are saved)
