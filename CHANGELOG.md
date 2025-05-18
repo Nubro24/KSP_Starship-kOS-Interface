@@ -10,7 +10,6 @@
 - Fixed an Error during Booster Docking
 - Fixed Booster Flip after Hotstage
 - Fixed an Error with the Nosecone watchdog program
-- Known Issues: KSRSS Booster Landing ***not*** working atm
 
 # V3.5.0 (2025-05-04)
 - **RSS Patch**
