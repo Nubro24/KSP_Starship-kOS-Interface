@@ -418,12 +418,12 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     if RESCALE and bodyexists("Kerbin") {
         set LaunchSites to lexicon("Launch Site", "-0.0970,-74.5833", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set DefaultLaunchSite to "-0.0970,-74.5833".
-        set FuelVentCutOffValue to 1250.
+        set FuelVentCutOffValue to 1150.
     }
     else {
         set LaunchSites to lexicon("Launch Site", "28.497545,-80.535394").
         set DefaultLaunchSite to "28.497545,-80.535394".
-        set FuelVentCutOffValue to 1250.
+        set FuelVentCutOffValue to 1150.
     }
     set FuelBalanceSpeed to 30.
     set RollVector to heading(242,0):vector.
@@ -464,7 +464,7 @@ else {       // Stock Kerbin
     set towerhgt to 60.
     set LaunchSites to lexicon("Launch Site", "-0.0972,-74.5562", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
     set DefaultLaunchSite to "-0.0972,-74.5562".
-    set FuelVentCutOffValue to 1050.
+    set FuelVentCutOffValue to 1000.
     set FuelBalanceSpeed to 20.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 2500.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
@@ -10270,7 +10270,7 @@ function ReEntryAndLand {
             set TRJCorrection to 1.5*TRJCorrection.
         }
         when altitude < 50000 and KSRSS then {
-            set TRJCorrection to 1.25*TRJCorrection.
+            set TRJCorrection to 1.36*TRJCorrection.
         }
         
         when altitude < 44000 and Stock or altitude < 45000 and KSRSS or altitude < 74000 and RSS then {
@@ -11325,7 +11325,7 @@ function LandingVector {
 
     wait 0.001.
     if TargetOLM and RadarAlt < 70 * Scale and not (LandSomewhereElse) {
-        set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - Nose:position).
+        set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Nose:position).
         return lookDirUp(result, RollVector).
     }
     else {

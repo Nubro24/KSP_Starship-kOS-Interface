@@ -596,15 +596,15 @@ if bodyexists("Earth") {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2800. //3000
+        set LFBoosterFuelCutOff to 2950. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1500. 
-        else set BoosterGlideDistance to 900.
+        if oldBooster set BoosterGlideDistance to 1400. 
+        else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -633,15 +633,15 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2800. //3000
+        set LFBoosterFuelCutOff to 2950. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1500. 
-        else set BoosterGlideDistance to 900.
+        if oldBooster set BoosterGlideDistance to 1400. 
+        else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -1504,7 +1504,7 @@ function Boostback {
 
 
     if STOCK lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    else if KSRSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1.6*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    else if KSRSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1.1*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.85*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.15 then { 
         lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.3*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
@@ -1998,7 +1998,7 @@ FUNCTION SteeringCorrections {
                 else set dragFactor to 1 - 0.06 * (1 + 0.6*((airspeed/305)^2 - 1)).
             }
             
-            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3456),1234).
+            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3500),1250).
         }
         
 
@@ -2122,7 +2122,7 @@ function LandingGuidance {
     else set vSpeed to max(verticalSpeed,0.0001).
 
     set vertRatio to RadarAlt*2/vSpeed.
-    set closureRatio to gsRatio/vertRatio.
+    set closureRatio to (gsRatio/vertRatio) + RadarAlt/6600.
 
     if RadarAlt > 0.8 * BoosterHeight and MiddleEnginesShutdown {
         set Fgs to Fgs * max( 0.8/closureRatio ,0.6).
@@ -2201,12 +2201,12 @@ function LandingGuidance {
     }
 
     // === Side Drift ===
-    if vAng(ErrorVector, PositionError) > 45 and vAng(ErrorVector, PositionError) > 135 and ErrorVector:mag > 0.48 * BoosterHeight {
-        set SideFactor to 0.69.
-        set Ferr to Ferr * 1.06.
-    } else if vAng(ErrorVector, PositionError) > 45 and vAng(ErrorVector, PositionError) > 135 and ErrorVector:mag > 0.18 * BoosterHeight {
-        set SideFactor to 0.42.
-        set Ferr to Ferr * 1.
+    if vAng(ErrorVector, -GSVec) > 35 and vAng(ErrorVector, -GSVec) > 145 and ErrorVector:mag > 0.48 * BoosterHeight {
+        set SideFactor to 0.77.
+        set Ferr to Ferr * 1.16.
+    } else if vAng(ErrorVector, -GSVec) > 30 and vAng(ErrorVector, -GSVec) > 150 and ErrorVector:mag > 0.18 * BoosterHeight {
+        set SideFactor to 0.44.
+        set Ferr to Ferr * 1.1.
     }
 
     // === prevent overcorrection ===
