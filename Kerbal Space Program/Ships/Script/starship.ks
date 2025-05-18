@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
-set Scriptversion to "V3.5.0".
+set Scriptversion to "V3.5.1 - WIP".
 
 
 //<------------Telemtry Scale-------------->
@@ -84,6 +84,16 @@ if exists("0:/settings.json") {
         set missionTimer to L["Launch Time"].
     }
 }
+
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("Launch Coordinates") {
+        set LSCoords to L["Launch Coordinates"].
+    }
+    else set LSCoords to ("0,0").
+} 
+else set LSCoords to ("0,0").
+
 set RadarAlt to 0.
 
 local sTelemetry is GUI(150).
@@ -116,10 +126,33 @@ local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
 local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
     set sAltitude:style:wordwrap to false.
-local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
-    set sLOX:style:wordwrap to false.
-local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
-    set sCH4:style:wordwrap to false.
+
+local sLOX is ShipStatus:addhlayout().
+local sLOXLabel is sLOX:addlabel("<b>LOX  </b>").
+    set sLOXLabel:style:wordwrap to false.
+local sLOXBorder is sLOX:addlabel("").
+    set sLOXBorder:style:align to "CENTER".
+    set sLOXBorder:style:bg to "starship_img/telemetry_bg".
+local sLOXSlider is sLOX:addlabel().
+    set sLOXSlider:style:align to "CENTER".
+    set sLOXSlider:style:bg to "starship_img/telemetry_fuel".
+local sLOXNumber is sLOX:addlabel("100%").
+    set sLOXNumber:style:wordwrap to false.
+    set sLOXNumber:style:align to "LEFT".
+
+local sCH4 is ShipStatus:addhlayout().
+local sCH4Label is sCH4:addlabel("<b>CH4  </b>").
+    set sCH4Label:style:wordwrap to false.
+local sCH4Border is sCH4:addlabel("").
+    set sCH4Border:style:align to "CENTER".
+    set sCH4Border:style:bg to "starship_img/telemetry_bg".
+local sCH4Slider is sCH4:addlabel().
+    set sCH4Slider:style:align to "CENTER".
+    set sCH4Slider:style:bg to "starship_img/telemetry_fuel".
+local sCH4Number is sCH4:addlabel("100%").
+    set sCH4Number:style:wordwrap to false.
+    set sCH4Number:style:align to "LEFT".
+
 local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
     set sThrust:style:wordwrap to false.
 local sEngines is ShipRaptors:addlabel().
@@ -165,15 +198,73 @@ function CreateTelemetry {
     set sAltitude:style:width to 296*TScale.
     set sAltitude:style:fontsize to 30*TScale.
 
-    set sLOX:style:margin:left to 50*TScale.
-    set sLOX:style:margin:top to 25*TScale.
-    set sLOX:style:width to 200*TScale.
-    set sLOX:style:fontsize to 20*TScale.
+    set sLOXLabel:style:margin:left to 50*TScale.
+    set sLOXLabel:style:margin:top to 10*TScale.
+    set sLOXLabel:style:width to 60*TScale.
+    set sLOXLabel:style:fontsize to 20*TScale.
 
-    set sCH4:style:margin:left to 50*TScale.
-    set sCH4:style:margin:top to 4*TScale.
-    set sCH4:style:width to 200*TScale.
-    set sCH4:style:fontsize to 20*TScale.
+    set sLOXBorder:style:margin:left to 0*TScale.
+    set sLOXBorder:style:margin:top to 19*TScale.
+    set sLOXBorder:style:width to 190*TScale.
+    set sLOXBorder:style:height to 8*TScale.
+    set sLOXBorder:style:border:h to 8*TScale.
+    set sLOXBorder:style:border:v to 0*TScale.
+    set sLOXBorder:style:overflow:left to 0*TScale.
+    set sLOXBorder:style:overflow:right to 8*TScale.
+    set sLOXBorder:style:overflow:bottom to 1*TScale.
+
+    set sLOXSlider:style:margin:left to 0*TScale.
+    set sLOXSlider:style:margin:top to 19*TScale.
+    set sLOXSlider:style:width to 0*TScale.
+    set sLOXSlider:style:height to 8*TScale.
+    set sLOXSlider:style:border:h to 4*TScale.
+    set sLOXSlider:style:border:v to 0*TScale.
+    set sLOXSlider:style:overflow:left to 200*TScale.
+    set sLOXSlider:style:overflow:right to 0*TScale.
+    set sLOXSlider:style:overflow:bottom to 1*TScale.
+
+    set sLOXNumber:style:padding:left to 0*TScale.
+    set sLOXNumber:style:margin:left to 10*TScale.
+    set sLOXNumber:style:margin:top to 13*TScale.
+    set sLOXNumber:style:width to 20*TScale.
+    set sLOXNumber:style:fontsize to 12*TScale.
+    set sLOXNumber:style:overflow:left to 80*TScale.
+    set sLOXNumber:style:overflow:right to 0*TScale.
+    set sLOXNumber:style:overflow:bottom to 0*TScale.
+
+    set sCH4Label:style:margin:left to 50*TScale.
+    set sCH4Label:style:margin:top to 4*TScale.
+    set sCH4Label:style:width to 60*TScale.
+    set sCH4Label:style:fontsize to 20*TScale.
+
+    set sCH4Border:style:margin:left to 0*TScale.
+    set sCH4Border:style:margin:top to 12*TScale.
+    set sCH4Border:style:width to 190*TScale.
+    set sCH4Border:style:height to 8*TScale.
+    set sCH4Border:style:border:h to 8*TScale.
+    set sCH4Border:style:border:v to 0*TScale.
+    set sCH4Border:style:overflow:left to 0*TScale.
+    set sCH4Border:style:overflow:right to 8*TScale.
+    set sCH4Border:style:overflow:bottom to 1*TScale.
+
+    set sCH4Slider:style:margin:left to 0*TScale.
+    set sCH4Slider:style:margin:top to 12*TScale.
+    set sCH4Slider:style:width to 0*TScale.
+    set sCH4Slider:style:height to 8*TScale.
+    set sCH4Slider:style:border:h to 4*TScale.
+    set sCH4Slider:style:border:v to 0*TScale.
+    set sCH4Slider:style:overflow:left to 200*TScale.
+    set sCH4Slider:style:overflow:right to 0*TScale.
+    set sCH4Slider:style:overflow:bottom to 1*TScale.
+
+    set sCH4Number:style:padding:left to 0*TScale.
+    set sCH4Number:style:margin:left to 10*TScale.
+    set sCH4Number:style:margin:top to 7*TScale.
+    set sCH4Number:style:width to 20*TScale.
+    set sCH4Number:style:fontsize to 12*TScale.
+    set sCH4Number:style:overflow:left to 80*TScale.
+    set sCH4Number:style:overflow:right to 0*TScale.
+    set sCH4Number:style:overflow:bottom to 0*TScale.
 
     set sThrust:style:margin:left to 45*TScale.
     set sThrust:style:margin:top to 15*TScale.
@@ -284,7 +375,7 @@ if RSS {         // Real Solar System
     set BoosterMinPusherDistance to 0.48.
     set ShipMinPusherDistance to 1.12.
     set towerhgt to 96.
-    set LaunchSites to lexicon("KSC", "28.6084,-80.6496").
+    set LaunchSites to lexicon("Launch Site", "28.6084,-80.6496").
     set DefaultLaunchSite to "28.60839,-80.64962".
     set FuelVentCutOffValue to 3000.
     set FuelBalanceSpeed to 50.
@@ -325,14 +416,14 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set ShipMinPusherDistance to 0.7.
     set towerhgt to 60.
     if RESCALE and bodyexists("Kerbin") {
-        set LaunchSites to lexicon("KSC", "-0.0970,-74.5833", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
+        set LaunchSites to lexicon("Launch Site", "-0.0970,-74.5833", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set DefaultLaunchSite to "-0.0970,-74.5833".
-        set FuelVentCutOffValue to 1250.
+        set FuelVentCutOffValue to 1150.
     }
     else {
-        set LaunchSites to lexicon("KSC", "28.497545,-80.535394").
+        set LaunchSites to lexicon("Launch Site", "28.497545,-80.535394").
         set DefaultLaunchSite to "28.497545,-80.535394".
-        set FuelVentCutOffValue to 1250.
+        set FuelVentCutOffValue to 1150.
     }
     set FuelBalanceSpeed to 30.
     set RollVector to heading(242,0):vector.
@@ -371,9 +462,9 @@ else {       // Stock Kerbin
     set BoosterMinPusherDistance to 0.3.
     set ShipMinPusherDistance to 0.7.
     set towerhgt to 60.
-    set LaunchSites to lexicon("KSC", "-0.0972,-74.5562", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
+    set LaunchSites to lexicon("Launch Site", "-0.0972,-74.5562", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
     set DefaultLaunchSite to "-0.0972,-74.5562".
-    set FuelVentCutOffValue to 1050.
+    set FuelVentCutOffValue to 1000.
     set FuelBalanceSpeed to 20.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 2500.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
@@ -572,8 +663,6 @@ set oldBooster to false.
 
 
 
-
-
 //---------------Finding Parts-----------------//
 
 when NOT CORE:MESSAGES:EMPTY then {
@@ -702,7 +791,7 @@ function FindParts {
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
-                else if x:name:contains("SEP.24.SHIP.PEZ") {
+                else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
@@ -772,14 +861,17 @@ function FindParts {
             set ELECcap to res:capacity.
         }
     }
+    wait 0.01.
 
     if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
         set oldBooster to true.
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
-        set sLOX:style:textcolor to grey.
-        set sCH4:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
         for x in BoosterEngines[0]:children {
@@ -814,8 +906,10 @@ function FindParts {
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
-        set sLOX:style:textcolor to grey.
-        set sCH4:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER").
         for x in BoosterEngines[0]:children {
@@ -1615,11 +1709,11 @@ local TargetLZPicker is settingsstackvlayout2:addpopupmenu().
     set TargetLZPicker:style:focused_on:bg to "starship_img/starship_background_light".
     if RSS or KSRSS {
         set TargetLZPicker:maxvisible to 6.
-        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>KSC</color></b>", "<b><color=white>Off-Shore</color></b>", "<b><color=white>Off-Shore Boca Chica</color></b>").
+        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>Launch Site</color></b>", "<b><color=white>Off-Shore</color></b>", "<b><color=white>Off-Shore Boca Chica</color></b>").
     }
     else {
         set TargetLZPicker:maxvisible to 8.
-        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>KSC</color></b>", "<b><color=white>Dessert</color></b>", "<b><color=white>Woomerang</color></b>", "<b><color=white>Off-Shore</color></b>","<b><color=white>Baikerbanur</color></b>").
+        set TargetLZPicker:options to list("<color=grey><b>Select existing LZ</b></color>", "<b><color=white>Current Impact</color></b>", "<b><color=white>Launch Site</color></b>", "<b><color=white>Dessert</color></b>", "<b><color=white>Woomerang</color></b>", "<b><color=white>Off-Shore</color></b>","<b><color=white>Baikerbanur</color></b>").
     }
     set TargetLZPicker:tooltip to "Select a predefined Landing Zone here:  e.g.  KSC, Off-Shore".
 local setting3label is settingsstackvlayout1:addlabel("<b>Launch Inclination (°)</b>").
@@ -1749,35 +1843,59 @@ set setting2:ontoggle to {
 
 set TargetLZPicker:onchange to {
     parameter choice.
-    if choice = "<b><color=white>KSC</color></b>" {
+    if choice = "<b><color=white>Launch Site</color></b>" {
         if RSS {
-            set setting1:text to "28.497545,-80.535394".
-            set landingzone to latlng(28.497545,-80.535394).
+            if exists("0:/settings.json") {
+                set L to readjson("0:/settings.json").
+                if L:haskey("Launch Coordinates") {
+                    set LSCoords to L["Launch Coordinates"].
+                }
+            }
+            set setting1:text to LSCoords.
+            set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
             if homeconnection:isconnected {
-                SaveToSettings("Landing Coordinates", "28.497545,-80.535394").
+                SaveToSettings("Landing Coordinates", LSCoords).
             }
         }
         else if KSRSS {
             if RESCALE and bodyexists("Kerbin") {
-                set setting1:text to "-0.0970,-74.5833".
-                set landingzone to latlng(-0.0970,-74.5833).
+                if exists("0:/settings.json") {
+                    set L to readjson("0:/settings.json").
+                    if L:haskey("Launch Coordinates") {
+                        set LSCoords to L["Launch Coordinates"].
+                    }
+                }
+                set setting1:text to LSCoords.
+                set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
                 if homeconnection:isconnected {
-                    SaveToSettings("Landing Coordinates", "-0.0970,-74.5833").
+                    SaveToSettings("Landing Coordinates", LSCoords).
                 }
             }
             else {
-                set setting1:text to "28.50895,-81.20396".
-                set landingzone to latlng(28.50895,-81.20396).
-                if homeconnection:isconnected {
-                    SaveToSettings("Landing Coordinates", "28.50895,-81.20396").
+                if exists("0:/settings.json") {
+                set L to readjson("0:/settings.json").
+                if L:haskey("Launch Coordinates") {
+                    set LSCoords to L["Launch Coordinates"].
                 }
+            }
+            set setting1:text to LSCoords.
+            set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
+            if homeconnection:isconnected {
+                SaveToSettings("Landing Coordinates", LSCoords).
+            }
             }
         }
         else {
-            set setting1:text to "-0.0972,-74.5577".
-            set landingzone to latlng(-0.0972,-74.5577).
+            if exists("0:/settings.json") {
+                set L to readjson("0:/settings.json").
+                if L:haskey("Launch Coordinates") {
+                    set LSCoords to L["Launch Coordinates"].
+                }
+            }
+            set setting1:text to LSCoords.
+            set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
             if homeconnection:isconnected {
-                SaveToSettings("Landing Coordinates", "-0.0972,-74.5577").
+                SaveToSettings("Landing Coordinates", LSCoords).
             }
         }
         if KUniverse:activevessel = vessel(ship:name) {
@@ -6516,7 +6634,7 @@ function Launch {
                 else {
                     set message2:text to "<b>Booster/Ship:             <color=green>Start-Up Confirmed..</color></b>".
                 }
-                if x - time:seconds < 8 {
+                if x - time:seconds < 9 {
                     for k in list(OLM) {
                         if k:hasmodule("ModuleEnginesFX") {
                             if k:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
@@ -6531,7 +6649,7 @@ function Launch {
                     }
                     
                 }
-                if x - time:seconds < 2 {
+                if x - time:seconds < 3 {
                     for p in list(SteelPlate) {
                         if p:hasmodule("ModuleEnginesFX") {
                             if P:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
@@ -7021,8 +7139,10 @@ function Launch {
         when StageSepComplete then {
             set sAltitude:style:textcolor to white.
             set sSpeed:style:textcolor to white.
-            set sLOX:style:textcolor to white.
-            set sCH4:style:textcolor to white.
+            set sLOXLabel:style:textcolor to white.
+            set sLOXSlider:style:bg to "starship_img/telemetry_fuel".
+            set sCH4Label:style:textcolor to white.
+            set sCH4Slider:style:bg to "starship_img/telemetry_fuel".
             set sThrust:style:textcolor to white.
             when time:seconds > HotStageTime + 0.5 then {
                 set quickengine2:pressed to true.
@@ -7044,7 +7164,7 @@ function Launch {
             }
 
             
-            when deltav < 75 and deltav > 0 then {
+            when deltav < 89 and deltav > 0 or throttle < 0.44 and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
 
@@ -7150,7 +7270,7 @@ function Launch {
         ShowHomePage().
         LogToFile("Launch Complete").
         wait 3.
-        HUDTEXT("Booster: Automated Return is in progress..", 15, 2, 22, white, false).
+        if not RSS HUDTEXT("Booster: Automated Return is in progress..", 15, 2, 22, white, false).
         LogToFile("Launch Program Ended").
         print "Launch Program Ended".
         SetLoadDistances(ship, "default").
@@ -7266,18 +7386,18 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 14000 * Scale and Boosterconnected {
         if RSS {
-            set result to lookDirUp(2*srfPrograde:vector+0.5*up:vector, LaunchRollVector).
+            set result to lookDirUp(2*srfPrograde:vector+0.4*up:vector, LaunchRollVector).
         } else {
-            set result to lookDirUp(2*srfPrograde:vector+0.3*up:vector, LaunchRollVector).
+            set result to lookDirUp(2*srfPrograde:vector+0.2*up:vector, LaunchRollVector).
         }
     }
     else if Boosterconnected and not lowTWR {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                set targetpitch to 90 - (8.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
             }
         }
         else if KSRSS {
@@ -7311,10 +7431,10 @@ Function LaunchSteering {
     else if Boosterconnected and lowTWR {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1400)).
+                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                set targetpitch to 90 - (8.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -10025,6 +10145,8 @@ function ReEntryAndLand {
         SetPlanetData().
         set FlipAltitude to 700.
 
+        set steeringManager:maxstoppingtime to 0.9.
+
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
         LogToFile("Re-Entry & Landing Program Started").
@@ -10113,25 +10235,25 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00005, 0, 0, -25, 30 - TRJCorrection).
+                set PitchPID to PIDLOOP(0.00002, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
                 set PitchPID to PIDLOOP(0.0001, 0.00001, 0.000001, -25, 30 - TRJCorrection).
-                set YawPID to PIDLOOP(0.0025, 0, 0, -50, 50).
+                set YawPID to PIDLOOP(0.0012, 0, 0, -50, 50).
             }
         }
         else if KSRSS {
-            when airspeed < ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)) then {
-                set PitchPID to PIDLOOP(0.0025, 0, 0, -25, 30 + TRJCorrection).
+            when airspeed < ChangeOverSensitivity then {
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 30 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
             }
-            set YawPID to PIDLOOP(0.0125, 0, 0, -50, 50).
+            set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
         else {
-            when airspeed < ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)) then {
-                set PitchPID to PIDLOOP(0.0025, 0, 0, -25, 30 - TRJCorrection).
+            when airspeed < ChangeOverSensitivity then {
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
-            set YawPID to PIDLOOP(0.0125, 0, 0, -50, 50).
+            set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
 
         when altitude < 39000 and STOCK then {
@@ -10147,20 +10269,26 @@ function ReEntryAndLand {
         when altitude < 40000 and KSRSS then {
             set TRJCorrection to 1.5*TRJCorrection.
         }
+        when altitude < 50000 and KSRSS then {
+            set TRJCorrection to 1.36*TRJCorrection.
+        }
         
         when altitude < 44000 and Stock or altitude < 45000 and KSRSS or altitude < 74000 and RSS then {
             set TRJCorrection to 1.5*TRJCorrection.
         }
-        when altitude < 12000 and Stock or altitude < 13000 and KSRSS or altitude < 16000 and RSS then {
+        when altitude < 44000 and RSS then {
+            set TRJCorrection to -TRJCorrection*1.5.
+        }
+        when altitude < 12000 and Stock or altitude < 17000 and KSRSS or altitude < 17000 and RSS then {
             set TRJCorrection to 0.
         }
 
         lock STEERING to ReEntrySteering().
-        
+
         when altitude < body:atm:height then {
             //set quickstatus1:pressed to true.
             //LogToFile("<Atmosphere Height, Body-Flaps Activated").
-            when airspeed < 2150 then {
+            when airspeed < 2150 or airspeed < 7100 and RSS then {
                 set t to time:seconds.
                 if ship:body:atm:sealevelpressure < 0.5 {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
@@ -10168,13 +10296,14 @@ function ReEntryAndLand {
                         set YawPID to PIDLOOP(0.0175, 0.015, 0.005, -50, 50).
                     }
                     else {
-                        set PitchPID:kp to 0.0025.
+                        set PitchPID:kp to 0.0005. //0.0025
                     }
                 }
                 else {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 12).
-                    set PitchPID:kp to 0.0025.
+                    set PitchPID:kp to 0.0004.
                 }
+
                 when airspeed < 300 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 750 and ship:body:atm:sealevelpressure < 0.5 and KSRSS or airspeed < 2000 and ship:body:atm:sealevelpressure < 0.5 and RSS or airspeed < 450 and ship:body:atm:sealevelpressure < 0.5 and STOCK then {
                     CheckLZReachable().
                     set t to time:seconds.
@@ -10183,30 +10312,30 @@ function ReEntryAndLand {
                         set aoa to LandingAoA.
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
-                            set PitchPID:kp to 0.175.
-                            set PitchPID:ki to 0.15.
-                            set PitchPID:kd to 0.125.
+                            set PitchPID:kp to 0.04.
+                            set PitchPID:ki to 0.03.
+                            set PitchPID:kd to 0.025.
                             set YawPID:kp to 0.025.
                             set YawPID:ki to 0.0125.
                             set YawPID:kd to 0.01.
                             set maxDeltaV to 450.
                         }
                         else if KSRSS {
-                            set PitchPID:kp to 0.05. //0.25
-                            set PitchPID:ki to 0.045. //0.0225
-                            set PitchPID:kd to 0.04. //0.02
-                            set YawPID:kp to 0.1.
-                            set YawPID:ki to 0.075.
-                            set YawPID:kd to 0.025.
+                            set PitchPID:kp to 0.01. //0.25
+                            set PitchPID:ki to 0.01. //0.0225
+                            set PitchPID:kd to 0.005. //0.03
+                            set YawPID:kp to 0.02. //0.1
+                            set YawPID:ki to 0.045. //0.75
+                            set YawPID:kd to 0.012. //0.25
                             set maxDeltaV to 400.
                         }
                         else {
-                            set PitchPID:kp to 0.03. 
-                            set PitchPID:ki to 0.035.
-                            set PitchPID:kd to 0.028.
-                            set YawPID:kp to 0.1.
-                            set YawPID:ki to 0.075.
-                            set YawPID:kd to 0.025.
+                            set PitchPID:kp to 0.0012. //0.03
+                            set PitchPID:ki to 0.01. //0.035
+                            set PitchPID:kd to 0.008. //0.028
+                            set YawPID:kp to 0.02. //0.1
+                            set YawPID:ki to 0.045. //0.075
+                            set YawPID:kd to 0.015. //0.025
                             set maxDeltaV to 400.
                         }
                     }
@@ -10475,10 +10604,10 @@ function ReEntryData {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
                 }
                 else if not (RSS) or altitude > 10000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 25).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 20).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 24).
                 }
             }
         }
@@ -10669,6 +10798,7 @@ function ReEntryData {
             set config:ipu to 1000.
             unlock throttle.
             rcs off.
+            set steeringManager:maxstoppingtime to 2.
             set LandingFlipStart to time:seconds.
             set ship:control:pitch to 1.
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
@@ -10823,8 +10953,8 @@ function ReEntryData {
                 
 
                 if TargetOLM {
-                    when RadarAlt < 18 * ShipHeight then {
-                        when RadarAlt < 16 * ShipHeight then {
+                    when RadarAlt < 24 * ShipHeight then {
+                        when RadarAlt < 22 * ShipHeight then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,26,80,true")).
                             sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,2," + round(5 * Scale, 2) + ",true")).
                             sendMessage(Vessel(TargetOLM), ("RetractSQD")).
@@ -10832,6 +10962,7 @@ function ReEntryData {
 
                         when RadarAlt < 2.85 * ShipHeight then {
                             setflaps(0, 85, 1, 0).
+                            set steeringManager:maxstoppingtime to 1.
                         }
 
                         when RadarAlt < 2.8 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
@@ -10987,7 +11118,7 @@ function ClosingSpeed {
     if currentSpeed = 0 set currentSpeed to 0.00001.
     if currentSpeed < 0 set currentSpeed to -currentSpeed.
 
-    set speed to min(max((angle/(currentSpeed/currentDec))*1.5,1),12).
+    set speed to min(max((angle/(currentSpeed/currentDec))*1.5,2),12).
 
     if currentSpeed < 10 set speed to currentSpeed.
 
@@ -11011,7 +11142,7 @@ function LandingThrottle {
         return minDecel.
     }
     set maxDecel to max(ship:availablethrust, 0.000001) / ship:mass - Planet1G.
-    set DesiredDecel to 0.4 * maxDecel.
+    set DesiredDecel to 0.6 * maxDecel.
     set stopTime to airspeed / DesiredDecel.
     set stopDist to 0.5 * airspeed * stopTime.
     if not (TargetOLM = "False") {
@@ -11142,6 +11273,7 @@ function LandingVector {
                                 set result to up:vector - 0.024 * GSVec - 0.021*facing:topvector - 0.026*facing:starvector.
                             }
                         }
+                        if vAng(result, facing:forevector) > 3 set result to facing:forevector + result.
                     }
                 }
 
@@ -11193,7 +11325,7 @@ function LandingVector {
 
     wait 0.001.
     if TargetOLM and RadarAlt < 70 * Scale and not (LandSomewhereElse) {
-        set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - Nose:position).
+        set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Nose:position).
         return lookDirUp(result, RollVector).
     }
     else {
@@ -11247,15 +11379,15 @@ function LandingVector {
 
             if TargetOLM {
                 when time:seconds > ShutdownProcedureStart + 5 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(0.82 * Scale,2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(1.32 * Scale,2) + ",false")).
                     sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
                 }
                 when time:seconds > ShutdownProcedureStart + 10 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.82 * Scale, 2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(1.32 * Scale, 2) + ",false")).
                     sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
                 }
                 when time:seconds > ShutdownProcedureStart + 15 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.82 * Scale, 2) + ",false")).
+                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(1.32 * Scale, 2) + ",false")).
                 }
             }
 
@@ -11390,16 +11522,16 @@ function LngLatError {
                 }
                 else if KSRSS {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -38.
+                        set LngLatOffset to -36.
                     } else {
-                        set LngLatOffset to -39.
+                        set LngLatOffset to -36.
                     }
                 }
                 else {
                     if ShipType:contains("Block1"){
                         set LngLatOffset to -111.
                     } else {
-                        set LngLatOffset to -106.
+                        set LngLatOffset to -116.
                     }
                 }
             }
@@ -11411,7 +11543,7 @@ function LngLatError {
                     set LngLatOffset to -60.
                 }
                 else {
-                    set LngLatOffset to -95.
+                    set LngLatOffset to -112.
                     
                     
                 }
@@ -12634,22 +12766,16 @@ function LandAtOLM {
         if shiplist:length > 0 {
             for x in shiplist {
                 if x:name:contains("OrbitalLaunchMount") {
-                    if vxcl(up:vector, x:position - landingzone:position):mag < 500 {
+                    if vxcl(up:vector, x:position - landingzone:position):mag < 800 {
                         set TargetOLM to x:name.
                         LogToFile(("TargetOLM set to " + TargetOLM)).
                         SetRadarAltitude().
-                        if homeconnection:isconnected {
-                            if exists("0:/settings.json") {
-                                set L to readjson("0:/settings.json").
-                                if L:haskey("TowerHeadingVector") {
-                                    set TowerHeadingVector to vxcl(up:vector, L["TowerHeadingVector"]).
-                                }
-                            }
-                        }
+                        set TowerHeadingVector to angleAxis(-6,up:vector) * vCrs(up:vector, north:vector).
                         if alt:radar > 1000 and alt:radar < 10100 {
                             if not (Vessel(TargetOLM):isdead) {
                                 when Vessel(TargetOLM):unpacked then {
                                     wait 0.01.
+                                    set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                                     sendMessage(Vessel(TargetOLM), "MechazillaHeight,0.5,2").
                                     sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,10,90,true").
                                     sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,1,12,false").
@@ -14728,12 +14854,20 @@ function updateTelemetry {
         set sAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(shipAltitude) + " <size=24>M</size>".
     }
 
-    set sLOX:text to "<b>LOX</b>       " + round(shipLOX,1) + " %". 
+    set sLOXLabel:text to "<b>LOX</b>   ".// + round(shipLOX,1) + " %".
+    set sLOXSlider:style:overflow:right to -196 + 2*round(shipLOX,1).
+    set sLOXNumber:text to round(shipLOX,1) + "%".
+
     if methane {
-        set sCH4:text to "<b>CH4</b>       " + round(shipCH4,1) + " %". 
+        set sCH4Label:text to "<b>CH4</b>   ".// + round(shipCH4,1) + " %".
+        set sCH4Slider:style:overflow:right to -196 + 2*round(shipCH4,1).
+        set sCH4Number:text to round(shipCH4,1) + "%".
     } else {
-        set sCH4:text to "<b>Fuel</b>      " + round(shipCH4,1) + " %". 
+        set sCH4Label:text to "<b>Fuel</b>   ".// + round(shipCH4,1) + " %".
+        set sCH4Slider:style:overflow:right to -196 + 2*round(shipCH4,1).
+        set sCH4Number:text to round(shipCH4,1) + "%".
     }
+
     set shipThrust to 0.
     for eng in SLEngines {
         set shipThrust to shipThrust + eng:thrust.
