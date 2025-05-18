@@ -596,7 +596,7 @@ if bodyexists("Earth") {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 3000. //2650
+        set LFBoosterFuelCutOff to 2800. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -604,7 +604,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1500. 
-        else set BoosterGlideDistance to 1200.
+        else set BoosterGlideDistance to 900.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -633,7 +633,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 3000. //2650
+        set LFBoosterFuelCutOff to 2800. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -641,7 +641,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1500. 
-        else set BoosterGlideDistance to 1200.
+        else set BoosterGlideDistance to 900.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -1501,7 +1501,8 @@ function Boostback {
     }
 
 
-    if not RSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    if STOCK lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    else if KSRSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1.5*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.75*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.15 then { 
         lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.3*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
@@ -1742,7 +1743,8 @@ function Boostback {
     }
 
     when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 540 or 
-            velocity:surface:mag < 42 and not MiddleEnginesShutdown or 
+            velocity:surface:mag < 42 and not MiddleEnginesShutdown and STOCK or 
+            velocity:surface:mag < 32 and not MiddleEnginesShutdown and KSRSS or 
             velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
             velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 460 then {
         PollUpdate().
@@ -1993,7 +1995,7 @@ FUNCTION SteeringCorrections {
                 else set dragFactor to 1 - 0.06 * (1 + 0.6*((airspeed/305)^2 - 1)).
             }
             
-            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3344),1224).
+            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3456),1234).
         }
         
 

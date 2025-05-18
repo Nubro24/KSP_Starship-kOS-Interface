@@ -10268,6 +10268,9 @@ function ReEntryAndLand {
         when altitude < 40000 and KSRSS then {
             set TRJCorrection to 1.5*TRJCorrection.
         }
+        when altitude < 50000 and KSRSS then {
+            set TRJCorrection to 1.25*TRJCorrection.
+        }
         
         when altitude < 44000 and Stock or altitude < 45000 and KSRSS or altitude < 74000 and RSS then {
             set TRJCorrection to 1.5*TRJCorrection.
@@ -10275,7 +10278,7 @@ function ReEntryAndLand {
         when altitude < 44000 and RSS then {
             set TRJCorrection to -TRJCorrection*1.5.
         }
-        when altitude < 12000 and Stock or altitude < 13000 and KSRSS or altitude < 17000 and RSS then {
+        when altitude < 12000 and Stock or altitude < 17000 and KSRSS or altitude < 17000 and RSS then {
             set TRJCorrection to 0.
         }
 
