@@ -574,7 +574,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 2200. 
-        else set BoosterGlideDistance to 1600. //3200 
+        else set BoosterGlideDistance to 1640. //3200 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set LngCtrlPID:setpoint to 12. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -1184,10 +1184,10 @@ function Boostback {
 
         if GfC and HSRJet {
             HUDTEXT("GO for Catch, HSR-Jettison", 8, 2, 20, green, false).
-            if not KSRSS and not RSS{
+            if not KSRSS and not RSS {
                 set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 15.
             } else {
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 20.
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 12.
             }
         } else if GfC and not HSRJet {
             HUDTEXT("GO for Catch, NO HSR-Jettison", 8, 2, 20, green, false).
@@ -1312,7 +1312,7 @@ function Boostback {
         else lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/55)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/55))):normalized, ApproachVector).
         set SteeringManager:maxstoppingtime to 1.8.
         if RSS 
-            set SteeringManager:maxstoppingtime to 3.2.
+            set SteeringManager:maxstoppingtime to 3.6.
 
         until time:seconds - turnTime > 60 {
             SteeringCorrections().
@@ -1327,7 +1327,7 @@ function Boostback {
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         set SteeringManager:maxstoppingtime to 1.4.
         if RSS 
-            set SteeringManager:maxstoppingtime to 2.6.
+            set SteeringManager:maxstoppingtime to 3.2.
 
         set switchTime to time:seconds.
         until time:seconds > switchTime + 0.5 {
@@ -1465,6 +1465,8 @@ function Boostback {
     when (RadarAlt < 69000 and RSS) or (RadarAlt < 35000 and not (RSS)) then {
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 1.}
     }
+    if RSS 
+            set SteeringManager:maxstoppingtime to 2.4.
     
     set steeringManager:rollcontrolanglerange to 10.
     
@@ -1502,8 +1504,8 @@ function Boostback {
 
 
     if STOCK lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    else if KSRSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1.5*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.75*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    else if KSRSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1.6*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.85*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.15 then { 
         lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.3*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError > 0 then {
@@ -1663,7 +1665,7 @@ function Boostback {
                 if not RSS 
                     lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 4.
                 else 
-                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 1.7.
+                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.2.
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
 
@@ -1688,7 +1690,7 @@ function Boostback {
                         set steeringManager:maxstoppingtime to 1.2.
                     }
                     when RadarAlt < 1.2 * BoosterHeight and GfC then {
-                        set steeringManager:maxstoppingtime to 0.69.
+                        set steeringManager:maxstoppingtime to 0.72.
                     }
                     set SentTime to time:seconds.
                     when RadarAlt < 3 * BoosterHeight and RadarAlt > 0.05*BoosterHeight then {
@@ -1788,6 +1790,7 @@ function Boostback {
         unlock steering.
         lock throttle to 0.
         set ship:control:pilotmainthrottle to 0.
+        wait 0.2.
         sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
         rcs off.
         clearscreen.
@@ -2122,9 +2125,9 @@ function LandingGuidance {
     set closureRatio to gsRatio/vertRatio.
 
     if RadarAlt > 0.8 * BoosterHeight and MiddleEnginesShutdown {
-        set Fgs to Fgs * max( 0.8/closureRatio ,0.7).
+        set Fgs to Fgs * max( 0.8/closureRatio ,0.6).
         set Fpos to Fpos * min(max( closureRatio^4 ,0.1),1.4).
-        set Ferr to Ferr * max( 0.9/closureRatio^1.2 ,1).
+        set Ferr to Ferr * max( 0.85/closureRatio ,0.85).
     }
 
     // === High Incl ===
@@ -2157,20 +2160,20 @@ function LandingGuidance {
         set Ferr to Ferr * 0.2.
         set Fgs to Fgs * 0.3.
     }
-    if RadarAlt < 1 * BoosterHeight {
+    if RadarAlt < 1.2 * BoosterHeight {
         set Fpos to Fpos * 0.4.
         set Ferr to Ferr * 0.3.
-        if GSVec:mag < 6 set Fgs to Fgs * 0.75.
-        if GSVec:mag < 2 set Fgs to Fgs * 0.3.
+        if GSVec:mag < 7 set Fgs to Fgs * 0.75.
+        if GSVec:mag < 3 set Fgs to Fgs * 0.3.
     }
-    if RadarAlt < 2.4 * BoosterHeight and RadarAlt > 1 * BoosterHeight {
+    if RadarAlt < 2.4 * BoosterHeight and RadarAlt > 1.2 * BoosterHeight {
         set Fpos to Fpos * 0.8.
         set Ferr to Ferr * 0.8.
-        set Fgs to Fgs * 0.9.
+        set Fgs to Fgs * 0.95.
     }
 
     // === Low Altitude Correction
-    if RadarAlt < 1.7 * BoosterHeight and GfC {
+    if RadarAlt < 1.9 * BoosterHeight and GfC {
         if (vAng(GSVec, Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position) > 50 or closureRatio > 2) 
                 and (PositionError:mag > 0.3 * BoosterHeight or ErrorVector:mag > 4) {
             if not RSS set Ftrv to 0.003 * RadarRatio.
@@ -2213,6 +2216,7 @@ function LandingGuidance {
         set Ferr to Ferr * 0.9.
     }
     if (GSVec:mag < 6.5 and GSVec:mag > 0.1) or (GSVec:mag < 7 and RSS and GSVec:mag > 0.2) set Fgs to Fgs * 0.7.
+    if RSS and GSVec:mag < 6.5 and GSVec:mag > 4 set Fgs to Fgs * 1.2.
 
     // === After Landing swing reduction ===
     if RadarAlt < 0.03 * BoosterHeight and GSVec:mag > 0.6 set Fgs to -Fgs*5.
@@ -2223,7 +2227,7 @@ function LandingGuidance {
         set SideFactor to 0.2.
 
         if vAng(ErrorVector, PositionError) > 90 {
-            set Ferr to Ferr * 1.4 * (1.06/(closureRatio^4)).
+            set Ferr to Ferr * 1.4 * (1.05/(closureRatio^4)).
             if ErrorVector:mag > 0.2*BoosterHeight {
                 set Ferr to Ferr * 2.
                 set Fgs to Fgs * 1.5.
@@ -2231,12 +2235,12 @@ function LandingGuidance {
         }
         else set Ferr to Ferr * 0.4.
 
-        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.04/(closureRatio^4)).
-        if RSS set Fgs to Fgs * (1/(closureRatio^4)).
+        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.07/(closureRatio^4)).
+        if RSS set Fgs to Fgs * (1.05/(closureRatio^4)).
 
         set Ftrv to Ftrv * 0.8.
     } else if RSS {
-        set Fgs to Fgs * 0.9.
+        set Fgs to Fgs * 0.94.
     }
 
     // === Offset Vector ===

@@ -861,6 +861,7 @@ function FindParts {
             set ELECcap to res:capacity.
         }
     }
+    wait 0.01.
 
     if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
         set oldBooster to true.
@@ -7393,10 +7394,10 @@ Function LaunchSteering {
     else if Boosterconnected and not lowTWR {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
             }
         }
         else if KSRSS {
@@ -7430,10 +7431,10 @@ Function LaunchSteering {
     else if Boosterconnected and lowTWR {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.65 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (7.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (8.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
