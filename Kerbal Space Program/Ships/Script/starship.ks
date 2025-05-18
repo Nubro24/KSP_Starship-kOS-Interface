@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
-set Scriptversion to "V3.5.1 - WIP".
+set Scriptversion to "V3.5.2 - WIP".
 
 
 //<------------Telemtry Scale-------------->
