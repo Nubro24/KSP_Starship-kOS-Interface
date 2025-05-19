@@ -72,10 +72,33 @@ local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
 local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
     set sAltitude:style:wordwrap to false.
-local sLOX is ShipStatus:addlabel("<b>LOX  </b>").
-    set sLOX:style:wordwrap to false.
-local sCH4 is ShipStatus:addlabel("<b>CH4  </b>").
-    set sCH4:style:wordwrap to false.
+
+local sLOX is ShipStatus:addhlayout().
+local sLOXLabel is sLOX:addlabel("<b>LOX  </b>").
+    set sLOXLabel:style:wordwrap to false.
+local sLOXBorder is sLOX:addlabel("").
+    set sLOXBorder:style:align to "CENTER".
+    set sLOXBorder:style:bg to "starship_img/telemetry_bg".
+local sLOXSlider is sLOX:addlabel().
+    set sLOXSlider:style:align to "CENTER".
+    set sLOXSlider:style:bg to "starship_img/telemetry_fuel".
+local sLOXNumber is sLOX:addlabel("100%").
+    set sLOXNumber:style:wordwrap to false.
+    set sLOXNumber:style:align to "LEFT".
+
+local sCH4 is ShipStatus:addhlayout().
+local sCH4Label is sCH4:addlabel("<b>CH4  </b>").
+    set sCH4Label:style:wordwrap to false.
+local sCH4Border is sCH4:addlabel("").
+    set sCH4Border:style:align to "CENTER".
+    set sCH4Border:style:bg to "starship_img/telemetry_bg".
+local sCH4Slider is sCH4:addlabel().
+    set sCH4Slider:style:align to "CENTER".
+    set sCH4Slider:style:bg to "starship_img/telemetry_fuel".
+local sCH4Number is sCH4:addlabel("100%").
+    set sCH4Number:style:wordwrap to false.
+    set sCH4Number:style:align to "LEFT".
+
 local sThrust is ShipStatus:addlabel("<b>THRUST  </b>").
     set sThrust:style:wordwrap to false.
 local sEngines is ShipRaptors:addlabel().
@@ -121,15 +144,73 @@ function CreateTelemetry {
     set sAltitude:style:width to 296*TScale.
     set sAltitude:style:fontsize to 30*TScale.
 
-    set sLOX:style:margin:left to 50*TScale.
-    set sLOX:style:margin:top to 25*TScale.
-    set sLOX:style:width to 200*TScale.
-    set sLOX:style:fontsize to 20*TScale.
+    set sLOXLabel:style:margin:left to 50*TScale.
+    set sLOXLabel:style:margin:top to 10*TScale.
+    set sLOXLabel:style:width to 60*TScale.
+    set sLOXLabel:style:fontsize to 20*TScale.
 
-    set sCH4:style:margin:left to 50*TScale.
-    set sCH4:style:margin:top to 4*TScale.
-    set sCH4:style:width to 200*TScale.
-    set sCH4:style:fontsize to 20*TScale.
+    set sLOXBorder:style:margin:left to 0*TScale.
+    set sLOXBorder:style:margin:top to 19*TScale.
+    set sLOXBorder:style:width to 190*TScale.
+    set sLOXBorder:style:height to 8*TScale.
+    set sLOXBorder:style:border:h to 8*TScale.
+    set sLOXBorder:style:border:v to 0*TScale.
+    set sLOXBorder:style:overflow:left to 0*TScale.
+    set sLOXBorder:style:overflow:right to 8*TScale.
+    set sLOXBorder:style:overflow:bottom to 1*TScale.
+
+    set sLOXSlider:style:margin:left to 0*TScale.
+    set sLOXSlider:style:margin:top to 19*TScale.
+    set sLOXSlider:style:width to 0*TScale.
+    set sLOXSlider:style:height to 8*TScale.
+    set sLOXSlider:style:border:h to 4*TScale.
+    set sLOXSlider:style:border:v to 0*TScale.
+    set sLOXSlider:style:overflow:left to 200*TScale.
+    set sLOXSlider:style:overflow:right to 0*TScale.
+    set sLOXSlider:style:overflow:bottom to 1*TScale.
+
+    set sLOXNumber:style:padding:left to 0*TScale.
+    set sLOXNumber:style:margin:left to 10*TScale.
+    set sLOXNumber:style:margin:top to 13*TScale.
+    set sLOXNumber:style:width to 20*TScale.
+    set sLOXNumber:style:fontsize to 12*TScale.
+    set sLOXNumber:style:overflow:left to 80*TScale.
+    set sLOXNumber:style:overflow:right to 0*TScale.
+    set sLOXNumber:style:overflow:bottom to 0*TScale.
+
+    set sCH4Label:style:margin:left to 50*TScale.
+    set sCH4Label:style:margin:top to 4*TScale.
+    set sCH4Label:style:width to 60*TScale.
+    set sCH4Label:style:fontsize to 20*TScale.
+
+    set sCH4Border:style:margin:left to 0*TScale.
+    set sCH4Border:style:margin:top to 12*TScale.
+    set sCH4Border:style:width to 190*TScale.
+    set sCH4Border:style:height to 8*TScale.
+    set sCH4Border:style:border:h to 8*TScale.
+    set sCH4Border:style:border:v to 0*TScale.
+    set sCH4Border:style:overflow:left to 0*TScale.
+    set sCH4Border:style:overflow:right to 8*TScale.
+    set sCH4Border:style:overflow:bottom to 1*TScale.
+
+    set sCH4Slider:style:margin:left to 0*TScale.
+    set sCH4Slider:style:margin:top to 12*TScale.
+    set sCH4Slider:style:width to 0*TScale.
+    set sCH4Slider:style:height to 8*TScale.
+    set sCH4Slider:style:border:h to 4*TScale.
+    set sCH4Slider:style:border:v to 0*TScale.
+    set sCH4Slider:style:overflow:left to 200*TScale.
+    set sCH4Slider:style:overflow:right to 0*TScale.
+    set sCH4Slider:style:overflow:bottom to 1*TScale.
+
+    set sCH4Number:style:padding:left to 0*TScale.
+    set sCH4Number:style:margin:left to 10*TScale.
+    set sCH4Number:style:margin:top to 7*TScale.
+    set sCH4Number:style:width to 20*TScale.
+    set sCH4Number:style:fontsize to 12*TScale.
+    set sCH4Number:style:overflow:left to 80*TScale.
+    set sCH4Number:style:overflow:right to 0*TScale.
+    set sCH4Number:style:overflow:bottom to 0*TScale.
 
     set sThrust:style:margin:left to 45*TScale.
     set sThrust:style:margin:top to 15*TScale.
@@ -738,7 +819,7 @@ function updateTelemetry {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
             }
-            if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" {
+            if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" or res:name = "LqdOxygen" {
                 set lox to res:amount.
                 set mlox to res:capacity.
             }
@@ -753,7 +834,7 @@ function updateTelemetry {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
             }
-            if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" {
+            if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" or res:name = "LqdOxygen" {
                 set lox to lox + res:amount.
                 set mlox to mlox + res:capacity.
             }
@@ -828,12 +909,20 @@ function updateTelemetry {
         set sAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(shipAltitude) + " <size=24>M</size>".
     }
 
-    set sLOX:text to "<b>LOX</b>       " + round(shipLOX,1) + " %". 
+    set sLOXLabel:text to "<b>LOX</b>   ".// + round(shipLOX,1) + " %".
+    set sLOXSlider:style:overflow:right to -196 + 2*round(shipLOX,1).
+    set sLOXNumber:text to round(shipLOX,1) + "%".
+
     if methane {
-        set sCH4:text to "<b>CH4</b>       " + round(shipCH4,1) + " %". 
+        set sCH4Label:text to "<b>CH4</b>   ".// + round(shipCH4,1) + " %".
+        set sCH4Slider:style:overflow:right to -196 + 2*round(shipCH4,1).
+        set sCH4Number:text to round(shipCH4,1) + "%".
     } else {
-        set sCH4:text to "<b>Fuel</b>      " + round(shipCH4,1) + " %". 
+        set sCH4Label:text to "<b>Fuel</b>   ".// + round(shipCH4,1) + " %".
+        set sCH4Slider:style:overflow:right to -196 + 2*round(shipCH4,1).
+        set sCH4Number:text to round(shipCH4,1) + "%".
     }
+
     set shipThrust to 0.
     for eng in SLEngines {
         set shipThrust to shipThrust + eng:thrust.

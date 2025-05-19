@@ -114,9 +114,36 @@ local shipSpace is bAttitudeTelemetry:addvlayout().
 local bEngines is boosterCluster:addlabel().
     set bEngines:style:bg to "starship_img/booster0".
 local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
+    set bSpeed:style:wordwrap to false.
 local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
-local bLOX is boosterStatus:addlabel("<b>LOX  </b>").
-local bCH4 is boosterStatus:addlabel("<b>CH4  </b>").
+    set bAltitude:style:wordwrap to false.
+
+local bLOX is boosterStatus:addhlayout().
+local bLOXLabel is bLOX:addlabel("<b>LOX  </b>").
+    set bLOXLabel:style:wordwrap to false.
+local bLOXBorder is bLOX:addlabel("").
+    set bLOXBorder:style:align to "CENTER".
+    set bLOXBorder:style:bg to "starship_img/telemetry_bg".
+local bLOXSlider is bLOX:addlabel().
+    set bLOXSlider:style:align to "CENTER".
+    set bLOXSlider:style:bg to "starship_img/telemetry_fuel".
+local bLOXNumber is bLOX:addlabel("100%").
+    set bLOXNumber:style:wordwrap to false.
+    set bLOXNumber:style:align to "LEFT".
+
+local bCH4 is boosterStatus:addhlayout().
+local bCH4Label is bCH4:addlabel("<b>CH4  </b>").
+    set bCH4Label:style:wordwrap to false.
+local bCH4Border is bCH4:addlabel("").
+    set bCH4Border:style:align to "CENTER".
+    set bCH4Border:style:bg to "starship_img/telemetry_bg".
+local bCH4Slider is bCH4:addlabel().
+    set bCH4Slider:style:align to "CENTER".
+    set bCH4Slider:style:bg to "starship_img/telemetry_fuel".
+local bCH4Number is bCH4:addlabel("100%").
+    set bCH4Number:style:wordwrap to false.
+    set bCH4Number:style:align to "LEFT".
+
 local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
 local bAttitude is boosterAttitude:addlabel().
     set bAttitude:style:bg to "starship_img/booster".
@@ -132,133 +159,10 @@ local shipBackground is shipSpace:addlabel().
 
 set bTelemetry:draggable to false.
 
-
-local bGUI is GUI(150).
-    set bGUI:style:bg to "starship_img/telemetry_bg".
-    set bGUI:style:padding:v to 0.
-    set bGUI:style:padding:h to 0.
-    set bGUI:x to 0.
-    set bGUI:skin:button:bg to  "starship_img/telemetry_bg".
-    set bGUI:skin:button:on:bg to  "starship_img/starship_background_light".
-    set bGUI:skin:button:hover:bg to  "starship_img/starship_background_light".
-    set bGUI:skin:button:hover_on:bg to  "starship_img/starship_background_light".
-    set bGUI:skin:button:textcolor to white.
-    set bGUI:skin:label:textcolor to white.
-    set bGUI:skin:textfield:textcolor to white.
-
-local bGUIBox is bGUI:addhlayout().
-
-local PollGUI is bGUIBox:addvlayout().
-    
-local leftright is PollGUI:addhlayout().
-local GoNoGoPoll is leftright:addvlayout().
-    set GoNoGoPoll:style:bg to "starship_img/starship_background_dark".
-local Space is leftright:addvlayout().
-local FDDecision is leftright:addvlayout().
-local Space2 is leftright:addvlayout().
-
-local spaceLabel is Space:addlabel("").
-local spaceLabel2 is Space2:addlabel("").
-
-local data1 is GoNoGoPoll:addlabel("Tower: ").
-    set data1:style:wordwrap to false.
-local Vehicle1 is GoNoGoPoll:addhlayout().
-local data2 is Vehicle1:addlabel("Engines: ").
-    set data2:style:wordwrap to false.
-local data25 is Vehicle1:addlabel("Fuel: ").
-    set data25:style:wordwrap to false.
-local Vehicle2 is GoNoGoPoll:addhlayout().
-local data3 is Vehicle2:addlabel("Gridfins: ").
-    set data3:style:wordwrap to false.
-local data35 is Vehicle2:addlabel("Tanks: ").
-    set data35:style:wordwrap to false.
-local data4 is GoNoGoPoll:addlabel("Flight Director: ").
-    set data4:style:wordwrap to false.
-local message0 is FDDecision:addlabel("<b>Flight Director:</b>").
-    set message0:style:wordwrap to false.
-local message1 is FDDecision:addlabel("<color=yellow>Go for Catch?</color>").
-    set message1:style:wordwrap to false.
-local buttonbox is FDDecision:addhlayout().
-local Go to buttonbox:addbutton("<b><color=green>Confirm</color></b>").
-    set Go:style:bg to "starship_img/starship_background_dark".
-local NoGo to buttonbox:addbutton("<b><color=red>Deny</color></b>").
-    set NoGo:style:bg to "starship_img/starship_background_dark".
-local message4 is GoNoGoPoll:addlabel("Current decision: ").
-    set message4:style:wordwrap to false.
-local message3 is FDDecision:addlabel("Poll ending in: ??s").
-    set message3:style:wordwrap to false.
-
-
 CreateTelemetry().
 
 
 function CreateTelemetry {
-    
-    set bGUI:style:border:h to 10*TScale.
-    set bGUI:style:border:v to 10*TScale.
-    set bGUI:y to -402*TScale.
-    set bGUI:skin:button:border:v to 10*TScale.
-    set bGUI:skin:button:border:h to 10*TScale.
-
-    set spaceLabel:style:width to 10*TScale.
-    set spaceLabel2:style:width to 8*TScale.
-
-    set data1:style:margin:left to 10*TScale.
-    set data1:style:margin:top to 10*TScale.
-    set data1:style:width to 230*TScale.
-    set data1:style:fontsize to 16*TScale.
-
-    set data2:style:margin:left to 10*TScale.
-    set data2:style:width to 115*TScale.
-    set data2:style:fontsize to 16*TScale.
-
-    set data25:style:margin:left to 10*TScale.
-    set data25:style:width to 115*TScale.
-    set data25:style:fontsize to 16*TScale.
-
-    set data3:style:margin:left to 10*TScale.
-    set data3:style:width to 115*TScale.
-    set data3:style:fontsize to 16*TScale.
-
-    set data35:style:margin:left to 10*TScale.
-    set data35:style:width to 115*TScale.
-    set data35:style:fontsize to 16*TScale.
-
-    set data4:style:margin:left to 10*TScale.
-    set data4:style:width to 230*TScale.
-    set data4:style:fontsize to 16*TScale.
-
-    set message0:style:margin:left to 10*TScale.
-    set message0:style:margin:top to 15*TScale.
-    set message0:style:width to 200*TScale.
-    set message0:style:fontsize to 21*TScale.
-
-    set message1:style:margin:left to 10*TScale.
-    set message1:style:margin:top to 25*TScale.
-    set message1:style:width to 200*TScale.
-    set message1:style:fontsize to 21*TScale.
-
-    set Go:style:width to 100*TScale.
-    set Go:style:border:h to 10*TScale.
-    set Go:style:border:v to 10*TScale.
-    set Go:style:fontsize to 18*TScale.
-
-    set NoGo:style:width to 100*TScale.
-    set NoGo:style:border:h to 10*TScale.
-    set NoGo:style:border:v to 10*TScale.
-    set NoGo:style:fontsize to 18*TScale.
-
-    set message4:style:margin:left to 10*TScale.
-    set message4:style:margin:top to 10*TScale.
-    set message4:style:width to 230*TScale.
-    set message4:style:fontsize to 16*TScale.
-
-    set message3:style:margin:left to 10*TScale.
-    set message3:style:margin:top to 10*TScale.
-    set message3:style:width to 200*TScale.
-    set message3:style:fontsize to 18*TScale.
-    
-
 
     set bTelemetry:style:border:h to 10*TScale.
     set bTelemetry:style:border:v to 10*TScale.
@@ -276,29 +180,83 @@ function CreateTelemetry {
     set bEngines:style:margin:right to 26*TScale.
     set bEngines:style:margin:bottom to 20*TScale.
 
-    set bSpeed:style:wordwrap to false.
     set bSpeed:style:margin:left to 10*TScale.
     set bSpeed:style:margin:top to 20*TScale.
     set bSpeed:style:width to 296*TScale.
     set bSpeed:style:fontsize to 30*TScale.
 
-    set bAltitude:style:wordwrap to false.
     set bAltitude:style:margin:left to 10*TScale.
     set bAltitude:style:margin:top to 2*TScale.
     set bAltitude:style:width to 296*TScale.
     set bAltitude:style:fontsize to 30*TScale.
 
-    set bLOX:style:wordwrap to false.
-    set bLOX:style:margin:left to 15*TScale.
-    set bLOX:style:margin:top to 25*TScale.
-    set bLOX:style:width to 200*TScale.
-    set bLOX:style:fontsize to 20*TScale.
+    set bLOXLabel:style:margin:left to 15*TScale.
+    set bLOXLabel:style:margin:top to 10*TScale.
+    set bLOXLabel:style:width to 60*TScale.
+    set bLOXLabel:style:fontsize to 20*TScale.
 
-    set bCH4:style:wordwrap to false.
-    set bCH4:style:margin:left to 15*TScale.
-    set bCH4:style:margin:top to 4*TScale.
-    set bCH4:style:width to 200*TScale.
-    set bCH4:style:fontsize to 20*TScale.
+    set bLOXBorder:style:margin:left to 0*TScale.
+    set bLOXBorder:style:margin:top to 19*TScale.
+    set bLOXBorder:style:width to 190*TScale.
+    set bLOXBorder:style:height to 8*TScale.
+    set bLOXBorder:style:border:h to 8*TScale.
+    set bLOXBorder:style:border:v to 0*TScale.
+    set bLOXBorder:style:overflow:left to 0*TScale.
+    set bLOXBorder:style:overflow:right to 8*TScale.
+    set bLOXBorder:style:overflow:bottom to 1*TScale.
+
+    set bLOXSlider:style:margin:left to 0*TScale.
+    set bLOXSlider:style:margin:top to 19*TScale.
+    set bLOXSlider:style:width to 0*TScale.
+    set bLOXSlider:style:height to 8*TScale.
+    set bLOXSlider:style:border:h to 4*TScale.
+    set bLOXSlider:style:border:v to 0*TScale.
+    set bLOXSlider:style:overflow:left to 200*TScale.
+    set bLOXSlider:style:overflow:right to 0*TScale.
+    set bLOXSlider:style:overflow:bottom to 1*TScale.
+
+    set bLOXNumber:style:padding:left to 0*TScale.
+    set bLOXNumber:style:margin:left to 10*TScale.
+    set bLOXNumber:style:margin:top to 13*TScale.
+    set bLOXNumber:style:width to 20*TScale.
+    set bLOXNumber:style:fontsize to 12*TScale.
+    set bLOXNumber:style:overflow:left to 80*TScale.
+    set bLOXNumber:style:overflow:right to 0*TScale.
+    set bLOXNumber:style:overflow:bottom to 0*TScale.
+
+    set bCH4Label:style:margin:left to 15*TScale.
+    set bCH4Label:style:margin:top to 4*TScale.
+    set bCH4Label:style:width to 60*TScale.
+    set bCH4Label:style:fontsize to 20*TScale.
+
+    set bCH4Border:style:margin:left to 0*TScale.
+    set bCH4Border:style:margin:top to 13*TScale.
+    set bCH4Border:style:width to 190*TScale.
+    set bCH4Border:style:height to 8*TScale.
+    set bCH4Border:style:border:h to 8*TScale.
+    set bCH4Border:style:border:v to 0*TScale.
+    set bCH4Border:style:overflow:left to 0*TScale.
+    set bCH4Border:style:overflow:right to 8*TScale.
+    set bCH4Border:style:overflow:bottom to 1*TScale.
+
+    set bCH4Slider:style:margin:left to 0*TScale.
+    set bCH4Slider:style:margin:top to 13*TScale.
+    set bCH4Slider:style:width to 0*TScale.
+    set bCH4Slider:style:height to 8*TScale.
+    set bCH4Slider:style:border:h to 4*TScale.
+    set bCH4Slider:style:border:v to 0*TScale.
+    set bCH4Slider:style:overflow:left to 200*TScale.
+    set bCH4Slider:style:overflow:right to 0*TScale.
+    set bCH4Slider:style:overflow:bottom to 1*TScale.
+
+    set bCH4Number:style:padding:left to 0*TScale.
+    set bCH4Number:style:margin:left to 10*TScale.
+    set bCH4Number:style:margin:top to 7*TScale.
+    set bCH4Number:style:width to 20*TScale.
+    set bCH4Number:style:fontsize to 12*TScale.
+    set bCH4Number:style:overflow:left to 80*TScale.
+    set bCH4Number:style:overflow:right to 0*TScale.
+    set bCH4Number:style:overflow:bottom to 0*TScale.
 
      set bThrust:style:wordwrap to false.
      set bThrust:style:margin:left to 10*TScale.
@@ -329,7 +287,6 @@ function CreateTelemetry {
 
     set shipBackground:style:width to 726*TScale.
 }
-set bTelemetry:draggable to false.
 
 
 
@@ -423,6 +380,7 @@ until False {
 
 
 function GUIupdate {
+
     if ShipConnectedToBooster {
         if vAng(facing:vector,up:vector) < 24 {
             set bAttitude:style:bg to "starship_img/Fullstack".
@@ -468,7 +426,7 @@ function GUIupdate {
     else set boosterThrust to BoosterEngines[0]:thrust.
     
     for res in BoosterCore:resources {
-        if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" {
+        if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" or res:name = "LqdOxygen" {
             set boosterLOX to res:amount*100/res:capacity.
         }
         if res:name = "LqdMethane" or res:name = "cooledLCH4" or res:name = "CooledLqdMethane" {
@@ -524,12 +482,27 @@ function GUIupdate {
     }
     set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
 
-    set bLOX:text to "<b>LOX</b>       " + round(boosterLOX,1) + " %".
+    set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
+    set bLOXSlider:style:overflow:right to -196 + 2*round(boosterLOX,1).
+    set bLOXNumber:text to round(boosterLOX,1) + "%".
+
     if methane {
-        set bCH4:text to "<b>CH4</b>       " + round(boosterCH4,1) + " %". 
+        set bCH4Label:text to "<b>CH4</b>   ".// + round(boosterCH4,1) + " %".
+        set bCH4Slider:style:overflow:right to -196 + 2*round(boosterCH4,1).
+        set bCH4Number:text to round(boosterCH4,1) + "%".
     } else {
-        set bCH4:text to "<b>Fuel</b>      " + round(boosterCH4,1) + " %". 
+        set bCH4Label:text to "<b>Fuel</b>   ".// + round(boosterCH4,1) + " %".
+        set bCH4Slider:style:overflow:right to -196 + 2*round(boosterCH4,1).
+        set bCH4Number:text to round(boosterCH4,1) + "%".
     }
+
+    if boosterLOX < 1 and boosterLOX > 0.5 set bLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+    else if boosterLOX < 0.5 set bLOXSlider:style:bg to "".
+    else set bLOXSlider:style:bg to "starship_img/telemetry_fuel".
+    if boosterCH4 < 1 and boosterCH4 > 0.5 set bCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+    else if boosterCH4 < 0.5 set bCH4Slider:style:bg to "".
+    else set bCH4Slider:style:bg to "starship_img/telemetry_fuel".
+
     
     set missionTimerNow to time:seconds-missionTimer.
     if missionTimerNow < 0 {

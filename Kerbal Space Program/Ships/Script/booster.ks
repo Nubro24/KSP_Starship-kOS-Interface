@@ -979,7 +979,7 @@ function Boostback {
 
         //show Poll HUD
         //activate yaw and neutralize on
-        when time:seconds > flipStartTime + 5.5 or time:seconds > flipStartTime + 5 and not RSS or steeringManager:angleerror < 85 and time:seconds > flipStartTime + 4 then {
+        when time:seconds > flipStartTime + 5.5 or time:seconds > flipStartTime + 5 and not RSS or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 75 then {
             set steeringmanager:yawtorquefactor to 0.9.
             set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 0.8.
@@ -2131,6 +2131,7 @@ function LandingGuidance {
 
     set vertRatio to RadarAlt*2/vSpeed.
     set closureRatio to ((gsRatio/vertRatio) + RadarAlt/7000 )^max(ErrorVector:mag/(0.3*BoosterHeight),1).
+    if MiddleEnginesShutdown and RSS set closureRatio to closureRatio + RadarAlt/3000.
 
     if RadarAlt > 0.8 * BoosterHeight and MiddleEnginesShutdown {
         set Fgs to Fgs * max( 0.8/closureRatio ,0.6).
@@ -2172,7 +2173,7 @@ function LandingGuidance {
         set Fpos to Fpos * 0.4.
         set Ferr to Ferr * 0.3.
         if GSVec:mag < 7 set Fgs to Fgs * 0.75.
-        if GSVec:mag < 1.4 set Fgs to Fgs * 0.3.
+        if GSVec:mag < 1 set Fgs to Fgs * 0.3.
     }
     if RadarAlt < 2.4 * BoosterHeight and RadarAlt > 1.2 * BoosterHeight {
         set Fpos to Fpos * 0.8.

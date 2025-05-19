@@ -6745,27 +6745,27 @@ function Launch {
             set message1:text to "<b>Ignition Sequence</b>".
             set message2:text to "<b>Expected Engine Count:</b>    13".
             set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
-            wait 0.8.
+            wait 1.
 
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
             set message2:text to "<b>Expected Engine Count:</b>    28".
-            wait 0.6.
+            wait 0.7.
             
             //last 5 outer ignition
             if SingleOuter for eng in BSEnginesRB eng:activate.
             set message2:text to "<b>Expected Engine Count:</b>    33".
             
 
-            wait 0.2.
+            wait 0.1.
             if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
                 SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
             }
             BoosterCore[0]:activate.
 
-            until time:seconds - EngineStartTime > 3.6 or cancelconfirmed {
+            until time:seconds - EngineStartTime > 3.8 or cancelconfirmed {
                 set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-                set message1:text to "<b>Clamps Release in:   </b>" + round(-time:seconds + EngineStartTime + 4, 1) + "<b> seconds</b>".
-                lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 1.6) / 2.
+                set message1:text to "<b>Clamps Release in:   </b>" + round(-time:seconds + EngineStartTime + 4.2, 1) + "<b> seconds</b>".
+                lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 1.8) / 2.
                 
                 BackGroundUpdate().
             }
