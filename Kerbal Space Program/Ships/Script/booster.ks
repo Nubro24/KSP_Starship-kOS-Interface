@@ -979,7 +979,7 @@ function Boostback {
 
         //show Poll HUD
         //activate yaw and neutralize on
-        when time:seconds > flipStartTime + 5.5 or time:seconds > flipStartTime + 5 and not RSS or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 75 then {
+        when time:seconds > flipStartTime + 6 or time:seconds > flipStartTime + 5 and not RSS or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 75 then {
             set steeringmanager:yawtorquefactor to 0.9.
             set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 0.8.
@@ -989,7 +989,7 @@ function Boostback {
             bGUI:show().
         }
         when time:seconds > flipStartTime + 7.5 then {
-            set steeringmanager:maxstoppingtime to 0.6.
+            set steeringmanager:maxstoppingtime to 0.5.
         }
 
         //first Booster Wobble check
@@ -2130,8 +2130,8 @@ function LandingGuidance {
     else set vSpeed to max(verticalSpeed,0.0001).
 
     set vertRatio to RadarAlt*2/vSpeed.
-    set closureRatio to ((gsRatio/vertRatio) + RadarAlt/7000 )^max(ErrorVector:mag/(0.3*BoosterHeight),1).
-    if MiddleEnginesShutdown and RSS set closureRatio to closureRatio + RadarAlt/3000.
+    set closureRatio to ((gsRatio/vertRatio) + RadarAlt/7000 )^max(ErrorVector:mag/(0.4*BoosterHeight),1).
+    if MiddleEnginesShutdown and RSS set closureRatio to closureRatio + RadarAlt/2000.
 
     if RadarAlt > 0.8 * BoosterHeight and MiddleEnginesShutdown {
         set Fgs to Fgs * max( 0.8/closureRatio ,0.6).
@@ -2168,14 +2168,14 @@ function LandingGuidance {
         set Fpos to Fpos * 0.2.
         set Ferr to Ferr * 0.2.
         set Fgs to Fgs * 0.3.
-    }
+    } else 
     if RadarAlt < 1.2 * BoosterHeight {
         set Fpos to Fpos * 0.4.
         set Ferr to Ferr * 0.3.
-        if GSVec:mag < 7 set Fgs to Fgs * 0.75.
-        if GSVec:mag < 1 set Fgs to Fgs * 0.3.
-    }
-    if RadarAlt < 2.4 * BoosterHeight and RadarAlt > 1.2 * BoosterHeight {
+        if GSVec:mag < 5 set Fgs to Fgs * 0.85.
+        if GSVec:mag < 1.6 set Fgs to Fgs * 0.6.
+    } else
+    if RadarAlt < 2.4 * BoosterHeight {
         set Fpos to Fpos * 0.8.
         set Ferr to Ferr * 0.8.
         set Fgs to Fgs * 0.95.
@@ -2183,8 +2183,8 @@ function LandingGuidance {
     }
 
     // === Low Altitude Correction
-    if RadarAlt < 1.9 * BoosterHeight and GfC {
-        if (vAng(GSVec, Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position) > 50 or closureRatio > 2) 
+    if RadarAlt < 2.1 * BoosterHeight and GfC {
+        if (vAng(GSVec, Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position) > 50 or closureRatio > 1.25) 
                 and (PositionError:mag > 0.3 * BoosterHeight or ErrorVector:mag > 4) {
             if not RSS set Ftrv to 0.003 * RadarRatio.
             else set Ftrv to 0.0033 * RadarRatio.

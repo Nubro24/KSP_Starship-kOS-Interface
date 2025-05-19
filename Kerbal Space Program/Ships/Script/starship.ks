@@ -375,8 +375,8 @@ if RSS {         // Real Solar System
     set BoosterMinPusherDistance to 0.48.
     set ShipMinPusherDistance to 1.12.
     set towerhgt to 96.
-    set LaunchSites to lexicon("Launch Site", "28.6084,-80.6496").
-    set DefaultLaunchSite to "28.60839,-80.64962".
+    set LaunchSites to lexicon("Launch Site", "28.549072,-80.655925").
+    set DefaultLaunchSite to "28.549072,-80.655925".
     set FuelVentCutOffValue to 3000.
     set FuelBalanceSpeed to 50.
     set RollVector to heading(270,0):vector.
@@ -10279,7 +10279,7 @@ function ReEntryAndLand {
         when altitude < 44000 and RSS then {
             set TRJCorrection to -TRJCorrection*1.5.
         }
-        when altitude < 12000 and Stock or altitude < 17000 and KSRSS or altitude < 17000 and RSS then {
+        when altitude < 12000 and Stock or altitude < 17000 and KSRSS or altitude < 15000 and RSS then {
             set TRJCorrection to 0.
         }
 

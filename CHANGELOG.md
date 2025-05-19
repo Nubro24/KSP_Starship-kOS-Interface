@@ -2,6 +2,8 @@
 - RSS Ascent profile changed
 - Small changes to Booster Landings
 - Small improvements to Ship Landings
+- Fixed RSS Reentry loosing control
+- Fixed Thrust issue in Stock
 - Fixed an Error with Real Fuels
 
 # V3.5.1 (2025-05-18)
