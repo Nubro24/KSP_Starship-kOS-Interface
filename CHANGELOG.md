@@ -1,5 +1,8 @@
 # V3.5.2 (WIP)
-- 
+- RSS Ascent profile changed
+- Small changes to Booster Landings
+- Small improvements to Ship Landings
+- Fixed an Error with Real Fuels
 
 # V3.5.1 (2025-05-18)
 - **Booster Catch Position precision improved**

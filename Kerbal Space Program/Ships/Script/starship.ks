@@ -7397,7 +7397,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (8.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
             }
         }
         else if KSRSS {
@@ -7434,7 +7434,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (8.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -7469,7 +7469,7 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,24),-24).
-            set ProgradeAngle to ProgradeAngle * 0.8.
+            set ProgradeAngle to ProgradeAngle * 0.92.
         }
         if MaintainVS {
             if deltaV > 500*Scale {
@@ -11260,10 +11260,10 @@ function LandingVector {
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.025*facing:topvector.
+                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                             if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                         } else {
-                            set result to up:vector - 0.024 * GSVec - 0.024*facing:topvector.
+                            set result to up:vector - 0.024 * GSVec - 0.0235*facing:topvector.
                         }
                         if oneSL {
                             if ErrorVector:MAG > 5 * Scale {
@@ -11522,9 +11522,9 @@ function LngLatError {
                 }
                 else if KSRSS {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -36.
+                        set LngLatOffset to -33.
                     } else {
-                        set LngLatOffset to -36.
+                        set LngLatOffset to -33.
                     }
                 }
                 else {
@@ -11537,10 +11537,10 @@ function LngLatError {
             }
             else {
                 if STOCK {
-                    set LngLatOffset to -52.
+                    set LngLatOffset to -42.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -60.
+                    set LngLatOffset to -50.
                 }
                 else {
                     set LngLatOffset to -112.
@@ -12750,16 +12750,16 @@ function LandAtOLM {
         }
         else if KSRSS {
             if ShipType:contains("Block1"){
-                set FlipAltitude to 642.
+                set FlipAltitude to 624.
             } else {
-                set FlipAltitude to 642.
+                set FlipAltitude to 624.
             }
         }
         else {
             if ShipType:contains("Block1"){
-                set FlipAltitude to 600.
+                set FlipAltitude to 610.
             } else {
-                set FlipAltitude to 600.
+                set FlipAltitude to 610.
             }
         }
         list targets in shiplist.
@@ -14764,7 +14764,7 @@ function updateTelemetry {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
             }
-            if res:name = "Oxidizer" {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" {
                 set lox to res:amount.
                 set mlox to res:capacity.
             }
@@ -14779,7 +14779,7 @@ function updateTelemetry {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
             }
-            if res:name = "Oxidizer" {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" {
                 set lox to lox + res:amount.
                 set mlox to mlox + res:capacity.
             }

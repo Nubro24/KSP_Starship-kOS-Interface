@@ -566,15 +566,15 @@ if bodyexists("Earth") {
         set BoosterHeight to 70.6.
         if oldBooster set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
-        set LFBoosterFuelCutOff to 10000.
+        set LFBoosterFuelCutOff to 12000.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.5, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 2200. 
-        else set BoosterGlideDistance to 1640. //3200 
+        if oldBooster set BoosterGlideDistance to 2400. 
+        else set BoosterGlideDistance to 2000. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set LngCtrlPID:setpoint to 12. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
@@ -965,7 +965,7 @@ function Boostback {
             set steeringmanager:yawtorquefactor to 0.6.
         }
         //Middle Restart
-        when (time:seconds > flipStartTime + 4 and verticalspeed > 0 and not (RSS)) or (time:seconds > flipStartTime + 6 and verticalspeed > 0 and (RSS)) then {
+        when (time:seconds > flipStartTime + 4 and verticalspeed > 0 and not (RSS)) or (time:seconds > flipStartTime + 5 and verticalspeed > 0 and (RSS)) then {
             lock throttle to 0.5.
             wait 0.01.
             MidGimbMod:doaction("free gimbal", true).
@@ -979,7 +979,7 @@ function Boostback {
 
         //show Poll HUD
         //activate yaw and neutralize on
-        when time:seconds > flipStartTime + 6 or time:seconds > flipStartTime + 5 and not RSS then {
+        when time:seconds > flipStartTime + 5.5 or time:seconds > flipStartTime + 5 and not RSS or steeringManager:angleerror < 85 and time:seconds > flipStartTime + 4 then {
             set steeringmanager:yawtorquefactor to 0.9.
             set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 0.8.
@@ -987,6 +987,9 @@ function Boostback {
             lock throttle to 0.66.
             set FC to true.
             bGUI:show().
+        }
+        when time:seconds > flipStartTime + 7.5 then {
+            set steeringmanager:maxstoppingtime to 0.6.
         }
 
         //first Booster Wobble check
@@ -1296,7 +1299,7 @@ function Boostback {
 
         set CurrentVec to ship:facing:forevector.
 
-        until vang(facing:forevector, CurrentVec) > 10 {
+        until vang(facing:forevector, CurrentVec) > 5 {
             SteeringCorrections().
             PollUpdate().
             SetBoosterActive().
@@ -1306,15 +1309,18 @@ function Boostback {
             wait 0.067.
         }
         
-        set SteeringManager:yawtorquefactor to 0.4.
+        set SteeringManager:yawtorquefactor to 0.1.
 
         if not RSS lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/65)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/65))):normalized, ApproachVector).
-        else lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/55)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/55))):normalized, ApproachVector).
+        else lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/80)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/80))):normalized, ApproachVector).
         set SteeringManager:maxstoppingtime to 1.8.
         if RSS 
-            set SteeringManager:maxstoppingtime to 3.6.
+            set SteeringManager:maxstoppingtime to 4.2.
 
-        until time:seconds - turnTime > 60 {
+        when steeringManager:angleerror < 90 then
+            set SteeringManager:yawtorquefactor to 0.3.
+
+        until time:seconds - turnTime > 30 and steeringManager:angleerror < 42 {
             SteeringCorrections().
             PollUpdate().
             SetBoosterActive().
@@ -1323,7 +1329,7 @@ function Boostback {
             if kuniverse:timewarp:warp > 1 {set kuniverse:timewarp:warp to 1.}
             wait 0.067.
         }
-        set SteeringManager:yawtorquefactor to 1.
+        set SteeringManager:yawtorquefactor to 0.6.
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         set SteeringManager:maxstoppingtime to 1.4.
         if RSS 
@@ -1462,6 +1468,7 @@ function Boostback {
         if STOCK and altitude < 43000 {SetBoosterActive().}
         wait 0.05.
     }
+    set SteeringManager:yawtorquefactor to 1.
     when (RadarAlt < 69000 and RSS) or (RadarAlt < 35000 and not (RSS)) then {
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 1.}
     }
@@ -1483,7 +1490,7 @@ function Boostback {
     if not cAbort {
         lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     } else {
-        lock SteeringVector to lookdirup((ErrorVector:normalized + up:vector:normalized), ApproachVector * AngleAxis(2 * LatCtrl, -up:vector)).
+        lock SteeringVector to lookdirup((ErrorVector:normalized + 1.2*up:vector:normalized), ApproachVector * AngleAxis(2 * LatCtrl, -up:vector)).
     }
     
     lock steering to SteeringVector.
@@ -1504,8 +1511,8 @@ function Boostback {
 
 
     if STOCK lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    else if KSRSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1.1*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.85*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    else if KSRSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.75*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.15 then { 
         lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.3*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError > 0 then {
@@ -1531,7 +1538,8 @@ function Boostback {
         if alt:radar < 5000 and once {
             set kuniverse:timewarp:warp to 0.
             set once to false.
-        }
+        } else if kuniverse:timewarp:warp > 1 
+            set kuniverse:timewarp:warp to 1.
         if altitude > 26000 and RSS or altitude > 20000 and not (RSS) {
             rcs on.
         }
@@ -1945,7 +1953,7 @@ FUNCTION SteeringCorrections {
             set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
 
             if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 69) / min(maxDecel, 60).
+                set stopTime9 to (airspeed - 69) / min(maxDecel, 53*Scale).
                 set stopDist9 to ((airspeed + 69) / 2) * stopTime9.
                 set stopTime3 to min(69, airspeed) / min(maxDecel3, FinalDeceleration).
                 set stopDist3 to (min(69, airspeed) / 2) * stopTime3.
@@ -2068,7 +2076,7 @@ function LandingThrottle {
     } 
     set thro to 0.
     if RSS {
-        set thro to max((landingRatio * min(maxDecel, 50) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.29).
+        set thro to max((landingRatio * min(maxDecel, 85) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.29).
     }
     else {
         set thro to max((landingRatio * min(maxDecel, 50) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.33).
@@ -2122,7 +2130,7 @@ function LandingGuidance {
     else set vSpeed to max(verticalSpeed,0.0001).
 
     set vertRatio to RadarAlt*2/vSpeed.
-    set closureRatio to (gsRatio/vertRatio) + RadarAlt/6600.
+    set closureRatio to ((gsRatio/vertRatio) + RadarAlt/7000 )^max(ErrorVector:mag/(0.3*BoosterHeight),1).
 
     if RadarAlt > 0.8 * BoosterHeight and MiddleEnginesShutdown {
         set Fgs to Fgs * max( 0.8/closureRatio ,0.6).
@@ -2164,12 +2172,13 @@ function LandingGuidance {
         set Fpos to Fpos * 0.4.
         set Ferr to Ferr * 0.3.
         if GSVec:mag < 7 set Fgs to Fgs * 0.75.
-        if GSVec:mag < 3 set Fgs to Fgs * 0.3.
+        if GSVec:mag < 1.4 set Fgs to Fgs * 0.3.
     }
     if RadarAlt < 2.4 * BoosterHeight and RadarAlt > 1.2 * BoosterHeight {
         set Fpos to Fpos * 0.8.
         set Ferr to Ferr * 0.8.
         set Fgs to Fgs * 0.95.
+        if RSS set Fgs to Fgs *0.9.
     }
 
     // === Low Altitude Correction
@@ -2201,10 +2210,10 @@ function LandingGuidance {
     }
 
     // === Side Drift ===
-    if vAng(ErrorVector, -GSVec) > 35 and vAng(ErrorVector, -GSVec) > 145 and ErrorVector:mag > 0.48 * BoosterHeight {
+    if vAng(ErrorVector, -GSVec) > 35 and vAng(ErrorVector, -GSVec) > 145 and ErrorVector:mag > 0.48 * BoosterHeight  or  LatError > 0.25 * BoosterHeight {
         set SideFactor to 0.77.
         set Ferr to Ferr * 1.16.
-    } else if vAng(ErrorVector, -GSVec) > 30 and vAng(ErrorVector, -GSVec) > 150 and ErrorVector:mag > 0.18 * BoosterHeight {
+    } else if vAng(ErrorVector, -GSVec) > 30 and vAng(ErrorVector, -GSVec) > 150 and ErrorVector:mag > 0.18 * BoosterHeight  or  LatError > 0.15 * BoosterHeight {
         set SideFactor to 0.44.
         set Ferr to Ferr * 1.1.
     }
@@ -3044,7 +3053,7 @@ function GUIupdate {
     set boosterSpeed to ship:airspeed.
     set boosterThrust to BoosterEngines[0]:thrust.
     for res in BoosterCore:resources {
-        if res:name = "Oxidizer" {
+        if res:name = "Oxidizer" or res:name = "LqdOxygen" {
             set boosterLOX to res:amount*100/res:capacity.
         }
         if res:name = "LqdMethane" {
