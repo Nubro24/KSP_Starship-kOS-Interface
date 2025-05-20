@@ -11529,7 +11529,7 @@ function LngLatError {
                 }
                 else {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -111.
+                        set LngLatOffset to -116.
                     } else {
                         set LngLatOffset to -116.
                     }

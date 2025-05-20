@@ -670,7 +670,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1100. 
+        if oldBooster set BoosterGlideDistance to 950. 
         else set BoosterGlideDistance to 800. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         set LngCtrlPID:setpoint to 10. //50
