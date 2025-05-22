@@ -2248,7 +2248,7 @@ function LandingGuidance {
         set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.07/(closureRatio^4)).
         if RSS set Fgs to Fgs * (1.05/(closureRatio^4)).
 
-        set Ftrv to Ftrv * 0.8.
+        set Ftrv to Ftrv * 0.7.
     } else if RSS {
         set Fgs to Fgs * 0.94.
     }
