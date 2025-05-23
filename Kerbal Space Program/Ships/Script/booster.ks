@@ -1698,7 +1698,7 @@ function Boostback {
                         set steeringManager:maxstoppingtime to 1.2.
                     }
                     when RadarAlt < 1.2 * BoosterHeight and GfC then {
-                        set steeringManager:maxstoppingtime to 0.72.
+                        set steeringManager:maxstoppingtime to 0.69.
                     }
                     set SentTime to time:seconds.
                     when RadarAlt < 3 * BoosterHeight and RadarAlt > 0.05*BoosterHeight then {
@@ -1722,11 +1722,11 @@ function Boostback {
                         Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", true).
                     }
-                    when RadarAlt < 0.25*BoosterHeight then {
-                        set steeringManager:maxstoppingtime to 1.
+                    when RadarAlt < 0.5*BoosterHeight then {
+                        set steeringManager:maxstoppingtime to 1.4.
                     }
                     when RadarAlt < 0.12*BoosterHeight then {
-                        set steeringManager:maxstoppingtime to 0.4. if RSS set steeringManager:maxstoppingtime to 0.6.
+                        set steeringManager:maxstoppingtime to 0.35. if RSS set steeringManager:maxstoppingtime to 0.5.
                     }
                     when RadarAlt < 0.04*BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + "," + ArmSpeed + ",24,false")).

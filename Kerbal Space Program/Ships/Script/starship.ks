@@ -696,7 +696,7 @@ function FindParts {
     set CargoMassStep to 0.
     set CargoItems to 0.
     set CargoCoG to 0.
-    set SLEnginesStep to List().
+    set SLEnginesStep to List("","","").
     set SL to false.
     set SLcount to 0.
     set VACEnginesStep to List().
@@ -877,7 +877,7 @@ function FindParts {
     } 
     else {
         print("SLEngine count is wrong!").
-        hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,3,18,red,false).
+        hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,2,18,red,false).
     }
 
     set SLEngines to SLEnginesStep.
@@ -989,6 +989,7 @@ function FindParts {
         if not runningprogram = "LAUNCH" {
             set sTelemetry:style:bg to "starship_img/telemetry_bg".
         }
+
     }
 
     if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
@@ -1027,6 +1028,30 @@ function FindParts {
 
 
 //-------------Initial Program Start-Up--------------------//
+
+function EngineTest {
+    hudtext("Static Fire Test starting..",5,2,18,yellow,false).
+    wait 5.
+    lock throttle to 0.8.
+    for eng in VACEngines eng:activate.
+    wait 1.2.
+    SLEngines[0]:activate.
+    wait 0.3.
+    SLEngines[1]:activate.
+    wait 0.3.
+    SLEngines[2]:activate.
+    wait 4.
+    for eng in VACEngines eng:shutdown.
+    wait 1.8.
+    SLEngines[0]:shutdown.
+    wait 0.2.
+    SLEngines[2]:shutdown.
+    wait 0.2.
+    SLEngines[1]:shutdown.
+    lock throttle to 0.
+    unlock throttle.
+    hudtext("Static Fire Test complete..",5,2,18,green,false).
+}
 
 
 SetLoadDistances(ship, "default").
@@ -6420,6 +6445,9 @@ else if not startup {
     set startup to true.
 }
 
+if not Boosterconnected and Ship:status = "PRELaunch" and ship:partsnamed("SLE.SS.TS"):length > 0 {
+    EngineTest().
+}
 
 WHEN runningprogram = "None" THEN {
     BackGroundUpdate().
