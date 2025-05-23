@@ -697,6 +697,8 @@ function FindParts {
     set CargoItems to 0.
     set CargoCoG to 0.
     set SLEnginesStep to List().
+    set SL to false.
+    set SLcount to 0.
     set VACEnginesStep to List().
     set BSEnginesRC to List().
     set BSEnginesRB to List().
@@ -728,7 +730,8 @@ function FindParts {
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else {
                 if x:name:contains("SEP.23.RAPTOR2.SL.RC") and x:parent:name:contains("SHIP") {
-                    SLEnginesStep:add(x).
+                    set SL to true.
+                    set SLcount to SLcount + 1.
                 }
                 else if x:name:contains("SEP.23.RAPTOR.VAC") {
                     VACEnginesStep:add(x).
@@ -837,6 +840,45 @@ function FindParts {
         }
     }
 
+    if SL and SLcount = 3 {
+        set SL1 to false.
+        set SL2 to false.
+        set SL3 to false.
+        for x in Tank:children {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
+                if x:name:contains("SEP.23.RAPTOR2.SL.RC") {
+                    set partPos to x:position - Tank:position.
+                    set compPos to Tank:facing:topvector.
+                    if vAng(partPos, compPos) < 89 {
+                        set SLEnginesStep[0] to x.
+                        set SL1 to true.
+                    }  
+                    else {
+                        set compPos to -Tank:facing:starvector.
+                        if vAng(partPos, compPos) < 89 {
+                            set SLEnginesStep[1] to x.
+                            set SL2 to true.
+                        } 
+                        else {
+                            set compPos to Tank:facing:starvector.
+                            if vAng(partPos, compPos) < 89 {
+                                set SLEnginesStep[2] to x.
+                                set SL3 to true.
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if SL1 and SL2 and SL3 {}
+        else {
+            print("Not all SLEngines have been set..!!!").
+        }
+    } 
+    else {
+        print("SLEngine count is wrong!").
+        hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,3,18,red,false).
+    }
 
     set SLEngines to SLEnginesStep.
     set VACEngines to VACEnginesStep.
@@ -11260,17 +11302,17 @@ function LandingVector {
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
-                            if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
+                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.023*facing:topvector.
+                            if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.023*facing:topvector.
                         } else {
-                            set result to up:vector - 0.024 * GSVec - 0.0235*facing:topvector.
+                            set result to up:vector - 0.024 * GSVec - 0.023*facing:topvector.
                         }
                         if oneSL {
                             if ErrorVector:MAG > 5 * Scale {
-                                set result to up:vector - 0.03 * GSVec - 0.005 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.021*facing:topvector - 0.026*facing:starvector.
-                                if RSS set result to up:vector - 0.034 * GSVec - 0.003 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.021*facing:topvector - 0.026*facing:starvector.
+                                set result to up:vector - 0.03 * GSVec - 0.005 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.02*facing:topvector - 0.023*facing:starvector.
+                                if RSS set result to up:vector - 0.034 * GSVec - 0.003 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.02*facing:topvector - 0.023*facing:starvector.
                             } else {
-                                set result to up:vector - 0.024 * GSVec - 0.021*facing:topvector - 0.026*facing:starvector.
+                                set result to up:vector - 0.024 * GSVec - 0.02*facing:topvector - 0.023*facing:starvector.
                             }
                         }
                         if vAng(result, facing:forevector) > 3 set result to facing:forevector + result.
