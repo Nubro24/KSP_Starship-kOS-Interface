@@ -10349,6 +10349,9 @@ function ReEntryAndLand {
         when altitude < 44000 and RSS then {
             set TRJCorrection to -TRJCorrection*1.5.
         }
+        when altitude < 20000 and RSS then {
+            set TRJCorrection to -TRJCorrection/1.5.
+        }
         when altitude < 12000 and Stock or altitude < 17000 and KSRSS or altitude < 15000 and RSS then {
             set TRJCorrection to 0.
         }
@@ -10378,7 +10381,7 @@ function ReEntryAndLand {
                     CheckLZReachable().
                     set t to time:seconds.
                     if ship:body:atm:sealevelpressure > 0.5 {
-                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 5).
+                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
                         set aoa to LandingAoA.
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
@@ -11014,7 +11017,7 @@ function ReEntryData {
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
                     if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 6.4.
-                    else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 11.5.
+                    else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.8.
                 }
                 set ship:control:neutralize to true.
                 
@@ -11032,7 +11035,11 @@ function ReEntryData {
 
                         when RadarAlt < 2.85 * ShipHeight then {
                             setflaps(0, 85, 1, 0).
-                            set steeringManager:maxstoppingtime to 1.
+                            set steeringManager:maxstoppingtime to 0.9*Scale.
+                        }
+                        when RadarAlt < 0.85 * ShipHeight then {
+                            setflaps(0, 85, 1, 0).
+                            set steeringManager:maxstoppingtime to 0.45*Scale.
                         }
 
                         when RadarAlt < 2.8 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
@@ -11042,7 +11049,7 @@ function ReEntryData {
                             wait 0.1.
                             if not ShipLanded preserve.
                         }
-                            when RadarAlt <  0.12 * ShipHeight then {
+                            when RadarAlt <  0.1 * ShipHeight then {
                                 sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",4.2,24,false")).
                                 sendMessage(Vessel(TargetOLM), ("CloseArms")).
                             }
