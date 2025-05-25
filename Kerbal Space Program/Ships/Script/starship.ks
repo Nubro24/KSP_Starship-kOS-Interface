@@ -274,8 +274,8 @@ function CreateTelemetry {
     set sEngines:style:width to 180*TScale.
     set sEngines:style:height to 180*TScale.
     set sEngines:style:margin:top to 20*TScale.
-    set sEngines:style:margin:left to 22*TScale.
-    set sEngines:style:margin:right to 3*TScale.
+    set sEngines:style:margin:left to 25*TScale.
+    set sEngines:style:margin:right to 5*TScale.
     set sEngines:style:margin:bottom to 20*TScale.
 
 }
@@ -11307,17 +11307,20 @@ function ClosingSpeed {
 
 
 function LandingThrottle {
-    set minDecel to (Planet1G - 0.025) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
+    set minDecel to (Planet1G - 0.05) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
     if LandSomewhereElse {
-        set minDecel to (Planet1G - 2.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
+        set minDecel to (Planet1G - 1.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
     }
-    if verticalSpeed < 10*CatchVS and Hover {
+    if verticalSpeed < 8*CatchVS and Hover {
         set Hover to false.
     }
-    if verticalSpeed > 0 {
-        return minDecel*0.24.
+    if verticalSpeed < 14*CatchVS and Hover {
+        set Slow to false.
     }
-    if verticalspeed > 2*CatchVS or Hover {
+    if verticalSpeed > 0 {
+        return minDecel*0.5.
+    }
+    if verticalspeed > CatchVS or Hover {
         set Hover to true.
         return minDecel.
     }
@@ -11325,6 +11328,11 @@ function LandingThrottle {
     set DesiredDecel to 0.6 * maxDecel.
     set stopTime to airspeed / DesiredDecel.
     set stopDist to 0.5 * airspeed * stopTime.
+    
+    if verticalspeed > 3*CatchVS or Slow {
+        set Slow to true.
+        return (minDecel+DesiredDecel)/2.
+    }
     if not (TargetOLM = "False") {
         set landingRatio to stopDist / (RadarAlt - 0.6).
     }

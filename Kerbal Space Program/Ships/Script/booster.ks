@@ -1313,7 +1313,7 @@ function Boostback {
 
         if not RSS lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/65)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/65))):normalized, ApproachVector).
         else lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/80)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/80))):normalized, ApproachVector).
-        set SteeringManager:maxstoppingtime to 1.8.
+        set SteeringManager:maxstoppingtime to 2.4.
         if RSS 
             set SteeringManager:maxstoppingtime to 4.2.
 
@@ -1331,7 +1331,7 @@ function Boostback {
         }
         set SteeringManager:yawtorquefactor to 0.6.
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-        set SteeringManager:maxstoppingtime to 1.4.
+        set SteeringManager:maxstoppingtime to 2.
         if RSS 
             set SteeringManager:maxstoppingtime to 3.2.
 
