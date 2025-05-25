@@ -699,7 +699,9 @@ function FindParts {
     set SLEnginesStep to List("","","").
     set SL to false.
     set SLcount to 0.
-    set VACEnginesStep to List().
+    set Vac to false.
+    set Vaccount to 0.
+    set VACEnginesStep to List("","","","","","").
     set BSEnginesRC to List().
     set BSEnginesRB to List().
     if Tank:name:contains("SEP.23.SHIP.DEPOT") {
@@ -734,7 +736,8 @@ function FindParts {
                     set SLcount to SLcount + 1.
                 }
                 else if x:name:contains("SEP.23.RAPTOR.VAC") {
-                    VACEnginesStep:add(x).
+                    set Vac to true.
+                    set Vaccount to Vaccount + 1.
                 }
                 else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:title = "Donnager MK-1 Rear Left Flap" or x:title = "Starship Rear Left Flap" {
                     set ALflap to x.
@@ -878,6 +881,106 @@ function FindParts {
     else {
         print("SLEngine count is wrong!").
         hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,2,18,red,false).
+    }
+
+    if Vac and Vaccount = 3 {
+        set VACEnginesStep to List("","","").
+        set Vac1 to false.
+        set Vac2 to false.
+        set Vac3 to false.
+        for x in Tank:children {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") {
+                    set partPos to x:position - Tank:position.
+                    set compPos to -Tank:facing:topvector.
+                    if vAng(partPos, compPos) < 89 {
+                        set VACEnginesStep[0] to x.
+                        set Vac1 to true.
+                    }  
+                    else {
+                        set compPos to Tank:facing:starvector.
+                        if vAng(partPos, compPos) < 89 {
+                            set VACEnginesStep[1] to x.
+                            set Vac2 to true.
+                        } 
+                        else {
+                            set compPos to -Tank:facing:starvector.
+                            if vAng(partPos, compPos) < 89 {
+                                set VACEnginesStep[2] to x.
+                                set Vac3 to true.
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if Vac1 and Vac2 and Vac3 {}
+        else {
+            print("Not all VACEngines have been set..!!!").
+        }
+    } 
+    else if Vac and Vaccount = 6 {
+        set Vac1 to false.
+        set Vac2 to false.
+        set Vac3 to false.
+        set Vac4 to false.
+        set Vac5 to false.
+        set Vac6 to false.
+        for x in Tank:children {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") {
+                    set partPos to vxcl(Tank:facing:forevector,x:position - Tank:position).
+                    set compPos to -Tank:facing:starvector.
+                    if vAng(partPos, compPos) < 10 {
+                        set VACEnginesStep[0] to x.
+                        set Vac1 to true.
+                    }  
+                    else {
+                        set compPos to -Tank:facing:starvector - 2*Tank:facing:topvector.
+                        if vAng(partPos, compPos) < 10 {
+                            set VACEnginesStep[1] to x.
+                            set Vac2 to true.
+                        } 
+                        else {
+                            set compPos to Tank:facing:starvector - 2*Tank:facing:topvector.
+                            if vAng(partPos, compPos) < 10 {
+                                set VACEnginesStep[2] to x.
+                                set Vac3 to true.
+                            }
+                            else {
+                                set compPos to Tank:facing:starvector.
+                                if vAng(partPos, compPos) < 10 {
+                                    set VACEnginesStep[3] to x.
+                                    set Vac4 to true.
+                                }
+                                else {
+                                    set compPos to Tank:facing:starvector + 2*Tank:facing:topvector.
+                                    if vAng(partPos, compPos) < 10 {
+                                        set VACEnginesStep[4] to x.
+                                        set Vac5 to true.
+                                    }
+                                    else {
+                                        set compPos to -Tank:facing:starvector + 2*Tank:facing:topvector.
+                                        if vAng(partPos, compPos) < 10 {
+                                            set VACEnginesStep[5] to x.
+                                            set Vac6 to true.
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {}
+        else {
+            print("Not all VACEngines have been set..!!!").
+        }
+    } 
+    else {
+        print("VACEngine count is wrong!").
+        hudtext("VACEngine count is wrong! (" + Vaccount + "; needs 3 or 6)",10,2,18,red,false).
     }
 
     set SLEngines to SLEnginesStep.
@@ -11214,7 +11317,7 @@ function LandingThrottle {
     if verticalSpeed > 0 {
         return minDecel*0.24.
     }
-    if verticalspeed > CatchVS or Hover {
+    if verticalspeed > 2*CatchVS or Hover {
         set Hover to true.
         return minDecel.
     }
@@ -14878,6 +14981,7 @@ function updateTelemetry {
     }
     set picPath to "starship_img/EngPic" + VACEngines:length + "Vac/" + engCount:tostring.
     set sEngines:style:bg to picPath.
+
     
     set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
     if shipAltitude > 99999 {
