@@ -329,8 +329,12 @@ function FindParts {
     set CargoMassStep to 0.
     set CargoItems to 0.
     set CargoCoG to 0.
-    set SLEnginesStep to List().
-    set VACEnginesStep to List().
+    set SLEnginesStep to List("","","").
+    set SL to false.
+    set SLcount to 0.
+    set Vac to false.
+    set Vaccount to 0.
+    set VACEnginesStep to List("","","","","","").
     if Tank:name:contains("SEP.23.SHIP.DEPOT") {
         set ShipType to "Depot".
         set CargoMassStep to CargoMassStep + Tank:mass - Tank:drymass.
@@ -358,11 +362,13 @@ function FindParts {
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else {
-                if x:name:contains("SEP.23.RAPTOR2.SL.RC") {
-                    SLEnginesStep:add(x).
+                if x:name:contains("SEP.23.RAPTOR2.SL.RC") and x:parent:name:contains("SHIP") {
+                    set SL to true.
+                    set SLcount to SLcount + 1.
                 }
                 else if x:name:contains("SEP.23.RAPTOR.VAC") {
-                    VACEnginesStep:add(x).
+                    set Vac to true.
+                    set Vaccount to Vaccount + 1.
                 }
                 else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:title = "Donnager MK-1 Rear Left Flap" or x:title = "Starship Rear Left Flap" {
                     set ALflap to x.
@@ -487,6 +493,146 @@ function FindParts {
                 Treewalking(x).
             }
         }
+    }
+
+    if SL and SLcount = 3 {
+        set SL1 to false.
+        set SL2 to false.
+        set SL3 to false.
+        for x in Tank:children {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
+                if x:name:contains("SEP.23.RAPTOR2.SL.RC") {
+                    set partPos to x:position - Tank:position.
+                    set compPos to Tank:facing:topvector.
+                    if vAng(partPos, compPos) < 89 {
+                        set SLEnginesStep[0] to x.
+                        set SL1 to true.
+                    }  
+                    else {
+                        set compPos to -Tank:facing:starvector.
+                        if vAng(partPos, compPos) < 89 {
+                            set SLEnginesStep[1] to x.
+                            set SL2 to true.
+                        } 
+                        else {
+                            set compPos to Tank:facing:starvector.
+                            if vAng(partPos, compPos) < 89 {
+                                set SLEnginesStep[2] to x.
+                                set SL3 to true.
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if SL1 and SL2 and SL3 {}
+        else {
+            print("Not all SLEngines have been set..!!!").
+        }
+    } 
+    else {
+        print("SLEngine count is wrong!").
+        hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,2,18,red,false).
+    }
+
+    if Vac and Vaccount = 3 {
+        set VACEnginesStep to List("","","").
+        set Vac1 to false.
+        set Vac2 to false.
+        set Vac3 to false.
+        for x in Tank:children {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") {
+                    set partPos to x:position - Tank:position.
+                    set compPos to -Tank:facing:topvector.
+                    if vAng(partPos, compPos) < 89 {
+                        set VACEnginesStep[0] to x.
+                        set Vac1 to true.
+                    }  
+                    else {
+                        set compPos to Tank:facing:starvector.
+                        if vAng(partPos, compPos) < 89 {
+                            set VACEnginesStep[1] to x.
+                            set Vac2 to true.
+                        } 
+                        else {
+                            set compPos to -Tank:facing:starvector.
+                            if vAng(partPos, compPos) < 89 {
+                                set VACEnginesStep[2] to x.
+                                set Vac3 to true.
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if Vac1 and Vac2 and Vac3 {}
+        else {
+            print("Not all VACEngines have been set..!!!").
+        }
+    } 
+    else if Vac and Vaccount = 6 {
+        set Vac1 to false.
+        set Vac2 to false.
+        set Vac3 to false.
+        set Vac4 to false.
+        set Vac5 to false.
+        set Vac6 to false.
+        for x in Tank:children {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") {
+                    set partPos to vxcl(Tank:facing:forevector,x:position - Tank:position).
+                    set compPos to -Tank:facing:starvector.
+                    if vAng(partPos, compPos) < 10 {
+                        set VACEnginesStep[0] to x.
+                        set Vac1 to true.
+                    }  
+                    else {
+                        set compPos to -Tank:facing:starvector - 2*Tank:facing:topvector.
+                        if vAng(partPos, compPos) < 10 {
+                            set VACEnginesStep[1] to x.
+                            set Vac2 to true.
+                        } 
+                        else {
+                            set compPos to Tank:facing:starvector - 2*Tank:facing:topvector.
+                            if vAng(partPos, compPos) < 10 {
+                                set VACEnginesStep[2] to x.
+                                set Vac3 to true.
+                            }
+                            else {
+                                set compPos to Tank:facing:starvector.
+                                if vAng(partPos, compPos) < 10 {
+                                    set VACEnginesStep[3] to x.
+                                    set Vac4 to true.
+                                }
+                                else {
+                                    set compPos to Tank:facing:starvector + 2*Tank:facing:topvector.
+                                    if vAng(partPos, compPos) < 10 {
+                                        set VACEnginesStep[4] to x.
+                                        set Vac5 to true.
+                                    }
+                                    else {
+                                        set compPos to -Tank:facing:starvector + 2*Tank:facing:topvector.
+                                        if vAng(partPos, compPos) < 10 {
+                                            set VACEnginesStep[5] to x.
+                                            set Vac6 to true.
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {}
+        else {
+            print("Not all VACEngines have been set..!!!").
+        }
+    } 
+    else {
+        print("VACEngine count is wrong!").
+        hudtext("VACEngine count is wrong! (" + Vaccount + "; needs 3 or 6)",10,2,18,red,false).
     }
 
     set SLEngines to SLEnginesStep.
@@ -845,60 +991,19 @@ function updateTelemetry {
     set shipCH4 to ch4*100/mch4.
     
     
-    if throttle > 0 {
-        if VACEngines:length < 4 {    
-            if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL0".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL0+1".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL0+2".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL1+2".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL1".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSLAll".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/shipAll".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/shipVacAll".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship0".
-            }
-        } else {
-            if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL0".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL0+1".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL0+2".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL1+2".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL1".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SLAll".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/ship9All".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/ship9VacAll".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 and VACEngines[1]:thrust = 0 and VACEngines[2]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9Vac0+3".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 and VACEngines[1]:thrust > 0 and VACEngines[2]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/ship9Vac-0-3".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship90".
-            }
-        }
-
-    } else {
-        if VACEngines:length < 4 {
-            set sEngines:style:bg to "starship_img/ship0".
-        } else {
-            set sEngines:style:bg to "starship_img/ship90".
-        }
+    set engCount to 0.
+    set engCountVar to 1.
+    for eng in SLEngines {
+        if eng:thrust > 0 set engCount to engCount + engCountVar.
+        set engCountVar to engCountVar*2.
     }
+    for eng in VACEngines {
+        if eng:thrust > 0 set engCount to engCount + engCountVar.
+        set engCountVar to engCountVar*2.
+    }
+    set picPath to "starship_img/EngPic" + VACEngines:length + "Vac/" + engCount:tostring.
+    set sEngines:style:bg to picPath.
+
     
     set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
     if shipAltitude > 99999 {

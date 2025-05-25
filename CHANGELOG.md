@@ -6,6 +6,7 @@
   - Added new Engine Pictograms for all possible Combinations (with 3 RVacs)
   - Changed Function to set the correct image
   - The Script now checks for engine position to ensure custom craft file functionality
+  - Fixed pixel issues with Attitude Indicator
   - ***I recommened deleting the starship_img folder for this update***
 - Fixed RSS Reentry loosing control
 - Fixed Thrust issue in Stock
