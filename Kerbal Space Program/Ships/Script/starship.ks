@@ -14865,62 +14865,19 @@ function updateTelemetry {
 
     set shipLOX to lox*100/mlox.
     set shipCH4 to ch4*100/mch4.
-    
-    
-    if throttle > 0 {
-        if VACEngines:length < 4 {    
-            if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL0".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL0+1".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL0+2".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL1+2".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSL1".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/shipSLAll".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/shipAll".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/shipVacAll".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship0".
-            }
-        } else {
-            if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL0".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL0+1".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL0+2".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL1+2".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SL1".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9SLAll".
-            } else if SLEngines[0]:thrust > 0 and SLEngines[1]:thrust > 0 and SLEngines[2]:thrust > 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/ship9All".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/ship9VacAll".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust > 0 and VACEngines[3]:thrust > 0 and VACEngines[1]:thrust = 0 and VACEngines[2]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship9Vac0+3".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 and VACEngines[1]:thrust > 0 and VACEngines[2]:thrust > 0 {
-                set sEngines:style:bg to "starship_img/ship9Vac-0-3".
-            } else if SLEngines[0]:thrust = 0 and SLEngines[1]:thrust = 0 and SLEngines[2]:thrust = 0 and VACEngines[0]:thrust = 0 and VACEngines[3]:thrust = 0 {
-                set sEngines:style:bg to "starship_img/ship90".
-            }
-        }
 
-    } else {
-        if VACEngines:length < 4 {
-            set sEngines:style:bg to "starship_img/ship0".
-        } else {
-            set sEngines:style:bg to "starship_img/ship90".
-        }
+    set engCount to 0.
+    set engCountVar to 1.
+    for eng in SLEngines {
+        if eng:thrust > 0 set engCount to engCount + engCountVar.
+        set engCountVar to engCountVar*2.
     }
+    for eng in VACEngines {
+        if eng:thrust > 0 set engCount to engCount + engCountVar.
+        set engCountVar to engCountVar*2.
+    }
+    set picPath to "starship_img/EngPic" + VACEngines:length + "Vac/" + engCount:tostring.
+    set sEngines:style:bg to picPath.
     
     set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
     if shipAltitude > 99999 {

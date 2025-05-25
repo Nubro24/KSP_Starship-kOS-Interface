@@ -2,6 +2,10 @@
 - RSS Ascent profile changed
 - Small changes to Booster Landings
 - Small improvements to Ship Landings
+- **UI Improvements**:
+  - Added new Engine Pictograms for all possible Combinations (with 3 RVacs)
+  - Changed Function to set the correct image
+  - ***I recommened deleting the starship_img folder for this update***
 - Fixed RSS Reentry loosing control
 - Fixed Thrust issue in Stock
 - Fixed an Error with Real Fuels
