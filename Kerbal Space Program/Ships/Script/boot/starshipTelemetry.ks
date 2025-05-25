@@ -220,7 +220,8 @@ function CreateTelemetry {
     set sEngines:style:width to 180*TScale.
     set sEngines:style:height to 180*TScale.
     set sEngines:style:margin:top to 20*TScale.
-    set sEngines:style:margin:left to 20*TScale.
+    set sEngines:style:margin:left to 22*TScale.
+    set sEngines:style:margin:right to 3*TScale.
     set sEngines:style:margin:bottom to 20*TScale.
 
 
