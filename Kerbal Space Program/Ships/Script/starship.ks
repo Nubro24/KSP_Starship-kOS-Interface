@@ -356,6 +356,7 @@ else {
     set FARValue to 0.
 }
 set aoa to 60.
+if RSS set aoa to 55.
 set BoosterAp to 35000.
 
 set config:obeyhideui to false.
@@ -1136,21 +1137,25 @@ function EngineTest {
     hudtext("Static Fire Test starting..",5,2,18,yellow,false).
     wait 5.
     lock throttle to 0.8.
-    for eng in VACEngines eng:activate.
-    wait 1.2.
-    SLEngines[0]:activate.
-    wait 0.3.
-    SLEngines[1]:activate.
-    wait 0.3.
-    SLEngines[2]:activate.
-    wait 4.
-    for eng in VACEngines eng:shutdown.
-    wait 1.8.
-    SLEngines[0]:shutdown.
-    wait 0.2.
-    SLEngines[2]:shutdown.
-    wait 0.2.
-    SLEngines[1]:shutdown.
+    for eng in VACEngines {
+        eng:activate.
+        wait 0.2.
+    } 
+    wait 1.
+    for eng in SLEngines {
+        eng:activate.
+        wait 0.2.
+    } 
+    wait 5.
+    for eng in VACEngines {
+        eng:shutdown.
+        wait 0.2.
+    } 
+    wait 2.
+    for eng in SLEngines {
+        eng:shutdown.
+        wait 0.2.
+    } 
     lock throttle to 0.
     unlock throttle.
     hudtext("Static Fire Test complete..",5,2,18,green,false).
@@ -5159,11 +5164,11 @@ set launchbutton:ontoggle to {
                                     set LaunchDistance to 1450000.
                                 }
                                 else if KSRSS {
-                                    set LaunchTimeSpanInSeconds to 340.
+                                    set LaunchTimeSpanInSeconds to 300.
                                     set LaunchDistance to 700000.
                                 }
                                 else {
-                                    set LaunchTimeSpanInSeconds to 255.
+                                    set LaunchTimeSpanInSeconds to 250.
                                     set LaunchDistance to 200000.
                                 }
                                 set target to TargetShip.
@@ -7336,8 +7341,7 @@ function Launch {
                 KUniverse:forceactive(vessel("Booster")).
             }
 
-            
-            when deltav < 89 and deltav > 0 or throttle < 0.44 and deltav > 0 then {
+            when deltav < 89 and deltav > 0 or throttle < 0.42 and deltav < 600*Scale and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
 
@@ -7642,7 +7646,7 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,24),-24).
-            set ProgradeAngle to ProgradeAngle * 0.92.
+            set ProgradeAngle to ProgradeAngle * 0.93.
         }
         if MaintainVS {
             if deltaV > 500*Scale {
@@ -11085,6 +11089,7 @@ function ReEntryData {
             set message2:text to "<b><color=green>Engine Light-Up confirmed..</color></b>".
             set message3:text to "".
             set Hover to false.
+            set Slow to false.
             if not (TargetOLM = "false") {
                 when Vessel(TargetOLM):distance < 1500 then {
                     set Vessel(TargetOLM):loaddistance:landed:unpack to 1200.
@@ -11307,7 +11312,7 @@ function ClosingSpeed {
 
 
 function LandingThrottle {
-    set minDecel to (Planet1G - 0.05) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
+    set minDecel to (Planet1G - 1.2) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
     if LandSomewhereElse {
         set minDecel to (Planet1G - 1.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
     }

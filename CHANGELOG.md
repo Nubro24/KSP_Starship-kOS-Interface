@@ -3,8 +3,9 @@
 - Small changes to Booster Landings
 - Small improvements to Ship Landings
 - **UI Improvements**:
-  - Added new Engine Pictograms for all possible Combinations (with 3 RVacs)
+  - Added new Ship Engine Pictograms for all possible Combinations (with 3 RVacs)
   - Changed Function to set the correct image
+  - Changed Booster Pictograms to support all combinations
   - The Script now checks for engine position to ensure custom craft file functionality
   - Fixed pixel issues with Attitude Indicator
   - ***I recommened deleting the starship_img folder for this update***

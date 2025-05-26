@@ -93,7 +93,7 @@
             "$type": "kOS.Safe.Encapsulation.StringValue"
         },
         {
-            "value": 1668085116.834291,
+            "value": 5116.834291,
             "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
         },
         {
@@ -127,6 +127,14 @@
         {
             "value": "false",
             "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "Launch Time",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 2447.1454,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
         }
     ],
     "$type": "kOS.Safe.Encapsulation.Lexicon"

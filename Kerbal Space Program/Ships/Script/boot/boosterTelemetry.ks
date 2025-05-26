@@ -111,8 +111,45 @@ local boosterStatus is bAttitudeTelemetry:addvlayout().
 local boosterAttitude is bAttitudeTelemetry:addvlayout().
 local missionTimeDisplay is bAttitudeTelemetry:addvlayout().
 local shipSpace is bAttitudeTelemetry:addvlayout().
-local bEngines is boosterCluster:addlabel().
-    set bEngines:style:bg to "starship_img/booster0".
+local EngBG is boosterCluster:addlabel(). set EngBG:style:bg to "starship_img/EngPicBooster/zero".
+local Eng1 is boosterCluster:addlabel().
+local Eng2 is boosterCluster:addlabel().
+local Eng3 is boosterCluster:addlabel().
+local Eng4 is boosterCluster:addlabel().
+local Eng5 is boosterCluster:addlabel().
+local Eng6 is boosterCluster:addlabel().
+local Eng7 is boosterCluster:addlabel().
+local Eng8 is boosterCluster:addlabel().
+local Eng9 is boosterCluster:addlabel().
+local Eng10 is boosterCluster:addlabel().
+local Eng11 is boosterCluster:addlabel().
+local Eng12 is boosterCluster:addlabel().
+local Eng13 is boosterCluster:addlabel().
+local Eng14 is boosterCluster:addlabel().
+local Eng15 is boosterCluster:addlabel().
+local Eng16 is boosterCluster:addlabel().
+local Eng17 is boosterCluster:addlabel().
+local Eng18 is boosterCluster:addlabel().
+local Eng19 is boosterCluster:addlabel().
+local Eng20 is boosterCluster:addlabel().
+local Eng21 is boosterCluster:addlabel().
+local Eng22 is boosterCluster:addlabel().
+local Eng23 is boosterCluster:addlabel().
+local Eng24 is boosterCluster:addlabel().
+local Eng25 is boosterCluster:addlabel().
+local Eng26 is boosterCluster:addlabel().
+local Eng27 is boosterCluster:addlabel().
+local Eng28 is boosterCluster:addlabel().
+local Eng29 is boosterCluster:addlabel().
+local Eng30 is boosterCluster:addlabel().
+local Eng31 is boosterCluster:addlabel().
+local Eng32 is boosterCluster:addlabel().
+local Eng33 is boosterCluster:addlabel().
+set EngCluster to List(Eng1, Eng2, Eng3, Eng4, Eng5, Eng6, Eng7, Eng8, Eng9, Eng10, Eng11, Eng12, Eng13, 
+            Eng14, Eng15, Eng16, Eng17, Eng18, Eng19, Eng20, Eng21, Eng22, Eng23, Eng24, Eng25, Eng26, Eng27, Eng28, Eng29, Eng30, Eng31, Eng32, Eng33).
+for lbl in EngCluster {
+    set lbl:style:bg to "starship_img/EngPicBooster/0".
+}
 local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
     set bSpeed:style:wordwrap to false.
 local bAltitude is boosterStatus:addlabel("<b>ALTITUDE  </b>").
@@ -172,13 +209,25 @@ function CreateTelemetry {
     set bTelemetry:y to 0.
     set bTelemetry:y to -220*TScale.
     
-
-    set bEngines:style:width to 190*TScale.
-    set bEngines:style:height to 180*TScale.
-    set bEngines:style:margin:top to 20*TScale.
-    set bEngines:style:margin:left to 24*TScale.
-    set bEngines:style:margin:right to 26*TScale.
-    set bEngines:style:margin:bottom to 20*TScale.
+    set overflow to 0.
+    set EngBG:style:width to 200*TScale.
+    set EngBG:style:height to 200*TScale.
+    set EngBG:style:margin:top to 15*TScale.
+    set EngBG:style:margin:left to 19*TScale.
+    set EngBG:style:margin:right to 21*TScale.
+    set EngBG:style:overflow:top to overflow*TScale.
+    set EngBG:style:overflow:bottom to -overflow*TScale.
+    set overflow to overflow + 215*TScale.
+    for engLbl in EngCluster {
+        set engLbl:style:width to 200*TScale.
+        set engLbl:style:height to 200*TScale.
+        set engLbl:style:margin:top to 15*TScale.
+        set engLbl:style:margin:left to 19*TScale.
+        set engLbl:style:margin:right to 21*TScale.
+        set engLbl:style:overflow:top to overflow*TScale.
+        set engLbl:style:overflow:bottom to -overflow*TScale.
+        set overflow to overflow + 215*TScale.
+    }
 
     set bSpeed:style:margin:left to 10*TScale.
     set bSpeed:style:margin:top to 20*TScale.
@@ -440,36 +489,65 @@ function GUIupdate {
     }
     set Mode to "NaN".
     if throttle > 0 {
-        if not BoosterSingleEngines and boosterThrust > 0 {
+        if not BoosterSingleEngines and boosterThrust > 85 {
             if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
                 set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
             }
-        
+
 
             if Mode = "Center Three" {
-                set bEngines:style:bg to "starship_img/booster3".
+                set x to 1.
+                until x > 3 {
+                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    set x to x+1.
+                }
+                until x > 33 {
+                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                    set x to x+1.
+                }
             } else if Mode = "Middle Inner" {
-                set bEngines:style:bg to "starship_img/booster13".
+                set x to 1.
+                until x > 13 {
+                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    set x to x+1.
+                }
+                until x > 33 {
+                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                    set x to x+1.
+                }
             } else if Mode = "All Engines" {
-                set bEngines:style:bg to "starship_img/booster33".
+                set x to 1.
+                until x > 33 {
+                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    set x to x+1.
+                }
             } else if Mode = "NaN" {
                 print("Mode not found").
             }
         } 
-        else if boosterThrust > 0 {
-            if ActiveRB > 0 {
-                set bEngines:style:bg to "starship_img/booster33".
-            } 
-            else if ActiveRC > 3 {
-                set bEngines:style:bg to "starship_img/booster13".
-            } 
-            else {
-                set bEngines:style:bg to "starship_img/booster3".
+        else if boosterThrust > 85 {
+            set x to 0.
+            until x > 32 {
+                if x < 13 {
+                    if BoosterSingleEnginesRC[x]:thrust > 85 set EngCluster[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).
+                    else set EngCluster[x]:style:bg to "starship_img/EngPicBooster/0".
+                    set x to x+1.
+                } else {
+                    if BoosterSingleEnginesRB[x-13]:thrust > 85 set EngCluster[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).
+                    else set EngCluster[x]:style:bg to "starship_img/EngPicBooster/0".
+                    set x to x+1.
+                }
             }
         } 
-        else set bEngines:style:bg to "starship_img/booster0".
-    } else {
-        set bEngines:style:bg to "starship_img/booster0".
+        else 
+        for EngLbl in EngCluster {
+            set EngLbl:style:bg to "starship_img/EngPicBooster/0".
+        }
+    }
+    else {
+        for EngLbl in EngCluster {
+            set EngLbl:style:bg to "starship_img/EngPicBooster/0".
+        }
     }
     
     set bSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(boosterSpeed*3.6) + " <size=24>KM/H</size>".
