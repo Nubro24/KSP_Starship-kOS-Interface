@@ -474,7 +474,7 @@ function CreateTelemetry {
     set message3:style:margin:top to 10*TScale.
     set message3:style:width to 200*TScale.
     set message3:style:fontsize to 18*TScale.
-    
+
 //--------------
 
     set bTelemetry:style:border:h to 10*TScale.

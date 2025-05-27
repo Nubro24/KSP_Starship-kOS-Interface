@@ -356,7 +356,7 @@ else {
     set FARValue to 0.
 }
 set aoa to 60.
-if RSS set aoa to 55.
+if RSS set aoa to 58.
 set BoosterAp to 35000.
 
 set config:obeyhideui to false.
@@ -699,8 +699,8 @@ function FindParts {
     set CargoCoG to 0.
     set SLEnginesStep to List("","","").
     set SL to false.
-    set SLcount to 0.
     set Vac to false.
+    set SLcount to 0.
     set Vaccount to 0.
     set VACEnginesStep to List("","","","","","").
     set BSEnginesRC to List().
@@ -874,6 +874,7 @@ function FindParts {
                 }
             }
         }
+        set SLcount to 0.
         if SL1 and SL2 and SL3 {}
         else {
             print("Not all SLEngines have been set..!!!").
@@ -915,6 +916,7 @@ function FindParts {
                 }
             }
         }
+        set Vaccount to 0.
         if Vac1 and Vac2 and Vac3 {}
         else {
             print("Not all VACEngines have been set..!!!").
@@ -974,6 +976,7 @@ function FindParts {
                 }
             }
         }
+        set Vaccount to 0.
         if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {}
         else {
             print("Not all VACEngines have been set..!!!").
