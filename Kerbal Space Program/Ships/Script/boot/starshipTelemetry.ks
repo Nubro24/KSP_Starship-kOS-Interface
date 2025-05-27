@@ -830,7 +830,7 @@ until false {
         set Boosterconnected to false.
         //sendMessage(Vessel("Booster"),"HotStage").
     } 
-    updateTelemetry().
+    if partsfound updateTelemetry().
     wait 0.02.
 }
 
