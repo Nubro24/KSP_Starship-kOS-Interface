@@ -491,8 +491,8 @@ function CreateTelemetry {
     set EngBG:style:margin:top to 15*TScale.
     set EngBG:style:margin:left to 19*TScale.
     set EngBG:style:margin:right to 21*TScale.
-    set EngBG:style:overflow:top to overflow*TScale.
-    set EngBG:style:overflow:bottom to -overflow*TScale.
+    set EngBG:style:overflow:top to overflow.
+    set EngBG:style:overflow:bottom to -overflow.
     set overflow to overflow + 215*TScale.
     for engLbl in EngCluster {
         set engLbl:style:width to 200*TScale.
@@ -500,8 +500,8 @@ function CreateTelemetry {
         set engLbl:style:margin:top to 15*TScale.
         set engLbl:style:margin:left to 19*TScale.
         set engLbl:style:margin:right to 21*TScale.
-        set engLbl:style:overflow:top to overflow*TScale.
-        set engLbl:style:overflow:bottom to -overflow*TScale.
+        set engLbl:style:overflow:top to overflow.
+        set engLbl:style:overflow:bottom to -overflow.
         set overflow to overflow + 215*TScale.
     }
 
