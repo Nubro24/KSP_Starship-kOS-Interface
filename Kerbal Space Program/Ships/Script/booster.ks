@@ -2267,6 +2267,8 @@ function LandingGuidance {
         set Ferr to Ferr * 0.4.
         set Fpos to Fpos * 0.4.
     }
+    else if ErrorVector:mag > BoosterHeight
+        set Ferr to Ferr * 1.5.
     else if ErrorVector:mag > 3*BoosterHeight
         set Ferr to Ferr * 2.
     
@@ -2276,11 +2278,11 @@ function LandingGuidance {
     }
 
     // === Side Drift ===
-    if vAng(ErrorVector, -GSVec) > 35 and vAng(ErrorVector, -GSVec) > 145 and ErrorVector:mag > 0.48 * BoosterHeight  or  LatError > 0.25 * BoosterHeight {
-        set SideFactor to 0.77.
-        set Ferr to Ferr * 1.16.
-    } else if vAng(ErrorVector, -GSVec) > 30 and vAng(ErrorVector, -GSVec) > 150 and ErrorVector:mag > 0.18 * BoosterHeight  or  LatError > 0.15 * BoosterHeight {
-        set SideFactor to 0.44.
+    if vAng(ErrorVector, -GSVec) > 30 and vAng(ErrorVector, -GSVec) > 150 and ErrorVector:mag > 0.4 * BoosterHeight  or  LatError > 0.2 * BoosterHeight {
+        set SideFactor to 0.97.
+        set Ferr to Ferr * 1.2.
+    } else if vAng(ErrorVector, -GSVec) > 24 and vAng(ErrorVector, -GSVec) > 156 and ErrorVector:mag > 0.18 * BoosterHeight  or  LatError > 0.1 * BoosterHeight {
+        set SideFactor to 0.64.
         set Ferr to Ferr * 1.1.
     }
 
