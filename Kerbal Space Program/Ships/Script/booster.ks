@@ -69,6 +69,7 @@ set LatError to 0.
 set ErrorVector to V(0, 0, 0).
 set oldBooster to false.
 set Frost to false.
+set RandomFlip to false.
 
 set GFset to false.
 set ECset to false.
@@ -79,18 +80,22 @@ for part in ship:parts {
         set BoosterCore to part.
         set oldBooster to true.
         set BTset to true.
+        set RandomFlip to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterCore to part.
         set BTset to true.
+        set RandomFlip to true.
     }
     if part:name = ("SEP.23.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
+        set RandomFlip to true.
     }
     if part:name = ("SEP.24.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
+        set RandomFlip to true.
     }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
@@ -137,21 +142,23 @@ for part in ship:parts {
     }
 }
 
-if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+
+if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+        or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
     set BoosterSingleEngines to true.
     set BoosterSingleEnginesRB to list().
     set BoosterSingleEnginesRC to list().
-    set x to 0.
-    for part in BoosterEngines[0]:children {
-        if part:name:contains("SEP.23.RAPTOR2.SL.RC") BoosterSingleEnginesRC:add(part).
-        if part:name:contains("SEP.23.RAPTOR2.SL.RB") BoosterSingleEnginesRB:add(part).
+    set x to 1.
+    until x > 33 {
+        if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
+        else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+        set x to x + 1.
     }
-    if BoosterSingleEnginesRB:length = 0 or BoosterSingleEnginesRC:length = 0 
-        set BoosterSingleEngines to false.
 } 
 else {
     set BoosterSingleEngines to false.
 }
+
 
 set ModulesFound to false.
 set x to 0.
@@ -907,8 +914,9 @@ function Boostback {
     wait 0.001.
     set ShipConnectedToBooster to false.
     set ConnectedMessage to false.
-    set config:ipu to 500.
+    set config:ipu to 900.
     rcs off.
+    set steeringmanager:maxstoppingtime to 2.
     set bAttitude:style:bg to "starship_img/booster".
 
     when not core:messages:empty then {
@@ -940,13 +948,23 @@ function Boostback {
 
         set LaunchPitch to vAng(up:vector, facing:forevector).
         set PitchStrength to ((LaunchPitch)/45)^2.
-        if vang(facing:topvector, north:vector) < 90 {
-            set ship:control:pitch to -2 * PitchStrength.
-            set ship:control:yaw to -1.
-        }
-        else {
-            set ship:control:pitch to 2 * PitchStrength.
-            set ship:control:yaw to -1.
+        if RandomFlip {
+            set rndPitch to round(random(),1).
+            if rndPitch < 0.44 set PitchStrength to -PitchStrength.
+
+            set rndYaw to round(random(),1).
+            set YawStrength to round(random(),1).
+            if rndYaw < 0.5 set YawStrength to -2*YawStrength.
+
+                set ship:control:pitch to -2 * PitchStrength.
+                set ship:control:yaw to -2 * YawStrength.
+                set FlipTime to 6.
+
+        } else {
+
+                set ship:control:pitch to -2 * PitchStrength.
+                set FlipTime to 5.
+
         }
         unlock steering.
         set ship:name to "Booster".
@@ -1027,24 +1045,47 @@ function Boostback {
 
 
         when time:seconds > flipStartTime + 1 then { 
-            set steeringmanager:yawtorquefactor to 0.6.
+            set steeringmanager:yawtorquefactor to 0.7.
         }
         //Middle Restart
         when (time:seconds > flipStartTime + 4 and verticalspeed > 0 and not (RSS)) or (time:seconds > flipStartTime + 5 and verticalspeed > 0 and (RSS)) then {
             lock throttle to 0.5.
             wait 0.01.
-            MidGimbMod:doaction("free gimbal", true).
-            if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
-                set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
+            if BoosterSingleEngines {
+                set tEngStart to time:seconds.
+                BoosterSingleEnginesRC[3]:activate.
+                BoosterSingleEnginesRC[8]:activate.
+                when time:seconds - tEngStart > 0.2 then {
+                    BoosterSingleEnginesRC[4]:activate.
+                    BoosterSingleEnginesRC[9]:activate.
+                }
+                when time:seconds - tEngStart > 0.4 then {
+                    BoosterSingleEnginesRC[6]:activate.
+                    BoosterSingleEnginesRC[11]:activate.
+                }
+                when time:seconds - tEngStart > 0.8 then {
+                    BoosterSingleEnginesRC[7]:activate.
+                    BoosterSingleEnginesRC[12]:activate.
+                }
+                when time:seconds - tEngStart > 1 then {
+                    BoosterSingleEnginesRC[5]:activate.
+                    BoosterSingleEnginesRC[10]:activate.
+                }
             }
-            if Mode = "Middle Inner" {} else {
-                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+            else {
+                MidGimbMod:doaction("free gimbal", true).
+                if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
+                    set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
+                }
+                if Mode = "Middle Inner" {} else {
+                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                }
             }
         }
 
         //show Poll HUD
         //activate yaw and neutralize on
-        when time:seconds > flipStartTime + 6 or time:seconds > flipStartTime + 5 and not RSS or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 75 then {
+        when time:seconds > flipStartTime + FlipTime or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 50 then {
             set steeringmanager:yawtorquefactor to 0.9.
             set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 0.8.
@@ -1057,37 +1098,15 @@ function Boostback {
             set steeringmanager:maxstoppingtime to 0.5.
         }
 
-        //first Booster Wobble check
-        when time:seconds > flipStartTime + 9 then {
-            set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
-            if not wobbleCheckrunning {
-                set wobbleCheckrunning to true.
-                set wobbleCheck to time:seconds.
-                when time:seconds > wobbleCheck + 0.05 then {
-                    set bErrorPos2 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-                    when time:seconds > wobbleCheck + 0.15 then {
-                        set bErrorPos3 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-                        when time:seconds > wobbleCheck + 1 then {
-                            if bErrorPos - bErrorPos2 > 0.001 * Scale or bErrorPos - bErrorPos2 < -0.001 * Scale or bErrorPos3 - bErrorPos2 > 0.001 * Scale or bErrorPos3 - bErrorPos2 < -0.001 * Scale or bErrorPos - bErrorPos3 > 0.001 * Scale or bErrorPos - bErrorPos3 < -0.001 * Scale {
-                                set WobblyBooster to true.
-                            }
-                            set wobbleCheckrunning to false.
-                        }
-                    }
-                }
-            }
-        }
         //increase yaw steering
         when time:seconds > flipStartTime + 10 then {
             set steeringmanager:yawtorquefactor to 0.7.
-        }
-        when time:seconds > flipStartTime + 15 then {
             rcs on.
         }
         when BoostBackComplete then 
             set steeringmanager:yawtorquefactor to 0.1.
 
-        when ((time:seconds > flipStartTime + 45 and RSS) or (time:seconds > flipStartTime + 55 and KSRSS)) or (time:seconds > flipStartTime + 40 and not (RSS or KSRSS)) then {
+        when ((time:seconds > flipStartTime + 45 and RSS) or (time:seconds > flipStartTime + 55 and KSRSS)) or (time:seconds > flipStartTime + 50 and not (RSS or KSRSS)) then {
             Go:hide().
             set NoGo:text to "<color=red>ABORT</color>".
             if not GfC {
@@ -1120,29 +1139,25 @@ function Boostback {
             PollUpdate().
         }
 
-        set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        if not wobbleCheckrunning {
-            set wobbleCheckrunning to true.
-            set wobbleCheck to time:seconds.
-            when time:seconds > wobbleCheck + 0.05 then {
-                set bErrorPos2 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-                when time:seconds > wobbleCheck + 0.15 then {
-                    set bErrorPos3 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-                    when time:seconds > wobbleCheck + 1 then {
-                        if bErrorPos - bErrorPos2 > 0.001 * Scale or bErrorPos - bErrorPos2 < -0.001 * Scale or bErrorPos3 - bErrorPos2 > 0.001 * Scale or bErrorPos3 - bErrorPos2 < -0.001 * Scale or bErrorPos - bErrorPos3 > 0.001 * Scale or bErrorPos - bErrorPos3 < -0.001 * Scale {
-                            set WobblyBooster to true.
-                        }
-                        set wobbleCheckrunning to false.
-                        //HUDTEXT(round(bErrorPos, 4) + "; " + round(bErrorPos2, 4) + "; " + round(bErrorPos3, 4), 4, 2, 16, white, false).
-                    }
-                }
-            }
-        }
+        // set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
+        // if not wobbleCheckrunning {
+        //     set wobbleCheckrunning to true.
+        //     set wobbleCheck to time:seconds.
+        //     when time:seconds > wobbleCheck + 0.05 then {
+        //         set bErrorPos2 to (Gridfins[0]:position - Gridfins[1]:position):mag.
+        //         when time:seconds > wobbleCheck + 0.15 then {
+        //             set bErrorPos3 to (Gridfins[0]:position - Gridfins[1]:position):mag.
+        //             when time:seconds > wobbleCheck + 1 then {
+        //                 if bErrorPos - bErrorPos2 > 0.001 * Scale or bErrorPos - bErrorPos2 < -0.001 * Scale or bErrorPos3 - bErrorPos2 > 0.001 * Scale or bErrorPos3 - bErrorPos2 < -0.001 * Scale or bErrorPos - bErrorPos3 > 0.001 * Scale or bErrorPos - bErrorPos3 < -0.001 * Scale {
+        //                     set WobblyBooster to true.
+        //                 }
+        //                 set wobbleCheckrunning to false.
+        //                 //HUDTEXT(round(bErrorPos, 4) + "; " + round(bErrorPos2, 4) + "; " + round(bErrorPos3, 4), 4, 2, 16, white, false).
+        //             }
+        //         }
+        //     }
+        // }
 
-        when time:seconds > flipStartTime + 10 then {
-            set SteeringManager:ROLLCONTROLANGLERANGE to 10.
-            set steeringmanager:maxstoppingtime to 3.
-        }
 
         if RSS {
             lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 5000 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
@@ -1155,56 +1170,55 @@ function Boostback {
 
 
         when time:seconds > flipStartTime + 30 then {
-            CheckFuel().
             if LFBooster > LFBoosterCap * 0.3 {
                 BoosterCore:activate.
             }
         }
         when ship:groundspeed < 50 then {
-            CheckFuel().
+            set config:ipu to 1500.
             if LFBooster > LFBoosterCap * 0.16 {
                 BoosterCore:activate.
             }
         }
-        
+        set changed to false.
+        set lastCheck to GfC.
         
         until (ErrorVector:mag < BoosterGlideDistance + 5400 * Scale) or verticalspeed < -60 or BoostBackComplete {
-            if GfC {
+            if not GfC = lastCheck {
+                set changed to true.
+                set lastCheck to GfC.
+            }
+            if GfC and changed {
                 setLandingZone().
                 setTargetOLM().
+                set changed to false.
             }
-            else if not GfC or cAbort {
+            else if not GfC and changed or cAbort {
                 set landingzone to offshoreSite.
+                set changed to false.
             }
             SteeringCorrections().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
             SetBoosterActive().
-            wait 0.03.
-        }
-
-        set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        if not wobbleCheckrunning {
-            set wobbleCheckrunning to true.
-            set wobbleCheck to time:seconds.
-            when time:seconds > wobbleCheck + 0.05 then {
-                set bErrorPos2 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-                when time:seconds > wobbleCheck + 0.15 then {
-                    set bErrorPos3 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-                    when time:seconds > wobbleCheck + 1 then {
-                        if bErrorPos - bErrorPos2 > 0.001 * Scale or bErrorPos - bErrorPos2 < -0.001 * Scale or bErrorPos3 - bErrorPos2 > 0.001 * Scale or bErrorPos3 - bErrorPos2 < -0.001 * Scale or bErrorPos - bErrorPos3 > 0.001 * Scale or bErrorPos - bErrorPos3 < -0.001 * Scale {
-                            set WobblyBooster to true.
-                        }
-                        set wobbleCheckrunning to false.
-                    }
-                }
-            }
+            wait 0.08.
         }
 
         lock GSVec to vxcl(up:vector,velocity:surface).
-        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-        MidGimbMod:doaction("lock gimbal", true).
-        CheckFuel().
+        if BoosterSingleEngines {
+            set x to 1.
+            for eng in BoosterSingleEnginesRC {
+                if x = 1 or x = 2 or x = 3 {} else {
+                    eng:shutdown.
+                    set eng:gimbal:lock to true.
+                }
+                set x to x + 1.
+            }
+        }
+        else {
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+            MidGimbMod:doaction("lock gimbal", true).
+        }
         if LFBooster > LFBoosterCap * 0.1 {
             BoosterCore:activate.
         } else {
@@ -1223,30 +1237,12 @@ function Boostback {
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
             SetBoosterActive().
-            wait 0.001.
+            wait 0.03.
         }
         unlock throttle.
         lock throttle to 0.
         set BoostBackComplete to true.
 
-        set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        if not wobbleCheckrunning {
-            set wobbleCheckrunning to true.
-            set wobbleCheck to time:seconds.
-            when time:seconds > wobbleCheck + 0.05 then {
-                set bErrorPos2 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-                when time:seconds > wobbleCheck + 0.15 then {
-                    set bErrorPos3 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-                    when time:seconds > wobbleCheck + 1 then {
-                        if bErrorPos - bErrorPos2 > 0.001 * Scale or bErrorPos - bErrorPos2 < -0.001 * Scale or bErrorPos3 - bErrorPos2 > 0.001 * Scale or bErrorPos3 - bErrorPos2 < -0.001 * Scale or bErrorPos - bErrorPos3 > 0.001 * Scale or bErrorPos - bErrorPos3 < -0.001 * Scale {
-                            set WobblyBooster to true.
-                        }
-                        set wobbleCheckrunning to false.
-                        //HUDTEXT(round(bErrorPos, 4) + "; " + round(bErrorPos2, 4) + "; " + round(bErrorPos3, 4), 4, 2, 16, white, false).
-                    }
-                }
-            }
-        }
 
         PollUpdate().
 
@@ -1317,7 +1313,6 @@ function Boostback {
         set SteeringManager:yawtorquefactor to 0.1.
         
 
-        CheckFuel().
         if LFBooster > LFBoosterFuelCutOff {
             BoosterCore:activate.
         }
@@ -1369,10 +1364,10 @@ function Boostback {
             PollUpdate().
             SetBoosterActive().
             if time:seconds - turnTime > 5 rcs on.
-            CheckFuel().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             wait 0.067.
         }
+        set config:ipu to 800.
         
         set SteeringManager:yawtorquefactor to 0.1.
 
@@ -1390,7 +1385,6 @@ function Boostback {
             PollUpdate().
             SetBoosterActive().
             rcs on.
-            CheckFuel().
             if kuniverse:timewarp:warp > 1 {set kuniverse:timewarp:warp to 1.}
             wait 0.067.
         }
@@ -1406,7 +1400,6 @@ function Boostback {
             rcs on.
             SetBoosterActive().
             PollUpdate().
-            CheckFuel().
             wait 0.067.
         }
 
@@ -1418,7 +1411,6 @@ function Boostback {
             rcs on.
             SetBoosterActive().
             PollUpdate().
-            CheckFuel().
             wait 0.067.
         }
 
@@ -1507,7 +1499,6 @@ function Boostback {
     until altitude < 37000 and not (RSS or KSRSS) or altitude < 73000 and RSS or altitude < 56000 and KSRSS {
         SteeringCorrections().
         rcs on.
-        CheckFuel().
         PollUpdate().
         
         if abs(steeringmanager:angleerror) > 10 {
@@ -1570,18 +1561,20 @@ function Boostback {
         }
         PollUpdate().
         SetBoosterActive().
-        CheckFuel().
         wait 0.05.
     }
 
+    if STOCK set BoosterGlideFactor to 1.
+    else if KSRSS set BoosterGlideFactor to 1.
+    else if RSS set BoosterGlideFactor to 0.75.
+    else set BoosterGlideFactor to 1.
 
-    if STOCK lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    else if KSRSS lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    else lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.75*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    when LngError > -BoosterGlideDistance*0.15 then { 
-        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.3*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+
+    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    when LngError > -BoosterGlideDistance*0.14 then { 
+        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.4*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError > 0 then {
-            lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.6*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+            lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         }
     }
 
@@ -1613,7 +1606,6 @@ function Boostback {
         }
         PollUpdate().
         SetBoosterActive().
-        CheckFuel().
         wait 0.05.
     }
 
@@ -1633,9 +1625,33 @@ function Boostback {
 
     lock throttle to LandingThrottle().
 
-    when time:seconds - LandingBurnTime > 0.3 then
-        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
-
+    
+    if BoosterSingleEngines {
+        when time:seconds - LandingBurnTime > 0.1 then {
+            set x to 1.
+            for eng in BoosterSingleEnginesRC {
+                if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {
+                    eng:activate.
+                    set eng:gimbal:lock to false.
+                }
+                set x to x + 1.
+            }
+        }
+        when time:seconds - LandingBurnTime > 0.5 then {
+            set x to 1.
+            for eng in BoosterSingleEnginesRC {
+                if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else {
+                    eng:activate.
+                    set eng:gimbal:lock to false.
+                }
+                set x to x + 1.
+            }
+        }
+    }
+    else {
+        when time:seconds - LandingBurnTime > 0.3 then
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+    }
     set s0ev to 0.
     lock adev to 0.04.
     if vAng(landingzone:position - BoosterCore:position, -up:vector) > 40 lock adev to velocity:surface:mag / 463.
@@ -1822,10 +1838,21 @@ function Boostback {
             velocity:surface:mag < 32 and not MiddleEnginesShutdown and KSRSS or 
             velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
             velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 460 then {
-        PollUpdate().
         set MiddleEnginesShutdown to true.
-        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-        MidGimbMod:doaction("lock gimbal", true).
+        if BoosterSingleEngines {
+            set x to 1.
+            for eng in BoosterSingleEnginesRC {
+                if x = 1 or x = 2 or x = 3 {} else {
+                    eng:shutdown.
+                    set eng:gimbal:lock to true.
+                }
+                set x to x + 1.
+            }
+        }
+        else {
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+            MidGimbMod:doaction("lock gimbal", true).
+        }
     }
 
 
@@ -1997,7 +2024,7 @@ FUNCTION SteeringCorrections {
         set LngError to vdot(ApproachVector, ErrorVector).
 
 
-        if altitude < 30000 * Scale and GfC or KUniverse:activevessel = vessel(ship:name) {
+        if altitude < 30000 * Scale and GfC { //or KUniverse:activevessel = vessel(ship:name) {
             set GS to groundspeed.
 
             if InitialError = -9999 and addons:tr:hasimpact {
@@ -2267,11 +2294,15 @@ function LandingGuidance {
         set Ferr to Ferr * 0.4.
         set Fpos to Fpos * 0.4.
     }
-    else if ErrorVector:mag > BoosterHeight
+    else if ErrorVector:mag > 0.5 * BoosterHeight {
         set Ferr to Ferr * 1.5.
-    else if ErrorVector:mag > 3*BoosterHeight
+        set Fpos to Fpos * 1.2.
+    }
+    else if ErrorVector:mag > 2*BoosterHeight {
         set Ferr to Ferr * 2.
-    
+        set Fpos to Fpos * 1.4.
+    }
+
     if 3*ErrorVector:mag > PositionError:mag { //too close too fast
         set Ferr to Ferr * 1.8.
         set Fpos to Fpos / 1.8.
@@ -3017,7 +3048,6 @@ function SetGridFinAuthority {
 }
 
 function PollUpdate {
-   
     list targets in OLMTargets.
     if OLMTargets:length > 0 {
         for x in OLMTargets {
@@ -3048,7 +3078,6 @@ function PollUpdate {
     } else {
         set GTn to false.
     }
-
 
     CheckFuel().
 
@@ -3292,14 +3321,9 @@ function GUIupdate {
         } else if KSRSS {
             set PollTimer to flipStartTime+55-time:seconds.    
         } else {
-            set PollTimer to flipStartTime+40-time:seconds.
+            set PollTimer to flipStartTime+50-time:seconds.
         }
     } 
-    if GD and GE and GF and GT and GG and GTn {
-        set GfC to true.
-    } else {
-        set GfC to false.
-    }
     if GfC {
         set message4:text to "Current decision: <b><color=green>GO</color></b>".
     } else {
@@ -3348,21 +3372,20 @@ function GUIupdate {
         } else {
             set message3:text to "<size=13><b>NO</b> HSR Jettison</size>".
         }
+        if PollTimer < -1.5 {
+            set message0:text to "<b>Status:</b>".
+            if GfC {
+                set message1:text to "<color=green>GO</color> for Catch".
+            } else {
+                set message1:text to "<color=yellow>Offshore divert</color>".
+            }
+        }
     } else if PollTimer < 10 {
         set message3:text to "Poll ending in: <color=red>" + round(PollTimer) + "</color>s".
     } else if PollTimer < 20 {
         set message3:text to "Poll ending in: <color=yellow>" + round(PollTimer) + "</color>s".
     } else {
         set message3:text to "Poll ending in: " + round(PollTimer) + "s".
-    }
-
-    if PollTimer < -1.5 {
-        set message0:text to "<b>Status:</b>".
-        if GfC {
-            set message1:text to "<color=green>GO</color> for Catch".
-        } else {
-            set message1:text to "<color=yellow>Offshore divert</color>".
-        }
     }
 
     if cAbort {

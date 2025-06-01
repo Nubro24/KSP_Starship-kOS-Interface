@@ -2,6 +2,9 @@
 - RSS Ascent profile changed
 - Small changes to Booster Landings
 - Small improvements to Ship Landings
+- Added *random* Flip direction for Booster after Hotstage
+- Improved Ascent Profile
+- Improved Hotstage Timings
 - **UI Improvements**:
   - Added new Ship Engine Pictograms for all possible Combinations (with 3 RVacs)
   - Changed Function to set the correct image

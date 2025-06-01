@@ -703,8 +703,6 @@ function FindParts {
     set SLcount to 0.
     set Vaccount to 0.
     set VACEnginesStep to List("","","","","","").
-    set BSEnginesRC to List().
-    set BSEnginesRB to List().
     if Tank:name:contains("SEP.23.SHIP.DEPOT") {
         set ShipType to "Depot".
         set CargoMassStep to CargoMassStep + Tank:mass - Tank:drymass.
@@ -1023,15 +1021,6 @@ function FindParts {
         set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
-        for x in BoosterEngines[0]:children {
-            if x:name:contains("SEP.23.RAPTOR2.SL.RC") and x:parent:name:contains("BOOSTER") {
-                BSEnginesRC:add(x).
-                set SingleCenter to true.
-            } else if x:name:contains("SEP.23.RAPTOR2.SL.RB") and x:parent:name:contains("BOOSTER") {
-                BSEnginesRB:add(x).
-                set SingleOuter to true.
-            }
-        }
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
@@ -1061,15 +1050,6 @@ function FindParts {
         set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER").
-        for x in BoosterEngines[0]:children {
-            if x:name:contains("SEP.23.RAPTOR2.SL.RC") and x:parent:name:contains("BOOSTER") {
-                BSEnginesRC:add(x).
-                set SingleCenter to true.
-            } else if x:name:contains("SEP.23.RAPTOR2.SL.RB") and x:parent:name:contains("BOOSTER") {
-                BSEnginesRB:add(x).
-                set SingleOuter to true.
-            }
-        }
         set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
@@ -1097,6 +1077,25 @@ function FindParts {
             set sTelemetry:style:bg to "starship_img/telemetry_bg".
         }
 
+    }
+
+    if Boosterconnected {
+        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+                or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+            set BoosterSingleEngines to true.
+            set BoosterSingleEnginesRB to list().
+            set BoosterSingleEnginesRC to list().
+            set x to 1.
+            until x > 33 {
+                if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
+                else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+                set x to x + 1.
+            }
+        } 
+        else {
+            set BoosterSingleEngines to false.
+        }
+        print "bEngines set.. SingleEng.:" + BoosterSingleEngines.
     }
 
     if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
@@ -6777,9 +6776,11 @@ function Launch {
         //set lv to vecdraw(v(0, 0, 0), LaunchRollVector, green, "LaunchRollVector", 35, true, 0.005, true, true).
 
         if OnOrbitalMount {
-            until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
-                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                wait 0.01.
+            if not BoosterSingleEngines {
+                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                    wait 0.01.
+                }
             }
             InhibitButtons(1, 1, 0).
             set cancel:text to "<b>ABORT</b>".
@@ -6878,9 +6879,11 @@ function Launch {
                     }
                 }
                 ClearInterfaceAndSteering().
-                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
-                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                    wait 0.01.
+                if not BoosterSingleEngines {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                        wait 0.01.
+                    }
                 }
                 return.
             }
@@ -6915,12 +6918,14 @@ function Launch {
                     fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", true).
                 }
             }
-            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+            if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
             wait 0.02. 
             
-            BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
-            if SingleCenter for eng in BSEnginesRC eng:activate.
+            if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
+            else {
+                for eng in BoosterSingleEnginesRC eng:activate.
+            }
 
             set EngineStartTime to time:seconds.
             set message1:text to "<b>Ignition Sequence</b>".
@@ -6928,13 +6933,27 @@ function Launch {
             set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
             wait 1.
 
-            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
+            if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
+            else {
+                set x to 0.
+                for eng in BoosterSingleEnginesRB {
+                    if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
+                    else eng:activate.
+                    set x to x + 1.
+                }
+            }
             set message2:text to "<b>Expected Engine Count:</b>    28".
             wait 0.7.
             
             //last 5 outer ignition
-            if SingleOuter for eng in BSEnginesRB eng:activate.
             set message2:text to "<b>Expected Engine Count:</b>    33".
+            if BoosterSingleEngines {
+                set x to 0.
+                for eng in BoosterSingleEnginesRB {
+                    if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 eng:activate.
+                    set x to x + 1.
+                }
+            }
             
 
             wait 0.1.
@@ -6957,13 +6976,17 @@ function Launch {
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
             set message2:text to "<b>Clamps Releasing..</b>".
             if cancelconfirmed {
-                BoosterEngines[0]:shutdown.
+                if not BoosterSingleEngines BoosterEngines[0]:shutdown.
+                else {
+                    for eng in BoosterSingleEnginesRB eng:shutdown.
+                    for eng in BoosterSingleEnginesRC eng:shutdown.
+                }
                 BoosterCore[0]:shutdown.
-                if SingleCenter for eng in BSEnginesRC eng:shutdown.
-                if SingleOuter for eng in BSEnginesRB eng:shutdown.
-                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
-                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                    wait 0.01.
+                if not BoosterSingleEngines {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                        wait 0.01.
+                    }
                 }
                 for x in list(OLM,SteelPlate) {
                     if x:hasmodule("ModuleEnginesFX") {
@@ -6991,9 +7014,14 @@ function Launch {
             set lowTWR to false.
             set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - TowerTop:mass - Mechazilla:mass.
             lock throttle to 0.77.
-            if SingleCenter and SingleOuter lock bLiftOffThrust to BoosterEngines[0]:thrust + 5 * BSEnginesRB[0]:thrust  + 5 * BSEnginesRC[0]:thrust.
-            else if SingleCenter and not SingleOuter lock bLiftOffThrust to BoosterEngines[0]:thrust + 5 * BSEnginesRC[0]:thrust.
-            else if not SingleCenter and SingleOuter lock bLiftOffThrust to BoosterEngines[0]:thrust + 5 * BSEnginesRB[0]:thrust.
+            wait 0.1.
+            
+            if BoosterSingleEngines {
+                set ActiveRC to 0. set ActiveRB to 0.
+                for eng in BoosterSingleEnginesRC if eng:thrust > 85 set ActiveRC to ActiveRC + 1.
+                for eng in BoosterSingleEnginesRB if eng:thrust > 85 set ActiveRB to ActiveRB + 1.
+                lock bLiftOffThrust to ActiveRB * BoosterSingleEnginesRB[0]:thrust  + ActiveRC * BoosterSingleEnginesRC[0]:thrust.
+            } 
             else lock bLiftOffThrust to BoosterEngines[0]:thrust.
             wait 0.1.
             if bLiftOffThrust > StackMass * Planet1G * 1.4 and bLiftOffThrust < StackMass * Planet1G * 2 {}
@@ -7030,13 +7058,17 @@ function Launch {
                 set message3:text to "<b>Actual Thrust: </b>" + round(bLiftOffThrust) + "kN".
                 lock throttle to 0.
                 unlock bLiftOffThrust.
-                BoosterEngines[0]:shutdown.
+                if not BoosterSingleEngines BoosterEngines[0]:shutdown.
+                else {
+                    for eng in BoosterSingleEnginesRB eng:shutdown.
+                    for eng in BoosterSingleEnginesRC eng:shutdown.
+                }
                 BoosterCore[0]:shutdown.
-                if SingleCenter for eng in BSEnginesRC eng:shutdown.
-                if SingleOuter for eng in BSEnginesRB eng:shutdown.
-                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
-                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                    wait 0.01.
+                if not BoosterSingleEngines {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                        wait 0.01.
+                    }
                 }
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 set message1:style:textcolor to yellow.
@@ -7064,9 +7096,9 @@ function Launch {
                 ClearInterfaceAndSteering().
                 return.
             }
+            if bLiftOffThrust/(StackMass * Planet1G) < 1.3 set lowTWR to true.
             unlock bLiftOffThrust.
             BoosterCore[0]:shutdown.
-            if BoosterEngines[0]:thrust/(StackMass * Planet1G) < 1.3 set lowTWR to true.
             wait 0.01.
             set SteeringManager:rollts to 5.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
@@ -7169,7 +7201,9 @@ function Launch {
         }
 
         if Boosterconnected {
-            when apoapsis > BoosterAp - 14000 * Scale then {
+            set steeringManager:maxstoppingtime to 0.8.
+            when apoapsis > BoosterAp - 21000 * Scale then {
+                set steeringManager:maxstoppingtime to 0.2.
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
                 } 
@@ -7181,9 +7215,12 @@ function Launch {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
-                for eng in SLEngines {
-                    eng:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
-                    eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                if BoosterSingleEngines {
+                    set x to 1.
+                    for eng in BoosterSingleEnginesRB {
+                        if x = 4 or x = 8 or x = 12 or x = 16 or x = 20 eng:shutdown.
+                        set x to x + 1.
+                    }
                 }
                 for fin in GridFins {
                     if fin:hasmodule("ModuleControlSurface") {
@@ -7197,25 +7234,42 @@ function Launch {
                         fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
                     }
                 }
-                if SingleOuter for eng in BSEnginesRB eng:shutdown.
-                wait 0.33.
+                updateTelemetry().
+
+                wait 0.24.
                 //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
-                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                else for eng in BoosterSingleEnginesRB eng:shutdown.
                 lock throttle to 0.5.
                 LogToFile("Starting stage-separation").
                 set message1:text to "<b>Hot staging..</b>".
                 set message2:text to "".
                 set message3:text to "".
                 ShowHomePage().
-                wait 0.36.
+                updateTelemetry().
+                wait 0.24.
                 set CargoBeforeSeparation to CargoMass.
                 //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
                 //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
                 //}
-                BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                wait 0.3.
-                if SingleCenter for eng in BSEnginesRC eng:shutdown.
+                if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                else {
+                    set x to 1.
+                    for eng in BoosterSingleEnginesRC {
+                        if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else eng:shutdown.
+                        set x to x + 1.
+                    }
+                }
+                updateTelemetry().
+                wait 0.24.
+                if BoosterSingleEngines {
+                    set x to 1.
+                    for eng in BoosterSingleEnginesRC {
+                        if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 eng:shutdown.
+                        set x to x + 1.
+                    }
+                }
                 wait 0.02.
                 set t to time:seconds.
                 until time:seconds > t + 2.5 {
@@ -7225,6 +7279,7 @@ function Launch {
                     LaunchLabelData().
                     wait 0.1.
                 }
+                updateTelemetry().
                 wait 0.02.
                 if defined HSR {
                     for x in range(0, HSR[0]:modules:length) {
@@ -7235,6 +7290,7 @@ function Launch {
                         }
                     }
                 }
+                set steeringManager:maxstoppingtime to 0.4.
                 until time:seconds > t + 2.93 {
                     clearscreen.
                     SendPing().
@@ -7242,17 +7298,18 @@ function Launch {
                     LaunchLabelData().
                     wait 0.1.
                 }
+                updateTelemetry().
                 unlock steering.
                 if not cancelconfirmed {
                     sendMessage(Processor(volume("Booster")), "Boostback").
                 }
                 set quickengine3:pressed to true.
+                updateTelemetry().
                 if ShipType:contains("Block1") {
                     print "Block 1".
                     if defined HSR {
                         HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
                         HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
-                        print "test".
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     wait 0.1.
@@ -7272,8 +7329,14 @@ function Launch {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
                 }
-                
+                updateTelemetry().
+                for eng in SLEngines {
+                    eng:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+                    eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                }
+
                 wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0.
+                updateTelemetry().
                 set StageSepComplete to true.
                 set ship:name to ("Starship " + ShipType).
                 set Boosterconnected to false.
@@ -7300,6 +7363,15 @@ function Launch {
                 }
                 LogToFile("Hot-Staging Complete").
                 set HotStageTime to time:seconds.
+                when time:seconds > HotStageTime + 0.2 then {
+                    set quickengine2:pressed to true.
+                }
+                when time:seconds > HotStageTime + 0.4 then {
+                    set tgtThro to LaunchThrottle().
+                    set curThro to throttle.
+                    lock throttle to curThro + (tgtThro - curThro)*(time:seconds-HotStageTime-0.4)/2.
+                    when throttle > tgtThro - 0.02 then lock throttle to LaunchThrottle().
+                }
                 if CPUSPEED < 1000 {
                     set config:ipu to 1000.
                 }
@@ -7325,13 +7397,7 @@ function Launch {
             set sCH4Label:style:textcolor to white.
             set sCH4Slider:style:bg to "starship_img/telemetry_fuel".
             set sThrust:style:textcolor to white.
-            when time:seconds > HotStageTime + 0.5 then {
-                set quickengine2:pressed to true.
-            }
-            when time:seconds > HotStageTime + 1.8 then {
-                lock throttle to LaunchThrottle().
-            }
-            when time:seconds > HotStageTime + 2 then {
+            when time:seconds > HotStageTime + 1.5 then {
                 set Booster to Vessel("Booster").
                 for eng in SLEngines {
                     eng:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
@@ -7468,8 +7534,8 @@ function LaunchThrottle {
         else {
             set thr to 1.
         }
-        if apoapsis > BoosterAp - BoosterThrottleDownAlt {
-            set thr to 0.5 + (1 - ((apoapsis - BoosterAp + BoosterThrottleDownAlt) / BoosterThrottleDownAlt)).
+        if apoapsis > BoosterAp {
+            set thr to max(0.5 + (1 - ((apoapsis - BoosterAp) / BoosterThrottleDownAlt)),0.5).
         }
     }
     else {
@@ -7549,26 +7615,35 @@ Function LaunchSteering {
     } 
     else if altitude - LaunchElev < 1000 {
         if RSS {
-            set targetpitch to 90 - (7.5 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
+            set targetpitch to 90 - (7.5 * SQRT(max((altitude - 120 - LaunchElev), 0)/1600)).
         }
         else if KSRSS {
             if RESCALE {
-                set targetpitch to 90 - (8.375 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
+                set targetpitch to 90 - (8.375 * SQRT(max((altitude - 120 - LaunchElev), 0)/1700)).
             }
             else {
-                set targetpitch to 90 - (9.625 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
+                set targetpitch to 90 - (9.625 * SQRT(max((altitude - 120 - LaunchElev), 0)/1700)).
             }
         }
         else {
-            set targetpitch to 90 - (11 * SQRT(max((altitude - 120 - LaunchElev), 0)/2000)).
+            set targetpitch to 90 - (11 * SQRT(max((altitude - 120 - LaunchElev), 0)/1650)).
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     } 
-    else if apoapsis > BoosterAp - 14000 * Scale and Boosterconnected {
-        if RSS {
-            set result to lookDirUp(2*srfPrograde:vector+0.4*up:vector, LaunchRollVector).
-        } else {
-            set result to lookDirUp(2*srfPrograde:vector+0.2*up:vector, LaunchRollVector).
+    else if apoapsis > BoosterAp - 20000 * Scale and Boosterconnected {
+        if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
+            if RSS {
+                set result to lookDirUp(srfPrograde:vector, LaunchRollVector).
+            } else {
+                set result to lookDirUp(srfPrograde:vector, LaunchRollVector).
+            }
+        }
+        else {
+            if RSS {
+                set result to lookDirUp(srfPrograde:vector + 0.1*up:vector, LaunchRollVector).
+            } else {
+                set result to lookDirUp(srfPrograde:vector + 0.2*up:vector, LaunchRollVector).
+            }
         }
     }
     else if Boosterconnected and not lowTWR {
@@ -7577,33 +7652,33 @@ Function LaunchSteering {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/950)).
             }
         }
         else if KSRSS {
             if RESCALE {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (8.125 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                    set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
                 }
                 else {
-                    set targetpitch to 90 - (8.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
                 }
             }
             else {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (9.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                    set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
                 }
                 else {
-                    set targetpitch to 90 - (9.625 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
                 }
             }
         }
         else {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
+                set targetpitch to 90 - (11.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
@@ -7891,7 +7966,11 @@ Function AbortLaunch {
         rcs on.
         set LaunchButtonIsRunning to false.
         if Boosterconnected {
-            BoosterEngines[0]:shutdown.
+            if not BoosterSingleEngines BoosterEngines[0]:shutdown.
+            else {
+                for eng in BoosterSingleEnginesRB eng:shutdown.
+                for eng in BoosterSingleEnginesRC eng:shutdown.
+            }
             wait 0.1.
             HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
             Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
@@ -10462,7 +10541,7 @@ function ReEntryAndLand {
         when altitude < 20000 and RSS then {
             set TRJCorrection to -TRJCorrection/1.5.
         }
-        when altitude < 12000 and Stock or altitude < 17000 and KSRSS or altitude < 15000 and RSS then {
+        when altitude < 14000 and Stock or altitude < 17000 and KSRSS or altitude < 15000 and RSS then {
             set TRJCorrection to 0.
         }
 
@@ -11456,10 +11535,10 @@ function LandingVector {
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.023*facing:topvector.
-                            if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.023*facing:topvector.
+                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.02*facing:topvector.
+                            if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.022*facing:topvector.
                         } else {
-                            set result to up:vector - 0.024 * GSVec - 0.023*facing:topvector.
+                            set result to up:vector - 0.024 * GSVec - 0.021*facing:topvector.
                         }
                         if oneSL {
                             if ErrorVector:MAG > 5 * Scale {

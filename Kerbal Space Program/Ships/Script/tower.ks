@@ -555,16 +555,16 @@ function EmergencyStop {
 function ToggleReFueling {
     parameter ReFueling.
     if Refueling = "true" {
-        if OLM:getmodulebyindex(NrforFueling):HasEvent("start fueling") {
-            OLM:getmodulebyindex(NrforFueling):DoEvent("start fueling").
+        if OLM:getmodulebyindex(NrforFueling):HasEvent("Start Fueling") {
+            OLM:getmodulebyindex(NrforFueling):DoEvent("Start Fueling").
         }
         if SteelPlate:getmodulebyindex(NrforDelugeRefill):HasEvent("reload water") {
             SteelPlate:getmodulebyindex(NrforDelugeRefill):DoEvent("reload water").
         }
     }
     else {
-        if OLM:getmodulebyindex(NrforFueling):HasEvent("stop fueling") {
-            OLM:getmodulebyindex(NrforFueling):DoEvent("stop fueling").
+        if OLM:getmodulebyindex(NrforFueling):HasEvent("Stop Fueling") {
+            OLM:getmodulebyindex(NrforFueling):DoEvent("Stop Fueling").
         }
         if SteelPlate:getmodulebyindex(NrforDelugeRefill):HasEvent("stop reloading water") {
             SteelPlate:getmodulebyindex(NrforDelugeRefill):DoEvent("stop reloading water").
