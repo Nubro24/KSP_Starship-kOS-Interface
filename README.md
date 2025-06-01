@@ -94,9 +94,8 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ### Planned Features:
 - Rendezvous Maneuver
 - better Ship Catch Abort
-- Gridfin Tilt for Hotstaging
+- (Gridfin Tilt for Hotstaging)
 - Landings with sub-meter precision
-- Scalable Telemetry (WIP)
 - IFT - Flight profile option
 - Implement unused Heat Pictograms
 
