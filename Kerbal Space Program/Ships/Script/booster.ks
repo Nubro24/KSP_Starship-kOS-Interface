@@ -1639,19 +1639,22 @@ function Boostback {
     set LandingBurnTime to time:seconds.
     MidGimbMod:doaction("free gimbal", true).
     CtrGimbMod:doaction("free gimbal", true).
-    set x to 1.
-    until x > 3 {
-        set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
-        set x to x + 1.
+    if BoosterSingleEngines {
+        set x to 1.
+        until x > 3 {
+            set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+            set x to x + 1.
+        }
     }
 
     lock throttle to LandingThrottle().
-    set x to 1.
-    until x > 3 {
-        BoosterSingleEnginesRC[x-1]:activate.
-        set x to x + 1.
+    if BoosterSingleEngines {
+        set x to 1.
+        until x > 3 {
+            BoosterSingleEnginesRC[x-1]:activate.
+            set x to x + 1.
+        }
     }
-
     if BoosterSingleEngines {
         when time:seconds - LandingBurnTime > 0.1 then {
             set x to 1.
