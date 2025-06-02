@@ -745,6 +745,7 @@ else {
         if oldBooster set BoosterGlideDistance to 950. 
         else set BoosterGlideDistance to 800. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.4.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -1063,11 +1064,11 @@ function Boostback {
                     BoosterSingleEnginesRC[6]:activate.
                     BoosterSingleEnginesRC[11]:activate.
                 }
-                when time:seconds - tEngStart > 0.8 then {
+                when time:seconds - tEngStart > 0.6 then {
                     BoosterSingleEnginesRC[7]:activate.
                     BoosterSingleEnginesRC[12]:activate.
                 }
-                when time:seconds - tEngStart > 1 then {
+                when time:seconds - tEngStart > 0.8 then {
                     BoosterSingleEnginesRC[5]:activate.
                     BoosterSingleEnginesRC[10]:activate.
                 }
@@ -1226,12 +1227,18 @@ function Boostback {
         }
 
         until (LngError + 50 > -BoosterGlideDistance and LFBooster < LFBoosterFuelCutOff * 2) or (LngError + 50 > -BoosterGlideDistance*1.04) or verticalspeed < -280 or BoostBackComplete {
-            if GfC {
+            if not GfC = lastCheck {
+                set changed to true.
+                set lastCheck to GfC.
+            }
+            if GfC and changed {
                 setLandingZone().
                 setTargetOLM().
+                set changed to false.
             }
-            else if not GfC or cAbort {
+            else if not GfC and changed or cAbort {
                 set landingzone to offshoreSite.
+                set changed to false.
             }
             SteeringCorrections().
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
@@ -1637,7 +1644,7 @@ function Boostback {
                 set x to x + 1.
             }
         }
-        when time:seconds - LandingBurnTime > 0.5 then {
+        when time:seconds - LandingBurnTime > 0.7 then {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else {
@@ -1834,7 +1841,8 @@ function Boostback {
     }
 
     when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 540 or 
-            velocity:surface:mag < 42 and not MiddleEnginesShutdown and STOCK or 
+            velocity:surface:mag < 42 and not MiddleEnginesShutdown and STOCK and RadarAlt > 200 or 
+            velocity:surface:mag < 22 and not MiddleEnginesShutdown and STOCK or 
             velocity:surface:mag < 32 and not MiddleEnginesShutdown and KSRSS or 
             velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
             velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 460 then {
@@ -1845,6 +1853,7 @@ function Boostback {
                 if x = 1 or x = 2 or x = 3 {} else {
                     eng:shutdown.
                     set eng:gimbal:lock to true.
+                    eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                 }
                 set x to x + 1.
             }
@@ -1897,7 +1906,8 @@ function Boostback {
         print "Booster Landed!".
         set BoosterLanded to true.
         wait 0.01.
-        if BoosterEngines[0]:hasphysics {BoosterEngines[0]:shutdown.}
+        if BoosterEngines[0]:hasphysics and not BoosterSingleEngines {BoosterEngines[0]:shutdown.}
+        else for eng in BoosterSingleEnginesRC eng:shutdown.
     } else if not GfC {
         lock throttle to 0.
         rcs on.
@@ -1912,7 +1922,8 @@ function Boostback {
         set BoosterLanded to true.
         wait 0.01.
         set ship:control:pitch to 0.
-        if BoosterEngines[0]:hasphysics {BoosterEngines[0]:shutdown.}
+        if BoosterEngines[0]:hasphysics and not BoosterSingleEngines {BoosterEngines[0]:shutdown.}
+        else for eng in BoosterSingleEnginesRC eng:shutdown.
     }
     
     set LandingTime to time:seconds.
@@ -1944,6 +1955,16 @@ function Boostback {
             sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").
             
             when time:seconds > LandingTime + 4 then {
+                if BoosterSingleEngines {
+                    set x to 1.
+                    for eng in BoosterSingleEnginesRC {
+                        eng:shutdown.
+                        set eng:gimbal:lock to true.
+                        if not x=1 and not x=2 and not x=3 eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
+                        set x to x + 1.
+                    }
+                }
+
                 lock RadarAlt to alt:radar - BoosterHeight*0.6.
                 
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 15).
