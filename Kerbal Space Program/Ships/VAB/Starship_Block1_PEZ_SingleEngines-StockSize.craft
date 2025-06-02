@@ -2,7 +2,7 @@ ship = Starship_Block1_PEZ-SingleEngines
 version = 1.12.5
 description = 
 type = VAB
-size = 30.7471581,88.6211929,17.8621883
+size = 30.7471619,88.6212006,17.8621902
 steamPublishedFileId = 0
 persistentId = 1127620693
 rot = 0,0,0,0
@@ -49,8 +49,7 @@ PART
 	link = SEP.23.RAPTOR2.SL.RC_4293064976
 	link = kerbpro_4292879638
 	link = SEP.25.BOOSTER.HSR_4292852996
-	link = frostship24_4293164196
-	attN = frosty,frostship24_4293164196_0|-8.5|0_0|1|0_0|-8.5|0_0|1|0
+	attN = frosty,Null_0_0|-8.5|0_0|1|0_0|-8.5|0_0|1|0
 	attN = node_top,SEP.24.SHIP.PEZ_4293196684_-2.98023281E-07|8.60989952|0_0|1.00000012|-1.1920929E-07_-2.98023281E-07|8.60989952|0_0|1.00000012|-1.1920929E-07
 	attN = node_bottom,SEP.25.BOOSTER.HSR_4292852996_0|-9.15000153|9.53674316E-07_-1.50995831E-07|-1.00000012|-1.1920929E-07_0|-9.15000153|9.53674316E-07_-1.50995831E-07|-1.00000012|-1.1920929E-07
 	attN = node_fin_left,SEP.24.SHIP.AFT.LEFT.FLAP_4293126308_-3.20866966|-5.36061287|9.53674316E-07_-1.00000012|1.1920929E-07|-1.1920929E-07_-3.20866966|-5.36061287|9.53674316E-07_-1.00000012|1.1920929E-07|-1.1920929E-07
@@ -881,7 +880,7 @@ PART
 		MaxPartId = 100
 		ECPerInstruction = 3.99999999E-06
 		ECPerBytePerSecond = 0
-		RequiredPower = 0.159999996
+		RequiredPower = 0.192000002
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -1418,7 +1417,7 @@ PART
 		MaxPartId = 100
 		ECPerInstruction = 3.99999999E-06
 		ECPerBytePerSecond = 0
-		RequiredPower = 0.159999996
+		RequiredPower = 0.192000002
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -1852,7 +1851,7 @@ PART
 	part = SEP.24.SHIP.FWD.LEFT.FLAP_4293130276
 	partName = Part
 	persistentId = 2758505465
-	pos = -0.042825941,87.1771164,2.84853411
+	pos = -0.042825941,87.1771164,2.84853458
 	attPos = 0,0,0
 	attPos0 = -2.94825029,0.0078125,-0.03172585
 	rot = -0.549525201,0.444996983,-0.549525082,0.444996864
@@ -2269,7 +2268,7 @@ PART
 	part = SEP.24.SHIP.FWD.RIGHT.FLAP_4293128554
 	partName = Part
 	persistentId = 425432478
-	pos = -0.0428295173,87.1771088,-3.04807472
+	pos = -0.0428295173,87.1771088,-3.0480752
 	attPos = 0,0,0
 	attPos0 = 2.94824982,0.0078125,-0.0317291655
 	rot = 0.549524665,0.444997877,0.549524307,0.44499746
@@ -2596,7 +2595,7 @@ PART
 	part = SEP.24.SHIP.AFT.LEFT.FLAP_4293126308
 	partName = Part
 	persistentId = 3786986977
-	pos = -0.0110967159,65.653244,3.10900784
+	pos = -0.0110967159,65.653244,3.10900879
 	attPos = 0,0,0
 	attPos0 = -3.20866966,-5.36061096,9.53674316E-07
 	rot = -0.50000006,0.50000006,-0.50000006,0.50000006
@@ -2923,7 +2922,7 @@ PART
 	part = SEP.24.SHIP.AFT.RIGHT.FLAP_4293124978
 	partName = Part
 	persistentId = 3269170562
-	pos = -0.0110974312,65.653244,-3.30854893
+	pos = -0.0110974312,65.653244,-3.30854988
 	attPos = 0,0,0
 	attPos0 = 3.20866966,-5.36061096,9.53674316E-07
 	rot = 0.50000006,0.5,0.50000006,0.5
@@ -3250,7 +3249,7 @@ PART
 	part = SEP.23.RAPTOR.VAC_4293085840
 	partName = Part
 	persistentId = 1997576431
-	pos = 1.8734653,64.0171967,-0.0997709036
+	pos = 1.87346578,64.0171967,-0.0997709036
 	attPos = 0,0,0
 	attPos0 = -5.59930413E-08,-6.99665833,1.88450921
 	rot = 2.05795155E-11,0.707106829,2.05795155E-11,0.707106829
@@ -3525,13 +3524,24 @@ PART
 		{
 		}
 	}
+	RESOURCE
+	{
+		name = ElectricCharge
+		amount = 0
+		maxAmount = 0
+		flowState = True
+		isTweakable = False
+		hideFlow = True
+		isVisible = True
+		flowMode = Both
+	}
 }
 PART
 {
 	part = SEP.23.RAPTOR.VAC_4293075204
 	partName = Part
 	persistentId = 341433690
-	pos = -0.953391552,64.0172043,-1.73187065
+	pos = -0.95339191,64.0172043,-1.73187125
 	attPos = 0,0,0
 	attPos0 = 1.63203287,-6.99665833,-0.942253172
 	rot = 0,0.965925932,0,-0.258819133
@@ -3798,13 +3808,24 @@ PART
 		{
 		}
 	}
+	RESOURCE
+	{
+		name = ElectricCharge
+		amount = 0
+		maxAmount = 0
+		flowState = True
+		isTweakable = False
+		hideFlow = True
+		isVisible = True
+		flowMode = Both
+	}
 }
 PART
 {
 	part = SEP.23.RAPTOR.VAC_4293074372
 	partName = Part
 	persistentId = 842491382
-	pos = -0.953378141,64.0171967,1.53231657
+	pos = -0.953378379,64.0171967,1.53231704
 	attPos = 0,0,0
 	attPos0 = -1.63203287,-6.99665833,-0.942253172
 	rot = -2.05795173E-11,0.258819103,6.17385518E-11,-0.965925932
@@ -4071,13 +4092,24 @@ PART
 		{
 		}
 	}
+	RESOURCE
+	{
+		name = ElectricCharge
+		amount = 0
+		maxAmount = 0
+		flowState = True
+		isTweakable = False
+		hideFlow = True
+		isVisible = True
+		flowMode = Both
+	}
 }
 PART
 {
 	part = SEP.23.RAPTOR2.SL.RC_4293069788
 	partName = Part
 	persistentId = 3466622272
-	pos = -0.61281836,63.0901718,-0.0997710228
+	pos = -0.61281848,63.0901718,-0.0997710228
 	attPos = 0,0,0
 	attPos0 = 5.40201654E-07,-7.92368317,-0.601706743
 	rot = 2.05795155E-11,0.707106829,2.05795155E-11,0.707106829
@@ -4509,13 +4541,24 @@ PART
 		{
 		}
 	}
+	RESOURCE
+	{
+		name = ElectricCharge
+		amount = 0
+		maxAmount = 0
+		flowState = True
+		isTweakable = False
+		hideFlow = True
+		isVisible = True
+		flowMode = Both
+	}
 }
 PART
 {
 	part = SEP.23.RAPTOR2.SL.RC_4293065820
 	partName = Part
 	persistentId = 2781654446
-	pos = 0.289762944,63.0901756,0.421337605
+	pos = 0.289763004,63.0901756,0.421337724
 	attPos = 0,0,0
 	attPos0 = -0.521094561,-7.92368317,0.300854355
 	rot = 0,0.965925932,0,-0.258819133
@@ -4956,7 +4999,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4293064976
 	partName = Part
 	persistentId = 3966619770
-	pos = 0.289763868,63.0901756,-0.62087822
+	pos = 0.289763927,63.0901756,-0.620878339
 	attPos = 0,0,0
 	attPos0 = 0.521094143,-7.92368317,0.300855279
 	rot = -2.05795173E-11,0.258819103,6.17385518E-11,-0.965925932
@@ -5397,7 +5440,7 @@ PART
 	part = kerbpro_4292879638
 	partName = Part
 	persistentId = 2118518831
-	pos = -2.70934796,63.4980278,-0.0997703075
+	pos = -2.70934844,63.4980278,-0.0997703075
 	attPos = -1.717126E-09,-0.0187492371,0.141218424
 	attPos0 = 2.48451215E-07,-7.49460983,-2.83785725
 	rot = -0.209460825,-0.67537117,-0.209460825,0.67537117
@@ -5946,438 +5989,6 @@ PART
 	MODULE
 	{
 		name = ModuleWaterfallFX
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleB9PartInfo
-		isEnabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-}
-PART
-{
-	part = frostship24_4293164196
-	partName = Part
-	persistentId = 439819053
-	pos = -0.0110981464,65.334549,-0.099770546
-	attPos = 0,2.82068634,0
-	attPos0 = 0,-8.5,0
-	rot = 0,0.707106829,0,0.707106829
-	attRot = 0,0.707106769,0,0.707106769
-	attRot0 = 0,0,0,1
-	mir = 1,1,1
-	symMethod = Radial
-	autostrutMode = Grandparent
-	rigidAttachment = False
-	istg = -1
-	resPri = 0
-	dstg = 0
-	sidx = -1
-	sqor = -1
-	sepI = 0
-	attm = 0
-	sameVesselCollision = False
-	modCost = 0
-	modMass = 0
-	modSize = 0,0,0
-	attN = frost,SEP.24.SHIP.CORE_4293209148_0|0|0_0|-0.625|0_0|0|0_0|-0.625|0
-	EVENTS
-	{
-	}
-	ACTIONS
-	{
-		ToggleSameVesselInteraction
-		{
-			actionGroup = None
-			wasActiveBeforePartWasAdjusted = False
-		}
-		SetSameVesselInteraction
-		{
-			actionGroup = None
-			wasActiveBeforePartWasAdjusted = False
-		}
-		RemoveSameVesselInteraction
-		{
-			actionGroup = None
-			wasActiveBeforePartWasAdjusted = False
-		}
-		AutostrutOff
-		{
-			actionGroup = None
-			wasActiveBeforePartWasAdjusted = False
-		}
-		AutostrutRoot
-		{
-			actionGroup = None
-			wasActiveBeforePartWasAdjusted = False
-		}
-		AutostrutHeaviest
-		{
-			actionGroup = None
-			wasActiveBeforePartWasAdjusted = False
-		}
-		AutostrutGrandparent
-		{
-			actionGroup = None
-			wasActiveBeforePartWasAdjusted = False
-		}
-		ResourcesEnableFlow
-		{
-			actionGroup = None
-			active = False
-			wasActiveBeforePartWasAdjusted = False
-		}
-		ResourcesDisableFlow
-		{
-			actionGroup = None
-			active = False
-			wasActiveBeforePartWasAdjusted = False
-		}
-	}
-	PARTDATA
-	{
-	}
-	MODULE
-	{
-		name = ModuleB9PartSwitch
-		isEnabled = True
-		stagingEnabled = True
-		moduleID = FROST_Switch
-		currentSubtype = ForTiles
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleAnimateGeneric
-		isEnabled = True
-		aniState = LOCKED
-		animSwitch = True
-		animTime = 0
-		animSpeed = 1
-		deployPercent = 100
-		animationIsDisabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		AXISGROUPS
-		{
-			deployPercent
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleAnimateGeneric
-		isEnabled = True
-		aniState = LOCKED
-		animSwitch = True
-		animTime = 0
-		animSpeed = 1
-		deployPercent = 100
-		animationIsDisabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		AXISGROUPS
-		{
-			deployPercent
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleAnimateGeneric
-		isEnabled = True
-		aniState = LOCKED
-		animSwitch = True
-		animTime = 0
-		animSpeed = 1
-		deployPercent = 100
-		animationIsDisabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		AXISGROUPS
-		{
-			deployPercent
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleAnimateGeneric
-		isEnabled = True
-		aniState = LOCKED
-		animSwitch = True
-		animTime = 0
-		animSpeed = 1
-		deployPercent = 100
-		animationIsDisabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		AXISGROUPS
-		{
-			deployPercent
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleAnimateGeneric
-		isEnabled = True
-		aniState = LOCKED
-		animSwitch = True
-		animTime = 0
-		animSpeed = 1
-		deployPercent = 100
-		animationIsDisabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		AXISGROUPS
-		{
-			deployPercent
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleAnimateGeneric
-		isEnabled = True
-		aniState = LOCKED
-		animSwitch = True
-		animTime = 0
-		animSpeed = 1
-		deployPercent = 100
-		animationIsDisabled = False
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-			ToggleAction
-			{
-				actionGroup = None
-				wasActiveBeforePartWasAdjusted = False
-			}
-		}
-		AXISGROUPS
-		{
-			deployPercent
-			{
-				axisGroup = None
-				axisIncremental = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				axisSpeedMultiplier = 0
-				axisInverted = None
-				overrideIncremental0 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental1 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental2 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-				overrideIncremental3 = Pitch, Yaw, Roll, TranslateX, TranslateY, TranslateZ, WheelSteer, WheelThrottle, Custom01, Custom02, Custom03, Custom04
-			}
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleStarshipFrost
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleStarshipFrost
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ModuleStarshipFrostParticles
-		isEnabled = True
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = KOSNameTag
-		isEnabled = True
-		nameTag = 
-		stagingEnabled = True
-		EVENTS
-		{
-		}
-		ACTIONS
-		{
-		}
-		UPGRADESAPPLIED
-		{
-		}
-	}
-	MODULE
-	{
-		name = ShipEffectsCollisions
 		isEnabled = True
 		stagingEnabled = True
 		EVENTS
@@ -7161,7 +6772,7 @@ PART
 		MaxPartId = 100
 		ECPerInstruction = 3.99999999E-06
 		ECPerBytePerSecond = 0
-		RequiredPower = 0.159999996
+		RequiredPower = 0.192000002
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -7279,7 +6890,7 @@ PART
 	part = SEP.25.BOOSTER.GRIDFIN_4285787854
 	partName = Part
 	persistentId = 1425042987
-	pos = -1.48522747,60.1303864,-2.65297699
+	pos = -1.48522794,60.1303864,-2.65297747
 	attPos = 0,0,0
 	attPos0 = 2.5532012,16.5640221,-1.47412717
 	rot = 0.49999997,-1.83414208E-08,-0.866025448,-1.24194145E-07
@@ -7544,7 +7155,7 @@ PART
 	part = SEP.25.BOOSTER.GRIDFIN_4285391850
 	partName = Part
 	persistentId = 993951647
-	pos = 1.46297932,60.1303864,-2.65300751
+	pos = 1.46297956,60.1303864,-2.65300798
 	attPos = 0,0,0
 	attPos0 = 2.55323124,16.5640221,1.47407198
 	rot = 0.866025448,7.29665999E-08,-0.500000238,6.95688698E-08
@@ -7801,7 +7412,7 @@ PART
 	part = SEP.25.BOOSTER.GRIDFIN_4285786454
 	partName = Part
 	persistentId = 2582562771
-	pos = -1.48517442,60.1303902,2.45346642
+	pos = -1.48517466,60.1303902,2.45346689
 	attPos = 0,0,0
 	attPos0 = -2.55323124,16.5640259,-1.47407675
 	rot = -0.49999997,1.83413817E-08,-0.866025448,-1.24194159E-07
@@ -8058,7 +7669,7 @@ PART
 	part = SEP.25.BOOSTER.GRIDFIN_4285786838
 	partName = Part
 	persistentId = 1897381216
-	pos = 1.46303308,60.1303864,2.4534359
+	pos = 1.46303356,60.1303864,2.45343637
 	attPos = 0,0,0
 	attPos0 = -2.5532012,16.5640221,1.47412336
 	rot = -0.866025448,-1.08223112E-07,-0.500000238,3.43123858E-08
@@ -9245,7 +8856,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292400884
 	partName = Part
 	persistentId = 2946692805
-	pos = -0.612797916,18.6670914,-0.0997696519
+	pos = -0.612798035,18.6670914,-0.0997696519
 	attPos = 0,0,0
 	attPos0 = -2.83121182E-07,0.0712738037,-0.601705909
 	rot = 0,0.976328373,0,0.216293901
@@ -9692,7 +9303,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292387340
 	partName = Part
 	persistentId = 1174428799
-	pos = 0.289762706,18.667099,0.421322346
+	pos = 0.289762765,18.667099,0.421322465
 	attPos = 0,0,0
 	attPos0 = -0.521092296,0.0712814331,0.300852835
 	rot = -1.76328768E-18,0.685622752,-6.89982058E-19,-0.727957189
@@ -10131,7 +9742,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292385002
 	partName = Part
 	persistentId = 1923334846
-	pos = 0.289761096,18.6670914,-0.620864272
+	pos = 0.289761156,18.6670914,-0.620864391
 	attPos = 0,0,0
 	attPos0 = 0.521092176,0.0712738037,0.30085212
 	rot = 1.22663482E-18,-0.294211298,1.22663482E-18,-0.955740571
@@ -10570,7 +10181,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292382674
 	partName = Part
 	persistentId = 3166578536
-	pos = -1.67914569,18.6670914,-0.0997693539
+	pos = -1.67914617,18.6670914,-0.0997693539
 	attPos = 0,0,0
 	attPos0 = -4.023305E-07,0.0712738037,-1.66805243
 	rot = 0,0.977466226,0,0.211092234
@@ -11009,7 +10620,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292380356
 	partName = Part
 	persistentId = 2054421640
-	pos = -1.36057401,18.6670914,0.880687833
+	pos = -1.36057425,18.6670914,0.880688071
 	attPos = 0,0,0
 	attPos0 = -0.980456531,0.0712738037,-1.34948182
 	rot = 0,-0.996235013,0,0.0866942108
@@ -11448,10 +11059,10 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292378048
 	partName = Part
 	persistentId = 3020774534
-	pos = -0.526547015,18.6670914,1.48664355
+	pos = -0.526547134,18.6670914,1.48664403
 	attPos = 0,0,0
 	attPos0 = -1.58641219,0.0712738037,-0.515455961
-	rot = -3.67990445E-18,0.917244077,3.67990445E-18,-0.398325682
+	rot = -5.51985646E-18,0.917244077,5.51985646E-18,-0.398325652
 	attRot = 0,0.917244077,0,-0.398325801
 	attRot0 = 0,0.93024838,0,0.366930634
 	mir = 1,1,1
@@ -11887,7 +11498,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292375750
 	partName = Part
 	persistentId = 4220047446
-	pos = 0.504367173,18.6670914,1.48664331
+	pos = 0.504367173,18.6670914,1.48664379
 	attPos = 0,0,0
 	attPos0 = -1.58641171,0.0712738037,0.515456796
 	rot = -9.19976112E-19,0.742927134,9.19976112E-19,-0.66937238
@@ -12326,7 +11937,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292373462
 	partName = Part
 	persistentId = 2516943831
-	pos = 1.33839321,18.6670914,0.880686164
+	pos = 1.33839345,18.6670914,0.880686402
 	attPos = 0,0,0
 	attPos0 = -0.980456054,0.0712738037,1.34948325
 	rot = 6.13317408E-19,0.503312111,-6.13317408E-19,-0.864104867
@@ -12765,7 +12376,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292371184
 	partName = Part
 	persistentId = 805644589
-	pos = 1.65696251,18.6670914,-0.0997716188
+	pos = 1.65696299,18.6670914,-0.0997716188
 	attPos = 0,0,0
 	attPos0 = 2.9802419E-07,0.0712738037,1.66805172
 	rot = 0,0.210496753,0,-0.977594614
@@ -13204,7 +12815,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292368916
 	partName = Part
 	persistentId = 4278382710
-	pos = 1.33839178,18.6670914,-1.08022916
+	pos = 1.33839202,18.6670914,-1.0802294
 	attPos = 0,0,0
 	attPos0 = 0.98045671,0.0712738037,1.34948206
 	rot = -1.22663482E-18,-0.0951982737,-1.22663482E-18,-0.995458484
@@ -13643,7 +13254,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292366658
 	partName = Part
 	persistentId = 3664209733
-	pos = 0.50436455,18.6670914,-1.68618536
+	pos = 0.504364669,18.6670914,-1.68618584
 	attPos = 0,0,0
 	attPos0 = 1.58641291,0.0712738037,0.515455961
 	rot = -3.06658704E-18,-0.401861697,-3.06658704E-18,-0.915700436
@@ -14082,7 +13693,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292364410
 	partName = Part
 	persistentId = 5397339
-	pos = -0.526549637,18.6670914,-1.68618441
+	pos = -0.526549637,18.6670914,-1.68618488
 	attPos = 0,0,0
 	attPos0 = 1.58641195,0.0712738037,-0.515456915
 	rot = -7.6664676E-19,-0.660572171,-7.6664676E-19,-0.750762701
@@ -14521,7 +14132,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RC_4292362172
 	partName = Part
 	persistentId = 2345636862
-	pos = -1.36057556,18.6670914,-1.08022738
+	pos = -1.3605758,18.6670914,-1.08022761
 	attPos = 0,0,0
 	attPos0 = 0.980456114,0.0712738037,-1.34948313
 	rot = 6.13317408E-19,-0.865578353,6.13317408E-19,-0.500773728
@@ -14960,7 +14571,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292360712
 	partName = Part
 	persistentId = 1411607815
-	pos = -2.68942618,18.729599,-0.523977757
+	pos = -2.68942666,18.729599,-0.523977757
 	attPos = 0,0,0
 	attPos0 = 0.424207747,0.133781433,-2.67833281
 	rot = 0,-0.309669137,0,0.950844407
@@ -15275,7 +14886,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292354490
 	partName = Part
 	persistentId = 1051674249
-	pos = -2.68942666,18.729599,0.324435234
+	pos = -2.68942714,18.729599,0.324435234
 	attPos = 0,0,0
 	attPos0 = -0.424205363,0.133781433,-2.67833376
 	rot = 0,0.153328091,0,-0.988175392
@@ -15582,7 +15193,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292352296
 	partName = Part
 	persistentId = 2987276506
-	pos = -2.42725253,18.729599,1.13132441
+	pos = -2.42725301,18.729599,1.13132465
 	attPos = 0,0,0
 	attPos0 = -1.23109388,0.133781433,-2.41615987
 	rot = 0,0.0155427456,0,0.99987936
@@ -15889,7 +15500,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292350112
 	partName = Part
 	persistentId = 2217987172
-	pos = -1.92856789,18.729599,1.81770599
+	pos = -1.92856836,18.729599,1.81770647
 	attPos = 0,0,0
 	attPos0 = -1.91747487,0.133781433,-1.9174751
 	rot = -1.22663482E-18,0.173417687,-1.22663482E-18,0.984848499
@@ -16196,7 +15807,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292347938
 	partName = Part
 	persistentId = 614689662
-	pos = -1.24218714,18.729599,2.31638956
+	pos = -1.24218738,18.729599,2.31639004
 	attPos = 0,0,0
 	attPos0 = -2.4161582,0.133781433,-1.23109579
 	rot = 3.67990445E-18,-0.333560348,3.67990445E-18,-0.942728877
@@ -16503,7 +16114,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292345774
 	partName = Part
 	persistentId = 1184199647
-	pos = -0.435298502,18.729599,2.57856393
+	pos = -0.435298502,18.729599,2.57856441
 	attPos = 0,0,0
 	attPos0 = -2.67833304,0.133781433,-0.424207687
 	rot = -6.13317408E-19,-0.457220912,-6.13317408E-19,-0.889353275
@@ -16810,7 +16421,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292343620
 	partName = Part
 	persistentId = 2721648720
-	pos = 0.413114607,18.729599,2.57856441
+	pos = 0.413114607,18.729599,2.57856488
 	attPos = 0,0,0
 	attPos0 = -2.67833304,0.133781433,0.424205065
 	rot = -1.83995222E-18,-0.584999144,6.13317408E-19,-0.811033905
@@ -17117,7 +16728,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292341476
 	partName = Part
 	persistentId = 2379121069
-	pos = 1.22000349,18.729599,2.31639099
+	pos = 1.22000372,18.729599,2.31639147
 	attPos = 0,0,0
 	attPos0 = -2.41616011,0.133781433,1.23109365
 	rot = 7.6664676E-20,-0.720901668,7.6664676E-20,-0.69303745
@@ -17424,7 +17035,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292339342
 	partName = Part
 	persistentId = 2913979566
-	pos = 1.90638471,18.729599,1.81770682
+	pos = 1.90638518,18.729599,1.8177073
 	attPos = 0,0,0
 	attPos0 = -1.9174757,0.133781433,1.91747427
 	rot = -9.19976112E-19,0.822345436,1.53329352E-18,0.56898874
@@ -17731,10 +17342,10 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292337218
 	partName = Part
 	persistentId = 1085485627
-	pos = 2.40506864,18.729599,1.13132548
+	pos = 2.40506911,18.729599,1.13132572
 	attPos = 0,0,0
 	attPos0 = -1.23109591,0.133781433,2.41615796
-	rot = 1.83995222E-18,-0.897453904,-3.06658704E-18,-0.441108316
+	rot = 3.67990445E-18,-0.897453964,-3.67990445E-18,-0.441108286
 	attRot = 1.83995181E-18,-0.897453904,-6.13317304E-19,-0.441108346
 	attRot0 = 1.73472327E-18,-0.322685033,8.67361635E-19,-0.946506441
 	mir = 1,1,1
@@ -18038,7 +17649,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292335104
 	partName = Part
 	persistentId = 2818379524
-	pos = 2.66724277,18.729599,0.324436665
+	pos = 2.66724324,18.729599,0.324436665
 	attPos = 0,0,0
 	attPos0 = -0.424207747,0.133781433,2.67833233
 	rot = -2.45326963E-18,-0.953500926,2.45326963E-18,-0.301390231
@@ -18345,7 +17956,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292333000
 	partName = Part
 	persistentId = 779289517
-	pos = 2.66724324,18.729599,-0.523976326
+	pos = 2.66724372,18.729599,-0.523976326
 	attPos = 0,0,0
 	attPos0 = 0.424205363,0.133781433,2.67833281
 	rot = 0,-0.988861322,0,-0.14884004
@@ -18652,7 +18263,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292330906
 	partName = Part
 	persistentId = 1383441736
-	pos = 2.40507007,18.729599,-1.3308655
+	pos = 2.40507054,18.729599,-1.33086574
 	attPos = 0,0,0
 	attPos0 = 1.23109388,0.133781433,2.41615987
 	rot = 0,-0.999974608,0,-0.00714066625
@@ -18959,7 +18570,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292328822
 	partName = Part
 	persistentId = 885537743
-	pos = 1.90638554,18.729599,-2.0172472
+	pos = 1.90638602,18.729599,-2.01724768
 	attPos = 0,0,0
 	attPos0 = 1.91747499,0.133781433,1.91747522
 	rot = -1.22663482E-18,0.984855175,1.22663482E-18,-0.173379779
@@ -19266,7 +18877,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292326748
 	partName = Part
 	persistentId = 610577565
-	pos = 1.22000444,18.729599,-2.51593113
+	pos = 1.22000468,18.729599,-2.51593161
 	attPos = 0,0,0
 	attPos0 = 2.41615868,0.133781433,1.23109555
 	rot = -3.06658704E-18,-0.950730205,3.06658704E-18,0.310019881
@@ -19573,7 +19184,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292324684
 	partName = Part
 	persistentId = 2788565203
-	pos = 0.413115799,18.729599,-2.77810478
+	pos = 0.413115799,18.729599,-2.77810526
 	attPos = 0,0,0
 	attPos0 = 2.67833281,0.133781433,0.424207449
 	rot = 6.13317408E-19,-0.883685172,-6.13317408E-19,0.468082011
@@ -19880,7 +19491,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292322630
 	partName = Part
 	persistentId = 3212393585
-	pos = -0.43529731,18.729599,-2.77810574
+	pos = -0.43529731,18.729599,-2.77810621
 	attPos = 0,0,0
 	attPos0 = 2.67833328,0.133781433,-0.424205542
 	rot = 9.19976112E-19,-0.800196767,-9.19976112E-19,0.599737763
@@ -20187,7 +19798,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292320586
 	partName = Part
 	persistentId = 4097848595
-	pos = -1.24218619,18.729599,-2.51593208
+	pos = -1.24218643,18.729599,-2.51593256
 	attPos = 0,0,0
 	attPos0 = 2.41616011,0.133781433,-1.23109388
 	rot = 7.6664676E-20,0.683432341,-7.6664676E-20,-0.730013967
@@ -20494,7 +20105,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292318552
 	partName = Part
 	persistentId = 2078960485
-	pos = -1.92856741,18.729599,-2.01724768
+	pos = -1.92856789,18.729599,-2.01724815
 	attPos = 0,0,0
 	attPos0 = 1.91747546,0.133781433,-1.91747451
 	rot = 6.13317408E-19,0.578308165,-6.13317408E-19,-0.815818489
@@ -20801,7 +20412,7 @@ PART
 	part = SEP.23.RAPTOR2.SL.RB_4292316528
 	partName = Part
 	persistentId = 1349734194
-	pos = -2.4272511,18.729599,-1.33086658
+	pos = -2.42725158,18.729599,-1.33086681
 	attPos = 0,0,0
 	attPos0 = 1.23109591,0.133781433,-2.41615796
 	rot = -3.06658704E-18,-0.433277547,-1.83995222E-18,0.901260674
@@ -21107,7 +20718,7 @@ PART
 {
 	part = SLE.SS.OLM_4292864202
 	partName = Part
-	persistentId = 2497761200
+	persistentId = 3549853356
 	pos = -0.0110923974,6.27732849,-0.0997720584
 	attPos = 3.41060513E-13,-0.217414856,1.36424205E-12
 	attPos0 = 1.51991856E-06,-12.3184891,-1.15390867E-06
@@ -21755,7 +21366,7 @@ PART
 		MaxPartId = 100
 		ECPerInstruction = 3.99999999E-06
 		ECPerBytePerSecond = 0
-		RequiredPower = 0.159999996
+		RequiredPower = 0.192000002
 		stagingEnabled = True
 		activated = True
 		EVENTS
@@ -21859,11 +21470,11 @@ PART
 {
 	part = SLE.SS.SteelPlate_4292806070
 	partName = Part
-	persistentId = 3444982404
+	persistentId = 4135374029
 	pos = -0.0110928314,6.68940735,-0.0997720063
 	attPos = 0,0,0
 	attPos0 = -7.09214437E-05,0.412078351,-0.000632888812
-	rot = 1.27593003E-09,0,-4.11590206E-11,1
+	rot = 1.35824818E-09,0,-4.11590206E-11,1
 	attRot = 0,0,0,1
 	attRot0 = -0.00076798792,0,8.55218605E-05,0.999999702
 	mir = 1,1,1
@@ -22170,11 +21781,11 @@ PART
 {
 	part = SLE.SS.OLIT.Base_4292805614
 	partName = Part
-	persistentId = 4161887117
-	pos = -20.8502407,10.17733,-0.668675423
+	persistentId = 1820807586
+	pos = -20.8502464,10.17733,-0.668673515
 	attPos = 0,0,0
 	attPos0 = -20.8391418,3.89556241,-0.575103819
-	rot = 1.27593003E-09,0,-4.11590206E-11,1
+	rot = 1.35824818E-09,0,-4.11590206E-11,1
 	attRot = 0,0,0,1
 	attRot0 = -0.00076798792,0,8.55218605E-05,0.999999702
 	mir = 1,1,1
@@ -22468,11 +22079,11 @@ PART
 {
 	part = SLE.SS.OLIT.Core_4292785920
 	partName = Part
-	persistentId = 3127016202
-	pos = -20.8492165,13.6962738,-0.69372654
+	persistentId = 3330927923
+	pos = -20.8492203,13.6962738,-0.693724632
 	attPos = 0,0,0
 	attPos0 = 0.000809790741,3.51894379,-0.0250515621
-	rot = 1.27593003E-09,0,-4.11590206E-11,1
+	rot = 1.35824818E-09,0,-4.11590206E-11,1
 	attRot = 0,0,0,1
 	attRot0 = 0,0,-7.27595675E-12,1
 	mir = 1,1,1
@@ -22881,11 +22492,11 @@ PART
 {
 	part = SLE.SS.OLIT.Top_4292763072
 	partName = Part
-	persistentId = 3965096453
-	pos = -20.8493824,87.0956497,-0.69374752
+	persistentId = 4282915274
+	pos = -20.8493862,87.0956421,-0.693745613
 	attPos = 0.00477108033,62.920002,-0.0271948799
 	attPos0 = -0.00478018261,10.4799995,0.0271978211
-	rot = 1.27593003E-09,0,-4.11590206E-11,1
+	rot = 1.35824818E-09,0,-4.11590206E-11,1
 	attRot = 0,0,0,1
 	attRot0 = 0,0,0,1
 	mir = 1,1,1
@@ -23070,8 +22681,8 @@ PART
 {
 	part = hc.launchcam_4292729854
 	partName = Part
-	persistentId = 1543457169
-	pos = -19.5217533,97.5974045,-5.64813328
+	persistentId = 1557505637
+	pos = -19.5217571,97.5974121,-5.64813328
 	attPos = 0,0,0
 	attPos0 = 1.32746744,10.5000076,-4.95419788
 	rot = 0.179238454,0.609302282,-0.143907949,0.75889051
@@ -23267,11 +22878,11 @@ PART
 {
 	part = SLE.SS.OLIT.SQD_4292762154
 	partName = Part
-	persistentId = 4130025696
-	pos = -19.5280151,63.2121239,-1.48217106
+	persistentId = 3790981587
+	pos = -19.5280209,63.2121239,-1.48216915
 	attPos = 0,0,0
 	attPos0 = 1.32140613,49.5158463,-0.788441956
-	rot = -1.02923309E-07,0.997030318,1.21264812E-08,0.077011764
+	rot = -1.0291302E-07,0.997030318,1.21161889E-08,0.077011764
 	attRot = 0,0.99999994,0,0
 	attRot0 = -1.03638719E-07,0.997030199,1.18749233E-08,0.0770118162
 	mir = 1,1,1
@@ -23619,8 +23230,8 @@ PART
 {
 	part = SLE.SS.OLIT.MZ_4292744418
 	partName = Part
-	persistentId = 331539178
-	pos = -13.3215551,85.9750137,0.274720192
+	persistentId = 3541861546
+	pos = -13.321559,85.9750214,0.274720192
 	attPos = 0,0,0
 	attPos0 = 7.52765703,72.2776337,0.968643844
 	rot = 0.707082212,-0.00588274002,-0.00588279963,-0.70708257
@@ -24494,8 +24105,8 @@ PART
 {
 	part = trussPiece3x_4290933608
 	partName = Part
-	persistentId = 3049184409
-	pos = -21.9931126,10.8361664,6.24390602
+	persistentId = 3032335769
+	pos = -21.9931202,10.8361664,6.24391079
 	attPos = 1.06084239,0.466961354,0.200791836
 	attPos0 = -2.20360446,0.19187507,6.71160507
 	rot = -0.704696655,0.0583320558,-0.058331877,-0.704696774
@@ -24631,8 +24242,8 @@ PART
 {
 	part = hc.launchcam_4290920182
 	partName = Part
-	persistentId = 2073043536
-	pos = -22.0155544,11.1607361,7.58860111
+	persistentId = 2926094226
+	pos = -22.0155582,11.1607361,7.58860493
 	attPos = 0,0,0
 	attPos0 = 0.198759347,1.33016598,-0.324569732
 	rot = 0.267134458,-0.717813909,-0.359918326,-0.532767832
@@ -24828,8 +24439,8 @@ PART
 {
 	part = kerbpro_4292727134
 	partName = Part
-	persistentId = 3076645271
-	pos = 3.42062402,9.87031555,-0.113444805
+	persistentId = 289914124
+	pos = 3.42062497,9.87031555,-0.113444805
 	attPos = 0.449936628,-0.463331699,0.000791788101
 	attPos0 = 2.98105431,4.05688429,-0.0199835319
 	rot = 0.380770534,0.596183956,-0.379360467,0.596375883
@@ -25026,8 +24637,8 @@ PART
 {
 	part = kerbpro_4292725680
 	partName = Part
-	persistentId = 3753285414
-	pos = -4.27746201,20.1376419,-2.76021433
+	persistentId = 2192852189
+	pos = -4.27746296,20.1376419,-2.76021433
 	attPos = 0.0235376358,0.0801486969,0.0239191055
 	attPos0 = -4.29272127,13.776948,-2.70614505
 	rot = -0.088674888,0.905201435,-0.182897642,-0.373223692
@@ -25224,8 +24835,8 @@ PART
 {
 	part = hc.launchcam_4292874384
 	partName = Part
-	persistentId = 2828304939
-	pos = -0.811090529,16.2725143,-3.70381713
+	persistentId = 3043382148
+	pos = -0.811090052,16.2725143,-3.70381856
 	attPos = 0.572877407,0.223502159,1.5106473
 	attPos0 = -1.37458718,9.76599884,-5.13003302
 	rot = -0.38794741,0.120072722,0.051181823,0.912392497
