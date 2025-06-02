@@ -6714,13 +6714,13 @@ function Launch {
         if RSS {
             set LaunchElev to altitude - 108.384.
             if ShipType = "Depot" {
-                set BoosterAp to 96000 + (cos(targetincl) * 3000).
+                set BoosterAp to 94000 + (cos(targetincl) * 3000).
                 set turnAltitude to 750.
             } else if CargoMass > 32000 {
-                set BoosterAp to 94000 + (cos(targetincl) * 3000).
+                set BoosterAp to 92000 + (cos(targetincl) * 3000).
                 set turnAltitude to 280.
             } else {
-                set BoosterAp to 92000 + (cos(targetincl) * 3000).
+                set BoosterAp to 90000 + (cos(targetincl) * 3000).
                 set turnAltitude to 280.
             }
             set PitchIncrement to 0 + 2.4 * CargoMass / MaxCargoToOrbit.
@@ -6786,14 +6786,14 @@ function Launch {
             set cancel:text to "<b>ABORT</b>".
             set cancel:style:textcolor to red.
             if RSS {
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,true").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,0,5,117.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,20,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,5,0.6").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
             else {
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,true").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,0,5,117.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,12.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,1.8,0.5").
@@ -7201,7 +7201,7 @@ function Launch {
         }
 
         if Boosterconnected {
-            set steeringManager:maxstoppingtime to 0.8.
+            set steeringManager:maxstoppingtime to 0.8*Scale.
             when apoapsis > BoosterAp - 21000 * Scale then {
                 set steeringManager:maxstoppingtime to 0.2.
                 if HSRJet {
@@ -7640,7 +7640,7 @@ Function LaunchSteering {
         }
         else {
             if RSS {
-                set result to lookDirUp(srfPrograde:vector + 0.1*up:vector, LaunchRollVector).
+                set result to lookDirUp(srfPrograde:vector + 0.24*up:vector, LaunchRollVector).
             } else {
                 set result to lookDirUp(srfPrograde:vector + 0.2*up:vector, LaunchRollVector).
             }
@@ -7649,10 +7649,10 @@ Function LaunchSteering {
     else if Boosterconnected and not lowTWR {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/950)).
+                set targetpitch to 90 - (8.4 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
         }
         else if KSRSS {
@@ -7686,10 +7686,10 @@ Function LaunchSteering {
     else if Boosterconnected and lowTWR {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1350)).
             }
             else {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.3 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
             }
         }
         else if KSRSS {

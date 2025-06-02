@@ -646,15 +646,15 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 2400. 
-        else set BoosterGlideDistance to 2000. //1640 
+        else set BoosterGlideDistance to 2100. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
         set LngCtrlPID:setpoint to 12. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
-        set BoosterRaptorThrust to 2156.
-        set BoosterRaptorThrust3 to 2163.
+        set BoosterRaptorThrust to 2130.
+        set BoosterRaptorThrust3 to 2140.
         set Scale to 1.6.
         set CorrFactor to 0.7.
         set PIDFactor to 16.
@@ -958,16 +958,18 @@ function Boostback {
 
             set rndYaw to round(random(),1).
             set YawStrength to round(random(),1).
-            if rndYaw < 0.44 set YawStrength to -2*YawStrength.
+            if rndYaw < 0.44 set YawStrength to -3*YawStrength.
 
                 set ship:control:pitch to -2 * PitchStrength.
                 set ship:control:yaw to -2 * YawStrength.
-                set FlipTime to 6.
+                if not RSS set FlipTime to 6.
+                else set FlipTime to 6.
 
         } else {
 
                 set ship:control:pitch to -2 * PitchStrength.
-                set FlipTime to 5.
+                if not RSS set FlipTime to 5.
+                else set FlipTime to 4.5.
 
         }
         unlock steering.
@@ -987,6 +989,14 @@ function Boostback {
         set kuniverse:timewarp:warp to 0.
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         MidGimbMod:doaction("lock gimbal", true).
+        if BoosterSingleEngines {
+            set x to 1.
+            until x > 3 {
+                set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+                BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
+                set x to x + 1.
+            }
+        }
         
         
         
@@ -1052,10 +1062,16 @@ function Boostback {
             set steeringmanager:yawtorquefactor to 0.7.
         }
         //Middle Restart
-        when (time:seconds > flipStartTime + 4 and verticalspeed > 0 and not (RSS)) or (time:seconds > flipStartTime + 5 and verticalspeed > 0 and (RSS)) then {
+        when time:seconds > flipStartTime + 4 and verticalspeed > 0 then {
             lock throttle to 0.5.
             wait 0.01.
             if BoosterSingleEngines {
+                set x to 1.
+                until x > 3 {
+                    set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+                    BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 50).
+                    set x to x + 1.
+                }
                 set tEngStart to time:seconds.
                 BoosterSingleEnginesRC[3]:activate.
                 BoosterSingleEnginesRC[8]:activate.
@@ -1092,7 +1108,7 @@ function Boostback {
         when time:seconds > flipStartTime + FlipTime or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 50 then {
             set steeringmanager:yawtorquefactor to 0.9.
             set ship:control:neutralize to true.
-            set steeringmanager:maxstoppingtime to 0.8.
+            set steeringmanager:maxstoppingtime to 0.8*Scale.
             set steeringManager:rollcontrolanglerange to 70.
             set steeringManager:rolltorquefactor to 4.
             lock throttle to 0.66.
@@ -1589,7 +1605,7 @@ function Boostback {
 
     if STOCK set BoosterGlideFactor to 1.
     else if KSRSS set BoosterGlideFactor to 1.
-    else if RSS set BoosterGlideFactor to 0.75.
+    else if RSS set BoosterGlideFactor to 0.9.
     else set BoosterGlideFactor to 1.
 
 
@@ -1673,7 +1689,7 @@ function Boostback {
                 set x to x + 1.
             }
         }
-        when time:seconds - LandingBurnTime > 0.7 then {
+        when time:seconds - LandingBurnTime > 0.6 then {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else {
@@ -1723,7 +1739,7 @@ function Boostback {
         addons:tr:settarget(landingzone).
     }
 
-    if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not HSRJet and GfC and not cAbort {
+    if ErrorVector:mag > 3 * BoosterHeight and not HSRJet and GfC and not cAbort {
         HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
         HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
         set cAbort to true.
@@ -1870,11 +1886,13 @@ function Boostback {
     }
 
     when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 540 or 
+            velocity:surface:mag < 32 and not MiddleEnginesShutdown and KSRSS or 
             velocity:surface:mag < 42 and not MiddleEnginesShutdown and STOCK and RadarAlt > 200 or 
             velocity:surface:mag < 22 and not MiddleEnginesShutdown and STOCK or 
-            velocity:surface:mag < 32 and not MiddleEnginesShutdown and KSRSS or 
             velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
-            velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 460 then {
+            velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 460 or
+            velocity:surface:mag < 42 and not MiddleEnginesShutdown and RSS then {
+
         set MiddleEnginesShutdown to true.
         if BoosterSingleEngines {
             set x to 1.
@@ -1917,7 +1935,7 @@ function Boostback {
         if GfC set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
         set LandingVector to LandingGuidance().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
-        rcs on.
+        if not rcs rcs on.
         SetBoosterActive().
         wait 0.05.
     }
@@ -2095,7 +2113,7 @@ FUNCTION SteeringCorrections {
             set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
 
             if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 69) / min(maxDecel, 53*Scale).
+                set stopTime9 to (airspeed - 69) / min(maxDecel, 50*Scale).
                 set stopDist9 to ((airspeed + 69) / 2) * stopTime9.
                 set stopTime3 to min(69, airspeed) / min(maxDecel3, FinalDeceleration).
                 set stopDist3 to (min(69, airspeed) / 2) * stopTime3.
@@ -2140,8 +2158,8 @@ FUNCTION SteeringCorrections {
 
         if not LandingBurnStarted {
             if HSRJet {
-                if airspeed < 305 set dragFactor to 1 - 0.07 * (airspeed/305)^2.
-                else set dragFactor to 1 - 0.07 * (1 + 0.8*((airspeed/305)^2 - 1)).
+                if airspeed < 305 set dragFactor to 1 - 0.069 * (airspeed/305)^2.
+                else set dragFactor to 1 - 0.065 * (1 + 0.8*((airspeed/305)^2 - 1)).
             }
             else {
                 if airspeed < 305 set dragFactor to 1 - 0.06 * (airspeed/305)^2.
@@ -2149,6 +2167,7 @@ FUNCTION SteeringCorrections {
             }
             
             set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3500),1250).
+            if RSS and BoosterSingleEngines set LandingBurnAlt to LandingBurnAlt * 1.15.
         }
         
 
