@@ -679,7 +679,7 @@ if bodyexists("Earth") {
         if oldBooster set BoosterGlideDistance to 1400. 
         else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -717,7 +717,7 @@ else {
         if oldBooster set BoosterGlideDistance to 1400. 
         else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -2359,10 +2359,10 @@ function LandingGuidance {
 
     // === Side Drift ===
     if vAng(ErrorVector, -GSVec) > 30 and vAng(ErrorVector, -GSVec) > 150 and ErrorVector:mag > 0.4 * BoosterHeight  or  LatError > 0.2 * BoosterHeight {
-        set SideFactor to 0.97.
+        set SideFactor to 4.
         set Ferr to Ferr * 1.2.
     } else if vAng(ErrorVector, -GSVec) > 24 and vAng(ErrorVector, -GSVec) > 156 and ErrorVector:mag > 0.18 * BoosterHeight  or  LatError > 0.1 * BoosterHeight {
-        set SideFactor to 0.64.
+        set SideFactor to 2.
         set Ferr to Ferr * 1.1.
     }
 
@@ -2381,7 +2381,7 @@ function LandingGuidance {
     // === 13 Engines Phase ===
     if not MiddleEnginesShutdown {
         set Fpos to Fpos * 0.04.
-        set SideFactor to 0.2.
+        set SideFactor to 0.1.
 
         if vAng(ErrorVector, PositionError) > 90 {
             set Ferr to Ferr * 1.4 * (1.05/(closureRatio^4)).
