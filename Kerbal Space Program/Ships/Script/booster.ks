@@ -648,6 +648,7 @@ if bodyexists("Earth") {
         if oldBooster set BoosterGlideDistance to 2400. 
         else set BoosterGlideDistance to 2000. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
         set LngCtrlPID:setpoint to 12. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -678,6 +679,7 @@ if bodyexists("Earth") {
         if oldBooster set BoosterGlideDistance to 1400. 
         else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -715,6 +717,7 @@ else {
         if oldBooster set BoosterGlideDistance to 1400. 
         else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -1390,7 +1393,7 @@ function Boostback {
         
         set SteeringManager:yawtorquefactor to 0.1.
 
-        if not RSS lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/65)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/65))):normalized, ApproachVector).
+        if not RSS lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/65)) + ((BoosterCore:position-landingzone:position-4*up:vector) * ((time:seconds - turnTime)/65))):normalized, ApproachVector).
         else lock steering to lookdirup(((CurrentVec * (1 - (time:seconds - turnTime)/80)) + ((BoosterCore:position-landingzone:position) * ((time:seconds - turnTime)/80))):normalized, ApproachVector).
         set SteeringManager:maxstoppingtime to 2.4.
         if RSS 
