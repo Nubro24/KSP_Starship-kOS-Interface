@@ -1090,7 +1090,8 @@ function Boostback {
             set steeringmanager:yawtorquefactor to 0.9.
             set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 0.8.
-            set steeringManager:rollcontrolanglerange to 80.
+            set steeringManager:rollcontrolanglerange to 70.
+            set steeringManager:rolltorquefactor to 4.
             lock throttle to 0.66.
             set FC to true.
             bGUI:show().
@@ -1226,6 +1227,7 @@ function Boostback {
         } else {
             BoosterCore:shutdown.
         }
+        set steeringManager:rolltorquefactor to 2.
 
         until (LngError + 50 > -BoosterGlideDistance and LFBooster < LFBoosterFuelCutOff * 2) or (LngError + 50 > -BoosterGlideDistance*1.04) or verticalspeed < -280 or BoostBackComplete {
             if not GfC = lastCheck {
@@ -1541,6 +1543,7 @@ function Boostback {
         if STOCK and altitude < 43000 {SetBoosterActive().}
         wait 0.05.
     }
+    set steeringManager:rolltorquefactor to 1.
     set SteeringManager:yawtorquefactor to 1.
     when (RadarAlt < 69000 and RSS) or (RadarAlt < 35000 and not (RSS)) then {
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 1.}
@@ -1548,7 +1551,7 @@ function Boostback {
     if RSS 
             set SteeringManager:maxstoppingtime to 2.4.
     
-    set steeringManager:rollcontrolanglerange to 10.
+    set steeringManager:rollcontrolanglerange to 15.
     
     if ErrorVector:mag < 1.2*BoosterGlideDistance and not GF {
         set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
