@@ -745,7 +745,7 @@ else {
         if oldBooster set BoosterGlideDistance to 950. 
         else set BoosterGlideDistance to 800. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.4.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -955,7 +955,7 @@ function Boostback {
 
             set rndYaw to round(random(),1).
             set YawStrength to round(random(),1).
-            if rndYaw < 0.5 set YawStrength to -2*YawStrength.
+            if rndYaw < 0.44 set YawStrength to -2*YawStrength.
 
                 set ship:control:pitch to -2 * PitchStrength.
                 set ship:control:yaw to -2 * YawStrength.
@@ -1166,8 +1166,8 @@ function Boostback {
         else {
             lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
-        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
-        lock steering to SteeringVector.
+        set SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
+        lock steering to SteeringVectorBoostback.
 
 
         when time:seconds > flipStartTime + 30 then {
@@ -1199,6 +1199,7 @@ function Boostback {
                 set changed to false.
             }
             SteeringCorrections().
+            set SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
             SetBoosterActive().
@@ -1241,10 +1242,17 @@ function Boostback {
                 set changed to false.
             }
             SteeringCorrections().
+            set SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
             SetBoosterActive().
             wait 0.03.
+        }
+        set x to 1.
+        until x > 3 {
+            BoosterSingleEnginesRC[x-1]:shutdown.
+            set BoosterSingleEnginesRC[x-1]:gimbal:lock to true.
+            set x to x + 1.
         }
         unlock throttle.
         lock throttle to 0.
@@ -1629,10 +1637,19 @@ function Boostback {
     set LandingBurnTime to time:seconds.
     MidGimbMod:doaction("free gimbal", true).
     CtrGimbMod:doaction("free gimbal", true).
+    set x to 1.
+    until x > 3 {
+        set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+        set x to x + 1.
+    }
 
     lock throttle to LandingThrottle().
+    set x to 1.
+    until x > 3 {
+        BoosterSingleEnginesRC[x-1]:activate.
+        set x to x + 1.
+    }
 
-    
     if BoosterSingleEngines {
         when time:seconds - LandingBurnTime > 0.1 then {
             set x to 1.
