@@ -1248,11 +1248,13 @@ function Boostback {
             SetBoosterActive().
             wait 0.03.
         }
-        set x to 1.
-        until x > 3 {
-            BoosterSingleEnginesRC[x-1]:shutdown.
-            set BoosterSingleEnginesRC[x-1]:gimbal:lock to true.
-            set x to x + 1.
+        if BoosterSingleEngines {
+            set x to 1.
+            until x > 3 {
+                BoosterSingleEnginesRC[x-1]:shutdown.
+                set BoosterSingleEnginesRC[x-1]:gimbal:lock to true.
+                set x to x + 1.
+            }
         }
         unlock throttle.
         lock throttle to 0.
@@ -2264,9 +2266,9 @@ function LandingGuidance {
     if MiddleEnginesShutdown and RSS set closureRatio to closureRatio + RadarAlt/2000.
 
     if RadarAlt > 0.8 * BoosterHeight and MiddleEnginesShutdown {
-        set Fgs to Fgs * max( 0.8/closureRatio ,0.6).
-        set Fpos to Fpos * min(max( closureRatio^4 ,0.1),1.4).
-        set Ferr to Ferr * max( 0.85/closureRatio ,0.85).
+        set Fgs to Fgs * max( 0.75/closureRatio ,0.6).
+        set Fpos to Fpos * min(max( closureRatio^4/0.95 ,0.1),1.4).
+        set Ferr to Ferr * max( 0.8/closureRatio ,0.85).
     }
 
     // === High Incl ===
