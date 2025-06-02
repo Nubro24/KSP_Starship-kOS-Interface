@@ -15,6 +15,8 @@
 - Fixed RSS Reentry loosing control
 - Fixed Thrust issue in Stock
 - Fixed an Error with Real Fuels
+- Fixed Error during offshore divert
+- Fixed Booster KSRSS side correction
 
 # V3.5.1 (2025-05-18)
 - **Booster Catch Position precision improved**

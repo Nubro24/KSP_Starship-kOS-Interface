@@ -1245,7 +1245,7 @@ local ScaleConfirm is ScaleLayout:addbutton().
         sTelemetry:hide().
         if ScaleSelect:text = "" {}
         else {
-            set TScale to round(ScaleSelect:text:toscalar/1080,2).
+            set TScale to round(ScaleSelect:text:toscalar/1080,12).
             CreateTelemetry().
             if Boosterconnected {
                 sendMessage(processor(Volume("Booster")),"ScaleT,"+TScale:tostring).

@@ -679,7 +679,7 @@ if bodyexists("Earth") {
         if oldBooster set BoosterGlideDistance to 1400. 
         else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.21.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -717,7 +717,7 @@ else {
         if oldBooster set BoosterGlideDistance to 1400. 
         else set BoosterGlideDistance to 1200.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.21.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -1649,6 +1649,7 @@ function Boostback {
         set x to 1.
         until x > 3 {
             set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+            BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
             set x to x + 1.
         }
     }
@@ -2044,9 +2045,9 @@ function Boostback {
         if angle > 20 set speed to 10.
         else if angle > 10 set speed to 7.
         else set speed to 4.
-        if HighIncl set speed to speed * 2.
+        if HighIncl set speed to speed * 3.
 
-        return min(max(round(speed,1),3.2),10).
+        return min(max(round(speed,1),3.2),12).
     }
 }
 
@@ -2257,7 +2258,7 @@ function LandingGuidance {
     set TermDegree to Term * 180 / constant:pi.
     set FtrvBase to min(0.006 * sin(TermDegree),0.004).
     set FerrSide to 0.
-    set SideFactor to 0.3.
+    set SideFactor to 0.4.
 
     set Fpos to FposBase.
     set Ferr to FerrBase.
@@ -2276,7 +2277,7 @@ function LandingGuidance {
 
     if RadarAlt > 0.8 * BoosterHeight and MiddleEnginesShutdown {
         set Fgs to Fgs * max( 0.75/closureRatio ,0.6).
-        set Fpos to Fpos * min(max( closureRatio^4/0.95 ,0.1),1.4).
+        set Fpos to Fpos * min(max( closureRatio^4/0.9 ,0.1) ,1.4).
         set Ferr to Ferr * max( 0.8/closureRatio ,0.85).
     }
 
@@ -2359,11 +2360,11 @@ function LandingGuidance {
 
     // === Side Drift ===
     if vAng(ErrorVector, -GSVec) > 30 and vAng(ErrorVector, -GSVec) > 150 and ErrorVector:mag > 0.4 * BoosterHeight  or  LatError > 0.2 * BoosterHeight {
+        set SideFactor to 7.
+        set Ferr to Ferr * 1.4.
+    } else if vAng(ErrorVector, -GSVec) > 24 and vAng(ErrorVector, -GSVec) > 156 and ErrorVector:mag > 0.18 * BoosterHeight  or  LatError > 0.1 * BoosterHeight {
         set SideFactor to 4.
         set Ferr to Ferr * 1.2.
-    } else if vAng(ErrorVector, -GSVec) > 24 and vAng(ErrorVector, -GSVec) > 156 and ErrorVector:mag > 0.18 * BoosterHeight  or  LatError > 0.1 * BoosterHeight {
-        set SideFactor to 2.
-        set Ferr to Ferr * 1.1.
     }
 
     // === prevent overcorrection ===
@@ -2392,7 +2393,7 @@ function LandingGuidance {
         }
         else set Ferr to Ferr * 0.4.
 
-        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.07/(closureRatio^4)).
+        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.07/max(closureRatio^4,0.15)).
         if RSS set Fgs to Fgs * (1.05/(closureRatio^4)).
 
         set Ftrv to Ftrv * 0.7.
@@ -2404,7 +2405,6 @@ function LandingGuidance {
     set FerrSide to Ferr * SideFactor.
     set Ferr to Ferr * 0.9.
     if not MiddleEnginesShutdown {
-        set FerrSide to Ferr * 0.1.
         set Ferr to Ferr * 0.95.
     }
     if RadarAlt < 2*BoosterHeight {
@@ -3305,16 +3305,16 @@ function GUIupdate {
 
 
     set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
-    set bLOXSlider:style:overflow:right to -196 + 2*round(boosterLOX,1).
+    set bLOXSlider:style:overflow:right to -196*TScale + 2*round(boosterLOX,1)*TScale.
     set bLOXNumber:text to round(boosterLOX,1) + "%".
 
     if methane {
         set bCH4Label:text to "<b>CH4</b>   ".// + round(boosterCH4,1) + " %".
-        set bCH4Slider:style:overflow:right to -196 + 2*round(boosterCH4,1).
+        set bCH4Slider:style:overflow:right to -196*TScale + 2*round(boosterCH4,1)*TScale.
         set bCH4Number:text to round(boosterCH4,1) + "%".
     } else {
         set bCH4Label:text to "<b>Fuel</b>   ".// + round(boosterCH4,1) + " %".
-        set bCH4Slider:style:overflow:right to -196 + 2*round(boosterCH4,1).
+        set bCH4Slider:style:overflow:right to -196*TScale + 2*round(boosterCH4,1)*TScale.
         set bCH4Number:text to round(boosterCH4,1) + "%".
     }
 
