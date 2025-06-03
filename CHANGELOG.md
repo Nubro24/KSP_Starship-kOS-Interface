@@ -1,5 +1,5 @@
 # V3.5.2 (WIP)
-- **Ascent Chagnes**:
+- **Ascent Changes**:
   - Improved Ascent Profile
   - Improved Hotstage Timings
   - Added Throttle down to limit G-Load
@@ -10,15 +10,17 @@
   - Changed **Booster** Pictograms to support *all combinations*
   - The Script now checks for engine position to ensure custom craft file functionality
   - Fixed pixel issues with Attitude Indicator
-  - ***I recommened deleting the starship_img folder for this update***
-- **Added Support for individual Engines on the Booster**
-- Small changes to Booster Landings
-- Small improvements to Ship Landings
+  - **Known Issue: If your playing on resolutions not part of the 720, 1080, 1440, 2160, etc. system, The Booster Cluster UI might be misaligning, due to the limitation of pixels**
+  - *I recommened deleting the starship_img folder for this update*
+- **Added Support for individual Engines on the Booster** *(Cluster Functionality unchanged)*
+  - Added startup and shutdown sequences for Booster
+  - Added poll checks for max missing engines
+  - Added auto engine out compensation
+- **Small improvements to Booster and Ship Landings**
 - Fixed RSS Reentry loosing control
-- Fixed Thrust issue in Stock
 - Fixed an Error with Real Fuels
-- Fixed Error during offshore divert
-- Fixed Booster KSRSS side correction
+- Fixed Errors during offshore divert
+- Fixed Booster side correction
 
 # V3.5.1 (2025-05-18)
 - **Booster Catch Position precision improved**
