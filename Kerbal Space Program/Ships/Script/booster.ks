@@ -965,8 +965,9 @@ function Boostback {
             set ship:control:pitch to -2 * PitchStrength.
             set ship:control:yaw to -2 * YawStrength.
             if not RSS set FlipTime to 6.
-            else set FlipTime to 6.
+            else set FlipTime to 5.6.
             if YawStrength < -0.3 set FlipTime to FlipTime*1.2.
+            if YawStrength > 0.4 set FlipTime to FlipTime/1.1.
 
         } else {
 
@@ -1065,7 +1066,7 @@ function Boostback {
             set steeringmanager:yawtorquefactor to 0.7.
         }
         //Middle Restart
-        when time:seconds > flipStartTime + 4 and verticalspeed > 0 then {
+        when time:seconds > flipStartTime + FlipTime*0.7 and verticalspeed > 0 then {
             lock throttle to 0.5.
             wait 0.01.
             if BoosterSingleEngines {
@@ -1842,6 +1843,7 @@ function Boostback {
                     }
                     when RadarAlt < 1.2 * BoosterHeight and GfC then {
                         set steeringManager:maxstoppingtime to 0.69.
+                        set steeringManager:rolltorquefactor to 2.
                     }
                     set SentTime to time:seconds.
                     when RadarAlt < 3 * BoosterHeight and RadarAlt > 0.05*BoosterHeight then {
@@ -1916,9 +1918,18 @@ function Boostback {
         if BoosterSingleEngines {
             set NrCounterEngine to 0.
             if CounterEngine {
-                if BoosterSingleEnginesRC[0]:thrust < 60*Scale set NrCounterEngine to 4.
-                if BoosterSingleEnginesRC[1]:thrust < 60*Scale set NrCounterEngine to 7.
-                if BoosterSingleEnginesRC[2]:thrust < 60*Scale set NrCounterEngine to 11.
+                if BoosterSingleEnginesRC[0]:thrust < 60*Scale {
+                    if BoosterSingleEnginesRC[4]:thrust < 60*Scale set NrCounterEngine to 5.
+                    else set NrCounterEngine to 4.
+                }
+                if BoosterSingleEnginesRC[1]:thrust < 60*Scale {
+                    if BoosterSingleEnginesRC[7]:thrust < 60*Scale set NrCounterEngine to 8.
+                    else set NrCounterEngine to 7.
+                }
+                if BoosterSingleEnginesRC[2]:thrust < 60*Scale {
+                    if BoosterSingleEnginesRC[11]:thrust < 60*Scale set NrCounterEngine to 10.
+                    else set NrCounterEngine to 11.
+                }
             }
             set x to 1.
             for eng in BoosterSingleEnginesRC {
@@ -3219,9 +3230,7 @@ function PollUpdate {
         else set GF to false.
     } 
     else if (ErrorVector:mag > BoosterGlideDistance) and not BoostBackComplete and not GFnoGO and FC {
-        hudtext("1",3,2,16,red,false).
         if LFBooster > LFBoosterFuelCutOff {
-            hudtext("2",3,2,16,red,false).
             if PollTimer > -10 and LFBooster > LFBoosterFuelCutOff * 1.15 set GF to true.
             else if PollTimer > -15 and LFBooster > LFBoosterFuelCutOff * 1.05 set GF to true.
         } 

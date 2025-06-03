@@ -1086,7 +1086,7 @@ function FindParts {
             set BoosterSingleEnginesRB to list().
             set BoosterSingleEnginesRC to list().
             set x to 1.
-            until x > 33 {
+            until x > 33 or not Boosterconnected {
                 if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
                 else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
                 set x to x + 1.
@@ -7752,7 +7752,7 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,24),-24).
-            set ProgradeAngle to ProgradeAngle * 0.93.
+            set ProgradeAngle to ProgradeAngle * 0.91.
         }
         if MaintainVS {
             if deltaV > 500*Scale {
@@ -10670,7 +10670,7 @@ function ReEntryAndLand {
         }
         
         if ship:body:atm:sealevelpressure > 0.5 {
-            until RadarAlt < FlipAltitude or altitude - AvailableLandingSpots[4] < FlipAltitude or cancelconfirmed and not ClosingIsRunning {
+            until RadarAlt < FlipAltitude or altitude - AvailableLandingSpots[4] < FlipAltitude or cancelconfirmed and not ClosingIsRunning or vAng(facing:forevector,up:vector) < 45 and RadarAlt < 3*FlipAltitude {
                 ReEntryData().
             }
             LogToFile("Radar Altimeter < " + round(FlipAltitude) + " (" + round(RadarAlt) + "), starting Landing Procedure").
