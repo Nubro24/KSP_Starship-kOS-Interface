@@ -919,7 +919,7 @@ function Boostback {
     wait 0.001.
     set ShipConnectedToBooster to false.
     set ConnectedMessage to false.
-    set config:ipu to 900.
+    set config:ipu to 1000.
     rcs off.
     set steeringmanager:maxstoppingtime to 2.
     set bAttitude:style:bg to "starship_img/booster".
@@ -966,7 +966,7 @@ function Boostback {
             set ship:control:yaw to -2 * YawStrength.
             if not RSS set FlipTime to 6.
             else set FlipTime to 6.
-            if YawStrength < 0.3 set FlipTime to FlipTime*1.2.
+            if YawStrength < -0.3 set FlipTime to FlipTime*1.2.
 
         } else {
 
@@ -1199,7 +1199,7 @@ function Boostback {
             }
         }
         when ship:groundspeed < 50 then {
-            set config:ipu to 1500.
+            set config:ipu to 1800.
             if LFBooster > LFBoosterCap * 0.16 {
                 BoosterCore:activate.
             }
@@ -1315,11 +1315,17 @@ function Boostback {
                 if RadarAlt > 5000 {HUDTEXT("Booster offshore divert", 10, 2, 20, red, false).}
                 set ApproachUPVector to (landingzone:position - body:position):normalized.
                 set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
+                if (ErrorVector:mag < BoosterGlideDistance or ErrorVector:mag > 1.8*BoosterGlideDistance) and not GfC {
+                    set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
+                    set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+                    addons:tr:settarget(landingzone).
+                }
             }
         } else {
             set landingzone to offshoreSite.
             addons:tr:settarget(landingzone).
             NoGo:hide().
+            SteeringCorrections().
             if ErrorVector:mag < BoosterGlideDistance {
                 set lngCorrection to 2*BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
                 set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
@@ -1408,7 +1414,7 @@ function Boostback {
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             wait 0.067.
         }
-        set config:ipu to 800.
+        set config:ipu to 1000.
         
         set SteeringManager:yawtorquefactor to 0.1.
 
@@ -1575,7 +1581,7 @@ function Boostback {
     
     set steeringManager:rollcontrolanglerange to 15.
     
-    if ErrorVector:mag < 1.2*BoosterGlideDistance and not GF {
+    if (ErrorVector:mag < 1.1*BoosterGlideDistance or ErrorVector:mag > 1.8*BoosterGlideDistance) and not GfC {
         set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
         set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
         addons:tr:settarget(landingzone).
@@ -1701,11 +1707,13 @@ function Boostback {
                 }
                 set x to x + 1.
             }
+            set LandingBurnStarted to true.
         }
     }
     else {
         when time:seconds - LandingBurnTime > 0.3 then
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+        set LandingBurnStarted to true.
     }
     set s0ev to 0.
     lock adev to 0.04.
@@ -1731,8 +1739,7 @@ function Boostback {
 
 
 
-    set LandingBurnStarted to true.
-    set config:ipu to 1500.
+    set config:ipu to 1600.
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
     when cAbort then {
@@ -2303,7 +2310,7 @@ function LandingGuidance {
     set Ftrv to 0.
 
     // === horizontal closure ===
-    set gsRatio to PositionError:mag*2/max(GSVec:mag,0.0001).
+    set gsRatio to max(PositionError:mag,2)*2/max(GSVec:mag,0.001).
     if verticalSpeed < 0 set vSpeed to -verticalSpeed.
     else set vSpeed to max(verticalSpeed,0.0001).
 
@@ -2429,8 +2436,8 @@ function LandingGuidance {
         }
         else set Ferr to Ferr * 0.4.
 
-        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.07/max(closureRatio^4,0.15)).
-        if RSS set Fgs to Fgs * (1.05/(closureRatio^4)).
+        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.07/max(closureRatio,0.5)^4).
+        if RSS set Fgs to Fgs * (1.05/max(closureRatio,0.5)^4).
 
         set Ftrv to Ftrv * 0.7.
     } else if RSS {
@@ -3152,7 +3159,7 @@ function PollUpdate {
         if BoosterSingleEngines {
             set missingCount to 0.
             set inactiveCount to 0.
-            if not BoostBackComplete {
+            if not BoostBackComplete and ErrorVector:mag > BoosterGlideDistance + 5450 * Scale {
                 set missingCount to 13 - BoosterSingleEnginesRC:length.
                 for eng in BoosterSingleEnginesRC {
                     if eng:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
@@ -3169,10 +3176,9 @@ function PollUpdate {
                 if BoosterSingleEnginesRC[0]:thrust < 60*Scale or BoosterSingleEnginesRC[1]:thrust < 60*Scale or BoosterSingleEnginesRC[2]:thrust < 60*Scale set CounterEngine to true.
             } else if MiddleEnginesShutdown {
                 set missingCount to 13 - BoosterSingleEnginesRC:length.
-                set x to 1.
-                until x > 3 {
-                    if BoosterSingleEnginesRC[x-1]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
-                }
+                if BoosterSingleEnginesRC[0]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
+                if BoosterSingleEnginesRC[1]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
+                if BoosterSingleEnginesRC[2]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
                 if missingCount > 1 set GE to false.
                 else if inactiveCount > 1 set GE to false.
             }
@@ -3211,8 +3217,10 @@ function PollUpdate {
         } 
         else set GF to false.
     } 
-    else if (LngError + 50 > -BoosterGlideDistance) and not BoostBackComplete and not GFnoGO and FC {
+    else if (ErrorVector:mag > BoosterGlideDistance) and not BoostBackComplete and not GFnoGO and FC {
+        hudtext("1",3,2,16,red,false).
         if LFBooster > LFBoosterFuelCutOff {
+            hudtext("2",3,2,16,red,false).
             if PollTimer > -10 and LFBooster > LFBoosterFuelCutOff * 1.15 set GF to true.
             else if PollTimer > -15 and LFBooster > LFBoosterFuelCutOff * 1.05 set GF to true.
         } 
