@@ -1,17 +1,19 @@
 # V3.5.2 (WIP)
-- RSS Ascent profile changed
-- Small changes to Booster Landings
-- Small improvements to Ship Landings
-- Added *random* Flip direction for Booster after Hotstage
-- Improved Ascent Profile
-- Improved Hotstage Timings
+- **Ascent Chagnes**:
+  - Improved Ascent Profile
+  - Improved Hotstage Timings
+  - Added Throttle down to limit G-Load
+  - Added *random* Flip direction for Booster after Hotstage
 - **UI Improvements**:
-  - Added new Ship Engine Pictograms for all possible Combinations (with 3 RVacs)
+  - Added new **Ship** Engine Pictograms for *all possible Combinations* (with 3 RVacs)
   - Changed Function to set the correct image
-  - Changed Booster Pictograms to support all combinations
+  - Changed **Booster** Pictograms to support *all combinations*
   - The Script now checks for engine position to ensure custom craft file functionality
   - Fixed pixel issues with Attitude Indicator
   - ***I recommened deleting the starship_img folder for this update***
+- **Added Support for individual Engines on the Booster**
+- Small changes to Booster Landings
+- Small improvements to Ship Landings
 - Fixed RSS Reentry loosing control
 - Fixed Thrust issue in Stock
 - Fixed an Error with Real Fuels

@@ -6726,7 +6726,7 @@ function Launch {
             set PitchIncrement to 0 + 2.4 * CargoMass / MaxCargoToOrbit.
             set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0, 0, -30, PitchIncrement).
             set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 20.
-            set BoosterThrottleDownAlt to 1400.
+            set BoosterThrottleDownAlt to 2100.
         }
         else if KSRSS {
             set LaunchElev to altitude - 67.74.
@@ -6744,7 +6744,7 @@ function Launch {
             }
             set PitchIncrement to 0 + 2.5 * CargoMass / MaxCargoToOrbit.
             set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0, 0, -30, PitchIncrement).
-            set BoosterThrottleDownAlt to 1250.
+            set BoosterThrottleDownAlt to 1800.
         }
         else {
             set LaunchElev to altitude - 67.74.
@@ -6764,7 +6764,7 @@ function Launch {
                 set PitchIncrement to 0.
             }
             set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0, 0, -30, PitchIncrement).
-            set BoosterThrottleDownAlt to 1500.
+            set BoosterThrottleDownAlt to 1600.
         }
         set OrbitBurnPitchCorrectionPID:setpoint to targetap.
 
@@ -7235,20 +7235,43 @@ function Launch {
                     }
                 }
                 updateTelemetry().
+                wait 0.12.
+                
+                if BoosterSingleEngines {
+                    set x to 1.
+                    for eng in BoosterSingleEnginesRB {
+                        if x = 2 or x = 6 or x = 10 or x = 14 or x = 18 eng:shutdown.
+                        set x to x + 1.
+                    }
+                }
 
-                wait 0.24.
+                wait 0.12.
                 //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                else for eng in BoosterSingleEnginesRB eng:shutdown.
-                lock throttle to 0.5.
+                else {
+                    set x to 1.
+                    for eng in BoosterSingleEnginesRB {
+                        if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
+                        set x to x + 1.
+                    }
+                }
                 LogToFile("Starting stage-separation").
                 set message1:text to "<b>Hot staging..</b>".
                 set message2:text to "".
                 set message3:text to "".
                 ShowHomePage().
                 updateTelemetry().
-                wait 0.24.
+                wait 0.12.
+                
+                if BoosterSingleEngines {
+                    set x to 1.
+                    for eng in BoosterSingleEnginesRB {
+                        if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
+                        set x to x + 1.
+                    }
+                }
+                wait 0.12.
                 set CargoBeforeSeparation to CargoMass.
                 //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
                 //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
@@ -7298,6 +7321,7 @@ function Launch {
                     LaunchLabelData().
                     wait 0.1.
                 }
+                lock throttle to 0.5.
                 updateTelemetry().
                 unlock steering.
                 if not cancelconfirmed {
@@ -7528,14 +7552,18 @@ function LaunchThrottle {
     local thr is 0.
     SendPing().
     if Boosterconnected {
+        set gLoad to ship:maxThrust / (ship:mass * 9.805).
         if ship:q > 0.25 {
             set thr to 1 - 3 * (ship:q - 0.25).
+        }
+        else if gLoad > 2.5 {
+            set thr to 1 - 0.1 * (gLoad - 2.5).
         }
         else {
             set thr to 1.
         }
         if apoapsis > BoosterAp {
-            set thr to max(0.5 + (1 - ((apoapsis - BoosterAp) / BoosterThrottleDownAlt)),0.5).
+            set thr to max((1 - 0.1 * (gLoad - 2.5))/2 + min((1 - 0.1 * (gLoad - 2.5))/2 - ((apoapsis - BoosterAp) / BoosterThrottleDownAlt),0.5),0.5).
         }
     }
     else {
@@ -7630,10 +7658,10 @@ Function LaunchSteering {
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     } 
-    else if apoapsis > BoosterAp - 20000 * Scale and Boosterconnected {
+    else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
             if RSS {
-                set result to lookDirUp(srfPrograde:vector, LaunchRollVector).
+                set result to lookDirUp(srfPrograde:vector + 0.12*up:vector, LaunchRollVector).
             } else {
                 set result to lookDirUp(srfPrograde:vector, LaunchRollVector).
             }
@@ -7652,7 +7680,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (8.4 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (8.4 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
             }
         }
         else if KSRSS {
