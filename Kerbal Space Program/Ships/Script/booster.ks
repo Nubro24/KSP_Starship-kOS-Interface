@@ -818,6 +818,8 @@ when True then {
     preserve.
 }
 
+
+
 wait 0.1.
 
 until False {
@@ -1114,7 +1116,7 @@ function Boostback {
             set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 0.8*Scale.
             set steeringManager:rollcontrolanglerange to 70.
-            set steeringManager:rolltorquefactor to 4.
+            set steeringManager:rolltorquefactor to 6.
             lock throttle to 0.66.
             set FC to true.
             bGUI:show().
@@ -1930,6 +1932,7 @@ function Boostback {
                     if BoosterSingleEnginesRC[11]:thrust < 60*Scale set NrCounterEngine to 10.
                     else set NrCounterEngine to 11.
                 }
+                BoosterSingleEnginesRC[NrCounterEngine-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
             }
             set x to 1.
             for eng in BoosterSingleEnginesRC {
@@ -2039,12 +2042,12 @@ function Boostback {
             
             when time:seconds > LandingTime + 4 then {
                 if BoosterSingleEngines {
-                    set x to 1.
                     for eng in BoosterSingleEnginesRC {
                         eng:shutdown.
                         set eng:gimbal:lock to true.
-                        if not x=1 and not x=2 and not x=3 eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
-                        set x to x + 1.
+                        eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 50).
+                        if eng:getmodule("ModuleSEPRaptor"):GetField("actuate out") = true
+                            eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
                     }
                 }
 
