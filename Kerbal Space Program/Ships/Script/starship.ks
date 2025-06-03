@@ -7752,7 +7752,7 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,24),-24).
-            set ProgradeAngle to ProgradeAngle * 0.91.
+            set ProgradeAngle to ProgradeAngle * 0.9.
         }
         if MaintainVS {
             if deltaV > 500*Scale {
