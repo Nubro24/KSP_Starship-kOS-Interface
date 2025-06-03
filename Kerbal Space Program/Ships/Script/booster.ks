@@ -1914,6 +1914,7 @@ function Boostback {
         }
 
         if BoosterSingleEngines {
+            set NrCounterEngine to 0.
             if CounterEngine {
                 if BoosterSingleEnginesRC[0]:thrust < 60*Scale set NrCounterEngine to 4.
                 if BoosterSingleEnginesRC[1]:thrust < 60*Scale set NrCounterEngine to 7.
