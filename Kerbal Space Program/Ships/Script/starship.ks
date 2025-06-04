@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
-set Scriptversion to "V3.5.2 - WIP".
+set Scriptversion to "V3.5.2".
 
 
 //<------------Telemtry Scale-------------->
@@ -367,7 +367,7 @@ set config:obeyhideui to false.
 
 if RSS {         // Real Solar System
     set LandingAoA to 80.
-    set MaxCargoToOrbit to 1510000.
+    set MaxCargoToOrbit to 80000.
     set MaxReEntryCargoThickAtmo to 2500.
     set MaxIU to 200.
     set MaxReEntryCargoThinAtmo to 151000.
@@ -6713,11 +6713,11 @@ function Launch {
 
         if RSS {
             set LaunchElev to altitude - 108.384.
-            if ShipType = "Depot" {
-                set BoosterAp to 94000 + (cos(targetincl) * 3000).
+            if ShipType = "Depot" or CargoMass > 64000 {
+                set BoosterAp to 106000 + (cos(targetincl) * 3000).
                 set turnAltitude to 750.
             } else if CargoMass > 32000 {
-                set BoosterAp to 92000 + (cos(targetincl) * 3000).
+                set BoosterAp to 96000 + (cos(targetincl) * 3000).
                 set turnAltitude to 280.
             } else {
                 set BoosterAp to 90000 + (cos(targetincl) * 3000).
@@ -6730,12 +6730,12 @@ function Launch {
         }
         else if KSRSS {
             set LaunchElev to altitude - 67.74.
-            if ShipType = "Depot" {
-                set BoosterAp to 68500 + (cos(targetincl) * 1500).
+            if ShipType = "Depot" or CargoMass > 64000 {
+                set BoosterAp to 69000 + (cos(targetincl) * 1500).
                 set TimeFromLaunchToOrbit to 360.
             }
-            else if CargoMass > 42000 {
-                set BoosterAp to 62000 + (cos(targetincl) * 1500).
+            else if CargoMass > 32000 {
+                set BoosterAp to 67000 + (cos(targetincl) * 1500).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 20.
             }
             else {
@@ -6748,13 +6748,13 @@ function Launch {
         }
         else {
             set LaunchElev to altitude - 67.74.
-            if ShipType = "Depot" {
-                set BoosterAp to 38000 + (cos(targetincl) * 1000).
+            if ShipType = "Depot" or CargoMass > 64000 {
+                set BoosterAp to 52000 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to 285.
                 set PitchIncrement to 5.
             }
-            else if CargoMass > 42000 {
-                set BoosterAp to 44500 + (cos(targetincl) * 1000).
+            else if CargoMass > 32000 {
+                set BoosterAp to 48500 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 10.
                 set PitchIncrement to 0.
             }
@@ -7674,7 +7674,7 @@ Function LaunchSteering {
             }
         }
     }
-    else if Boosterconnected and not lowTWR {
+    else if Boosterconnected and not lowTWR and CargoMass < 64000 {
         if RSS {
             if ShipType = "Depot" {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
@@ -7711,7 +7711,44 @@ Function LaunchSteering {
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
-    else if Boosterconnected and lowTWR {
+    else if Boosterconnected and not lowTWR and CargoMass > 63000 {
+        if RSS {
+            if ShipType = "Depot" {
+                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+            }
+            else {
+                set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+            }
+        }
+        else if KSRSS {
+            if RESCALE {
+                if ShipType = "Depot" {
+                    set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                }
+                else {
+                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                }
+            }
+            else {
+                if ShipType = "Depot" {
+                    set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                }
+                else {
+                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
+                }
+            }
+        }
+        else {
+            if ShipType = "Depot" {
+                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+            }
+            else {
+                set targetpitch to 90 - (11.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/950)).
+            }
+        }
+        set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
+    }
+    else if Boosterconnected {
         if RSS {
             if ShipType = "Depot" {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1350)).
@@ -7752,7 +7789,8 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,24),-24).
-            set ProgradeAngle to ProgradeAngle * 0.9.
+            if CargoMass < 64000 set ProgradeAngle to ProgradeAngle * 0.9.
+            else set ProgradeAngle to ProgradeAngle * 0.85.
         }
         if MaintainVS {
             if deltaV > 500*Scale {
@@ -11140,7 +11178,7 @@ function ReEntryData {
                         setflaps(0, 87, 1, 0).
                         if not (TargetOLM = "False") {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
-                            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 1")).
+                            sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
                         }
                     }
                 }
@@ -11201,9 +11239,11 @@ function ReEntryData {
             set Hover to false.
             set Slow to false.
             if not (TargetOLM = "false") {
-                when Vessel(TargetOLM):distance < 1500 then {
-                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1200.
-                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1200.
+                when Vessel(TargetOLM):distance < 1600 then {
+                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1400.
+                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1400.
+                    when Vessel(TargetOLM):distance < 1300 then
+                        sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
                 }
                 when vAng(facing:forevector, up:vector) < 3 then {
                     HUDTEXT("Distance Check 1", 3, 2, 15, white, false).

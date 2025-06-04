@@ -1,5 +1,5 @@
 wait until ship:unpacked.
-set Scriptversion to "V3.5.2 - WIP".
+set Scriptversion to "V3.5.2".
 
 //<------------Telemtry Scale-------------->
 
@@ -12,7 +12,7 @@ set TScale to 1.
 //_________________________________________
 
 
-set drawVecs to true. //Enables Visible Vectors on Screen for Debugging
+set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 
 
 
@@ -259,6 +259,7 @@ set SteeringUpdateTime to 0.
 set Fpos to 0.
 set FposBase to 0.
 set CounterEngine to false.
+set LandingBurnEC to false.
 
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -960,22 +961,38 @@ function Boostback {
             if rndPitch < 0.44 set PitchStrength to -PitchStrength.
 
             set rndYaw to round(random(),1).
-            set YawStrength to round(random(),1).
-            if rndYaw < 0.44 set YawStrength to -3*YawStrength.
+            set YawStrength to max(round(random(),1),0.2).
+            if rndYaw < 0.44 set YawStrength to -2.5*YawStrength.
             if 0.4 > YawStrength and YawStrength > -0.4 set PitchStrength to PitchStrength*1.5.
 
             set ship:control:pitch to -2 * PitchStrength.
             set ship:control:yaw to -2 * YawStrength.
-            if not RSS set FlipTime to 6.
-            else set FlipTime to 5.6.
+            if not RSS set FlipTime to 5.5.
+            else set FlipTime to 5.2.
             if YawStrength < -0.3 set FlipTime to FlipTime*1.2.
             if YawStrength > 0.4 set FlipTime to FlipTime/1.1.
+            if YawStrength < 0 and PitchStrength < 0 {
+                if -YawStrength-PitchStrength > 1 set FlipTime to FlipTime*0.85.
+                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
+            }
+            else if YawStrength < 0 and PitchStrength > 0 {
+                if -YawStrength+PitchStrength > 1 set FlipTime to FlipTime*0.85.
+                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
+            }
+            else if YawStrength > 0 and PitchStrength < 0 {
+                if YawStrength-PitchStrength > 1 set FlipTime to FlipTime*0.85.
+                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
+            }
+            else {
+                if YawStrength+PitchStrength > 1 set FlipTime to FlipTime*0.85.
+                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
+            }
 
         } else {
 
             set ship:control:pitch to -2 * PitchStrength.
-            if not RSS set FlipTime to 5.
-            else set FlipTime to 4.5.
+            if not RSS set FlipTime to 4.5.
+            else set FlipTime to 4.
 
         }
         unlock steering.
@@ -1064,9 +1081,6 @@ function Boostback {
         set flipStartTime to time:seconds.
 
 
-        when time:seconds > flipStartTime + 1 then { 
-            set steeringmanager:yawtorquefactor to 0.7.
-        }
         //Middle Restart
         when time:seconds > flipStartTime + FlipTime*0.7 and verticalspeed > 0 then {
             lock throttle to 0.5.
@@ -1108,13 +1122,15 @@ function Boostback {
                 }
             }
         }
+        when time:seconds > flipStartTime + FlipTime*0.8 then 
+            set ship:control:neutralize to true.
 
         //show Poll HUD
         //activate yaw and neutralize on
-        when time:seconds > flipStartTime + FlipTime or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 50 then {
+        when time:seconds > flipStartTime + FlipTime or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 50 
+                or vAng(vxcl(up:vector, -ErrorVector),facing:forevector) < 70 and vAng(up:vector,facing:forevector) > 90 then {
             set steeringmanager:yawtorquefactor to 0.9.
-            set ship:control:neutralize to true.
-            set steeringmanager:maxstoppingtime to 0.8*Scale.
+            set steeringmanager:maxstoppingtime to 0.6*Scale.
             set steeringManager:rollcontrolanglerange to 70.
             set steeringManager:rolltorquefactor to 6.
             lock throttle to 0.66.
@@ -1122,12 +1138,13 @@ function Boostback {
             bGUI:show().
         }
         when time:seconds > flipStartTime + 7.5 then {
-            set steeringmanager:maxstoppingtime to 0.5.
+            set steeringmanager:maxstoppingtime to 0.4.
         }
 
         //increase yaw steering
         when time:seconds > flipStartTime + 10 then {
             set steeringmanager:yawtorquefactor to 0.7.
+            set steeringmanager:maxstoppingtime to 0.8.
             rcs on.
         }
         when BoostBackComplete then 
@@ -1163,7 +1180,7 @@ function Boostback {
             }
             rcs on.
             wait 0.03.
-            PollUpdate().
+            if FC PollUpdate().
         }
 
         // set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
@@ -1192,8 +1209,9 @@ function Boostback {
         else {
             lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
-        set SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
+        lock SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector).
         lock steering to SteeringVectorBoostback.
+        unlock SteeringVector.
 
 
         when time:seconds > flipStartTime + 30 then {
@@ -1405,6 +1423,7 @@ function Boostback {
             set SteeringManager:maxstoppingtime to 5.
             lock SteeringVector to lookdirup(up:vector+PositionError, -up:vector).
             lock steering to SteeringVector.
+            unlock SteeringVectorBoostback.
         }
 
         set CurrentVec to ship:facing:forevector.
@@ -1700,6 +1719,7 @@ function Boostback {
                 }
                 set x to x + 1.
             }
+            set LandingBurnStarted to true.
         }
         when time:seconds - LandingBurnTime > 0.6 then {
             set x to 1.
@@ -1710,8 +1730,9 @@ function Boostback {
                 }
                 set x to x + 1.
             }
-            set LandingBurnStarted to true.
         }
+        when time:seconds - LandingBurnTime > 0.8 then
+            set LandingBurnEC to true.
     }
     else {
         when time:seconds - LandingBurnTime > 0.3 then
@@ -1775,9 +1796,9 @@ function Boostback {
             set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Integration Tower Base")[0]:position).
             lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
         }
-        when Vessel(TargetOLM):distance < 1500 then {
-            set Vessel(TargetOLM):loaddistance:landed:unpack to 1200.
-            set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1200.
+        when Vessel(TargetOLM):distance < 1800 then {
+            set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
+            set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
         }
     }
 
@@ -1932,7 +1953,7 @@ function Boostback {
                     if BoosterSingleEnginesRC[11]:thrust < 60*Scale set NrCounterEngine to 10.
                     else set NrCounterEngine to 11.
                 }
-                BoosterSingleEnginesRC[NrCounterEngine-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
+                BoosterSingleEnginesRC[NrCounterEngine-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 65).
             }
             set x to 1.
             for eng in BoosterSingleEnginesRC {
@@ -2249,6 +2270,8 @@ FUNCTION SteeringCorrections {
     }
     print " ".
     print "Steering Error: " + round(SteeringManager:angleerror, 2).
+    if not BoostBackComplete print " ".
+    if not BoostBackComplete print "FlipTime: " + round(FlipTime, 2).
     //print "OPCodes left: " + opcodesleft.
 
     //LogBoosterFlightData().
@@ -2417,10 +2440,10 @@ function LandingGuidance {
     }
 
     // === Side Drift ===
-    if vAng(ErrorVector, -GSVec) > 15 and vAng(ErrorVector, -GSVec) > 165 and ErrorVector:mag > 0.3 * BoosterHeight  or  LatError > 0.12 * BoosterHeight {
+    if vAng(ErrorVector, -GSVec) > 35 and vAng(ErrorVector, -GSVec) > 155 and ErrorVector:mag > 0.3 * BoosterHeight  or  LatError > 0.14 * BoosterHeight {
         set SideFactor to 8.
         set Ferr to Ferr * 1.4.
-    } else if vAng(ErrorVector, -GSVec) > 10 and vAng(ErrorVector, -GSVec) > 170 and ErrorVector:mag > 0.15 * BoosterHeight  or  LatError > 0.06 * BoosterHeight {
+    } else if vAng(ErrorVector, -GSVec) > 30 and vAng(ErrorVector, -GSVec) > 150 and ErrorVector:mag > 0.15 * BoosterHeight  or  LatError > 0.08 * BoosterHeight {
         set SideFactor to 4.
         set Ferr to Ferr * 1.2.
     }
@@ -2451,8 +2474,8 @@ function LandingGuidance {
         }
         else set Ferr to Ferr * 0.4.
 
-        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.07/max(closureRatio,0.5)^4).
-        if RSS set Fgs to Fgs * (1.05/max(closureRatio,0.5)^4).
+        set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.03/max(closureRatio,0.5)^4).
+        if RSS set Fgs to Fgs * (1.01/max(closureRatio,0.5)^4).
 
         set Ftrv to Ftrv * 0.7.
     } else if RSS {
@@ -3181,7 +3204,7 @@ function PollUpdate {
                 }
                 if missingCount > 1 set GE to false.
                 else if inactiveCount > 3 set GE to false.
-            } else if LandingBurnStarted and not MiddleEnginesShutdown {
+            } else if LandingBurnEC and not MiddleEnginesShutdown {
                 set missingCount to 13 - BoosterSingleEnginesRC:length.
                 for eng in BoosterSingleEnginesRC {
                     if eng:thrust < 60*Scale set inactiveCount to inactiveCount + 1.

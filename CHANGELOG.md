@@ -1,4 +1,4 @@
-# V3.5.2 (WIP)
+# V3.5.2 (2025-06-04)
 - **Ascent Changes**:
   - Improved Ascent Profile
   - Improved Hotstage Timings
@@ -15,7 +15,7 @@
 - **Added Support for individual Engines on the Booster** *(Cluster Functionality unchanged)*
   - Added startup and shutdown sequences for Booster
   - Added poll checks for max missing engines
-  - Added auto engine out compensation
+  - Added auto engine out compensation for final landing
 - **Small improvements to Booster and Ship Landings**
 - Fixed RSS Reentry loosing control
 - Fixed an Error with Real Fuels
