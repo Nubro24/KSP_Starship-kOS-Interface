@@ -7276,6 +7276,7 @@ function Launch {
                         if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
                         set x to x + 1.
                     }
+                    for eng in BoosterSingleEnginesRB eng:shutdown.
                 }
                 wait 0.12.
                 set CargoBeforeSeparation to CargoMass.
