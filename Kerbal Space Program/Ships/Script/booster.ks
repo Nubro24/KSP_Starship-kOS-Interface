@@ -1106,20 +1106,20 @@ function Boostback {
                 BoosterSingleEnginesRC[3]:activate.
                 BoosterSingleEnginesRC[8]:activate.
                 when time:seconds - tEngStart > 0.2 then {
-                    BoosterSingleEnginesRC[4]:activate.
-                    BoosterSingleEnginesRC[9]:activate.
+                    if random() < 0.98 BoosterSingleEnginesRC[4]:activate.
+                    if random() < 0.98 BoosterSingleEnginesRC[9]:activate.
                 }
                 when time:seconds - tEngStart > 0.4 then {
-                    BoosterSingleEnginesRC[6]:activate.
-                    BoosterSingleEnginesRC[11]:activate.
+                    if random() < 0.98 BoosterSingleEnginesRC[6]:activate.
+                    if random() < 0.98 BoosterSingleEnginesRC[11]:activate.
                 }
                 when time:seconds - tEngStart > 0.6 then {
-                    BoosterSingleEnginesRC[7]:activate.
-                    BoosterSingleEnginesRC[12]:activate.
+                    if random() < 0.98 BoosterSingleEnginesRC[7]:activate.
+                    if random() < 0.98 BoosterSingleEnginesRC[12]:activate.
                 }
                 when time:seconds - tEngStart > 0.8 then {
-                    BoosterSingleEnginesRC[5]:activate.
-                    BoosterSingleEnginesRC[10]:activate.
+                    if random() < 0.98 BoosterSingleEnginesRC[5]:activate.
+                    if random() < 0.98 BoosterSingleEnginesRC[10]:activate.
                 }
             }
             else {
@@ -1701,7 +1701,7 @@ function Boostback {
     if BoosterSingleEngines {
         set x to 1.
         until x > 3 {
-            BoosterSingleEnginesRC[x-1]:activate.
+            if random() < 0.98 BoosterSingleEnginesRC[x-1]:activate.
             set x to x + 1.
         }
     }
@@ -1710,7 +1710,7 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {
-                    eng:activate.
+                    if random() < 0.98 eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
@@ -1721,7 +1721,7 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else {
-                    eng:activate.
+                    if random() < 0.98 eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.

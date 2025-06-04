@@ -6929,7 +6929,7 @@ function Launch {
             
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
             else {
-                for eng in BoosterSingleEnginesRC eng:activate.
+                for eng in BoosterSingleEnginesRC if random() < 0.98 eng:activate.
             }
 
             set EngineStartTime to time:seconds.
@@ -6943,9 +6943,10 @@ function Launch {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
                     if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
-                    else eng:activate.
+                    else if random() < 0.98 eng:activate.
                     set x to x + 1.
                 }
+                set inactiveEng to List(7,11,15,19,24).
             }
             set message2:text to "<b>Expected Engine Count:</b>    28".
             wait 0.7.
@@ -6955,7 +6956,7 @@ function Launch {
             if BoosterSingleEngines {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
-                    if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 eng:activate.
+                    if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < 0.98 eng:activate.
                     set x to x + 1.
                 }
             }
