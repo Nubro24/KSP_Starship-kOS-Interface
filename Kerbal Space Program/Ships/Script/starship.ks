@@ -660,6 +660,7 @@ set shipThrust to 0.00001.
 set angle to 75.
 set speed to 12.
 set oldBooster to false.
+set Hotstaging to false.
 
 
 
@@ -1084,7 +1085,7 @@ function FindParts {
 
     }
 
-    if Boosterconnected {
+    if Boosterconnected and not Hotstaging {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
                 or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
             set BoosterSingleEngines to true.
@@ -1109,7 +1110,7 @@ function FindParts {
         set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
         set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
         set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
-        set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
+        //set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
         set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
         set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
         Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
@@ -1192,7 +1193,7 @@ if OnOrbitalMount {
         set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
         set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
         set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
-        set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
+        //set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
         set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
         set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
         Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
@@ -6523,7 +6524,7 @@ if addons:tr:available and not startup {
                     set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
                     set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
                     set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
-                    set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
+                    //set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
                     set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
                     set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
                     Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
@@ -7221,6 +7222,7 @@ function Launch {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
+                set Hotstaging to true.
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
@@ -15065,7 +15067,7 @@ function GetShipRotation {
 
 
 function DetectWobblyTower {
-    if not (TargetOLM = "false") and RadarAlt < 50 {
+    if not (TargetOLM = "false") and RadarAlt < 50 and 1=2 {
         if Vessel(TargetOLM):distance < 2000 {
             set ErrorPos to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Rooftop")[0]:position):mag.
             if ErrorPos > 1 * Scale {

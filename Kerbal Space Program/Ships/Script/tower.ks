@@ -70,7 +70,7 @@ if RSS set Scale to 1.6.
 set OLM to ship:partstitled("Starship Orbital Launch Mount")[0].
 set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
 set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
-set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
+//set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
 set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
 if ship:partsnamed("SLE.SS.OLIT.SQD"):length > 0 {
     set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].

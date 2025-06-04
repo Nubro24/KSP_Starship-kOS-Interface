@@ -926,7 +926,7 @@ until False {
 
 
 function Boostback {
-    
+    for eng in BoosterSingleEnginesRB eng:shutdown.
     wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
     wait 0.001.
     set ShipConnectedToBooster to false.
@@ -1203,9 +1203,8 @@ function Boostback {
         else {
             lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
-        lock SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector).
-        lock steering to SteeringVectorBoostback.
-        unlock SteeringVector.
+        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector).
+        lock steering to SteeringVector.
 
 
         when time:seconds > flipStartTime + 30 then {
@@ -3166,7 +3165,7 @@ function GetBoosterRotation {
 
 
 function DetectWobblyTower {
-    if not (TargetOLM = "false") and RadarAlt < 100 {
+    if not (TargetOLM = "false") and RadarAlt < 100 and 1=2 {
         if Vessel(TargetOLM):distance < 2000 {
             set ErrorPos to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Rooftop")[0]:position):mag.
             if ErrorPos > 1.5 * Scale {
