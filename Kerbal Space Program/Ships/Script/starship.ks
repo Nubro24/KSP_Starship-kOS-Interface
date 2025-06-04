@@ -367,7 +367,7 @@ set config:obeyhideui to false.
 
 if RSS {         // Real Solar System
     set LandingAoA to 80.
-    set MaxCargoToOrbit to 80000.
+    set MaxCargoToOrbit to 75000.
     set MaxReEntryCargoThickAtmo to 2500.
     set MaxIU to 200.
     set MaxReEntryCargoThinAtmo to 151000.
@@ -783,26 +783,31 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO") and not x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 66000.
                     set ShipType to "Block1Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.NOSECONE.EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 65000.
                     set ShipType to "Block1Exp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 69000.
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 65000.
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ.EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 68000.
                     set ShipType to "Block1PEZExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
@@ -7661,26 +7666,26 @@ Function LaunchSteering {
     else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
             if RSS {
-                set result to lookDirUp(srfPrograde:vector + 0.12*up:vector, LaunchRollVector).
+                set result to lookDirUp(srfPrograde:vector + 0.16*up:vector, LaunchRollVector).
             } else {
                 set result to lookDirUp(srfPrograde:vector, LaunchRollVector).
             }
         }
         else {
             if RSS {
-                set result to lookDirUp(srfPrograde:vector + 0.24*up:vector, LaunchRollVector).
+                set result to lookDirUp(srfPrograde:vector + 0.26*up:vector, LaunchRollVector).
             } else {
                 set result to lookDirUp(srfPrograde:vector + 0.2*up:vector, LaunchRollVector).
             }
         }
     }
-    else if Boosterconnected and not lowTWR and CargoMass < 64000 {
+    else if Boosterconnected and not lowTWR and CargoMass < 50001 {
         if RSS {
             if ShipType = "Depot" {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
             }
             else {
-                set targetpitch to 90 - (8.4 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                set targetpitch to 90 - (8.42 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -7711,13 +7716,13 @@ Function LaunchSteering {
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
-    else if Boosterconnected and not lowTWR and CargoMass > 63000 {
+    else if Boosterconnected and not lowTWR and CargoMass > 50000 {
         if RSS {
             if ShipType = "Depot" {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
             }
             else {
-                set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.48 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -7789,8 +7794,8 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,24),-24).
-            if CargoMass < 64000 set ProgradeAngle to ProgradeAngle * 0.9.
-            else set ProgradeAngle to ProgradeAngle * 0.85.
+            if CargoMass < 50000 set ProgradeAngle to ProgradeAngle * 0.9.
+            else set ProgradeAngle to ProgradeAngle * 0.82.
         }
         if MaintainVS {
             if deltaV > 500*Scale {

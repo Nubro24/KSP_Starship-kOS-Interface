@@ -1122,22 +1122,25 @@ function Boostback {
                 }
             }
         }
-        when time:seconds > flipStartTime + FlipTime*0.8 then 
-            set ship:control:neutralize to true.
-
+        when time:seconds > flipStartTime + FlipTime*0.75 then {
+            set ship:control:pitch to 0.
+            set ship:control:yaw to 0.
+            set steeringmanager:maxstoppingtime to 1*Scale.
+        }
         //show Poll HUD
         //activate yaw and neutralize on
         when time:seconds > flipStartTime + FlipTime or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 50 
                 or vAng(vxcl(up:vector, -ErrorVector),facing:forevector) < 70 and vAng(up:vector,facing:forevector) > 90 then {
             set steeringmanager:yawtorquefactor to 0.9.
-            set steeringmanager:maxstoppingtime to 0.6*Scale.
+            set ship:control:neutralize to true.
+            set steeringmanager:maxstoppingtime to 0.8*Scale.
             set steeringManager:rollcontrolanglerange to 70.
             set steeringManager:rolltorquefactor to 6.
             lock throttle to 0.66.
             set FC to true.
             bGUI:show().
         }
-        when time:seconds > flipStartTime + 7.5 then {
+        when time:seconds > flipStartTime + FlipTime * 1.24 then {
             set steeringmanager:maxstoppingtime to 0.4.
         }
 
@@ -2227,7 +2230,7 @@ FUNCTION SteeringCorrections {
             }
             
             set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3500),1250).
-            if RSS and BoosterSingleEngines set LandingBurnAlt to LandingBurnAlt * 1.15.
+            if RSS and BoosterSingleEngines set LandingBurnAlt to LandingBurnAlt * 1.1.
         }
         
 
@@ -2387,7 +2390,11 @@ function LandingGuidance {
     }
 
     // === Low Altitude look up ===
-    if RadarAlt < 0.15 * BoosterHeight {
+    if RadarAlt < 0.03 * BoosterHeight {
+        set Fpos to Fpos * 0.
+        set Ferr to Ferr * 0.
+        set Fgs to Fgs * 0.15.
+    } else if RadarAlt < 0.15 * BoosterHeight {
         set Fpos to Fpos * 0.2.
         set Ferr to Ferr * 0.2.
         set Fgs to Fgs * 0.3.
@@ -2458,7 +2465,7 @@ function LandingGuidance {
     if RSS and GSVec:mag < 6.5 and GSVec:mag > 4 set Fgs to Fgs * 1.2.
 
     // === After Landing swing reduction ===
-    if RadarAlt < 0.03 * BoosterHeight and GSVec:mag > 0.6 set Fgs to -Fgs*5.
+    if RadarAlt < 0.03 * BoosterHeight and GSVec:mag > 0.6 set Fgs to -Fgs*10.
     
     // === 13 Engines Phase ===
     if not MiddleEnginesShutdown {
@@ -2467,12 +2474,16 @@ function LandingGuidance {
 
         if vAng(ErrorVector, PositionError) > 90 {
             set Ferr to Ferr * 1.4 * (1.05/(closureRatio^4)).
-            if ErrorVector:mag > 0.2*BoosterHeight {
-                set Ferr to Ferr * 2.
-                set Fgs to Fgs * 1.5.
+            if ErrorVector:mag > 0.24*BoosterHeight {
+                set Ferr to Ferr * 1.8.
+                set Fgs to Fgs * 1.4.
+            }
+            else if ErrorVector:mag < 0.16*BoosterHeight {
+                set Fpos to Fpos*1.1.
+                set Fgs to Fgs * 0.9.
             }
         }
-        else set Ferr to Ferr * 0.4.
+        else set Ferr to Ferr * 0.6.
 
         set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.03/max(closureRatio,0.5)^4).
         if RSS set Fgs to Fgs * (1.01/max(closureRatio,0.5)^4).
