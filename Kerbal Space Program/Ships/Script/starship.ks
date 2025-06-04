@@ -95,6 +95,7 @@ if exists("0:/settings.json") {
 else set LSCoords to ("0,0").
 
 set RadarAlt to 0.
+set Hotstaging to false.
 
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -660,7 +661,6 @@ set shipThrust to 0.00001.
 set angle to 75.
 set speed to 12.
 set oldBooster to false.
-set Hotstaging to false.
 
 
 
