@@ -3234,10 +3234,12 @@ function PollUpdate {
         }
     } else {set GE to false.}
 
-    if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length > 3 set GG to true.
+    if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length > 3 or ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length > 3 set GG to true.
     else set GG to false.
-    if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length < Gridfins:length set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
-
+    if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length < Gridfins:length and ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length > 0 set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
+    else if ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length < Gridfins:length  and ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length > 0 set Gridfins to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN").
+    
+    
     if not GTn set GTn to true.
 
     CheckFuel().
