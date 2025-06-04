@@ -347,6 +347,7 @@ local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
 local bAttitude is boosterAttitude:addlabel().
     set bAttitude:style:bg to "starship_img/booster".
 local missionTimeLabel is missionTimeDisplay:addlabel().
+local ClockHeader is missionTimeDisplay:addlabel().
 local VersionDisplay is GUI(100).
     local VersionDisplayLabel is VersionDisplay:addlabel().
         set VersionDisplayLabel:style:align to "center".
@@ -612,6 +613,14 @@ function CreateTelemetry {
     set missionTimeLabel:style:fontsize to 42*TScale.
     set missionTimeLabel:style:align to "center".
 
+    set ClockHeader:style:wordwrap to false.
+    set ClockHeader:style:margin:left to 100*TScale.
+    set ClockHeader:style:margin:right to 160*TScale.
+    set ClockHeader:style:margin:top to 10*TScale.
+    set ClockHeader:style:width to 160*TScale.
+    set ClockHeader:style:fontsize to 24*TScale.
+    set ClockHeader:style:align to "center".
+
     set VersionDisplay:x to 0.
     set VersionDisplay:y to 25*TScale.
     set VersionDisplay:style:bg to "".
@@ -647,7 +656,7 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 2400. 
+        if oldBooster set BoosterGlideDistance to 2240. 
         else set BoosterGlideDistance to 2100. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.4.
@@ -987,6 +996,7 @@ function Boostback {
                 if YawStrength+PitchStrength > 1 set FlipTime to FlipTime*0.85.
                 if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
             }
+            if oldBooster set FlipTime to FlipTime * 1.4.
 
         } else {
 
@@ -1123,8 +1133,7 @@ function Boostback {
             }
         }
         when time:seconds > flipStartTime + FlipTime*0.75 then {
-            set ship:control:pitch to 0.
-            set ship:control:yaw to 0.
+            set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 1*Scale.
         }
         //show Poll HUD
@@ -1132,7 +1141,6 @@ function Boostback {
         when time:seconds > flipStartTime + FlipTime or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 50 
                 or vAng(vxcl(up:vector, -ErrorVector),facing:forevector) < 70 and vAng(up:vector,facing:forevector) > 90 then {
             set steeringmanager:yawtorquefactor to 0.9.
-            set ship:control:neutralize to true.
             set steeringmanager:maxstoppingtime to 0.8*Scale.
             set steeringManager:rollcontrolanglerange to 70.
             set steeringManager:rolltorquefactor to 6.
@@ -1167,7 +1175,7 @@ function Boostback {
         set SteeringManager:pitchtorquefactor to 1.
         
 
-        until vang(vxcl(up:vector, facing:forevector), vxcl(up:vector, -ErrorVector)) < 15 or verticalspeed < -50 {
+        until vang(vxcl(up:vector, facing:forevector), vxcl(up:vector, -ErrorVector)) < 20 or verticalspeed < -50 {
             SteeringCorrections().
             if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 {
                 set ship:name to "Booster".
@@ -1182,28 +1190,11 @@ function Boostback {
                 set FailureMessage to true.
             }
             rcs on.
-            wait 0.03.
             if FC PollUpdate().
+            set ClockHeader:text to round(time:seconds - flipStartTime,2):tostring.
+            wait 0.03.
         }
-
-        // set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        // if not wobbleCheckrunning {
-        //     set wobbleCheckrunning to true.
-        //     set wobbleCheck to time:seconds.
-        //     when time:seconds > wobbleCheck + 0.05 then {
-        //         set bErrorPos2 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        //         when time:seconds > wobbleCheck + 0.15 then {
-        //             set bErrorPos3 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        //             when time:seconds > wobbleCheck + 1 then {
-        //                 if bErrorPos - bErrorPos2 > 0.001 * Scale or bErrorPos - bErrorPos2 < -0.001 * Scale or bErrorPos3 - bErrorPos2 > 0.001 * Scale or bErrorPos3 - bErrorPos2 < -0.001 * Scale or bErrorPos - bErrorPos3 > 0.001 * Scale or bErrorPos - bErrorPos3 < -0.001 * Scale {
-        //                     set WobblyBooster to true.
-        //                 }
-        //                 set wobbleCheckrunning to false.
-        //                 //HUDTEXT(round(bErrorPos, 4) + "; " + round(bErrorPos2, 4) + "; " + round(bErrorPos3, 4), 4, 2, 16, white, false).
-        //             }
-        //         }
-        //     }
-        // }
+        set ClockHeader:text to "".
 
 
         if RSS {
@@ -1221,6 +1212,8 @@ function Boostback {
             if LFBooster > LFBoosterCap * 0.3 {
                 BoosterCore:activate.
             }
+            set steeringManager:showfacingvectors to false.
+            set steeringManager:showangularvectors to false.
         }
         when ship:groundspeed < 50 then {
             set config:ipu to 1800.
@@ -1431,7 +1424,7 @@ function Boostback {
 
         set CurrentVec to ship:facing:forevector.
 
-        until vang(facing:forevector, CurrentVec) > 5 {
+        until vang(facing:forevector, CurrentVec) > 5 or not HSRJet {
             SteeringCorrections().
             PollUpdate().
             SetBoosterActive().
@@ -1645,7 +1638,7 @@ function Boostback {
 
     lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.14 then { 
-        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.4*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.5*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError > 0 then {
             lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         }
@@ -1772,7 +1765,7 @@ function Boostback {
     when cAbort then {
         set LandSomewhereElse to true.
         lock RadarAlt to alt:radar - BoosterHeight*0.6.
-        set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.05,addons:tr:impactpos:lng-0.02).
+        set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng-0.002).
         addons:tr:settarget(landingzone).
     }
 
@@ -1785,7 +1778,7 @@ function Boostback {
     }
 
     if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not GfC {
-        set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.05,addons:tr:impactpos:lng-0.02).
+        set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng-0.002).
         set LandSomewhereElse to true.
         lock RadarAlt to alt:radar - BoosterHeight*0.6.
         lock SteeringVector to lookdirup(-velocity:surface, ApproachVector).
@@ -1820,7 +1813,7 @@ function Boostback {
                 HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
                 set LandSomewhereElse to true.
                 lock RadarAlt to alt:radar - BoosterHeight*0.6.
-                set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.006,addons:tr:impactpos:lng+0.012).
+                set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.006,addons:tr:impactpos:lng+0.0042).
                 addons:tr:settarget(landingzone).
                 lock SteeringVector to lookDirUp(up:vector - 0.08*ErrorVector - 0.02 * velocity:surface, RollVector).
                 when time:seconds > abortTime + 4 then {
@@ -1837,6 +1830,7 @@ function Boostback {
                 }
                 sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,24,95,true").
             }
+            when ErrorVector:mag > BoosterHeight then set cAbort to true.
             if Vessel(TargetOLM):distance < 2240 {
                 PollUpdate().
                 set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
@@ -1889,8 +1883,14 @@ function Boostback {
                     when RadarAlt < 0.5*BoosterHeight then {
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 0).
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 10).
-                        Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
-                        Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                        if oldBooster {
+                            Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                            Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                        } 
+                        else {
+                            Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                            Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                        }
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", true).
                     }
                     when RadarAlt < 0.5*BoosterHeight then {
@@ -3234,13 +3234,9 @@ function PollUpdate {
         }
     } else {set GE to false.}
 
-    for fin in GridFins {
-        if fin:hasphysics {
-            set GG to true.
-        } else {
-            set GG to false.
-        }
-    }
+    if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length > 3 set GG to true.
+    else set GG to false.
+    if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length < Gridfins:length set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
 
     if BoosterCore:hasphysics {
         set GTn to true.
@@ -3284,7 +3280,7 @@ function PollUpdate {
     if rebooted set GF to true.
 
 
-    if GD and GE and GF and GT and GG and GTn {
+    if GD and GE and GF and GT and GG and GTn and not cAbort {
         set GfC to true.
     } else {
         set GfC to false.
@@ -3561,3 +3557,31 @@ function GUIupdate {
         set message1:text to "<b><color=red>ABORT</color></b>".
     }
 }
+
+
+
+
+
+
+
+
+
+
+        // set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
+        // if not wobbleCheckrunning {
+        //     set wobbleCheckrunning to true.
+        //     set wobbleCheck to time:seconds.
+        //     when time:seconds > wobbleCheck + 0.05 then {
+        //         set bErrorPos2 to (Gridfins[0]:position - Gridfins[1]:position):mag.
+        //         when time:seconds > wobbleCheck + 0.15 then {
+        //             set bErrorPos3 to (Gridfins[0]:position - Gridfins[1]:position):mag.
+        //             when time:seconds > wobbleCheck + 1 then {
+        //                 if bErrorPos - bErrorPos2 > 0.001 * Scale or bErrorPos - bErrorPos2 < -0.001 * Scale or bErrorPos3 - bErrorPos2 > 0.001 * Scale or bErrorPos3 - bErrorPos2 < -0.001 * Scale or bErrorPos - bErrorPos3 > 0.001 * Scale or bErrorPos - bErrorPos3 < -0.001 * Scale {
+        //                     set WobblyBooster to true.
+        //                 }
+        //                 set wobbleCheckrunning to false.
+        //                 //HUDTEXT(round(bErrorPos, 4) + "; " + round(bErrorPos2, 4) + "; " + round(bErrorPos3, 4), 4, 2, 16, white, false).
+        //             }
+        //         }
+        //     }
+        // }

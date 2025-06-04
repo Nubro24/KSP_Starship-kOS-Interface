@@ -7334,6 +7334,10 @@ function Launch {
                 }
                 set quickengine3:pressed to true.
                 updateTelemetry().
+                for eng in SLEngines {
+                    eng:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+                    eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                }
                 if ShipType:contains("Block1") {
                     print "Block 1".
                     if defined HSR {
@@ -7359,13 +7363,10 @@ function Launch {
                     }
                 }
                 updateTelemetry().
-                for eng in SLEngines {
-                    eng:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
-                    eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                }
 
                 wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0.
                 updateTelemetry().
+                set HotStageTime to time:seconds.
                 set StageSepComplete to true.
                 set ship:name to ("Starship " + ShipType).
                 set Boosterconnected to false.
@@ -7391,7 +7392,6 @@ function Launch {
                     SetLoadDistances(ship, 900000).
                 }
                 LogToFile("Hot-Staging Complete").
-                set HotStageTime to time:seconds.
                 when time:seconds > HotStageTime + 0.2 then {
                     set quickengine2:pressed to true.
                 }
@@ -7435,7 +7435,7 @@ function Launch {
             when time:seconds > HotStageTime + 3 then {
                 lock steering to LaunchSteering().
             }
-            when time:seconds > HotStageTime + 6.9 then {
+            when time:seconds > HotStageTime + 5 then {
                 KUniverse:forceactive(vessel("Booster")).
             }
 
