@@ -3238,11 +3238,7 @@ function PollUpdate {
     else set GG to false.
     if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length < Gridfins:length set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
 
-    if BoosterCore:hasphysics {
-        set GTn to true.
-    } else {
-        set GTn to false.
-    }
+    if not GTn set GTn to true.
 
     CheckFuel().
 
