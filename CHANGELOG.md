@@ -17,6 +17,7 @@
   - Added poll checks for max missing engines
   - Added auto engine out compensation for final landing
 - **Small improvements to Booster and Ship Landings**
+- Fixed RSS Max Cargo values (max. 69t to Orbit)
 - Fixed RSS Reentry loosing control
 - Fixed an Error with Real Fuels
 - Fixed Errors during offshore divert
