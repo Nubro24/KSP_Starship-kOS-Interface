@@ -1122,7 +1122,7 @@ function FindParts {
             set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 7.5.
         }
         //SaveToSettings("ArmsHeight", ArmsHeight).
-        set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - TowerTop:mass - Mechazilla:mass.
+        set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass.
         print("Stack mass: " + StackMass).
         print(ship:mass).
     }
@@ -7019,7 +7019,7 @@ function Launch {
                 return.
             }
             set lowTWR to false.
-            set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - TowerTop:mass - Mechazilla:mass.
+            set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass.
             lock throttle to 0.77.
             wait 0.1.
             
@@ -8684,7 +8684,7 @@ function updateStatus {
         if LQFpct < 6 {set status2label5:style:textcolor to red.}
         if OXpct < 6 {set status3label5:style:textcolor to red.}
         if OnOrbitalMount {
-            set status1label5:text to "<b>MASS:</b>  " + round(ship:mass - OLM:mass - TowerBase:mass - TowerCore:mass - TowerTop:mass - Mechazilla:mass) + "t".
+            set status1label5:text to "<b>MASS:</b>  " + round(ship:mass - OLM:mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass) + "t".
         }
         else if ShipMass < 999999 {
             set status1label5:text to "<b>MASS:</b>  " + round(ShipMass / 1000, 1) + "t".
