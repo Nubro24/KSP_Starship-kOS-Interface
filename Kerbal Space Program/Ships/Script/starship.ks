@@ -7211,6 +7211,7 @@ function Launch {
             set steeringManager:maxstoppingtime to 0.8*Scale.
             when apoapsis > BoosterAp - 21000 * Scale then {
                 set steeringManager:maxstoppingtime to 0.2.
+                if ShipType:contains("Block2") set LaunchRollVector to up:vector.
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
                 } 
@@ -7443,6 +7444,13 @@ function Launch {
                 KUniverse:forceactive(vessel("Booster")).
             }
 
+            when altitude > 0.72*TargetAp then {
+                set LaunchRollVector to heading(mod(myAzimuth - 270, 360),0):vector.
+                if vang(north:vector, LaunchRollVector) > 270 {
+                    set LaunchRollVector to -LaunchRollVector.
+                }
+            }
+
             when deltav < 89 and deltav > 0 or throttle < 0.42 and deltav < 600*Scale and deltav > 0 then {
                 set quickengine3:pressed to false.
             }
@@ -7667,13 +7675,9 @@ Function LaunchSteering {
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     } 
-    else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected {
+    else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
-            if RSS {
-                set result to lookDirUp(srfPrograde:vector + 0.16*up:vector, LaunchRollVector).
-            } else {
-                set result to lookDirUp(srfPrograde:vector, LaunchRollVector).
-            }
+            set Hotstaging to true.
         }
         else {
             if RSS {
@@ -7683,7 +7687,7 @@ Function LaunchSteering {
             }
         }
     }
-    else if Boosterconnected and not lowTWR and CargoMass < 50001 {
+    else if Boosterconnected and not lowTWR and CargoMass < 50001 and not Hotstaging {
         if RSS {
             if ShipType = "Depot" {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
@@ -7720,7 +7724,7 @@ Function LaunchSteering {
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
-    else if Boosterconnected and not lowTWR and CargoMass > 50000 {
+    else if Boosterconnected and not lowTWR and CargoMass > 50000 and not Hotstaging {
         if RSS {
             if ShipType = "Depot" {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
@@ -7757,7 +7761,7 @@ Function LaunchSteering {
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
-    else if Boosterconnected {
+    else if Boosterconnected and not Hotstaging {
         if RSS {
             if ShipType = "Depot" {
                 set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1350)).
