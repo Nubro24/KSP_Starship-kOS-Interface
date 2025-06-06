@@ -926,7 +926,7 @@ until False {
 
 
 function Boostback {
-    for eng in BoosterSingleEnginesRB eng:shutdown.
+    if BoosterSingleEngines for eng in BoosterSingleEnginesRB eng:shutdown.
     wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
     wait 0.001.
     set ShipConnectedToBooster to false.
