@@ -97,6 +97,19 @@ else set LSCoords to ("0,0").
 set RadarAlt to 0.
 set Hotstaging to false.
 
+
+local VersionDisplay is GUI(100).
+    set VersionDisplay:style:bg to "".
+    local VersionDisplayLayout is VersionDisplay:addvlayout().
+    local VersionDisplayLabel is VersionDisplayLayout:addlabel().
+        set VersionDisplayLabel:style:wordwrap to false.
+        set VersionDisplayLabel:style:align to "center".
+        set VersionDisplayLabel:text to Scriptversion.
+VersionDisplay:show().
+
+
+
+
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
     set sTelemetry:skin:label:textcolor to white.
@@ -114,13 +127,6 @@ local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
-local VersionDisplay is GUI(100).
-    set VersionDisplay:style:bg to "".
-    local VersionDisplayLabel is VersionDisplay:addlabel().
-        set VersionDisplayLabel:style:wordwrap to false.
-        set VersionDisplayLabel:style:align to "center".
-        set VersionDisplayLabel:text to Scriptversion.
-VersionDisplay:show().
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
 local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
@@ -182,6 +188,9 @@ function CreateTelemetry {
     set VersionDisplay:y to 36*TScale.
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
+    
+    set IgnitionChances:x to 150*TScale.
+    set IgnitionChances:y to 0.
 
     set sAttitude:style:margin:left to 20*TScale.
     set sAttitude:style:margin:right to 20*TScale.
@@ -1216,6 +1225,123 @@ print "Starship Interface startup complete!".
 
 
 //-------------Start Graphic User Interface-------------//
+
+
+local IgnitionChancesOpen is GUI(100).
+    local IgnitionChances is IgnitionChancesOpen:addbutton().
+        set IgnitionChances:style:wordwrap to false.
+        set IgnitionChances:style:align to "center".
+        set IgnitionChances:text to "Ignition Chances".
+
+set LOIgnCha to 1.
+set BBIgnCha to 1.
+set SLIgnCha to 1.
+set VCIgnCha to 1.
+set LSIgnCha to 1.
+
+
+local IgnitionChancesGUI is GUI(300).
+    set IgnitionChancesGUI:style:bg to "starship_img/starship_background".
+    set IgnitionChancesGUI:style:border:h to 10.
+    set IgnitionChancesGUI:style:border:v to 10.
+    set IgnitionChancesGUI:style:padding:v to 0.
+    set IgnitionChancesGUI:style:padding:h to 0.
+    set IgnitionChancesGUI:x to 240.
+    set IgnitionChancesGUI:y to 240.
+    set IgnitionChancesGUI:skin:button:bg to "starship_img/starship_background".
+    set IgnitionChancesGUI:skin:button:on:bg to "starship_img/starship_background_light".
+    set IgnitionChancesGUI:skin:button:hover:bg to "starship_img/starship_background_light".
+    set IgnitionChancesGUI:skin:button:hover_on:bg to "starship_img/starship_background_light".
+    set IgnitionChancesGUI:skin:button:active:bg to "starship_img/starship_background_light".
+    set IgnitionChancesGUI:skin:button:active_on:bg to "starship_img/starship_background_light".
+    set IgnitionChancesGUI:skin:button:border:v to 10.
+    set IgnitionChancesGUI:skin:button:border:h to 10.
+    set IgnitionChancesGUI:skin:button:textcolor to white.
+    set IgnitionChancesGUI:skin:label:textcolor to white.
+local IgnChaLayout is IgnitionChancesGUI:addvlayout().
+local Quest is IgnChaLayout:addlabel().
+    set Quest:text to "<b>Multipliers for Ignition Chances</b>".
+    set Quest:style:margin:top to 12.
+    set Quest:style:margin:bottom to 16.
+    set Quest:style:margin:left to 8.
+    set Quest:style:margin:right to 8.
+local LOQuest is IgnChaLayout:addlabel().
+    set LOQuest:text to "Lift-Off:".
+    set LOQuest:style:margin:top to 12.
+    set LOQuest:style:margin:bottom to 12.
+    set LOQuest:style:margin:left to 12.
+local LOSelect is IgnChaLayout:addtextfield().
+    set LOSelect:tooltip to "All 33".
+    set LOSelect:style:margin:bottom to 12.
+    set LOSelect:style:margin:left to 12.
+local HSQuest is IgnChaLayout:addlabel().
+    set HSQuest:text to "Ship:".
+    set HSQuest:style:margin:top to 12.
+    set HSQuest:style:margin:bottom to 12.
+    set HSQuest:style:margin:left to 12.
+local HSSelect is IgnChaLayout:addhlayout().
+    set HSSelect:style:margin:bottom to 12.
+    set HSSelect:style:margin:left to 12.
+    local HSSelect1 is IgnChaLayout:addhlayout().
+        set HSSelect1:tooltip to "Sea-Level".
+        set HSSelect1:style:margin:bottom to 12.
+    local HSSelect2 is IgnChaLayout:addhlayout().
+        set HSSelect2:tooltip to "Vacuum".
+        set HSSelect2:style:margin:bottom to 12.
+local BBQuest is IgnChaLayout:addlabel().
+    set BBQuest:text to "Boostback:".
+    set BBQuest:style:margin:top to 12.
+    set BBQuest:style:margin:bottom to 12.
+    set BBQuest:style:margin:left to 12.
+local BBSelect is IgnChaLayout:addtextfield().
+    set BBSelect:tooltip to "Middle Inner".
+    set BBSelect:style:margin:bottom to 12.
+    set BBSelect:style:margin:left to 12.
+local LBQuest is IgnChaLayout:addlabel().
+    set LBQuest:text to "Landing Burn (Booster):".
+    set LBQuest:style:margin:top to 12.
+    set LBQuest:style:margin:bottom to 12.
+    set LBQuest:style:margin:left to 12.
+local LBSelect is IgnChaLayout:addhlayout().
+    set LBSelect:style:margin:bottom to 12.
+    set LBSelect:style:margin:left to 12.
+    local LBSelect1 is IgnChaLayout:addhlayout().
+        set LBSelect1:tooltip to "Center".
+        set LBSelect1:style:margin:bottom to 12.
+    local LBSelect2 is IgnChaLayout:addhlayout().
+        set LBSelect2:tooltip to "Middle Inner".
+        set LBSelect2:style:margin:bottom to 12.
+
+local IgnConfirm is IgnChaLayout:addbutton().
+    set IgnConfirm:text to "<b><color=green>Confirm</color></b>".
+    set IgnConfirm:onclick to {
+        if LOSelect:text = "" set LOSelect:text to "1".
+        if HSSelect1:text = "" set HSSelect1:text to "1".
+        if HSSelect2:text = "" set HSSelect2:text to "1".
+        if BBSelect:text = "" set BBSelect:text to "1".
+        if LBSelect1:text = "" set LBSelect1:text to "1".
+        if LBSelect2:text = "" set LBSelect2:text to "1".
+        set LOIgnCha to LOSelect:text:toscalar.
+        set SLIgnCha to HSSelect1:text:toscalar.
+        set VCIgnCha to HSSelect2:text:toscalar.
+        set BBIgnCha to BBSelect:text:toscalar.
+        set LB1IgnCha to LBSelect1:text:toscalar.
+        set LB2IgnCha to LBSelect2:text:toscalar.
+
+        if Boosterconnected sendMessage(processor(Volume("Booster")),"IgnChance,"+BBIgnCha:tostring+","+LB1IgnCha:tostring+","+LB2IgnCha:tostring).
+
+        
+        IgnitionChancesGUI:hide().
+    }.
+    
+
+set IgnitionChances:onclick to IgnitionChancesGUI:show().
+
+
+
+
+
+
 
 local ScaleUI is GUI(300).
     set ScaleUI:style:bg to "starship_img/starship_background".
@@ -6930,7 +7056,7 @@ function Launch {
             
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
             else {
-                for eng in BoosterSingleEnginesRC if random() < 0.98 eng:activate.
+                for eng in BoosterSingleEnginesRC if random() < 0.98*LOIgnCha eng:activate.
             }
 
             set EngineStartTime to time:seconds.
@@ -6944,7 +7070,7 @@ function Launch {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
                     if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
-                    else if random() < 0.98 eng:activate.
+                    else if random() < 0.98*LOIgnCha eng:activate.
                     set x to x + 1.
                 }
                 set inactiveEng to List(7,11,15,19,24).
@@ -6957,7 +7083,7 @@ function Launch {
             if BoosterSingleEngines {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
-                    if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < 0.98 eng:activate.
+                    if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < 0.98*LOIgnCha eng:activate.
                     set x to x + 1.
                 }
             }
@@ -11181,15 +11307,17 @@ function ReEntryData {
                 wait 0.001.
                 Tank:shutdown.
                 //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
+                SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                if random() < 0.99*SLIgnCha SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.7 then {
                     SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                    SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                    if random() < 0.99*SLIgnCha SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 1.0 then {
-                        if not Nose:name:contains("SEP.23.SHIP.FLAPS") {SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).}
-                        if not Nose:name:contains("SEP.23.SHIP.FLAPS") {SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).}
+                        SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        if random() < 0.99*SLIgnCha SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                         if not (TargetOLM = "False") {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
@@ -11209,15 +11337,17 @@ function ReEntryData {
                 Tank:shutdown.
                 if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").}
                 //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
+                SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                if random() < 0.99*SLIgnCha SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.3 then {
                     SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                    SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                    if random() < 0.99*SLIgnCha SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 0.5 then {
-                        if not Nose:name:contains("SEP.23.SHIP.FLAPS") {SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).}
-                        if not Nose:name:contains("SEP.23.SHIP.FLAPS") {SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).}
+                        SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        if random() < 0.99*SLIgnCha SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                     }
                 }
@@ -12395,9 +12525,9 @@ function ClearInterfaceAndSteering {
 function ActivateEngines {
     parameter WhichEngines.
     if WhichEngines = 0 {
-        SLEngines[0]:activate.
-        SLEngines[1]:activate.
-        SLEngines[2]:activate.
+        if random() < 0.99*SLIgnCha SLEngines[0]:activate.
+        if random() < 0.99*SLIgnCha SLEngines[1]:activate.
+        if random() < 0.99*SLIgnCha SLEngines[2]:activate.
         SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
@@ -12405,7 +12535,7 @@ function ActivateEngines {
     }
     else {
         for eng in VACEngines {
-            eng:activate.
+            if random() < 0.99*VCIgnCha eng:activate.
         }
         LogToFile("VAC Engine Start Successful!").
     }

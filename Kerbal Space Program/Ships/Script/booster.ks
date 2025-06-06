@@ -261,6 +261,9 @@ set Fpos to 0.
 set FposBase to 0.
 set CounterEngine to false.
 set LandingBurnEC to false.
+set BBIgn to 1.
+set LBIgnC to 1.
+set LBIgnM to 1.
 
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -877,7 +880,7 @@ until False {
             set message to RECEIVED:CONTENT:SPLIT(",").
             set command to message[0].
             if message:length > 1 {
-                set MesParameter to message[1].
+                if message:length = 2 set MesParameter to message[1].
             }
         }
     IF RECEIVED:CONTENT = "Boostback" {
@@ -917,7 +920,13 @@ until False {
         bTelemetry:hide().
         set TScale to MesParameter:toscalar.
         CreateTelemetry().
+        wait 0.2.
         bTelemetry:show().
+    }
+    else if command = "IgnChance" {
+        set BBIgn to message[1].
+        set LBIgnC to message[2].
+        set LBIgnM to message[3].
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -1104,23 +1113,23 @@ function Boostback {
                     set x to x + 1.
                 }
                 set tEngStart to time:seconds.
-                if random() < 0.98 BoosterSingleEnginesRC[3]:activate.
-                if random() < 0.98 BoosterSingleEnginesRC[8]:activate.
+                if random() < 0.98*BBIgn BoosterSingleEnginesRC[3]:activate.
+                if random() < 0.98*BBIgn BoosterSingleEnginesRC[8]:activate.
                 when time:seconds - tEngStart > 0.2 then {
-                    if random() < 0.98 BoosterSingleEnginesRC[4]:activate.
-                    if random() < 0.95 BoosterSingleEnginesRC[9]:activate.
+                    if random() < 0.98*BBIgn BoosterSingleEnginesRC[4]:activate.
+                    if random() < 0.95*BBIgn BoosterSingleEnginesRC[9]:activate.
                 }
                 when time:seconds - tEngStart > 0.4 then {
-                    if random() < 0.95 BoosterSingleEnginesRC[6]:activate.
-                    if random() < 0.98 BoosterSingleEnginesRC[11]:activate.
+                    if random() < 0.95*BBIgn BoosterSingleEnginesRC[6]:activate.
+                    if random() < 0.98*BBIgn BoosterSingleEnginesRC[11]:activate.
                 }
                 when time:seconds - tEngStart > 0.6 then {
-                    if random() < 0.95 BoosterSingleEnginesRC[7]:activate.
-                    if random() < 0.98 BoosterSingleEnginesRC[12]:activate.
+                    if random() < 0.95*BBIgn BoosterSingleEnginesRC[7]:activate.
+                    if random() < 0.98*BBIgn BoosterSingleEnginesRC[12]:activate.
                 }
                 when time:seconds - tEngStart > 0.8 then {
-                    if random() < 0.98 BoosterSingleEnginesRC[5]:activate.
-                    if random() < 0.95 BoosterSingleEnginesRC[10]:activate.
+                    if random() < 0.98*BBIgn BoosterSingleEnginesRC[5]:activate.
+                    if random() < 0.95*BBIgn BoosterSingleEnginesRC[10]:activate.
                 }
             }
             else {
@@ -1706,7 +1715,7 @@ function Boostback {
     if BoosterSingleEngines {
         set x to 1.
         until x > 3 {
-            if random() < 0.95 BoosterSingleEnginesRC[x-1]:activate.
+            if random() < 0.95*LBIgnC BoosterSingleEnginesRC[x-1]:activate.
             set x to x + 1.
         }
     }
@@ -1715,7 +1724,7 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {
-                    if random() < 0.98 eng:activate.
+                    if random() < 0.98*LBIgnM eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
@@ -1726,7 +1735,7 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else {
-                    if random() < 0.95 eng:activate.
+                    if random() < 0.95*LBIgnM eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
