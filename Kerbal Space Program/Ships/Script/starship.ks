@@ -15087,10 +15087,8 @@ function updateTelemetry {
             set sAttitude:style:bg to "starship_img/FullstackShip-45".
         }
     } else {
-        // if vAng(facing:topvector,up:vector) > 90 and vAng(facing:starvector,up:vector) > 45 set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(vAng(facing:vector,up:vector)):tostring.
-        // else set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(vAng(facing:vector,up:vector)+180):tostring.
-        // set currentPitch to ship:facing:pitch - 90.
-        // if currentPitch < 0 set currentPitch to 360 - currentPitch.
+        // if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 270 + ship:facing:pitch.
+        // else set currentPitch to 90 - ship:facing:pitch.
         // set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
 
         if vAng(facing:vector,up:vector) < 23 {
