@@ -1419,14 +1419,14 @@ function Boostback {
             rcs off.
 
             set SteeringManager:maxstoppingtime to 5.
-            lock SteeringVector to lookdirup(up:vector+PositionError, -up:vector).
+            lock SteeringVector to lookdirup(up:vector+facing:forevector, -up:vector).
             lock steering to SteeringVector.
             unlock SteeringVectorBoostback.
         }
 
         set CurrentVec to ship:facing:forevector.
 
-        until vang(facing:forevector, CurrentVec) > 5 or not HSRJet {
+        until vang(facing:forevector, up:vector) < 45 or not HSRJet {
             SteeringCorrections().
             PollUpdate().
             SetBoosterActive().
@@ -1706,7 +1706,7 @@ function Boostback {
     if BoosterSingleEngines {
         set x to 1.
         until x > 3 {
-            if random() < 0.75 BoosterSingleEnginesRC[x-1]:activate.
+            if random() < 0.95 BoosterSingleEnginesRC[x-1]:activate.
             set x to x + 1.
         }
     }
@@ -1715,7 +1715,7 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {
-                    if random() < 0.8 eng:activate.
+                    if random() < 0.98 eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
@@ -1726,7 +1726,7 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else {
-                    if random() < 0.8 eng:activate.
+                    if random() < 0.95 eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
