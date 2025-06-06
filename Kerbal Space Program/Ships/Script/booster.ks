@@ -3306,17 +3306,24 @@ function GUIupdate {
             set bAttitude:style:bg to "starship_img/Fullstack-45".
         }
     } else {
-        if vAng(facing:vector,up:vector) < 23 {
-            set bAttitude:style:bg to "starship_img/booster".
-        } else if vAng(facing:vector,up:vector) < 67 and vAng(facing:vector,up:vector) > 23 {
-            if vang(facing:forevector, vCrs(north:vector, up:vector)) < 90 {
-                set bAttitude:style:bg to "starship_img/booster+45".
-            } else {
-                set bAttitude:style:bg to "starship_img/booster-45".
-            }
-        } else if vAng(facing:vector,up:vector) > 67 {
-            set bAttitude:style:bg to "starship_img/booster-0".
-        }
+        print "curPitch: "+ship:facing:pitch.
+         if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position )) < 90 set currentPitch to 90 - ship:facing:pitch.
+         else set currentPitch to 270 + ship:facing:pitch.
+        print "DisPitch: "+round(currentPitch).
+         set bAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
+
+
+        //if vAng(facing:vector,up:vector) < 23 {
+        //    set bAttitude:style:bg to "starship_img/booster".
+        //} else if vAng(facing:vector,up:vector) < 67 and vAng(facing:vector,up:vector) > 23 {
+        //    if vang(facing:forevector, vCrs(north:vector, up:vector)) < 90 {
+        //        set bAttitude:style:bg to "starship_img/booster+45".
+        //    } else {
+        //        set bAttitude:style:bg to "starship_img/booster-45".
+        //    }
+        //} else if vAng(facing:vector,up:vector) > 67 {
+        //    set bAttitude:style:bg to "starship_img/booster-0".
+        //}
     }
 
 
