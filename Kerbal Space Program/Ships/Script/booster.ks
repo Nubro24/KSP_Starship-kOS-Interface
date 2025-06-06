@@ -659,7 +659,7 @@ if bodyexists("Earth") {
         if oldBooster set BoosterGlideDistance to 2240. 
         else set BoosterGlideDistance to 2100. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.4.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
         set LngCtrlPID:setpoint to 12. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -670,7 +670,7 @@ if bodyexists("Earth") {
         set CorrFactor to 0.7.
         set PIDFactor to 16.
         set CatchVS to -0.5.
-        set FinalDeceleration to 6.5.
+        set FinalDeceleration to 7.
     }
     else {
         set KSRSS to true.
@@ -749,7 +749,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2450.
+        set LFBoosterFuelCutOff to 2600.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -1103,23 +1103,23 @@ function Boostback {
                     set x to x + 1.
                 }
                 set tEngStart to time:seconds.
-                BoosterSingleEnginesRC[3]:activate.
-                BoosterSingleEnginesRC[8]:activate.
+                if random() < 0.98 BoosterSingleEnginesRC[3]:activate.
+                if random() < 0.98 BoosterSingleEnginesRC[8]:activate.
                 when time:seconds - tEngStart > 0.2 then {
                     if random() < 0.98 BoosterSingleEnginesRC[4]:activate.
-                    if random() < 0.98 BoosterSingleEnginesRC[9]:activate.
+                    if random() < 0.95 BoosterSingleEnginesRC[9]:activate.
                 }
                 when time:seconds - tEngStart > 0.4 then {
-                    if random() < 0.98 BoosterSingleEnginesRC[6]:activate.
+                    if random() < 0.95 BoosterSingleEnginesRC[6]:activate.
                     if random() < 0.98 BoosterSingleEnginesRC[11]:activate.
                 }
                 when time:seconds - tEngStart > 0.6 then {
-                    if random() < 0.98 BoosterSingleEnginesRC[7]:activate.
+                    if random() < 0.95 BoosterSingleEnginesRC[7]:activate.
                     if random() < 0.98 BoosterSingleEnginesRC[12]:activate.
                 }
                 when time:seconds - tEngStart > 0.8 then {
                     if random() < 0.98 BoosterSingleEnginesRC[5]:activate.
-                    if random() < 0.98 BoosterSingleEnginesRC[10]:activate.
+                    if random() < 0.95 BoosterSingleEnginesRC[10]:activate.
                 }
             }
             else {
@@ -1192,7 +1192,7 @@ function Boostback {
             rcs on.
             if FC PollUpdate().
             set ClockHeader:text to round(time:seconds - flipStartTime,2):tostring.
-            wait 0.03.
+            wait 0.05.
         }
         set ClockHeader:text to "".
 
@@ -1321,20 +1321,22 @@ function Boostback {
         }
 
         
-        
         if GfC {
             when not GfC then {
-                set cAbort to true.
-                set landingzone to offshoreSite.
-                addons:tr:settarget(landingzone).
-                NoGo:hide().
-                if RadarAlt > 5000 {HUDTEXT("Booster offshore divert", 10, 2, 20, red, false).}
-                set ApproachUPVector to (landingzone:position - body:position):normalized.
-                set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
-                if (ErrorVector:mag < BoosterGlideDistance or ErrorVector:mag > 1.8*BoosterGlideDistance) and not GfC {
-                    set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
-                    set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+                if RadarAlt < 6000 {}
+                else {
+                    set cAbort to true.
+                    set landingzone to offshoreSite.
                     addons:tr:settarget(landingzone).
+                    NoGo:hide().
+                    if RadarAlt > 5000 {HUDTEXT("Booster offshore divert", 10, 2, 20, red, false).}
+                    set ApproachUPVector to (landingzone:position - body:position):normalized.
+                    set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
+                    if (ErrorVector:mag < BoosterGlideDistance or ErrorVector:mag > 1.8*BoosterGlideDistance) and not GfC {
+                        set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
+                        set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+                        addons:tr:settarget(landingzone).
+                    }
                 }
             }
         } else {
@@ -1492,13 +1494,16 @@ function Boostback {
         setTargetOLM().
         SteeringCorrections().
         when not GfC then {
-            set cAbort to true.
-            set landingzone to offshoreSite.
-            addons:tr:settarget(landingzone).
-            NoGo:hide().
-            if RadarAlt > 5000 {HUDTEXT("Booster offshore divert", 10, 2, 20, red, false).}
-            set ApproachUPVector to (landingzone:position - body:position):normalized.
-            set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
+            if RadarAlt < 6000 {}
+            else {
+                set cAbort to true.
+                set landingzone to offshoreSite.
+                addons:tr:settarget(landingzone).
+                NoGo:hide().
+                if RadarAlt > 5000 {HUDTEXT("Booster offshore divert", 10, 2, 20, red, false).}
+                set ApproachUPVector to (landingzone:position - body:position):normalized.
+                set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
+            }
         }
     } else if not GfC and rebooted {
         setLandingZone().
@@ -1700,7 +1705,7 @@ function Boostback {
     if BoosterSingleEngines {
         set x to 1.
         until x > 3 {
-            if random() < 0.98 BoosterSingleEnginesRC[x-1]:activate.
+            if random() < 0.75 BoosterSingleEnginesRC[x-1]:activate.
             set x to x + 1.
         }
     }
@@ -1709,7 +1714,7 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {
-                    if random() < 0.98 eng:activate.
+                    if random() < 0.8 eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
@@ -1720,7 +1725,7 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else {
-                    if random() < 0.98 eng:activate.
+                    if random() < 0.8 eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
@@ -1764,7 +1769,7 @@ function Boostback {
     when cAbort then {
         set LandSomewhereElse to true.
         lock RadarAlt to alt:radar - BoosterHeight*0.6.
-        set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng-0.002).
+        set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng+0.002).
         addons:tr:settarget(landingzone).
     }
 
@@ -1776,8 +1781,8 @@ function Boostback {
         when airspeed < 30 then lock steering to up.
     }
 
-    if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not GfC {
-        set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng-0.002).
+    if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not GfC and not cAbort {
+        set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng+0.002).
         set LandSomewhereElse to true.
         lock RadarAlt to alt:radar - BoosterHeight*0.6.
         lock SteeringVector to lookdirup(-velocity:surface, ApproachVector).
@@ -1814,23 +1819,24 @@ function Boostback {
                 lock RadarAlt to alt:radar - BoosterHeight*0.6.
                 set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.006,addons:tr:impactpos:lng+0.0042).
                 addons:tr:settarget(landingzone).
-                lock SteeringVector to lookDirUp(up:vector - 0.08*ErrorVector - 0.02 * velocity:surface, RollVector).
+                lock SteeringVector to lookDirUp(up:vector - 0.1*ErrorVector - 0.03 * velocity:surface, facing:topvector).
+                lock steering to SteeringVector.
                 when time:seconds > abortTime + 4 then {
                     if RSS {
-                        lock SteeringVector to lookdirup(up:vector - 0.04 * velocity:surface - 0.003 * ErrorVector, RollVector).
+                        lock SteeringVector to lookdirup(up:vector - 0.04 * velocity:surface - 0.003 * ErrorVector, facing:topvector).
                     }
                     else if KSRSS {
-                        lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.001 * ErrorVector, RollVector).
+                        lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.001 * ErrorVector, facing:topvector).
                     }
                     else {
-                        lock SteeringVector to lookdirup(up:vector - 0.05 * velocity:surface - 0.0005 * ErrorVector, RollVector).
+                        lock SteeringVector to lookdirup(up:vector - 0.05 * velocity:surface - 0.0005 * ErrorVector, facing:topvector).
                     }
                     lock steering to SteeringVector.
                 }
                 sendMessage(Vessel(TargetOLM), "MechazillaArms,8.4,24,95,true").
             }
-            when ErrorVector:mag > BoosterHeight then set cAbort to true.
-            if Vessel(TargetOLM):distance < 2240 {
+            when ErrorVector:mag > 1.1*BoosterHeight then set cAbort to true.
+            if Vessel(TargetOLM):distance < 2240 and GfC {
                 PollUpdate().
                 set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                 if not RSS 
@@ -1924,8 +1930,8 @@ function Boostback {
 
     when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 540 or 
             velocity:surface:mag < 32 and not MiddleEnginesShutdown and KSRSS or 
-            velocity:surface:mag < 42 and not MiddleEnginesShutdown and STOCK and RadarAlt > 200 or 
-            velocity:surface:mag < 22 and not MiddleEnginesShutdown and STOCK or 
+            velocity:surface:mag < 42 and not MiddleEnginesShutdown and STOCK and RadarAlt > 180 or 
+            velocity:surface:mag < 32 and not MiddleEnginesShutdown and STOCK or 
             velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
             velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 460 or
             velocity:surface:mag < 42 and not MiddleEnginesShutdown and RSS then {
@@ -2221,15 +2227,18 @@ FUNCTION SteeringCorrections {
         if not LandingBurnStarted {
             if HSRJet {
                 if airspeed < 305 set dragFactor to 1 - 0.069 * (airspeed/305)^2.
-                else set dragFactor to 1 - 0.065 * (1 + 0.8*((airspeed/305)^2 - 1)).
+                else set dragFactor to 1 - 0.065 * (1 + 0.65*((airspeed/305)^2 - 1)).
             }
             else {
                 if airspeed < 305 set dragFactor to 1 - 0.06 * (airspeed/305)^2.
-                else set dragFactor to 1 - 0.06 * (1 + 0.6*((airspeed/305)^2 - 1)).
+                else set dragFactor to 1 - 0.06 * (1 + 0.55*((airspeed/305)^2 - 1)).
             }
             
             set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3500),1250).
-            if RSS and BoosterSingleEngines set LandingBurnAlt to LandingBurnAlt * 1.1.
+            if BoosterSingleEngines { 
+                set LandingBurnAlt to LandingBurnAlt * 1.05.
+                if RSS set LandingBurnAlt to LandingBurnAlt * 1.05.
+            }
         }
         
 
@@ -3203,7 +3212,6 @@ function PollUpdate {
     }
 
     if BoosterEngines[0]:hasphysics {
-        set GE to true.
         if BoosterSingleEngines {
             set missingCount to 0.
             set inactiveCount to 0.
@@ -3214,6 +3222,7 @@ function PollUpdate {
                 }
                 if missingCount > 1 set GE to false.
                 else if inactiveCount > 3 set GE to false.
+                else set GE to true.
             } else if LandingBurnEC and not MiddleEnginesShutdown {
                 set missingCount to 13 - BoosterSingleEnginesRC:length.
                 for eng in BoosterSingleEnginesRC {
@@ -3221,6 +3230,7 @@ function PollUpdate {
                 }
                 if missingCount > 1 set GE to false.
                 else if inactiveCount > 2 set GE to false.
+                else set GE to true.
                 if BoosterSingleEnginesRC[0]:thrust < 60*Scale or BoosterSingleEnginesRC[1]:thrust < 60*Scale or BoosterSingleEnginesRC[2]:thrust < 60*Scale set CounterEngine to true.
             } else if MiddleEnginesShutdown {
                 set missingCount to 13 - BoosterSingleEnginesRC:length.
@@ -3229,8 +3239,10 @@ function PollUpdate {
                 if BoosterSingleEnginesRC[2]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
                 if missingCount > 1 set GE to false.
                 else if inactiveCount > 1 set GE to false.
+                else set GE to true.
             }
         }
+        else set GE to true.
     } else {set GE to false.}
 
     if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length > 3 or ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length > 3 set GG to true.
