@@ -1,19 +1,17 @@
 depends:
-- name: Starship Expansion Project
+- name: StarshipExpansionProject
   version: 3.0.0-b6
 - name: kOS
   version: 1.5.1.0
 - name: Trajectories
   version: 2.4.3
-- name: HullcamVDS
+- name: HullcamVDSContinued
   version: 0.2.2.4
 conflicts:
-- name: TweakableEverything
-- name: TweakableEverythingContinued
+- name: TweakableEverythingCont
 - name: FerramAerospaceResearch
-- name: Realism Overhaul
-- name: Xyphos Aerospace
-- name: Physics Range Extender
-- name: Stage Recovery
-- name: PEKKA's Starship Pack
-- name: Atmospheric Autopilot
+- name: FerramAerospaceResearchContinued
+- name: RealismOverhaul
+- name: PhysicsRangeExtender
+- name: StageRecovery
+- name: AtmosphereAutopilot
