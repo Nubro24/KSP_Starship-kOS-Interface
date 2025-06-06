@@ -142,6 +142,7 @@ for part in ship:parts {
     }
 }
 
+set landingzone to ship:geoposition.
 
 if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
         or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
@@ -3308,7 +3309,9 @@ function GUIupdate {
             set bAttitude:style:bg to "starship_img/Fullstack-45".
         }
     } else {
-         set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(360-ship:facing:pitch):tostring.
+        if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+        else set currentPitch to vang(facing:forevector,up:vector).
+        set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
     }
 
 
