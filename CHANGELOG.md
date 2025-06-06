@@ -10,6 +10,7 @@
   - Changed **Booster** Pictograms to support *all combinations*
   - The Script now checks for engine position to ensure custom craft file functionality
   - Fixed pixel issues with Attitude Indicator
+  - Added new Attitude Indicators for 360°
   - **Known Issue: If your playing on resolutions not part of the 720, 1080, 1440, 2160, etc. system, The Booster Cluster UI might be misaligning, due to the limitation of pixels**
   - *I recommened deleting the starship_img folder for this update*
 - **Added Support for individual Engines on the Booster** *(Cluster Functionality unchanged)*

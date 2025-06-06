@@ -2282,6 +2282,8 @@ FUNCTION SteeringCorrections {
     print " ".
     print "Steering Error: " + round(SteeringManager:angleerror, 2).
     if not BoostBackComplete print " ".
+    if not BoostBackComplete print "Pitch: " + round(ship:facing:pitch).
+    if not BoostBackComplete print " ".
     if not BoostBackComplete print "FlipTime: " + round(FlipTime, 2).
     //print "OPCodes left: " + opcodesleft.
 
