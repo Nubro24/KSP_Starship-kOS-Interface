@@ -15087,17 +15087,19 @@ function updateTelemetry {
             set sAttitude:style:bg to "starship_img/FullstackShip-45".
         }
     } else {
-        // if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 270 + ship:facing:pitch.
-        // else set currentPitch to 90 - ship:facing:pitch.
-        // set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
+        print "curPitch: "+ship:facing:pitch.
+         if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 270 + ship:facing:pitch.
+         else set currentPitch to 90 - ship:facing:pitch.
+        print "DisPitch: "+round(currentPitch).
+         set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
 
-        if vAng(facing:vector,up:vector) < 23 {
-            set sAttitude:style:bg to "starship_img/Ship".
-        } else if vAng(facing:vector,up:vector) < 67 and vAng(facing:vector,up:vector) > 23 {
-            set sAttitude:style:bg to "starship_img/Ship-45".
-        } else if vAng(facing:vector,up:vector) > 67 {
-            set sAttitude:style:bg to "starship_img/Ship-0".
-        }
+        //if vAng(facing:vector,up:vector) < 23 {
+        //    set sAttitude:style:bg to "starship_img/Ship".
+        //} else if vAng(facing:vector,up:vector) < 67 and vAng(facing:vector,up:vector) > 23 {
+        //    set sAttitude:style:bg to "starship_img/Ship-45".
+        //} else if vAng(facing:vector,up:vector) > 67 {
+        //    set sAttitude:style:bg to "starship_img/Ship-0".
+        //}
     }
 
 
