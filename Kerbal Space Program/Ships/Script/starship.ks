@@ -1282,6 +1282,7 @@ local LOSelect is LOLayout:addtextfield().
 local LOMult is LOLayout:addlabel().
     set LOMult:text to " * 0.98".
     set LOMult:style:margin:left to 6.
+    set LOMult:style:margin:bottom to 12.
 
 local HSQuest is IgnChaLayout:addlabel().
     set HSQuest:text to "<b>Ship:</b>".
@@ -1297,14 +1298,16 @@ local HSLayout is IgnChaLayout:addhlayout().
     local HS1Mult is HSLayout:addlabel().
         set HS1Mult:text to " * 0.99".
         set HS1Mult:style:margin:left to 6.
+        set HS1Mult:style:margin:bottom to 12.
     local HSSelect2 is HSLayout:addtextfield().
         set HSSelect2:tooltip to " Vacuum".
         set HSSelect2:style:width to 100.
-        set HSSelect2:style:margin:bottom to 14.
+        set HSSelect2:style:margin:bottom to 12.
         set HSSelect2:style:margin:right to 12.
     local HS2Mult is HSLayout:addlabel().
         set HS2Mult:text to " * 0.99".
         set HS2Mult:style:margin:left to 6.
+        set HS2Mult:style:margin:bottom to 12.
 
 local BBQuest is IgnChaLayout:addlabel().
     set BBQuest:text to "<b>Boostback:</b>".
@@ -1320,6 +1323,7 @@ local BBSelect is BBLayout:addtextfield().
 local BBMult is BBLayout:addlabel().
     set BBMult:text to " * 0.97".
     set BBMult:style:margin:left to 6.
+    set BBMult:style:margin:bottom to 12.
 
 local LBQuest is IgnChaLayout:addlabel().
     set LBQuest:text to "<b>Landing Burn (Booster):</b>".
@@ -1327,8 +1331,6 @@ local LBQuest is IgnChaLayout:addlabel().
     set LBQuest:style:margin:bottom to 12.
     set LBQuest:style:margin:left to 12.
 local LBLayout is IgnChaLayout:addhlayout().
-    set LBLayout:style:margin:bottom to 12.
-    set LBLayout:style:margin:left to 12.
     local LBSelect1 is LBLayout:addtextfield().
         set LBSelect1:tooltip to " Center".
         set LBSelect1:style:width to 100.
@@ -1337,6 +1339,7 @@ local LBLayout is IgnChaLayout:addhlayout().
     local LB1Mult is LBLayout:addlabel().
         set LB1Mult:text to " * 0.95".
         set LB1Mult:style:margin:left to 6.
+        set LB1Mult:style:margin:bottom to 12.
     local LBSelect2 is LBLayout:addtextfield().
         set LBSelect2:tooltip to " Middle Inner".
         set LBSelect2:style:width to 100.
@@ -1345,6 +1348,7 @@ local LBLayout is IgnChaLayout:addhlayout().
     local LB2Mult is LBLayout:addlabel().
         set LB2Mult:text to " * 0.97".
         set LB2Mult:style:margin:left to 6.
+        set LB2Mult:style:margin:bottom to 12.
 
 local IgnConfirm is IgnChaLayout:addbutton().
     set IgnConfirm:text to "<b><color=green>Confirm</color></b>".
