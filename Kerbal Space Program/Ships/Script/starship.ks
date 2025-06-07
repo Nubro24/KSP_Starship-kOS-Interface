@@ -1282,10 +1282,10 @@ local HSQuest is IgnChaLayout:addlabel().
 local HSSelect is IgnChaLayout:addhlayout().
     set HSSelect:style:margin:bottom to 12.
     set HSSelect:style:margin:left to 12.
-    local HSSelect1 is IgnChaLayout:addhlayout().
+    local HSSelect1 is IgnChaLayout:addtextfield().
         set HSSelect1:tooltip to "Sea-Level".
         set HSSelect1:style:margin:bottom to 12.
-    local HSSelect2 is IgnChaLayout:addhlayout().
+    local HSSelect2 is IgnChaLayout:addtextfield().
         set HSSelect2:tooltip to "Vacuum".
         set HSSelect2:style:margin:bottom to 12.
 local BBQuest is IgnChaLayout:addlabel().
@@ -1305,10 +1305,10 @@ local LBQuest is IgnChaLayout:addlabel().
 local LBSelect is IgnChaLayout:addhlayout().
     set LBSelect:style:margin:bottom to 12.
     set LBSelect:style:margin:left to 12.
-    local LBSelect1 is IgnChaLayout:addhlayout().
+    local LBSelect1 is IgnChaLayout:addtextfield().
         set LBSelect1:tooltip to "Center".
         set LBSelect1:style:margin:bottom to 12.
-    local LBSelect2 is IgnChaLayout:addhlayout().
+    local LBSelect2 is IgnChaLayout:addtextfield().
         set LBSelect2:tooltip to "Middle Inner".
         set LBSelect2:style:margin:bottom to 12.
 
