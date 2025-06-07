@@ -110,11 +110,13 @@ VersionDisplay:show().
 
 
 local IgnitionChancesOpen is GUI(100).
+    set IgnitionChancesOpen:style:bg to "starship_img/telemetry_bg".
     local IgnitionChances is IgnitionChancesOpen:addbutton().
+        set IgnitionChances:toggle to true.
         set IgnitionChances:style:wordwrap to false.
         set IgnitionChances:style:align to "center".
         set IgnitionChances:text to "Ignition Chances".
-
+IgnitionChancesOpen:show().
 
 
 local sTelemetry is GUI(150).
@@ -1240,7 +1242,7 @@ set VCIgnCha to 1.
 set LSIgnCha to 1.
 
 
-local IgnitionChancesGUI is GUI(300).
+local IgnitionChancesGUI is GUI(240).
     set IgnitionChancesGUI:style:bg to "starship_img/starship_background".
     set IgnitionChancesGUI:style:border:h to 10.
     set IgnitionChancesGUI:style:border:v to 10.
@@ -1272,7 +1274,7 @@ local LOQuest is IgnChaLayout:addlabel().
     set LOQuest:style:margin:left to 12.
 local LOSelect is IgnChaLayout:addtextfield().
     set LOSelect:tooltip to "All 33".
-    set LOSelect:style:margin:bottom to 12.
+    set LOSelect:style:margin:bottom to 14.
     set LOSelect:style:margin:left to 12.
 local HSQuest is IgnChaLayout:addlabel().
     set HSQuest:text to "Ship:".
@@ -1280,14 +1282,14 @@ local HSQuest is IgnChaLayout:addlabel().
     set HSQuest:style:margin:bottom to 12.
     set HSQuest:style:margin:left to 12.
 local HSSelect is IgnChaLayout:addhlayout().
-    set HSSelect:style:margin:bottom to 12.
-    set HSSelect:style:margin:left to 12.
-    local HSSelect1 is IgnChaLayout:addtextfield().
+    local HSSelect1 is HSSelect:addtextfield().
         set HSSelect1:tooltip to "Sea-Level".
         set HSSelect1:style:margin:bottom to 12.
-    local HSSelect2 is IgnChaLayout:addtextfield().
+        set HSSelect1:style:margin:left to 12.
+    local HSSelect2 is HSSelect:addtextfield().
         set HSSelect2:tooltip to "Vacuum".
-        set HSSelect2:style:margin:bottom to 12.
+        set HSSelect2:style:margin:bottom to 14.
+        set HSSelect2:style:margin:right to 12.
 local BBQuest is IgnChaLayout:addlabel().
     set BBQuest:text to "Boostback:".
     set BBQuest:style:margin:top to 12.
@@ -1295,7 +1297,7 @@ local BBQuest is IgnChaLayout:addlabel().
     set BBQuest:style:margin:left to 12.
 local BBSelect is IgnChaLayout:addtextfield().
     set BBSelect:tooltip to "Middle Inner".
-    set BBSelect:style:margin:bottom to 12.
+    set BBSelect:style:margin:bottom to 14.
     set BBSelect:style:margin:left to 12.
 local LBQuest is IgnChaLayout:addlabel().
     set LBQuest:text to "Landing Burn (Booster):".
@@ -1305,15 +1307,18 @@ local LBQuest is IgnChaLayout:addlabel().
 local LBSelect is IgnChaLayout:addhlayout().
     set LBSelect:style:margin:bottom to 12.
     set LBSelect:style:margin:left to 12.
-    local LBSelect1 is IgnChaLayout:addtextfield().
+    local LBSelect1 is LBSelect:addtextfield().
         set LBSelect1:tooltip to "Center".
         set LBSelect1:style:margin:bottom to 12.
-    local LBSelect2 is IgnChaLayout:addtextfield().
+        set LBSelect1:style:margin:left to 12.
+    local LBSelect2 is LBSelect:addtextfield().
         set LBSelect2:tooltip to "Middle Inner".
-        set LBSelect2:style:margin:bottom to 12.
+        set LBSelect2:style:margin:bottom to 14.
+        set LBSelect2:style:margin:right to 12.
 
 local IgnConfirm is IgnChaLayout:addbutton().
     set IgnConfirm:text to "<b><color=green>Confirm</color></b>".
+    set IgnConfirm:style:margin:buttom to 8.
     set IgnConfirm:onclick to {
         if LOSelect:text = "" set LOSelect:text to "1".
         if HSSelect1:text = "" set HSSelect1:text to "1".
@@ -1330,12 +1335,12 @@ local IgnConfirm is IgnChaLayout:addbutton().
 
         if Boosterconnected sendMessage(processor(Volume("Booster")),"IgnChance,"+BBIgnCha:tostring+","+LB1IgnCha:tostring+","+LB2IgnCha:tostring).
 
-        
+        set IgnitionChances:pressed to false.
         IgnitionChancesGUI:hide().
     }.
     
 
-set IgnitionChances:onclick to IgnitionChancesGUI:show().
+set IgnitionChances:ontoggle to IgnitionChancesGUI:show().
 
 
 
