@@ -1303,8 +1303,8 @@ local HSLayout is IgnChaLayout:addhlayout().
         set HSSelect2:style:margin:bottom to 14.
         set HSSelect2:style:margin:right to 12.
     local HS2Mult is HSLayout:addlabel().
-        set HS1Mult:text to " * 0.99".
-        set HS1Mult:style:margin:left to 6.
+        set HS2Mult:text to " * 0.99".
+        set HS2Mult:style:margin:left to 6.
 
 local BBQuest is IgnChaLayout:addlabel().
     set BBQuest:text to "Boostback:".
