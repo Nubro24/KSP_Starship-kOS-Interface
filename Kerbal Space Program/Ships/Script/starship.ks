@@ -115,7 +115,6 @@ local IgnitionChancesOpen is GUI(100).
         set IgnitionChances:style:wordwrap to false.
         set IgnitionChances:style:align to "center".
         set IgnitionChances:text to "Ignition Chances".
-IgnitionChancesOpen:show().
 
 
 local sTelemetry is GUI(150).
@@ -1235,10 +1234,11 @@ print "Starship Interface startup complete!".
 //-------------Start Graphic User Interface-------------//
 
 set LOIgnCha to 1.
-set BBIgnCha to 1.
 set SLIgnCha to 1.
 set VCIgnCha to 1.
-set LSIgnCha to 1.
+set BBIgnCha to 1.
+set LB1IgnCha to 1.
+set LB2IgnCha to 1.
 
 
 local IgnitionChancesGUI is GUI(240).
@@ -1379,6 +1379,7 @@ set IgnitionChances:ontoggle to {
 }.
 
 
+IgnitionChancesOpen:show().
 
 
 
@@ -1432,6 +1433,8 @@ local ScaleConfirm is ScaleLayout:addbutton().
         ScaleUI:hide().
     }.
     
+
+
 
 
 
