@@ -18,6 +18,7 @@
   - Added poll checks for max missing engines
   - Added auto engine out compensation for final landing
   - Added random Engine Failures during each ignition (2%)
+    - Added a new Settings menu (called from a button on the top left) for user settings
 - **Small improvements to Booster and Ship Landings**
 - Fixed RSS Max Cargo values (max. 69t to Orbit)
 - Fixed RSS Reentry loosing control
