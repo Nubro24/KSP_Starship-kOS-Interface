@@ -1318,7 +1318,7 @@ local LBSelect is IgnChaLayout:addhlayout().
 
 local IgnConfirm is IgnChaLayout:addbutton().
     set IgnConfirm:text to "<b><color=green>Confirm</color></b>".
-    set IgnConfirm:style:margin:buttom to 8.
+    set IgnConfirm:style:margin:bottom to 8.
     set IgnConfirm:onclick to {
         if LOSelect:text = "" set LOSelect:text to "1".
         if HSSelect1:text = "" set HSSelect1:text to "1".
