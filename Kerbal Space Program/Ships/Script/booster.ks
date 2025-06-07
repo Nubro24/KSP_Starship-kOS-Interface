@@ -3311,15 +3311,11 @@ function PollUpdate {
 
 function GUIupdate {
 
+    if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+    else set currentPitch to vang(facing:forevector,up:vector).
     if ShipConnectedToBooster {
-        if vAng(facing:vector,up:vector) < 24 {
-            set bAttitude:style:bg to "starship_img/Fullstack".
-        } else {
-            set bAttitude:style:bg to "starship_img/Fullstack-45".
-        }
+        set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
     } else {
-        if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-        else set currentPitch to vang(facing:forevector,up:vector).
         set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
     }
 
