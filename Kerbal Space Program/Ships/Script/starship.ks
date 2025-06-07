@@ -1269,14 +1269,14 @@ local Quest is IgnChaLayout:addlabel().
     set Quest:style:fontsize to 16.
 
 local LOQuest is IgnChaLayout:addlabel().
-    set LOQuest:text to "Lift-Off:".
+    set LOQuest:text to "<b>Lift-Off:</b>".
     set LOQuest:style:margin:top to 12.
     set LOQuest:style:margin:bottom to 12.
     set LOQuest:style:margin:left to 12.
 local LOLayout is IgnChaLayout:addhlayout().
 local LOSelect is LOLayout:addtextfield().
     set LOSelect:tooltip to " All 33".
-    set LOSelect:style:width to 60.
+    set LOSelect:style:width to 100.
     set LOSelect:style:margin:bottom to 14.
     set LOSelect:style:margin:left to 12.
 local LOMult is LOLayout:addlabel().
@@ -1284,14 +1284,14 @@ local LOMult is LOLayout:addlabel().
     set LOMult:style:margin:left to 6.
 
 local HSQuest is IgnChaLayout:addlabel().
-    set HSQuest:text to "Ship:".
+    set HSQuest:text to "<b>Ship:</b>".
     set HSQuest:style:margin:top to 12.
     set HSQuest:style:margin:bottom to 12.
     set HSQuest:style:margin:left to 12.
 local HSLayout is IgnChaLayout:addhlayout().
     local HSSelect1 is HSLayout:addtextfield().
         set HSSelect1:tooltip to " Sea-Level".
-        set HSSelect1:style:width to 60.
+        set HSSelect1:style:width to 100.
         set HSSelect1:style:margin:bottom to 12.
         set HSSelect1:style:margin:left to 12.
     local HS1Mult is HSLayout:addlabel().
@@ -1299,7 +1299,7 @@ local HSLayout is IgnChaLayout:addhlayout().
         set HS1Mult:style:margin:left to 6.
     local HSSelect2 is HSLayout:addtextfield().
         set HSSelect2:tooltip to " Vacuum".
-        set HSSelect2:style:width to 60.
+        set HSSelect2:style:width to 100.
         set HSSelect2:style:margin:bottom to 14.
         set HSSelect2:style:margin:right to 12.
     local HS2Mult is HSLayout:addlabel().
@@ -1307,14 +1307,14 @@ local HSLayout is IgnChaLayout:addhlayout().
         set HS2Mult:style:margin:left to 6.
 
 local BBQuest is IgnChaLayout:addlabel().
-    set BBQuest:text to "Boostback:".
+    set BBQuest:text to "<b>Boostback:</b>".
     set BBQuest:style:margin:top to 12.
     set BBQuest:style:margin:bottom to 12.
     set BBQuest:style:margin:left to 12.
 local BBLayout is IgnChaLayout:addhlayout().
 local BBSelect is BBLayout:addtextfield().
     set BBSelect:tooltip to " Middle Inner".
-    set BBSelect:style:width to 60.
+    set BBSelect:style:width to 100.
     set BBSelect:style:margin:bottom to 14.
     set BBSelect:style:margin:left to 12.
 local BBMult is BBLayout:addlabel().
@@ -1322,7 +1322,7 @@ local BBMult is BBLayout:addlabel().
     set BBMult:style:margin:left to 6.
 
 local LBQuest is IgnChaLayout:addlabel().
-    set LBQuest:text to "Landing Burn (Booster):".
+    set LBQuest:text to "<b>Landing Burn (Booster):</b>".
     set LBQuest:style:margin:top to 12.
     set LBQuest:style:margin:bottom to 12.
     set LBQuest:style:margin:left to 12.
@@ -1331,18 +1331,18 @@ local LBLayout is IgnChaLayout:addhlayout().
     set LBLayout:style:margin:left to 12.
     local LBSelect1 is LBLayout:addtextfield().
         set LBSelect1:tooltip to " Center".
-        set LBSelect1:style:width to 60.
+        set LBSelect1:style:width to 100.
         set LBSelect1:style:margin:bottom to 12.
         set LBSelect1:style:margin:left to 12.
-    local LB1Mult is HSLayout:addlabel().
+    local LB1Mult is LBLayout:addlabel().
         set LB1Mult:text to " * 0.95".
         set LB1Mult:style:margin:left to 6.
     local LBSelect2 is LBLayout:addtextfield().
         set LBSelect2:tooltip to " Middle Inner".
-        set LBSelect2:style:width to 60.
+        set LBSelect2:style:width to 100.
         set LBSelect2:style:margin:bottom to 14.
         set LBSelect2:style:margin:right to 12.
-    local LB2Mult is HSLayout:addlabel().
+    local LB2Mult is LBLayout:addlabel().
         set LB2Mult:text to " * 0.97".
         set LB2Mult:style:margin:left to 6.
 
