@@ -15226,6 +15226,9 @@ function DetectWobblyTower {
 
 function updateTelemetry {
 
+    if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+    else set currentPitch to vang(facing:forevector,up:vector).
+    if round(currentPitch) = 360 set currentPitch to 0.
     if Boosterconnected {
         if vAng(facing:vector,up:vector) < 23 {
             set sAttitude:style:bg to "starship_img/FullstackShip".
@@ -15233,8 +15236,6 @@ function updateTelemetry {
             set sAttitude:style:bg to "starship_img/FullstackShip-45".
         }
     } else {
-        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-        else set currentPitch to vang(facing:forevector,up:vector).
         set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
     }
 

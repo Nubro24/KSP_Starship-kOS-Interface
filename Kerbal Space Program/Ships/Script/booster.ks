@@ -3313,7 +3313,8 @@ function GUIupdate {
 
     if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position)) < 90 set currentPitch to 360-vAng(facing:forevector,up:vector).
     else set currentPitch to vAng(facing:forevector,up:vector).
-    set ClockHeader:text to round(currentPitch) + "(" + round(currentPitch,3) + ")".
+    if round(currentPitch) = 360 set currentPitch to 0.
+    //set ClockHeader:text to round(currentPitch) + "(" + round(currentPitch,3) + ")".
     if ShipConnectedToBooster {
         set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
     } else {
