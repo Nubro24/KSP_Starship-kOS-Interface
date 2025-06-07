@@ -196,8 +196,8 @@ function CreateTelemetry {
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
     
-    set IgnitionChances:x to 150*TScale.
-    set IgnitionChances:y to 0.
+    set IgnitionChancesOpen:x to 150*TScale.
+    set IgnitionChancesOpen:y to 0.
 
     set sAttitude:style:margin:left to 20*TScale.
     set sAttitude:style:margin:right to 20*TScale.
