@@ -924,9 +924,9 @@ until False {
         bTelemetry:show().
     }
     else if command = "IgnChance" {
-        set BBIgn to message[1].
-        set LBIgnC to message[2].
-        set LBIgnM to message[3].
+        set BBIgn to message[1]:toscalar.
+        set LBIgnC to message[2]:toscalar.
+        set LBIgnM to message[3]:toscalar.
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.

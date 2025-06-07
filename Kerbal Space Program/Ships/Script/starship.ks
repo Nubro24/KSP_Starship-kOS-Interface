@@ -110,7 +110,6 @@ VersionDisplay:show().
 
 
 local IgnitionChancesOpen is GUI(100).
-    set IgnitionChancesOpen:style:bg to "starship_img/telemetry_bg".
     local IgnitionChances is IgnitionChancesOpen:addbutton().
         set IgnitionChances:toggle to true.
         set IgnitionChances:style:wordwrap to false.
