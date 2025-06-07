@@ -1340,7 +1340,13 @@ local IgnConfirm is IgnChaLayout:addbutton().
     }.
     
 
-set IgnitionChances:ontoggle to IgnitionChancesGUI:show().
+set IgnitionChances:ontoggle to {
+    parameter toggle.
+    if toggle {
+        IgnitionChancesGUI:show().
+    }
+    else IgnitionChancesGUI:hide().
+}.
 
 
 
