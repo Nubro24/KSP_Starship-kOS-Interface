@@ -109,6 +109,13 @@ VersionDisplay:show().
 
 
 
+local IgnitionChancesOpen is GUI(100).
+    local IgnitionChances is IgnitionChancesOpen:addbutton().
+        set IgnitionChances:style:wordwrap to false.
+        set IgnitionChances:style:align to "center".
+        set IgnitionChances:text to "Ignition Chances".
+
+
 
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -1225,13 +1232,6 @@ print "Starship Interface startup complete!".
 
 
 //-------------Start Graphic User Interface-------------//
-
-
-local IgnitionChancesOpen is GUI(100).
-    local IgnitionChances is IgnitionChancesOpen:addbutton().
-        set IgnitionChances:style:wordwrap to false.
-        set IgnitionChances:style:align to "center".
-        set IgnitionChances:text to "Ignition Chances".
 
 set LOIgnCha to 1.
 set BBIgnCha to 1.
