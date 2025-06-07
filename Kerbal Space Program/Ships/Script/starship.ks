@@ -1266,54 +1266,85 @@ local Quest is IgnChaLayout:addlabel().
     set Quest:style:margin:bottom to 16.
     set Quest:style:margin:left to 8.
     set Quest:style:margin:right to 8.
+    set Quest:style:fontsize to 16.
+
 local LOQuest is IgnChaLayout:addlabel().
     set LOQuest:text to "Lift-Off:".
     set LOQuest:style:margin:top to 12.
     set LOQuest:style:margin:bottom to 12.
     set LOQuest:style:margin:left to 12.
-local LOSelect is IgnChaLayout:addtextfield().
-    set LOSelect:tooltip to "All 33".
+local LOLayout is IgnChaLayout:addhlayout().
+local LOSelect is LOLayout:addtextfield().
+    set LOSelect:tooltip to " All 33".
+    set LOSelect:style:width to 60.
     set LOSelect:style:margin:bottom to 14.
     set LOSelect:style:margin:left to 12.
+local LOMult is LOLayout:addlabel().
+    set LOMult:text to " * 0.98".
+    set LOMult:style:margin:left to 6.
+
 local HSQuest is IgnChaLayout:addlabel().
     set HSQuest:text to "Ship:".
     set HSQuest:style:margin:top to 12.
     set HSQuest:style:margin:bottom to 12.
     set HSQuest:style:margin:left to 12.
-local HSSelect is IgnChaLayout:addhlayout().
-    local HSSelect1 is HSSelect:addtextfield().
-        set HSSelect1:tooltip to "Sea-Level".
+local HSLayout is IgnChaLayout:addhlayout().
+    local HSSelect1 is HSLayout:addtextfield().
+        set HSSelect1:tooltip to " Sea-Level".
+        set HSSelect1:style:width to 60.
         set HSSelect1:style:margin:bottom to 12.
         set HSSelect1:style:margin:left to 12.
-    local HSSelect2 is HSSelect:addtextfield().
-        set HSSelect2:tooltip to "Vacuum".
+    local HS1Mult is HSLayout:addlabel().
+        set HS1Mult:text to " * 0.99".
+        set HS1Mult:style:margin:left to 6.
+    local HSSelect2 is HSLayout:addtextfield().
+        set HSSelect2:tooltip to " Vacuum".
+        set HSSelect2:style:width to 60.
         set HSSelect2:style:margin:bottom to 14.
         set HSSelect2:style:margin:right to 12.
+    local HS2Mult is HSLayout:addlabel().
+        set HS1Mult:text to " * 0.99".
+        set HS1Mult:style:margin:left to 6.
+
 local BBQuest is IgnChaLayout:addlabel().
     set BBQuest:text to "Boostback:".
     set BBQuest:style:margin:top to 12.
     set BBQuest:style:margin:bottom to 12.
     set BBQuest:style:margin:left to 12.
-local BBSelect is IgnChaLayout:addtextfield().
-    set BBSelect:tooltip to "Middle Inner".
+local BBLayout is IgnChaLayout:addhlayout().
+local BBSelect is BBLayout:addtextfield().
+    set BBSelect:tooltip to " Middle Inner".
+    set BBSelect:style:width to 60.
     set BBSelect:style:margin:bottom to 14.
     set BBSelect:style:margin:left to 12.
+local BBMult is BBLayout:addlabel().
+    set BBMult:text to " * 0.97".
+    set BBMult:style:margin:left to 6.
+
 local LBQuest is IgnChaLayout:addlabel().
     set LBQuest:text to "Landing Burn (Booster):".
     set LBQuest:style:margin:top to 12.
     set LBQuest:style:margin:bottom to 12.
     set LBQuest:style:margin:left to 12.
-local LBSelect is IgnChaLayout:addhlayout().
-    set LBSelect:style:margin:bottom to 12.
-    set LBSelect:style:margin:left to 12.
-    local LBSelect1 is LBSelect:addtextfield().
-        set LBSelect1:tooltip to "Center".
+local LBLayout is IgnChaLayout:addhlayout().
+    set LBLayout:style:margin:bottom to 12.
+    set LBLayout:style:margin:left to 12.
+    local LBSelect1 is LBLayout:addtextfield().
+        set LBSelect1:tooltip to " Center".
+        set LBSelect1:style:width to 60.
         set LBSelect1:style:margin:bottom to 12.
         set LBSelect1:style:margin:left to 12.
-    local LBSelect2 is LBSelect:addtextfield().
-        set LBSelect2:tooltip to "Middle Inner".
+    local LB1Mult is HSLayout:addlabel().
+        set LB1Mult:text to " * 0.95".
+        set LB1Mult:style:margin:left to 6.
+    local LBSelect2 is LBLayout:addtextfield().
+        set LBSelect2:tooltip to " Middle Inner".
+        set LBSelect2:style:width to 60.
         set LBSelect2:style:margin:bottom to 14.
         set LBSelect2:style:margin:right to 12.
+    local LB2Mult is HSLayout:addlabel().
+        set LB2Mult:text to " * 0.97".
+        set LB2Mult:style:margin:left to 6.
 
 local IgnConfirm is IgnChaLayout:addbutton().
     set IgnConfirm:text to "<b><color=green>Confirm</color></b>".
@@ -6823,6 +6854,7 @@ function Launch {
         set TargetError to 0.
         LogToFile("Launch Program Started").
         set runningprogram to "Launch".
+        IgnitionChancesOpen:hide().
         ShowButtons(0).
         sas off.
         rcs off.
