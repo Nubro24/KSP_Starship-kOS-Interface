@@ -1241,7 +1241,7 @@ set LB1IgnCha to 1.
 set LB2IgnCha to 1.
 
 
-local IgnitionChancesGUI is GUI(240).
+local IgnitionChancesGUI is GUI(250).
     set IgnitionChancesGUI:style:bg to "starship_img/starship_background".
     set IgnitionChancesGUI:style:border:h to 10.
     set IgnitionChancesGUI:style:border:v to 10.
@@ -15265,16 +15265,15 @@ function DetectWobblyTower {
 
 function updateTelemetry {
 
-    if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-    else set currentPitch to vang(facing:forevector,up:vector).
-    if round(currentPitch) = 360 set currentPitch to 0.
     if Boosterconnected {
-        if vAng(facing:vector,up:vector) < 23 {
-            set sAttitude:style:bg to "starship_img/FullstackShip".
-        } else if vAng(facing:vector,up:vector) < 67 and vAng(facing:vector,up:vector) > 23 {
-            set sAttitude:style:bg to "starship_img/FullstackShip-45".
-        }
+        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+        else set currentPitch to 360-vAng(facing:forevector,up:vector).
+        if round(currentPitch) = 360 set currentPitch to 0.
+        set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(currentPitch):tostring.
     } else {
+        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+        else set currentPitch to vang(facing:forevector,up:vector).
+        if round(currentPitch) = 360 set currentPitch to 0.
         set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
     }
 
