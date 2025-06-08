@@ -1,6 +1,7 @@
 # KSP Starship kOS Interface
 - A **kOS Interface** for the **Starship Expansion Project** in Kerbal Space Program ***DEVELOPMENT BRANCH***
 - **use at your own risk**
+- updates will come quiet frequent, so pls check if your up to date, before reporting bugs/errors/issues
 - Installation/Compatibilies/Requirements see main-branch
 
 
