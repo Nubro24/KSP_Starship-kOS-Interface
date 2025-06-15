@@ -196,7 +196,7 @@ function CreateTelemetry {
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
     
-    set IgnitionChancesOpen:x to 240*TScale.
+    set IgnitionChancesOpen:x to 340*TScale.
     set IgnitionChancesOpen:y to 0.
 
     set sAttitude:style:margin:left to 20*TScale.
@@ -1241,7 +1241,7 @@ set LB1IgnCha to 1.
 set LB2IgnCha to 1.
 
 
-local IgnitionChancesGUI is GUI(250).
+local IgnitionChancesGUI is GUI(320).
     set IgnitionChancesGUI:style:bg to "starship_img/starship_background".
     set IgnitionChancesGUI:style:border:h to 10.
     set IgnitionChancesGUI:style:border:v to 10.
@@ -1353,6 +1353,8 @@ local LBLayout is IgnChaLayout:addhlayout().
 local IgnConfirm is IgnChaLayout:addbutton().
     set IgnConfirm:text to "<b><color=green>Confirm</color></b>".
     set IgnConfirm:style:margin:bottom to 8.
+    set IgnConfirm:style:margin:left to 8.
+    set IgnConfirm:style:margin:right to 8.
     set IgnConfirm:onclick to {
         if LOSelect:text = "" set LOSelect:text to "1".
         if HSSelect1:text = "" set HSSelect1:text to "1".
@@ -11356,17 +11358,17 @@ function ReEntryData {
                 wait 0.001.
                 Tank:shutdown.
                 //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
-                SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                if random() < 0.99*SLIgnCha SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[1]:hasphysics SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                if random() < 0.99*SLIgnCha if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.7 then {
-                    SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                    if random() < 0.99*SLIgnCha SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                    if SLEngines[1]:hasphysics SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                    if random() < 0.99*SLIgnCha if SLEngines[1]:hasphysics  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 1.0 then {
-                        SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                        if random() < 0.99*SLIgnCha SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                        if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        if random() < 0.99*SLIgnCha if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                         if not (TargetOLM = "False") {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
@@ -11386,17 +11388,17 @@ function ReEntryData {
                 Tank:shutdown.
                 if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").}
                 //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
-                SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                if random() < 0.99*SLIgnCha SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[1]:hasphysics SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                if random() < 0.99*SLIgnCha if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.3 then {
-                    SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                    if random() < 0.99*SLIgnCha SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                    if SLEngines[1]:hasphysics SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                    if random() < 0.99*SLIgnCha if SLEngines[1]:hasphysics  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 0.5 then {
-                        SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                        if random() < 0.99*SLIgnCha SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                        if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        if random() < 0.99*SLIgnCha if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                     }
                 }
@@ -15319,17 +15321,25 @@ function updateTelemetry {
         }
 
 
+    
+
+
+
+
+
     set shipLOX to lox*100/mlox.
     set shipCH4 to ch4*100/mch4.
 
     set engCount to 0.
     set engCountVar to 1.
     for eng in SLEngines {
-        if eng:thrust > 0 set engCount to engCount + engCountVar.
+        if eng:hasphysics
+            if eng:thrust > 0 set engCount to engCount + engCountVar.
         set engCountVar to engCountVar*2.
     }
     for eng in VACEngines {
-        if eng:thrust > 0 set engCount to engCount + engCountVar.
+        if eng:hasphysics
+            if eng:thrust > 0 set engCount to engCount + engCountVar.
         set engCountVar to engCountVar*2.
     }
     set picPath to "starship_img/EngPic" + VACEngines:length + "Vac/" + engCount:tostring.

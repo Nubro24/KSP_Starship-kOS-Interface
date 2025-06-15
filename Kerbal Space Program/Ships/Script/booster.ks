@@ -311,9 +311,9 @@ local Eng30 is boosterCluster:addlabel().
 local Eng31 is boosterCluster:addlabel().
 local Eng32 is boosterCluster:addlabel().
 local Eng33 is boosterCluster:addlabel().
-set EngCluster to List(Eng1, Eng2, Eng3, Eng4, Eng5, Eng6, Eng7, Eng8, Eng9, Eng10, Eng11, Eng12, Eng13, 
+set EngClusterDisplay to List(Eng1, Eng2, Eng3, Eng4, Eng5, Eng6, Eng7, Eng8, Eng9, Eng10, Eng11, Eng12, Eng13, 
             Eng14, Eng15, Eng16, Eng17, Eng18, Eng19, Eng20, Eng21, Eng22, Eng23, Eng24, Eng25, Eng26, Eng27, Eng28, Eng29, Eng30, Eng31, Eng32, Eng33).
-for lbl in EngCluster {
+for lbl in EngClusterDisplay {
     set lbl:style:bg to "starship_img/EngPicBooster/0".
 }
 local bSpeed is boosterStatus:addlabel("<b>SPEED  </b>").
@@ -508,7 +508,7 @@ function CreateTelemetry {
     set EngBG:style:overflow:top to overflow.
     set EngBG:style:overflow:bottom to -overflow.
     set overflow to overflow + 215*TScale.
-    for engLbl in EngCluster {
+    for engLbl in EngClusterDisplay {
         set engLbl:style:width to 200*TScale.
         set engLbl:style:height to 200*TScale.
         set engLbl:style:margin:top to 15*TScale.
@@ -753,7 +753,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2600.
+        set LFBoosterFuelCutOff to 2800.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -958,6 +958,7 @@ function Boostback {
         }
         preserve.
     }
+    set HighLandingBurn to false.
 
 
     setLandingZone().
@@ -1254,6 +1255,11 @@ function Boostback {
             SetBoosterActive().
             wait 0.08.
         }
+
+        if BoosterSingleEngines
+            if missingCount > 1 
+                set HighLandingBurn to true.
+
 
         lock GSVec to vxcl(up:vector,velocity:surface).
         if BoosterSingleEngines {
@@ -2187,8 +2193,14 @@ FUNCTION SteeringCorrections {
                 set LatCtrl to -LatCtrl.
             }
 
-            set maxDecel to max((13 * BoosterRaptorThrust / ship:mass) - 9.805, 0.000001).
-            set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
+            if LandingBurnStarted {
+                set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
+                set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
+            }
+            else {
+                set maxDecel to max((13 * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
+                set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
+            }
 
             if not (MiddleEnginesShutdown) {
                 set stopTime9 to (airspeed - 69) / min(maxDecel, 50*Scale).
@@ -2249,6 +2261,7 @@ FUNCTION SteeringCorrections {
                 set LandingBurnAlt to LandingBurnAlt * 1.05.
                 if RSS set LandingBurnAlt to LandingBurnAlt * 1.05.
             }
+            if HighLandingBurn set LandingBurnAlt to LandingBurnAlt * 1.1.
         }
         
 
@@ -3232,7 +3245,7 @@ function PollUpdate {
                 for eng in BoosterSingleEnginesRC {
                     if eng:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
                 }
-                if missingCount > 1 set GE to false.
+                if missingCount > 2 set GE to false.
                 else if inactiveCount > 3 set GE to false.
                 else set GE to true.
             } else if LandingBurnEC and not MiddleEnginesShutdown {
@@ -3329,16 +3342,17 @@ function GUIupdate {
         set ActiveRC to 0.
 
     if BoosterSingleEngines {
-        for eng in BoosterSingleEnginesRB 
-            set boosterThrust to boosterThrust + eng:thrust.
-        for eng in BoosterSingleEnginesRC 
-            set boosterThrust to boosterThrust + eng:thrust.
-        
         for eng in BoosterSingleEnginesRB {
-            if eng:thrust > 60*Scale set ActiveRB to ActiveRB + 1.
+            if eng:hasphysics {
+                if eng:thrust > 60*Scale set ActiveRB to ActiveRB + 1.
+                set boosterThrust to boosterThrust + eng:thrust.
+            }
         }
         for eng in BoosterSingleEnginesRC {
-            if eng:thrust > 60*Scale set ActiveRC to ActiveRC + 1.
+            if eng:hasphysics {
+                if eng:thrust > 60*Scale set ActiveRC to ActiveRC + 1.
+                set boosterThrust to boosterThrust + eng:thrust.
+            }
         }
     } 
     else set boosterThrust to BoosterEngines[0]:thrust.
@@ -3368,27 +3382,27 @@ function GUIupdate {
             if Mode = "Center Three" {
                 set x to 1.
                 until x > 3 {
-                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
                     set x to x+1.
                 }
                 until x > 33 {
-                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
             } else if Mode = "Middle Inner" {
                 set x to 1.
                 until x > 13 {
-                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
                     set x to x+1.
                 }
                 until x > 33 {
-                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
             } else if Mode = "All Engines" {
                 set x to 1.
                 until x > 33 {
-                    set EngCluster[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
                     set x to x+1.
                 }
             } else if Mode = "NaN" {
@@ -3399,23 +3413,27 @@ function GUIupdate {
             set x to 0.
             until x > 32 {
                 if x < 13 {
-                    if BoosterSingleEnginesRC[x]:thrust > 60*Scale set EngCluster[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).
-                    else set EngCluster[x]:style:bg to "starship_img/EngPicBooster/0".
+                    if BoosterSingleEnginesRC[x]:hasphysics {
+                        if BoosterSingleEnginesRC[x]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).
+                        else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
+                    }
                     set x to x+1.
                 } else {
-                    if BoosterSingleEnginesRB[x-13]:thrust > 60*Scale set EngCluster[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).
-                    else set EngCluster[x]:style:bg to "starship_img/EngPicBooster/0".
+                    if BoosterSingleEnginesRB[x-13]:hasphysics {
+                        if BoosterSingleEnginesRB[x-13]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).
+                        else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
+                    }
                     set x to x+1.
                 }
             }
         } 
         else 
-        for EngLbl in EngCluster {
+        for EngLbl in EngClusterDisplay {
             set EngLbl:style:bg to "starship_img/EngPicBooster/0".
         }
     }
     else {
-        for EngLbl in EngCluster {
+        for EngLbl in EngClusterDisplay {
             set EngLbl:style:bg to "starship_img/EngPicBooster/0".
         }
     }
