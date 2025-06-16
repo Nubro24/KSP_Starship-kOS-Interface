@@ -3429,12 +3429,12 @@ function GUIupdate {
             set x to 0.
             until x > 32 {
                 if x < 13 {
-                    if not BoosterSingleEnginesRC[x] = False {
+                    if BoosterSingleEnginesRC[x]:hassuffix("activate") {
                         if BoosterSingleEnginesRC[x]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).}
                     else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 } else {
-                    if not BoosterSingleEnginesRC[x-13] = False {
+                    if BoosterSingleEnginesRC[x-13]:hassuffix("activate") {
                         if BoosterSingleEnginesRB[x-13]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).}
                     else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
                     
