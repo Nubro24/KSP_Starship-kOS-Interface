@@ -747,11 +747,11 @@ function FindParts {
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else {
-                if x:name:contains("SEP.23.RAPTOR2.SL.RC") and x:parent:name:contains("SHIP") {
+                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C")) and x:parent:name:contains("SHIP") {
                     set SL to true.
                     set SLcount to SLcount + 1.
                 }
-                else if x:name:contains("SEP.23.RAPTOR.VAC") {
+                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
