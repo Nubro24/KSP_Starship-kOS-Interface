@@ -3433,7 +3433,7 @@ function GUIupdate {
                     else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 } else {
-                    if BoosterSingleEnginesRC[x-13]:hassuffix("activate") {
+                    if BoosterSingleEnginesRB[x-13]:hassuffix("activate") {
                         if BoosterSingleEnginesRB[x-13]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).}
                     else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
                     
