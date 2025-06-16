@@ -992,20 +992,20 @@ function Boostback {
             if YawStrength < -0.3 set FlipTime to FlipTime*1.2.
             if YawStrength > 0.4 set FlipTime to FlipTime/1.1.
             if YawStrength < 0 and PitchStrength < 0 {
-                if -YawStrength-PitchStrength > 1 set FlipTime to FlipTime*0.85.
-                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
+                if -YawStrength-PitchStrength > 1 set FlipTime to FlipTime*0.9.
+                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.95.
             }
             else if YawStrength < 0 and PitchStrength > 0 {
-                if -YawStrength+PitchStrength > 1 set FlipTime to FlipTime*0.85.
-                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
+                if -YawStrength+PitchStrength > 1 set FlipTime to FlipTime*0.9.
+                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.95.
             }
             else if YawStrength > 0 and PitchStrength < 0 {
-                if YawStrength-PitchStrength > 1 set FlipTime to FlipTime*0.85.
-                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
+                if YawStrength-PitchStrength > 1 set FlipTime to FlipTime*0.9.
+                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.95.
             }
             else {
-                if YawStrength+PitchStrength > 1 set FlipTime to FlipTime*0.85.
-                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.9.
+                if YawStrength+PitchStrength > 1 set FlipTime to FlipTime*0.9.
+                if -YawStrength-PitchStrength > 0.8 set FlipTime to FlipTime*0.95.
             }
             if oldBooster set FlipTime to FlipTime * 1.4.
 
@@ -2053,7 +2053,7 @@ function Boostback {
         lock throttle to 0.
         rcs on.
         set ship:control:pilotmainthrottle to 0.
-        set ship:control:pitch to 1.
+        if not cAbort set ship:control:pitch to 1.
         wait 5.
         set ship:control:translation to v(0, 0, 0).
         unlock steering.
