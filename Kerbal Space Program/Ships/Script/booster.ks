@@ -936,7 +936,7 @@ until False {
 
 
 function Boostback {
-    if BoosterSingleEngines for eng in BoosterSingleEnginesRB eng:shutdown.
+    if BoosterSingleEngines for eng in BoosterSingleEnginesRB if eng:hasphysics eng:shutdown.
     wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
     wait 0.001.
     set ShipConnectedToBooster to false.
@@ -1113,28 +1113,28 @@ function Boostback {
             if BoosterSingleEngines {
                 set x to 1.
                 until x > 3 {
-                    set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
-                    BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 50).
+                    if BoosterSingleEnginesRC[x-1]:hasphysics set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+                    if BoosterSingleEnginesRC[x-1]:hasphysics BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 50).
                     set x to x + 1.
                 }
                 set tEngStart to time:seconds.
-                if random() < 0.98*BBIgn BoosterSingleEnginesRC[3]:activate.
-                if random() < 0.98*BBIgn BoosterSingleEnginesRC[8]:activate.
+                if random() < 0.98*BBIgn if BoosterSingleEnginesRC[3]:hasphysics BoosterSingleEnginesRC[3]:activate.
+                if random() < 0.98*BBIgn if BoosterSingleEnginesRC[8]:hasphysics BoosterSingleEnginesRC[8]:activate.
                 when time:seconds - tEngStart > 0.2 then {
-                    if random() < 0.98*BBIgn BoosterSingleEnginesRC[4]:activate.
-                    if random() < 0.95*BBIgn BoosterSingleEnginesRC[9]:activate.
+                    if random() < 0.98*BBIgn if BoosterSingleEnginesRC[4]:hasphysics BoosterSingleEnginesRC[4]:activate.
+                    if random() < 0.95*BBIgn if BoosterSingleEnginesRC[9]:hasphysics BoosterSingleEnginesRC[9]:activate.
                 }
                 when time:seconds - tEngStart > 0.4 then {
-                    if random() < 0.95*BBIgn BoosterSingleEnginesRC[6]:activate.
-                    if random() < 0.98*BBIgn BoosterSingleEnginesRC[11]:activate.
+                    if random() < 0.95*BBIgn if BoosterSingleEnginesRC[6]:hasphysics BoosterSingleEnginesRC[6]:activate.
+                    if random() < 0.98*BBIgn if BoosterSingleEnginesRC[11]:hasphysics BoosterSingleEnginesRC[11]:activate.
                 }
                 when time:seconds - tEngStart > 0.6 then {
-                    if random() < 0.95*BBIgn BoosterSingleEnginesRC[7]:activate.
-                    if random() < 0.98*BBIgn BoosterSingleEnginesRC[12]:activate.
+                    if random() < 0.95*BBIgn if BoosterSingleEnginesRC[7]:hasphysics BoosterSingleEnginesRC[7]:activate.
+                    if random() < 0.98*BBIgn if BoosterSingleEnginesRC[12]:hasphysics BoosterSingleEnginesRC[12]:activate.
                 }
                 when time:seconds - tEngStart > 0.8 then {
-                    if random() < 0.98*BBIgn BoosterSingleEnginesRC[5]:activate.
-                    if random() < 0.95*BBIgn BoosterSingleEnginesRC[10]:activate.
+                    if random() < 0.98*BBIgn if BoosterSingleEnginesRC[5]:hasphysics BoosterSingleEnginesRC[5]:activate.
+                    if random() < 0.95*BBIgn if BoosterSingleEnginesRC[10]:hasphysics BoosterSingleEnginesRC[10]:activate.
                 }
             }
             else {
@@ -1156,7 +1156,7 @@ function Boostback {
         when time:seconds > flipStartTime + FlipTime or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 50 
                 or vAng(vxcl(up:vector, -ErrorVector),facing:forevector) < 70 and vAng(up:vector,facing:forevector) > 90 then {
             set steeringmanager:yawtorquefactor to 0.9.
-            set steeringmanager:maxstoppingtime to 0.8*Scale.
+            set steeringmanager:maxstoppingtime to 1*Scale.
             set steeringManager:rollcontrolanglerange to 70.
             set steeringManager:rolltorquefactor to 6.
             lock throttle to 0.66.
@@ -1164,13 +1164,13 @@ function Boostback {
             bGUI:show().
         }
         when time:seconds > flipStartTime + FlipTime * 1.24 then {
-            set steeringmanager:maxstoppingtime to 0.4.
+            set steeringmanager:maxstoppingtime to 0.8.
         }
 
         //increase yaw steering
         when time:seconds > flipStartTime + 10 then {
             set steeringmanager:yawtorquefactor to 0.7.
-            set steeringmanager:maxstoppingtime to 0.8.
+            set steeringmanager:maxstoppingtime to 0.6.
             rcs on.
         }
         when BoostBackComplete then 
@@ -1270,8 +1270,10 @@ function Boostback {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if x = 1 or x = 2 or x = 3 {} else {
-                    eng:shutdown.
-                    set eng:gimbal:lock to true.
+                    if eng:hasphysics {
+                        eng:shutdown.
+                        set eng:gimbal:lock to true.
+                    }
                 }
                 set x to x + 1.
             }
@@ -1311,8 +1313,10 @@ function Boostback {
         if BoosterSingleEngines {
             set x to 1.
             until x > 3 {
-                BoosterSingleEnginesRC[x-1]:shutdown.
-                set BoosterSingleEnginesRC[x-1]:gimbal:lock to true.
+                if BoosterSingleEnginesRC[x-1]:hasphysics {
+                    BoosterSingleEnginesRC[x-1]:shutdown.
+                    set BoosterSingleEnginesRC[x-1]:gimbal:lock to true.
+                }
                 set x to x + 1.
             }
         }
@@ -1721,8 +1725,10 @@ function Boostback {
     if BoosterSingleEngines {
         set x to 1.
         until x > 3 {
-            set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
-            BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
+            if BoosterSingleEnginesRC[x-1]:hasphysics {
+                set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+                BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
+            }
             set x to x + 1.
         }
     }
@@ -1731,7 +1737,7 @@ function Boostback {
     if BoosterSingleEngines {
         set x to 1.
         until x > 3 {
-            if random() < 0.95*LBIgnC BoosterSingleEnginesRC[x-1]:activate.
+            if BoosterSingleEnginesRC[x-1]:hasphysics if random() < 0.95*LBIgnC BoosterSingleEnginesRC[x-1]:activate.
             set x to x + 1.
         }
     }
@@ -1739,7 +1745,7 @@ function Boostback {
         when time:seconds - LandingBurnTime > 0.1 then {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
-                if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {
+                if (x = 4 or x = 6 or x = 8 or x = 10 or x = 12) and eng:hasphysics {
                     if random() < 0.98*LBIgnM eng:activate.
                     set eng:gimbal:lock to false.
                 }
@@ -1750,7 +1756,7 @@ function Boostback {
         when time:seconds - LandingBurnTime > 0.6 then {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
-                if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else {
+                if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if eng:hasphysics {
                     if random() < 0.95*LBIgnM eng:activate.
                     set eng:gimbal:lock to false.
                 }
@@ -3423,16 +3429,15 @@ function GUIupdate {
             set x to 0.
             until x > 32 {
                 if x < 13 {
-                    if BoosterSingleEnginesRC[x]:hasphysics {
+                    if BoosterSingleEnginesRC[x]:hasphysics 
                         if BoosterSingleEnginesRC[x]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).
-                        else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
-                    }
+                    else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 } else {
-                    if BoosterSingleEnginesRB[x-13]:hasphysics {
+                    if BoosterSingleEnginesRB[x-13]:hasphysics 
                         if BoosterSingleEnginesRB[x-13]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).
-                        else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
-                    }
+                    else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
+                    
                     set x to x+1.
                 }
             }
