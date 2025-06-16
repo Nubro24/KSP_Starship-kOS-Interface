@@ -156,7 +156,7 @@ if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:nam
     }
     set BoosterEngineCount to BoosterSingleEnginesRB:length + BoosterSingleEnginesRC:length.
     if BoosterEngineCount < 33 {
-        HUDTEXT("The Booster is missing Engines!" + BoosterEngineCount, 5, 2, 20, red, true).
+        HUDTEXT("The Booster is missing " + 33-BoosterEngineCount + " Engines!", 5, 2, 20, red, true).
         wait 4.
         reboot.
     }
