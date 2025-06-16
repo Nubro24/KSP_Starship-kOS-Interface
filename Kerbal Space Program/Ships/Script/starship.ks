@@ -1109,8 +1109,10 @@ function FindParts {
             set BoosterSingleEnginesRC to list().
             set x to 1.
             until x > 33 or not Boosterconnected {
-                if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
-                else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+                if ship:partstagged(x:tostring):length > 0 {
+                    if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
+                    else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+                }
                 set x to x + 1.
             }
         } 

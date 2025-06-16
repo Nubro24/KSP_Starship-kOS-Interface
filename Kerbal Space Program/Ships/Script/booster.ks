@@ -1036,8 +1036,8 @@ function Boostback {
         if BoosterSingleEngines {
             set x to 1.
             until x > 3 {
-                set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
                 BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
+                set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
                 set x to x + 1.
             }
         }
@@ -1447,6 +1447,9 @@ function Boostback {
             SetBoosterActive().
             if time:seconds - turnTime > 5 rcs on.
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+            if LFBooster < LFBoosterFuelCutOff {
+                BoosterCore:shutdown.
+            }
             wait 0.067.
         }
         set config:ipu to 1000.
@@ -1468,6 +1471,9 @@ function Boostback {
             SetBoosterActive().
             rcs on.
             if kuniverse:timewarp:warp > 1 {set kuniverse:timewarp:warp to 1.}
+            if LFBooster < LFBoosterFuelCutOff {
+                BoosterCore:shutdown.
+            }
             wait 0.067.
         }
         set SteeringManager:yawtorquefactor to 0.6.
