@@ -7113,7 +7113,7 @@ function Launch {
             
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
             else {
-                for eng in BoosterSingleEnginesRC if eng:hasphysics if random() < 0.98*LOIgnCha eng:activate.
+                for eng in BoosterSingleEnginesRC if not eng = False if random() < 0.98*LOIgnCha eng:activate.
             }
 
             set EngineStartTime to time:seconds.
@@ -7127,7 +7127,7 @@ function Launch {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
                     if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
-                    else if eng:hasphysics if random() < 0.98*LOIgnCha eng:activate.
+                    else if not eng = False if random() < 0.98*LOIgnCha eng:activate.
                     set x to x + 1.
                 }
                 set inactiveEng to List(7,11,15,19,24).
@@ -7140,7 +7140,7 @@ function Launch {
             if BoosterSingleEngines {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
-                    if eng:hasphysics if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < 0.98*LOIgnCha eng:activate.
+                    if not eng = False if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < 0.98*LOIgnCha eng:activate.
                     set x to x + 1.
                 }
             }
@@ -7168,8 +7168,8 @@ function Launch {
             if cancelconfirmed {
                 if not BoosterSingleEngines BoosterEngines[0]:shutdown.
                 else {
-                    for eng in BoosterSingleEnginesRB if eng:hasphysics eng:shutdown.
-                    for eng in BoosterSingleEnginesRC if eng:hasphysics eng:shutdown.
+                    for eng in BoosterSingleEnginesRB if not eng = False eng:shutdown.
+                    for eng in BoosterSingleEnginesRC if not eng = False eng:shutdown.
                 }
                 BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
@@ -7208,8 +7208,8 @@ function Launch {
             
             if BoosterSingleEngines {
                 set ActiveRC to 0. set ActiveRB to 0.
-                for eng in BoosterSingleEnginesRC if eng:hasphysics if eng:thrust > 85 set ActiveRC to ActiveRC + 1.
-                for eng in BoosterSingleEnginesRB if eng:hasphysics if eng:thrust > 85 set ActiveRB to ActiveRB + 1.
+                for eng in BoosterSingleEnginesRC if not eng = False if eng:thrust > 85 set ActiveRC to ActiveRC + 1.
+                for eng in BoosterSingleEnginesRB if not eng = False if eng:thrust > 85 set ActiveRB to ActiveRB + 1.
                 lock bLiftOffThrust to ActiveRB * BoosterSingleEnginesRB[0]:thrust  + ActiveRC * BoosterSingleEnginesRC[0]:thrust.
             } 
             else lock bLiftOffThrust to BoosterEngines[0]:thrust.
@@ -7250,8 +7250,8 @@ function Launch {
                 unlock bLiftOffThrust.
                 if not BoosterSingleEngines BoosterEngines[0]:shutdown.
                 else {
-                    for eng in BoosterSingleEnginesRB if eng:hasphysics eng:shutdown.
-                    for eng in BoosterSingleEnginesRC if eng:hasphysics eng:shutdown.
+                    for eng in BoosterSingleEnginesRB if not eng = False eng:shutdown.
+                    for eng in BoosterSingleEnginesRC if not eng = False eng:shutdown.
                 }
                 BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
@@ -7429,7 +7429,7 @@ function Launch {
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
-                        if eng:hasphysics if x = 2 or x = 6 or x = 10 or x = 14 or x = 18 eng:shutdown.
+                        if not eng = False if x = 2 or x = 6 or x = 10 or x = 14 or x = 18 eng:shutdown.
                         set x to x + 1.
                     }
                 }
@@ -7441,7 +7441,7 @@ function Launch {
                 else {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
-                        if eng:hasphysics if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
+                        if not eng = False if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
                         set x to x + 1.
                     }
                 }
@@ -7456,10 +7456,10 @@ function Launch {
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
-                        if eng:hasphysics if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
+                        if not eng = False if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
                         set x to x + 1.
                     }
-                    for eng in BoosterSingleEnginesRB if eng:hasphysics eng:shutdown.
+                    for eng in BoosterSingleEnginesRB if not eng = False eng:shutdown.
                 }
                 wait 0.12.
                 set CargoBeforeSeparation to CargoMass.
@@ -7470,7 +7470,7 @@ function Launch {
                 else {
                     set x to 1.
                     for eng in BoosterSingleEnginesRC {
-                        if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if eng:hasphysics eng:shutdown.
+                        if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if not eng = False eng:shutdown.
                         set x to x + 1.
                     }
                 }
@@ -7479,7 +7479,7 @@ function Launch {
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRC {
-                        if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if eng:hasphysics eng:shutdown.
+                        if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if not eng = False eng:shutdown.
                         set x to x + 1.
                     }
                 }
