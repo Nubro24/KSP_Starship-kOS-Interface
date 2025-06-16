@@ -1037,6 +1037,10 @@ function Boostback {
             set x to 1.
             until x > 3 {
                 BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
+                set x to x + 1.
+            }
+            set x to 1.
+            until x > 3 {
                 set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
                 set x to x + 1.
             }
