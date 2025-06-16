@@ -936,7 +936,7 @@ until False {
 
 
 function Boostback {
-    if BoosterSingleEngines for eng in BoosterSingleEnginesRB if not eng = False eng:shutdown.
+    if BoosterSingleEngines for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
     wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
     wait 0.001.
     set ShipConnectedToBooster to false.
@@ -3359,13 +3359,13 @@ function GUIupdate {
 
     if BoosterSingleEngines {
         for eng in BoosterSingleEnginesRB {
-            if not eng = False {
+            if eng:hassuffix("activate") {
                 if eng:thrust > 60*Scale set ActiveRB to ActiveRB + 1.
                 set boosterThrust to boosterThrust + eng:thrust.
             }
         }
         for eng in BoosterSingleEnginesRC {
-            if not eng = False {
+            if eng:hassuffix("activate") {
                 if eng:thrust > 60*Scale set ActiveRC to ActiveRC + 1.
                 set boosterThrust to boosterThrust + eng:thrust.
             }
