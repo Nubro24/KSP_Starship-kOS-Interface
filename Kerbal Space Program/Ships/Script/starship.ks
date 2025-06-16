@@ -864,7 +864,7 @@ function FindParts {
         }
     }
 
-    if SL and SLcount = 3 {
+    if SL {
         set SL1 to false.
         set SL2 to false.
         set SL3 to false.
@@ -897,7 +897,9 @@ function FindParts {
         set SLcount to 0.
         if SL1 and SL2 and SL3 {}
         else {
-            print("Not all SLEngines have been set..!!!").
+            if not SL1 set SLEnginesStep[0] to False.
+            if not SL2 set SLEnginesStep[1] to False.
+            if not SL3 set SLEnginesStep[2] to False.
         }
     } 
     else {
@@ -939,7 +941,9 @@ function FindParts {
         set Vaccount to 0.
         if Vac1 and Vac2 and Vac3 {}
         else {
-            print("Not all VACEngines have been set..!!!").
+            if not Vac1 set VACEnginesStep[0] to False.
+            if not Vac2 set VACEnginesStep[1] to False.
+            if not Vac3 set VACEnginesStep[2] to False.
         }
     } 
     else if Vac and Vaccount = 6 {
@@ -999,7 +1003,12 @@ function FindParts {
         set Vaccount to 0.
         if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {}
         else {
-            print("Not all VACEngines have been set..!!!").
+            if not Vac1 set VACEnginesStep[0] to False.
+            if not Vac2 set VACEnginesStep[1] to False.
+            if not Vac3 set VACEnginesStep[2] to False.
+            if not Vac4 set VACEnginesStep[3] to False.
+            if not Vac5 set VACEnginesStep[4] to False.
+            if not Vac6 set VACEnginesStep[5] to False.
         }
     } 
     else {
@@ -3428,8 +3437,8 @@ local quickengine3 is enginecheckboxes:addcheckbox("<b>VAC Raptors</b>").
     set quickengine3:tooltip to "Turn on vacuum Raptors".
     
 set quickengine1:onclick to {
-    for eng in SLEngines {eng:shutdown.}.
-    for eng in VACEngines {eng:shutdown.}.
+    for eng in SLEngines {if eng:hassuffix("activate") eng:shutdown.}.
+    for eng in VACEngines {if eng:hassuffix("activate") eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
     if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1Exp") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block1PEZ") {
         Nose:shutdown.
@@ -3437,9 +3446,9 @@ set quickengine1:onclick to {
         HeaderTank:shutdown.
     }
     Tank:shutdown.
-    SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
-    SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
-    SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
+    if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
+    if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
+    if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
 }.
 
 set quickengine2:ontoggle to {
@@ -7113,7 +7122,7 @@ function Launch {
             
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
             else {
-                for eng in BoosterSingleEnginesRC if not eng = False if random() < 0.98*LOIgnCha eng:activate.
+                for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if random() < 0.98*LOIgnCha eng:activate.
             }
 
             set EngineStartTime to time:seconds.
@@ -7127,7 +7136,7 @@ function Launch {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
                     if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
-                    else if not eng = False if random() < 0.98*LOIgnCha eng:activate.
+                    else if eng:hassuffix("activate") if random() < 0.98*LOIgnCha eng:activate.
                     set x to x + 1.
                 }
                 set inactiveEng to List(7,11,15,19,24).
@@ -7140,7 +7149,7 @@ function Launch {
             if BoosterSingleEngines {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
-                    if not eng = False if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < 0.98*LOIgnCha eng:activate.
+                    if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < 0.98*LOIgnCha eng:activate.
                     set x to x + 1.
                 }
             }
@@ -7168,8 +7177,8 @@ function Launch {
             if cancelconfirmed {
                 if not BoosterSingleEngines BoosterEngines[0]:shutdown.
                 else {
-                    for eng in BoosterSingleEnginesRB if not eng = False eng:shutdown.
-                    for eng in BoosterSingleEnginesRC if not eng = False eng:shutdown.
+                    for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
+                    for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:shutdown.
                 }
                 BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
@@ -7208,8 +7217,8 @@ function Launch {
             
             if BoosterSingleEngines {
                 set ActiveRC to 0. set ActiveRB to 0.
-                for eng in BoosterSingleEnginesRC if not eng = False if eng:thrust > 85 set ActiveRC to ActiveRC + 1.
-                for eng in BoosterSingleEnginesRB if not eng = False if eng:thrust > 85 set ActiveRB to ActiveRB + 1.
+                for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if eng:thrust > 85 set ActiveRC to ActiveRC + 1.
+                for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") if eng:thrust > 85 set ActiveRB to ActiveRB + 1.
                 lock bLiftOffThrust to ActiveRB * BoosterSingleEnginesRB[0]:thrust  + ActiveRC * BoosterSingleEnginesRC[0]:thrust.
             } 
             else lock bLiftOffThrust to BoosterEngines[0]:thrust.
@@ -7250,8 +7259,8 @@ function Launch {
                 unlock bLiftOffThrust.
                 if not BoosterSingleEngines BoosterEngines[0]:shutdown.
                 else {
-                    for eng in BoosterSingleEnginesRB if not eng = False eng:shutdown.
-                    for eng in BoosterSingleEnginesRC if not eng = False eng:shutdown.
+                    for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
+                    for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:shutdown.
                 }
                 BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
@@ -7429,7 +7438,7 @@ function Launch {
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
-                        if not eng = False if x = 2 or x = 6 or x = 10 or x = 14 or x = 18 eng:shutdown.
+                        if eng:hassuffix("activate") if x = 2 or x = 6 or x = 10 or x = 14 or x = 18 eng:shutdown.
                         set x to x + 1.
                     }
                 }
@@ -7441,7 +7450,7 @@ function Launch {
                 else {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
-                        if not eng = False if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
+                        if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
                         set x to x + 1.
                     }
                 }
@@ -7456,10 +7465,10 @@ function Launch {
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
-                        if not eng = False if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
+                        if eng:hassuffix("activate") if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
                         set x to x + 1.
                     }
-                    for eng in BoosterSingleEnginesRB if not eng = False eng:shutdown.
+                    for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
                 }
                 wait 0.12.
                 set CargoBeforeSeparation to CargoMass.
@@ -7470,7 +7479,7 @@ function Launch {
                 else {
                     set x to 1.
                     for eng in BoosterSingleEnginesRC {
-                        if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if not eng = False eng:shutdown.
+                        if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if eng:hassuffix("activate") eng:shutdown.
                         set x to x + 1.
                     }
                 }
@@ -7479,7 +7488,7 @@ function Launch {
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRC {
-                        if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if not eng = False eng:shutdown.
+                        if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if eng:hassuffix("activate") eng:shutdown.
                         set x to x + 1.
                     }
                 }
@@ -11361,17 +11370,17 @@ function ReEntryData {
                 wait 0.001.
                 Tank:shutdown.
                 //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
-                if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[1]:hasphysics SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                if random() < 0.99*SLIgnCha if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                if random() < 0.99*SLIgnCha if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.7 then {
-                    if SLEngines[1]:hasphysics SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                    if random() < 0.99*SLIgnCha if SLEngines[1]:hasphysics  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                    if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                    if random() < 0.99*SLIgnCha if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 1.0 then {
-                        if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                        if random() < 0.99*SLIgnCha if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                        if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        if random() < 0.99*SLIgnCha if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                         if not (TargetOLM = "False") {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
@@ -11391,17 +11400,17 @@ function ReEntryData {
                 Tank:shutdown.
                 if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").}
                 //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
-                if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[1]:hasphysics SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                if random() < 0.99*SLIgnCha if SLEngines[0]:hasphysics SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                if random() < 0.99*SLIgnCha if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.3 then {
-                    if SLEngines[1]:hasphysics SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                    if random() < 0.99*SLIgnCha if SLEngines[1]:hasphysics  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                    if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                    if random() < 0.99*SLIgnCha if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 0.5 then {
-                        if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                        if random() < 0.99*SLIgnCha if SLEngines[2]:hasphysics SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                        if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        if random() < 0.99*SLIgnCha if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                     }
                 }
@@ -12579,17 +12588,17 @@ function ClearInterfaceAndSteering {
 function ActivateEngines {
     parameter WhichEngines.
     if WhichEngines = 0 {
-        if random() < 0.99*SLIgnCha SLEngines[0]:activate.
-        if random() < 0.99*SLIgnCha SLEngines[1]:activate.
-        if random() < 0.99*SLIgnCha SLEngines[2]:activate.
-        SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-        SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-        SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+        if SLEngines[0]:hassuffix("activate") if random() < 0.99*SLIgnCha SLEngines[0]:activate.
+        if SLEngines[1]:hassuffix("activate") if random() < 0.99*SLIgnCha SLEngines[1]:activate.
+        if SLEngines[2]:hassuffix("activate") if random() < 0.99*SLIgnCha SLEngines[2]:activate.
+        if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+        if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+        if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         LogToFile("SL Engine Start Successful!").
     }
     else {
         for eng in VACEngines {
-            if random() < 0.99*VCIgnCha eng:activate.
+            if eng:hassuffix("activate") if random() < 0.99*VCIgnCha eng:activate.
         }
         LogToFile("VAC Engine Start Successful!").
     }
@@ -15336,12 +15345,12 @@ function updateTelemetry {
     set engCount to 0.
     set engCountVar to 1.
     for eng in SLEngines {
-        if eng:hasphysics
+        if eng:hassuffix("activate")
             if eng:thrust > 0 set engCount to engCount + engCountVar.
         set engCountVar to engCountVar*2.
     }
     for eng in VACEngines {
-        if eng:hasphysics
+        if eng:hassuffix("activate")
             if eng:thrust > 0 set engCount to engCount + engCountVar.
         set engCountVar to engCountVar*2.
     }
