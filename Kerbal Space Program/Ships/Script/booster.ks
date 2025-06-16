@@ -500,23 +500,23 @@ function CreateTelemetry {
     set bTelemetry:y to -220*TScale.
     
     set overflow to 0.
-    set EngBG:style:width to 200*TScale.
-    set EngBG:style:height to 200*TScale.
+    set EngBG:style:width to 200*floor(TScale,1).
+    set EngBG:style:height to 200*floor(TScale,1).
     set EngBG:style:margin:top to 15*TScale.
     set EngBG:style:margin:left to 19*TScale.
-    set EngBG:style:margin:right to 21*TScale.
+    set EngBG:style:margin:right to 21*ceiling(TScale,1).
     set EngBG:style:overflow:top to overflow.
     set EngBG:style:overflow:bottom to -overflow.
-    set overflow to overflow + 215*TScale.
+    set overflow to overflow + 215*floor(TScale,1).
     for engLbl in EngClusterDisplay {
-        set engLbl:style:width to 200*TScale.
-        set engLbl:style:height to 200*TScale.
+        set engLbl:style:width to 200*floor(TScale,1).
+        set engLbl:style:height to 200*floor(TScale,1).
         set engLbl:style:margin:top to 15*TScale.
         set engLbl:style:margin:left to 19*TScale.
-        set engLbl:style:margin:right to 21*TScale.
+        set engLbl:style:margin:right to 21*ceiling(TScale,1).
         set engLbl:style:overflow:top to overflow.
         set engLbl:style:overflow:bottom to -overflow.
-        set overflow to overflow + 215*TScale.
+        set overflow to overflow + 215*floor(TScale,1).
     }
 
     set bSpeed:style:margin:left to 10*TScale.
