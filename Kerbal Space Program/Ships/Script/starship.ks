@@ -1113,6 +1113,7 @@ function FindParts {
                     if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
                     else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
                 }
+                else BoosterSingleEnginesRC:insert(x-1, False).
                 set x to x + 1.
             }
         } 
