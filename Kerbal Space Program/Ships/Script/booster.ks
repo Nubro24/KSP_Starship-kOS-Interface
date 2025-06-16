@@ -154,6 +154,12 @@ if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:nam
         else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
         set x to x + 1.
     }
+    set BoosterEngineCount to BoosterSingleEnginesRB:length + BoosterSingleEnginesRC:length.
+    if BoosterEngineCount < 33 {
+        HUDTEXT("The Booster is missing Engines!" + BoosterEngineCount, 5, 2, 20, red, true).
+        wait 4.
+        reboot.
+    }
 } 
 else {
     set BoosterSingleEngines to false.
