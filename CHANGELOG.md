@@ -10,7 +10,8 @@
   - Changed **Booster** Pictograms to support *all combinations*
   - The Script now checks for engine position to ensure custom craft file functionality
   - Fixed pixel issues with Attitude Indicator
-  - Added new Attitude Indicators for 360°
+  - Added new Attitude Indicators for 360° (Credit: domino playz)
+  - Updated Fuel Indicators to be more round (Credit: Vista)
   - **Known Issue: If your playing on resolutions not part of the 720, 1080, 1440, 2160, etc. system, The Booster Cluster UI might be misaligning, due to the limitation of pixels**
   - *I recommened deleting the starship_img folder for this update*
 - **Added Support for individual Engines on the Booster** *(Cluster Functionality unchanged)*
@@ -24,6 +25,7 @@
 - Fixed RSS Max Cargo values (max. 69t to Orbit)
 - Fixed RSS Reentry loosing control
 - Fixed an Error with Real Fuels
+- Fixed an Error during Hotstaging
 - Fixed Errors during offshore divert
 - Fixed Booster side correction
 

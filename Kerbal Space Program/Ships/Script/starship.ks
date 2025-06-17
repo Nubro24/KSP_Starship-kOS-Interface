@@ -146,7 +146,7 @@ local sLOXLabel is sLOX:addlabel("<b>LOX  </b>").
     set sLOXLabel:style:wordwrap to false.
 local sLOXBorder is sLOX:addlabel("").
     set sLOXBorder:style:align to "CENTER".
-    set sLOXBorder:style:bg to "starship_img/telemetry_bg".
+    set sLOXBorder:style:bg to "starship_img/telemetry_fuel_bg".
 local sLOXSlider is sLOX:addlabel().
     set sLOXSlider:style:align to "CENTER".
     set sLOXSlider:style:bg to "starship_img/telemetry_fuel".
@@ -159,7 +159,7 @@ local sCH4Label is sCH4:addlabel("<b>CH4  </b>").
     set sCH4Label:style:wordwrap to false.
 local sCH4Border is sCH4:addlabel("").
     set sCH4Border:style:align to "CENTER".
-    set sCH4Border:style:bg to "starship_img/telemetry_bg".
+    set sCH4Border:style:bg to "starship_img/telemetry_fuel_bg".
 local sCH4Slider is sCH4:addlabel().
     set sCH4Slider:style:align to "CENTER".
     set sCH4Slider:style:bg to "starship_img/telemetry_fuel".

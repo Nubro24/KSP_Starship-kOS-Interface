@@ -143,26 +143,34 @@ for part in ship:parts {
 }
 
 set landingzone to ship:geoposition.
-if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-        or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
-    set BoosterSingleEngines to true.
-    set BoosterSingleEnginesRB to list().
-    set BoosterSingleEnginesRC to list().
-    set x to 1.
-    until x > 33 {
-        if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
-        else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
-        set x to x + 1.
+
+FindEngines().
+
+
+function FindEngines {
+    set findingEngines to true.
+    if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+            or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+        set BoosterSingleEngines to true.
+        set BoosterSingleEnginesRB to list().
+        set BoosterSingleEnginesRC to list().
+        set x to 1.
+        until x > 33 {
+            if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
+            else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+            set x to x + 1.
+        }
+        set BoosterEngineCount to BoosterSingleEnginesRB:length + BoosterSingleEnginesRC:length.
+        if BoosterEngineCount < 33 {
+            HUDTEXT("The Booster is missing " + 33-BoosterEngineCount + " Engines!", 5, 2, 20, red, true).
+            wait 4.
+            reboot.
+        }
+    } 
+    else {
+        set BoosterSingleEngines to false.
     }
-    set BoosterEngineCount to BoosterSingleEnginesRB:length + BoosterSingleEnginesRC:length.
-    if BoosterEngineCount < 33 {
-        HUDTEXT("The Booster is missing " + 33-BoosterEngineCount + " Engines!", 5, 2, 20, red, true).
-        wait 4.
-        reboot.
-    }
-} 
-else {
-    set BoosterSingleEngines to false.
+    set findingEngines to false.
 }
 
 
@@ -331,7 +339,7 @@ local bLOXLabel is bLOX:addlabel("<b>LOX  </b>").
     set bLOXLabel:style:wordwrap to false.
 local bLOXBorder is bLOX:addlabel("").
     set bLOXBorder:style:align to "CENTER".
-    set bLOXBorder:style:bg to "starship_img/telemetry_bg".
+    set bLOXBorder:style:bg to "starship_img/telemetry_fuel_bg".
 local bLOXSlider is bLOX:addlabel().
     set bLOXSlider:style:align to "CENTER".
     set bLOXSlider:style:bg to "starship_img/telemetry_fuel".
@@ -344,7 +352,7 @@ local bCH4Label is bCH4:addlabel("<b>CH4  </b>").
     set bCH4Label:style:wordwrap to false.
 local bCH4Border is bCH4:addlabel("").
     set bCH4Border:style:align to "CENTER".
-    set bCH4Border:style:bg to "starship_img/telemetry_bg".
+    set bCH4Border:style:bg to "starship_img/telemetry_fuel_bg".
 local bCH4Slider is bCH4:addlabel().
     set bCH4Slider:style:align to "CENTER".
     set bCH4Slider:style:bg to "starship_img/telemetry_fuel".
@@ -1041,12 +1049,12 @@ function Boostback {
         if BoosterSingleEngines {
             set x to 1.
             until x > 3 {
-                BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
+                if BoosterSingleEnginesRC[x-1]:hassuffix("activate") BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 80).
                 set x to x + 1.
             }
             set x to 1.
             until x > 3 {
-                set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+                if BoosterSingleEnginesRC[x-1]:hassuffix("activate") set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
                 set x to x + 1.
             }
         }
@@ -3362,7 +3370,7 @@ function GUIupdate {
         set ActiveRB to 0.
         set ActiveRC to 0.
 
-    if BoosterSingleEngines {
+    if BoosterSingleEngines and not findingEngines {
         for eng in BoosterSingleEnginesRB {
             if eng:hassuffix("activate") {
                 if eng:thrust > 60*Scale set ActiveRB to ActiveRB + 1.
@@ -3430,27 +3438,31 @@ function GUIupdate {
                 print("Mode not found").
             }
         } 
-        else if boosterThrust > 60*Scale {
-            set x to 0.
-            until x > 32 {
-                if x < 13 {
-                    if BoosterSingleEnginesRC[x]:hassuffix("activate") {
-                        if BoosterSingleEnginesRC[x]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).}
-                    else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
-                    set x to x+1.
+        else if boosterThrust > 60*Scale and not findingEngines {
+            set z to 0.
+            until z > 32 {
+                if z < 13 {
+                    if BoosterSingleEnginesRC[z]:hassuffix("activate") {
+                        if BoosterSingleEnginesRC[z]:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/" + (z+1).
+                        else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
+                    }
+                    else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
+                    set z to z+1.
                 } else {
-                    if BoosterSingleEnginesRB[x-13]:hassuffix("activate") {
-                        if BoosterSingleEnginesRB[x-13]:thrust > 60*Scale set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/" + (x+1).}
-                    else set EngClusterDisplay[x]:style:bg to "starship_img/EngPicBooster/0".
+                    if BoosterSingleEnginesRB[z-13]:hassuffix("activate") {
+                        if BoosterSingleEnginesRB[z-13]:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/" + (z+1).
+                        else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
+                    }
+                    else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
                     
-                    set x to x+1.
+                    set z to z+1.
                 }
             }
         } 
         else 
-        for EngLbl in EngClusterDisplay {
-            set EngLbl:style:bg to "starship_img/EngPicBooster/0".
-        }
+            for EngLbl in EngClusterDisplay {
+                set EngLbl:style:bg to "starship_img/EngPicBooster/0".
+            }
     }
     else {
         for EngLbl in EngClusterDisplay {
