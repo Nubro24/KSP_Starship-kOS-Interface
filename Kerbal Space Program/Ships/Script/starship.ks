@@ -677,7 +677,7 @@ set shipThrust to 0.00001.
 set angle to 75.
 set speed to 12.
 set oldBooster to false.
-
+set ShipSubType to "None".
 
 
 
@@ -773,10 +773,10 @@ function FindParts {
                 else if x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:title = "Donnager MK-3 Rear Right Flap" or x:title = "Starship Block 1 Rear Right Flap" {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:title = "Donnager MK-3 Front Left Flap" or x:title = "Starship Block 1 Forward Left Flap" {
+                else if x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:title = "Donnager MK-3 Front Left Flap" or x:title = "Starship Block 1 Forward Left Flap" or x:name:contains("VS.25.BL2.FLAP.LEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:title = "Donnager MK-3 Front Right Flap" or x:title = "Starship Block 1 Forward Right Flap" {
+                else if x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:title = "Donnager MK-3 Front Right Flap" or x:title = "Starship Block 1 Forward Right Flap" or x:name:contains("VS.25.BL2.FLAP.RIGHT") {
                     set FRflap to x.
                 }
                 else if x:name:contains("SEP.23.SHIP.HEADER") {
@@ -855,6 +855,9 @@ function FindParts {
                     set CargoMassStep to CargoMassStep + x:mass.
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
+                }
+                else if x:name:contains("VS_25_BL2_TILE_FWD") {
+                    set ShipSubType to "Block2".
                 }
                 
                 set ShipMassStep to ShipMassStep + (x:mass).
@@ -3441,7 +3444,7 @@ set quickengine1:onclick to {
     for eng in SLEngines {if eng:hassuffix("activate") eng:shutdown.}.
     for eng in VACEngines {if eng:hassuffix("activate") eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType = "Block1Exp") and not (ShipType = "Block1") and not (ShipType = "Block1Cargo") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1PEZExp") and not (ShipType = "Block1PEZ") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) {
         Nose:shutdown.
     } else if (ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ") {
         HeaderTank:shutdown.
@@ -7301,6 +7304,7 @@ function Launch {
             BoosterCore[0]:shutdown.
             wait 0.01.
             set SteeringManager:rollts to 5.
+            set steeringManager:rolltorquefactor to 2.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
                 InhibitButtons(1, 1, 1).
             }
@@ -7399,9 +7403,15 @@ function Launch {
 
         if Boosterconnected {
             set steeringManager:maxstoppingtime to 0.8*Scale.
-            when apoapsis > BoosterAp - 21000 * Scale then {
+            when apoapsis > BoosterAp - 22000 * Scale then {
                 set steeringManager:maxstoppingtime to 0.2.
-                if ShipType:contains("Block2") set LaunchRollVector to up:vector.
+                if ShipSubType:contains("Block2") {
+                    if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
+                    set LaunchRollVector to facing:topvector+up:vector.
+                    set SteeringManager:rollts to 12.
+                    set steeringManager:rolltorquefactor to 60.
+                    when steeringManager:rollerror < 30 and steeringManager:rollerror > -30 then set steeringManager:rolltorquefactor to 20.
+                } 
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
                 } 
@@ -7413,6 +7423,8 @@ function Launch {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
+                set LaunchRollVector to up:vector.
+                set steeringManager:rolltorquefactor to 4.
                 set Hotstaging to true.
                 if BoosterSingleEngines {
                     set x to 1.
@@ -7832,6 +7844,7 @@ Function LaunchSteering {
     set myAzimuth to LAZcalc(LaunchData).
     clearscreen.
     print "Steering Error: " + round(SteeringManager:angleerror, 2).
+    print "Roll Error: " + round(steeringManager:rollerror, 2).
     print " ".
 
     if hastarget {
@@ -7867,9 +7880,11 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
+            set LaunchRollVector to up:vector.
             set Hotstaging to true.
         }
         else {
+            set LaunchRollVector to facing:topvector+up:vector.
             if RSS {
                 set result to lookDirUp(srfPrograde:vector + 0.26*up:vector, LaunchRollVector).
             } else {
@@ -7992,8 +8007,8 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,24),-24).
-            if CargoMass < 50000 set ProgradeAngle to ProgradeAngle * 0.9.
-            else set ProgradeAngle to ProgradeAngle * 0.82.
+            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.9.
+            else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.82.
         }
         if MaintainVS {
             if deltaV > 500*Scale {

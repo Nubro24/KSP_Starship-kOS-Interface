@@ -85,7 +85,7 @@ for part in ship:parts {
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        set RandomFlip to true.
+        set RandomFlip to false.
     }
     if part:name = ("SEP.23.BOOSTER") and not BTset {
         set BoosterCore to part.
@@ -898,6 +898,7 @@ until False {
         }
     IF RECEIVED:CONTENT = "Boostback" {
         set ShipBurnComplete to false.
+        print RandomFlip.
         Boostback().
     } else if RECEIVED:CONTENT = "HSRJet"{
         set HSRJet to true.
@@ -988,7 +989,7 @@ function Boostback {
         set SeparationTime to time:seconds.
 
         set LaunchPitch to vAng(up:vector, facing:forevector).
-        set PitchStrength to ((LaunchPitch)/45)^2.
+        set PitchStrength to ((LaunchPitch)/45)^3.
         if RandomFlip {
             set rndPitch to round(random(),1).
             if rndPitch < 0.44 set PitchStrength to -PitchStrength.
@@ -1024,7 +1025,8 @@ function Boostback {
 
         } else {
 
-            set ship:control:pitch to -2 * PitchStrength.
+            set ship:control:pitch to 2.4 * PitchStrength.
+            set ship:control:yaw to 0.
             if not RSS set FlipTime to 4.5.
             else set FlipTime to 4.
 
@@ -1072,8 +1074,6 @@ function Boostback {
             SetLoadDistances(350000).
         }
 
-        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), up:vector -facing:topvector).
-        lock steering to SteeringVector.
 
         wait 0.001.
         if defined L and not starship:contains("Starship") {
@@ -1109,7 +1109,7 @@ function Boostback {
             set ShipFound to true.
         }
 
-        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 {
+        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 and ship:partsnamed("VS.25.HSR.BL3"):length = 0 {
             set ship:name to "Booster".
             set Block1HSR to true.
         }
@@ -1118,6 +1118,10 @@ function Boostback {
 
         set flipStartTime to time:seconds.
 
+        when time:seconds > flipStartTime + FlipTime*0.6 then {
+            lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), up:vector -facing:topvector).
+            lock steering to SteeringVector.
+        }
 
         //Middle Restart
         when time:seconds > flipStartTime + FlipTime*0.7 and verticalspeed > 0 then {
