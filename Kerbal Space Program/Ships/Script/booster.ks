@@ -125,7 +125,7 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
-    if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
+    if (part:name:contains("SEP.25.BOOSTER.HSR") or part:name:contains("VS.25.HSR.BL3")) and not HSset {
         set HSR to part.
         set HSset to true.
     }
@@ -974,7 +974,7 @@ function Boostback {
 
     if verticalspeed > 0 {
         set rebooted to false.
-        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 {
+        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 and ship:partsnamed("VS.25.HSR.BL3"):length = 0 {
             set Block1HSR to true.
         }
         set SeparationTime to time:seconds.
