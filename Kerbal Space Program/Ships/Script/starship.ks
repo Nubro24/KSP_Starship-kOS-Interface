@@ -224,7 +224,7 @@ function CreateTelemetry {
     set sLOXBorder:style:margin:top to 19*TScale.
     set sLOXBorder:style:width to 190*TScale.
     set sLOXBorder:style:height to 8*TScale.
-    set sLOXBorder:style:border:h to 8*TScale.
+    set sLOXBorder:style:border:h to 4*TScale.
     set sLOXBorder:style:border:v to 0*TScale.
     set sLOXBorder:style:overflow:left to 0*TScale.
     set sLOXBorder:style:overflow:right to 8*TScale.
@@ -258,7 +258,7 @@ function CreateTelemetry {
     set sCH4Border:style:margin:top to 12*TScale.
     set sCH4Border:style:width to 190*TScale.
     set sCH4Border:style:height to 8*TScale.
-    set sCH4Border:style:border:h to 8*TScale.
+    set sCH4Border:style:border:h to 4*TScale.
     set sCH4Border:style:border:v to 0*TScale.
     set sCH4Border:style:overflow:left to 0*TScale.
     set sCH4Border:style:overflow:right to 8*TScale.

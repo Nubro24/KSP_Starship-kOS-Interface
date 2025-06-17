@@ -551,7 +551,7 @@ function CreateTelemetry {
     set bLOXBorder:style:margin:top to 19*TScale.
     set bLOXBorder:style:width to 190*TScale.
     set bLOXBorder:style:height to 8*TScale.
-    set bLOXBorder:style:border:h to 8*TScale.
+    set bLOXBorder:style:border:h to 4*TScale.
     set bLOXBorder:style:border:v to 0*TScale.
     set bLOXBorder:style:overflow:left to 0*TScale.
     set bLOXBorder:style:overflow:right to 8*TScale.
@@ -585,7 +585,7 @@ function CreateTelemetry {
     set bCH4Border:style:margin:top to 13*TScale.
     set bCH4Border:style:width to 190*TScale.
     set bCH4Border:style:height to 8*TScale.
-    set bCH4Border:style:border:h to 8*TScale.
+    set bCH4Border:style:border:h to 4*TScale.
     set bCH4Border:style:border:v to 0*TScale.
     set bCH4Border:style:overflow:left to 0*TScale.
     set bCH4Border:style:overflow:right to 8*TScale.
@@ -3206,7 +3206,7 @@ function GetBoosterRotation {
     if not (TargetOLM = "false") and RadarAlt < 240 * Scale and GfC and not LandSomewhereElse and not cAbort {
         //set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
 
-        if RadarAlt < BoosterHeight {
+        if RadarAlt < 0.8*BoosterHeight {
             set varVec to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
             set varPredctVec to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + GSVec).
         } else {
