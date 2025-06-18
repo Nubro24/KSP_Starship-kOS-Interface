@@ -154,6 +154,7 @@ function FindEngines {
         set BoosterSingleEngines to true.
         set BoosterSingleEnginesRB to list().
         set BoosterSingleEnginesRC to list().
+        set MissingList to list().
         set x to 1.
         until x > 33 {
             if ship:partstagged(x:tostring):length > 0 {
