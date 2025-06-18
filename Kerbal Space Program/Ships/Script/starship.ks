@@ -11519,9 +11519,8 @@ function ReEntryData {
                             setflaps(0, 85, 1, 0).
                             set steeringManager:maxstoppingtime to 0.9*Scale.
                         }
-                        when RadarAlt < 0.85 * ShipHeight then {
-                            setflaps(0, 85, 1, 0).
-                            set steeringManager:maxstoppingtime to 0.45*Scale.
+                        when RadarAlt < 0.8 * ShipHeight then {
+                            set steeringManager:maxstoppingtime to 0.6*Scale.
                         }
 
                         when RadarAlt < 2.8 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
