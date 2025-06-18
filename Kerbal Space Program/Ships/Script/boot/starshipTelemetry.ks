@@ -153,7 +153,7 @@ function CreateTelemetry {
     set sLOXBorder:style:margin:top to 19*TScale.
     set sLOXBorder:style:width to 190*TScale.
     set sLOXBorder:style:height to 8*TScale.
-    set sLOXBorder:style:border:h to 8*TScale.
+    set sLOXBorder:style:border:h to 4*TScale.
     set sLOXBorder:style:border:v to 0*TScale.
     set sLOXBorder:style:overflow:left to 0*TScale.
     set sLOXBorder:style:overflow:right to 8*TScale.
@@ -187,7 +187,7 @@ function CreateTelemetry {
     set sCH4Border:style:margin:top to 12*TScale.
     set sCH4Border:style:width to 190*TScale.
     set sCH4Border:style:height to 8*TScale.
-    set sCH4Border:style:border:h to 8*TScale.
+    set sCH4Border:style:border:h to 4*TScale.
     set sCH4Border:style:border:v to 0*TScale.
     set sCH4Border:style:overflow:left to 0*TScale.
     set sCH4Border:style:overflow:right to 8*TScale.
@@ -276,7 +276,7 @@ else {
 if ship:name:contains(" Real Size") and (RSS) {
     set ship:name to ship:name:replace(" Real Size", "").
 }
-
+set Boosterconnected to false.
 set ShipType to "".
 FindParts().
 SetRadarAltitude().
@@ -327,30 +327,20 @@ function FindParts {
 
     set PartListStep to List(Tank).
     set ShipMassStep to Tank:mass.
+    set SingleCenter to false.
+    set SingleOuter to false.
     set CargoMassStep to 0.
     set CargoItems to 0.
     set CargoCoG to 0.
     set SLEnginesStep to List("","","").
     set SL to false.
-    set SLcount to 0.
     set Vac to false.
+    set SLcount to 0.
     set Vaccount to 0.
     set VACEnginesStep to List("","","","","","").
     if Tank:name:contains("SEP.23.SHIP.DEPOT") {
         set ShipType to "Depot".
         set CargoMassStep to CargoMassStep + Tank:mass - Tank:drymass.
-        if stock {
-            set MaxCargoToOrbit to 291000.
-            set RCSThrust to 80.
-        }
-        else if KSRSS {
-            set MaxCargoToOrbit to 521000.
-            set RCSThrust to 140.
-        }
-        else if RSS {
-            set MaxCargoToOrbit to 1710000.
-            set RCSThrust to 200.
-        }
     }
     Treewalking(Core:part).
     function TreeWalking {
@@ -363,11 +353,11 @@ function FindParts {
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else {
-                if x:name:contains("SEP.23.RAPTOR2.SL.RC") and x:parent:name:contains("SHIP") {
+                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C")) and x:parent:name:contains("SHIP") {
                     set SL to true.
                     set SLcount to SLcount + 1.
                 }
-                else if x:name:contains("SEP.23.RAPTOR.VAC") {
+                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
@@ -389,22 +379,10 @@ function FindParts {
                 else if x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:title = "Donnager MK-3 Rear Right Flap" or x:title = "Starship Block 1 Rear Right Flap" {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:title = "Donnager MK-3 Front Left Flap" or x:title = "Starship Block 1 Forward Left Flap" {
+                else if x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:title = "Donnager MK-3 Front Left Flap" or x:title = "Starship Block 1 Forward Left Flap" or x:name:contains("VS.25.BL2.FLAP.LEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:title = "Donnager MK-3 Front Right Flap" or x:title = "Starship Block 1 Forward Right Flap" {
-                    set FRflap to x.
-                }
-				else if x:name:contains("AFT.Left.Flap.V2") or x:title = "Starship AFT Left Flap"{
-                    set ALflap to x.
-                }
-                else if x:name:contains("AFT.Right.Flap.V2") or x:title = "Starship AFT Right Flap" {
-                    set ARflap to x.
-                }
-                else if x:name:contains("FWD.Left.Flap.V2") or x:title = "Starship V2 FWD Left Flap" {
-                    set FLflap to x.
-                }
-                else if x:name:contains("FWD.Left.Flap.V2") or x:title = "Starship V2 FWD Right Flap" {
+                else if x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:title = "Donnager MK-3 Front Right Flap" or x:title = "Starship Block 1 Forward Right Flap" or x:name:contains("VS.25.BL2.FLAP.RIGHT") {
                     set FRflap to x.
                 }
                 else if x:name:contains("SEP.23.SHIP.HEADER") {
@@ -414,10 +392,6 @@ function FindParts {
                     set HeaderTank to x.
                 }
 				else if x:title = "Donnager MK-3 Header Tank" or x:name:contains("SEP.24.SHIP.HEADER") {
-                    set HeaderTank to x.
-
-                }
-                else if x:title = "Starship Header Tank" {
                     set HeaderTank to x.
                 }
                 else if x:name:contains("SEP.23.SHIP.CARGO") and not x:name:contains("SEP.23.SHIP.CARGO.EXP") {
@@ -445,7 +419,7 @@ function FindParts {
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
-                else if x:name:contains("SEP.24.SHIP.PEZ") {
+                else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
@@ -453,11 +427,6 @@ function FindParts {
                 else if x:name:contains("SEP.24.SHIP.PEZ.EXP") {
                     set Nose to x.
                     set ShipType to "Block1PEZExp".
-                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
-                }
-                else if x:name:contains("NOSE.PEZ.BLOCK-2") or x:title:contains("BLOCK-2 PEZ") {
-                    set Nose to x.
-                    set ShipType to "Block2PEZSEPOv".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.23.SHIP.CREW") {
@@ -470,13 +439,6 @@ function FindParts {
                     set ShipType to "Tanker".
                     set CargoMassStep to CargoMassStep + x:mass - x:drymass.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
-                    if RSS {
-                        set MaxCargoToOrbit to 150000.
-                    } else if KSRSS {
-                        set MaxCargoToOrbit to 97000.
-                    } else {
-                        set MaxCargoToOrbit to 79000.
-                    }
                 }
                 else if x:name:contains("SEP.23.SHIP.CARGO.EXP") {
                     set Nose to x.
@@ -488,6 +450,9 @@ function FindParts {
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
                 }
+                else if x:name:contains("VS_25_BL2_TILE_FWD") {
+                    set ShipSubType to "Block2".
+                }
                 
                 set ShipMassStep to ShipMassStep + (x:mass).
                 PartListStep:add(x).
@@ -496,7 +461,7 @@ function FindParts {
         }
     }
 
-    if SL and SLcount = 3 {
+    if SL {
         set SL1 to false.
         set SL2 to false.
         set SL3 to false.
@@ -526,9 +491,12 @@ function FindParts {
                 }
             }
         }
+        set SLcount to 0.
         if SL1 and SL2 and SL3 {}
         else {
-            print("Not all SLEngines have been set..!!!").
+            if not SL1 set SLEnginesStep[0] to False.
+            if not SL2 set SLEnginesStep[1] to False.
+            if not SL3 set SLEnginesStep[2] to False.
         }
     } 
     else {
@@ -567,9 +535,12 @@ function FindParts {
                 }
             }
         }
+        set Vaccount to 0.
         if Vac1 and Vac2 and Vac3 {}
         else {
-            print("Not all VACEngines have been set..!!!").
+            if not Vac1 set VACEnginesStep[0] to False.
+            if not Vac2 set VACEnginesStep[1] to False.
+            if not Vac3 set VACEnginesStep[2] to False.
         }
     } 
     else if Vac and Vaccount = 6 {
@@ -626,9 +597,15 @@ function FindParts {
                 }
             }
         }
+        set Vaccount to 0.
         if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {}
         else {
-            print("Not all VACEngines have been set..!!!").
+            if not Vac1 set VACEnginesStep[0] to False.
+            if not Vac2 set VACEnginesStep[1] to False.
+            if not Vac3 set VACEnginesStep[2] to False.
+            if not Vac4 set VACEnginesStep[3] to False.
+            if not Vac5 set VACEnginesStep[4] to False.
+            if not Vac6 set VACEnginesStep[5] to False.
         }
     } 
     else {
@@ -659,47 +636,19 @@ function FindParts {
             set ELECcap to res:capacity.
         }
     }
+    wait 0.01.
 
     if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
         set oldBooster to true.
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
-        set sLOX:style:textcolor to grey.
-        set sCH4:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
-        if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") {
-            set BoosterSingleEngines to true.
-            set BoosterSingleEnginesRB to list().
-            set BoosterSingleEnginesRC to list().
-            set x to 0.
-            until x > 12 {
-                BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
-                set x to x + 1.
-            }
-            until x > 32 {
-                BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
-                set x to x + 1.
-            }
-        } 
-        else if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") {
-            set BoosterSingleEngines to true.
-            set BoosterSingleEnginesRB to list().
-            set BoosterSingleEnginesRC to list().
-            set x to 0.
-            until x > 19 {
-                BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
-                set x to x + 1.
-            }
-            until x > 32 {
-                BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
-                set x to x + 1.
-            }
-        } 
-        else {
-            set BoosterSingleEngines to false.
-        }
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
@@ -717,49 +666,21 @@ function FindParts {
             }
             sendMessage(processor(volume("Booster")), "ShipDetected").
         }
-        set sTelemetry:style:bg to "".
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
     } else if ship:partsnamed("SEP.25.BOOSTER.CORE"):length > 0 {
         set Boosterconnected to true.
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
-        set sLOX:style:textcolor to grey.
-        set sCH4:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER").
-        if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") {
-            set BoosterSingleEngines to true.
-            set BoosterSingleEnginesRB to list().
-            set BoosterSingleEnginesRC to list().
-            set x to 0.
-            until x > 12 {
-                BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
-                set x to x + 1.
-            }
-            until x > 32 {
-                BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
-                set x to x + 1.
-            }
-        } 
-        else if not BoosterEngines[0]:children:length = 0 and BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") {
-            set BoosterSingleEngines to true.
-            set BoosterSingleEnginesRB to list().
-            set BoosterSingleEnginesRC to list().
-            set x to 0.
-            until x > 19 {
-                BoosterSingleEnginesRB:add(BoosterEngines[0]:children[x]).
-                set x to x + 1.
-            }
-            until x > 32 {
-                BoosterSingleEnginesRC:add(BoosterEngines[0]:children[x]).
-                set x to x + 1.
-            }
-        } 
-        else {
-            set BoosterSingleEngines to false.
-        }
         set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
-        set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
+        if ship:partsnamed("SEP.25.BOOSTER.HSR"):length > 0 set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
+        else if ship:partsnamed("VS.25.HSR.BL3"):length > 0 set HSR to SHIP:PARTSNAMED("VS.25.HSR.BL3").
         set BoosterCore to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
@@ -775,20 +696,72 @@ function FindParts {
             }
             sendMessage(processor(volume("Booster")), "ShipDetected").
         }
-        set sTelemetry:style:bg to "".
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
     }
     else {
         set Boosterconnected to false.
-        set PostLaunch to true.
-        if not BoosterExists() {
+        if not runningprogram = "LAUNCH" {
             set sTelemetry:style:bg to "starship_img/telemetry_bg".
         }
+
     }
 
-    set partsfound to true.
+    if Boosterconnected {
+        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+            or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+        set BoosterSingleEngines to true.
+            set BoosterSingleEnginesRB to list().
+            set BoosterSingleEnginesRC to list().
+            set x to 1.
+            until x > 33 or not Boosterconnected {
+                if ship:partstagged(x:tostring):length > 0 {
+                    if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
+                    else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+                }
+                else {
+                    if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
+                    else BoosterSingleEnginesRB:insert(x-14, False).
+                }
+                set x to x + 1.
+            }
+        } 
+        else {
+            set BoosterSingleEngines to false.
+        }
+        print "bEngines set.. SingleEng.:" + BoosterSingleEngines.
+    }
 
+    if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
+        set OnOrbitalMount to True.
+        set OLM to ship:partstitled("Starship Orbital Launch Mount")[0].
+        set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+        set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
+        set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
+        //set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
+        set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+        set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+        Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
+        sendMessage(processor(volume("OrbitalLaunchMount")), "getArmsVersion").
+        if RSS {
+            set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 12.
+        }
+        else {
+            set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 7.5.
+        }
+        //SaveToSettings("ArmsHeight", ArmsHeight).
+        set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass.
+        print("Stack mass: " + StackMass).
+        print(ship:mass).
+    }
+    else {
+        set OnOrbitalMount to False.
+        set OLM to false.
+        set StackMass to ship:mass.
+        //print("Stack mass (no OLM found): " + StackMass).
+    }
+    set partsfound to true.
 
     
 }
@@ -825,8 +798,10 @@ when not Boosterconnected then {
     when not BoosterExists() then set sTelemetry:style:bg to "starship_img/telemetry_bg".
 }
 
+
+
 until false {
-    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 {
+    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and Boosterconnected {
         set Boosterconnected to false.
         //sendMessage(Vessel("Booster"),"HotStage").
     } 
@@ -931,19 +906,15 @@ function BoosterExists {
 function updateTelemetry {
 
     if Boosterconnected {
-        if vAng(facing:vector,up:vector) < 23 {
-            set sAttitude:style:bg to "starship_img/FullstackShip".
-        } else if vAng(facing:vector,up:vector) < 67 and vAng(facing:vector,up:vector) > 23 {
-            set sAttitude:style:bg to "starship_img/FullstackShip-45".
-        }
+        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+        else set currentPitch to 360-vAng(facing:forevector,up:vector).
+        if round(currentPitch) = 360 set currentPitch to 0.
+        set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(currentPitch):tostring.
     } else {
-        if vAng(facing:vector,up:vector) < 23 {
-            set sAttitude:style:bg to "starship_img/Ship".
-        } else if vAng(facing:vector,up:vector) < 67 and vAng(facing:vector,up:vector) > 23 {
-            set sAttitude:style:bg to "starship_img/Ship-45".
-        } else if vAng(facing:vector,up:vector) > 67 {
-            set sAttitude:style:bg to "starship_img/Ship-0".
-        }
+        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+        else set currentPitch to vang(facing:forevector,up:vector).
+        if round(currentPitch) = 360 set currentPitch to 0.
+        set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
     }
 
 
@@ -962,44 +933,47 @@ function updateTelemetry {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
             }
-            if res:name = "LqdMethane" or res:name = "cooledLCH4" or res:name = "CooledLqdMethane" {
+            if res:name = "LqdMethane" {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
             }
-            if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" or res:name = "LqdOxygen" {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" {
                 set lox to res:amount.
                 set mlox to res:capacity.
             }
         }
     }
-    for res in Tank:resources {
+        for res in Tank:resources {
             if res:name = "LiquidFuel" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
             }
-            if res:name = "LqdMethane" or res:name = "cooledLCH4" or res:name = "CooledLqdMethane" {
+            if res:name = "LqdMethane" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
             }
-            if res:name = "Oxidizer" or res:name = "cooledLOX" or res:name = "CooledLqdOxygen" or res:name = "LqdOxygen" {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" {
                 set lox to lox + res:amount.
                 set mlox to mlox + res:capacity.
             }
-    }
+        }
+
+
 
 
     set shipLOX to lox*100/mlox.
     set shipCH4 to ch4*100/mch4.
-    
-    
+
     set engCount to 0.
     set engCountVar to 1.
     for eng in SLEngines {
-        if eng:thrust > 0 set engCount to engCount + engCountVar.
+        if eng:hassuffix("activate")
+            if eng:thrust > 0 set engCount to engCount + engCountVar.
         set engCountVar to engCountVar*2.
     }
     for eng in VACEngines {
-        if eng:thrust > 0 set engCount to engCount + engCountVar.
+        if eng:hassuffix("activate")
+            if eng:thrust > 0 set engCount to engCount + engCountVar.
         set engCountVar to engCountVar*2.
     }
     set picPath to "starship_img/EngPic" + VACEngines:length + "Vac/" + engCount:tostring.
@@ -1031,13 +1005,16 @@ function updateTelemetry {
 
     set shipThrust to 0.
     for eng in SLEngines {
-        set shipThrust to shipThrust + eng:thrust.
+        if eng:hassuffix("activate") set shipThrust to shipThrust + eng:thrust.
     }
     for eng in VACEngines {
-        set shipThrust to shipThrust + eng:thrust.
+        if eng:hassuffix("activate") set shipThrust to shipThrust + eng:thrust.
     }
 
-    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + round(throttle,2)*100 + "%".
+    if Boosterconnected set currentThr to 0.
+    else set currentThr to throttle.
+
+    set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + min(round(currentThr,2)*100,100) + "%".
 
     set missionTimerNow to time:seconds-missionTimer.
     if missionTimerNow < 0 {
@@ -1070,8 +1047,7 @@ function updateTelemetry {
     if Tseconds < 9.1 {
         set Tseconds to "0"+Tseconds.
     }
-
-    if Boosterconnected or BoosterExists() {
+    if Boosterconnected or runningprogram = "LAUNCH" {
         set missionTimeLabel:text to "".
         VersionDisplay:hide().
     } else if TMinus {

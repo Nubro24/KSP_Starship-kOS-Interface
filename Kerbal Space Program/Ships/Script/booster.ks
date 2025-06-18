@@ -156,15 +156,19 @@ function FindEngines {
         set BoosterSingleEnginesRC to list().
         set x to 1.
         until x > 33 {
-            if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
-            else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+            if ship:partstagged(x:tostring):length > 0 {
+                if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
+                else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+            }
+            else {
+                if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
+                else BoosterSingleEnginesRB:insert(x-14, False).
+            }
             set x to x + 1.
         }
-        set BoosterEngineCount to BoosterSingleEnginesRB:length + BoosterSingleEnginesRC:length.
-        if BoosterEngineCount < 33 {
-            HUDTEXT("The Booster is missing " + 33-BoosterEngineCount + " Engines!", 5, 2, 20, red, true).
-            wait 4.
-            reboot.
+        if MissingList:length > 0 {
+            print("The Booster is missing " + MissingList:length + " Engines!").
+            //print MissingList.
         }
     } 
     else {
@@ -1092,15 +1096,16 @@ function Boostback {
                         set waittimer to time:seconds.
                         when waittimer + 3 > time:seconds then {
                             for tgt in tgtlist {
-                                if tgt:name:contains("Starship") and tgt:orbit:periapsis < ship:body:atm:height {
-                                    set ShipFound to true.
-                                    print tgt:name.
-                                    set starship to tgt:name.
-                                    wait 0.001.
-                                }
+                                if tgt:name:contains("Starship") and (tgt:status = "SUB_ORBITAL" or tgt:status = "FLYING" or tgt:status = "ORBITAL")
+                                    if tgt:orbit:periapsis < ship:body:atm:height {
+                                        set ShipFound to true.
+                                        print tgt:name.
+                                        set starship to tgt:name.
+                                        wait 0.001.
+                                    }
                             }
+                            if not ShipFound set ShipNotFound to true.
                         }
-                        set ShipNotFound to true.
                     }
                     wait 0.
                 }
