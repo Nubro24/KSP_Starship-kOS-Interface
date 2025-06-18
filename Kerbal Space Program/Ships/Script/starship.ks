@@ -1168,9 +1168,6 @@ function FindParts {
         //print("Stack mass (no OLM found): " + StackMass).
     }
     set partsfound to true.
-
-
-    
 }
 
 
@@ -15399,10 +15396,10 @@ function updateTelemetry {
 
     set shipThrust to 0.
     for eng in SLEngines {
-        set shipThrust to shipThrust + eng:thrust.
+        if eng:hassuffix("activate") set shipThrust to shipThrust + eng:thrust.
     }
     for eng in VACEngines {
-        set shipThrust to shipThrust + eng:thrust.
+        if eng:hassuffix("activate") set shipThrust to shipThrust + eng:thrust.
     }
 
     if Boosterconnected set currentThr to 0.
