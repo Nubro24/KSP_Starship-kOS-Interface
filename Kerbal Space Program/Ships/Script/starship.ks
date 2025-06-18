@@ -856,7 +856,7 @@ function FindParts {
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
                 }
-                else if x:name:contains("VS_25_BL2_TILE_FWD") {
+                else if x:name:contains("VS.25.BL2.TILE.FWD") and x:title = "Starship BL2 Fwd Tiles" {
                     set ShipSubType to "Block2".
                 }
                 
@@ -1243,6 +1243,7 @@ if ship:name:contains("OrbitalLaunchMount") {
     set ship:name to ("Starship " + ShipType).
 }
 print ShipType.
+print ShipSubType.
 print "Starship Interface startup complete!".
 
 
@@ -1366,7 +1367,8 @@ local LBLayout is IgnChaLayout:addhlayout().
         set LB2Mult:style:margin:left to 6.
         set LB2Mult:style:margin:bottom to 12.
 
-local IgnConfirm is IgnChaLayout:addbutton().
+local ButtonsLayout is IgnChaLayout:addhlayout().
+local IgnConfirm is ButtonsLayout:addbutton().
     set IgnConfirm:text to "<b><color=green>Confirm</color></b>".
     set IgnConfirm:style:margin:bottom to 8.
     set IgnConfirm:style:margin:left to 8.
@@ -1390,11 +1392,59 @@ local IgnConfirm is IgnChaLayout:addbutton().
         set IgnitionChances:pressed to false.
         IgnitionChancesGUI:hide().
     }.
-    
+
+local IgnSave is ButtonsLayout:addbutton().
+    set IgnSave:text to "<b><color=green>Save & Confirm</color></b>".
+    set IgnSave:style:margin:bottom to 8.
+    set IgnSave:style:margin:left to 8.
+    set IgnSave:style:margin:right to 8.
+    set IgnSave:onclick to {
+        if LOSelect:text = "" set LOSelect:text to "1".
+        if HSSelect1:text = "" set HSSelect1:text to "1".
+        if HSSelect2:text = "" set HSSelect2:text to "1".
+        if BBSelect:text = "" set BBSelect:text to "1".
+        if LBSelect1:text = "" set LBSelect1:text to "1".
+        if LBSelect2:text = "" set LBSelect2:text to "1".
+        set LOIgnCha to LOSelect:text:toscalar.
+        set SLIgnCha to HSSelect1:text:toscalar.
+        set VCIgnCha to HSSelect2:text:toscalar.
+        set BBIgnCha to BBSelect:text:toscalar.
+        set LB1IgnCha to LBSelect1:text:toscalar.
+        set LB2IgnCha to LBSelect2:text:toscalar.
+
+        SaveToSettings("IgnChances1",LOIgnCha).
+        SaveToSettings("IgnChances2",SLIgnCha).
+        SaveToSettings("IgnChances3",VCIgnCha).
+        SaveToSettings("IgnChances4",BBIgnCha).
+        SaveToSettings("IgnChances5",LB1IgnCha).
+        SaveToSettings("IgnChances6",LB2IgnCha).
+
+        if Boosterconnected sendMessage(processor(Volume("Booster")),"IgnChance,"+BBIgnCha:tostring+","+LB1IgnCha:tostring+","+LB2IgnCha:tostring).
+
+        set IgnitionChances:pressed to false.
+        IgnitionChancesGUI:hide().
+    }.
 
 set IgnitionChances:ontoggle to {
     parameter toggle.
     if toggle {
+        if exists("0:/settings.json") {
+            set L to readjson("0:/settings.json").
+            if L:haskey("IgnChances1") {
+                set LOIgnCha to L["IgnChances1"].
+                set LOSelect:text to LOIgnCha:tostring.
+                set SLIgnCha to L["IgnChances2"].
+                set HSSelect1:text to SLIgnCha:tostring.
+                set VCIgnCha to L["IgnChances3"].
+                set HSSelect2:text to VCIgnCha:tostring.
+                set BBIgnCha to L["IgnChances4"].
+                set BBSelect:text to BBIgnCha:tostring.
+                set LB1IgnCha to L["IgnChances5"].
+                set LBSelect1:text to LB1IgnCha:tostring.
+                set LB2IgnCha to L["IgnChances6"].
+                set LBSelect2:text to LB2IgnCha:tostring.
+            }
+        } 
         IgnitionChancesGUI:show().
     }
     else IgnitionChancesGUI:hide().
@@ -7420,7 +7470,7 @@ function Launch {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
-                set LaunchRollVector to up:vector.
+                if ShipSubType:contains("Block2") set LaunchRollVector to up:vector.
                 set steeringManager:rolltorquefactor to 4.
                 set Hotstaging to true.
                 if BoosterSingleEngines {

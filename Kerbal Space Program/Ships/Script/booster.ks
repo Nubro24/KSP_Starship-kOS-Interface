@@ -80,22 +80,22 @@ for part in ship:parts {
         set BoosterCore to part.
         set oldBooster to true.
         set BTset to true.
-        set RandomFlip to true.
+        if not ShipType = "Block2" set RandomFlip to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        set RandomFlip to false.
+        if not ShipType = "Block2" set RandomFlip to true.
     }
     if part:name = ("SEP.23.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        set RandomFlip to true.
+        if not ShipType = "Block2" set RandomFlip to true.
     }
     if part:name = ("SEP.24.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        set RandomFlip to true.
+        if not ShipType = "Block2" set RandomFlip to true.
     }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
@@ -118,7 +118,7 @@ for part in ship:parts {
         set GFset to true.
     }
     if part:name = ("SEP.Gridfin") and not GFset {
-        set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
+        set Gridfins to ship:partsnamed("SEP.Gridfin").
         set GFset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
@@ -139,6 +139,10 @@ for part in ship:parts {
     }
     if part:name:contains("frostbooster") {
         set Frost to true.
+    }
+    if part:name = "VS.25.BL2.TILE.FWD" and part:title = "Starship BL2 Fwd Tiles" {
+        set RandomFlip to false.
+        set ShipType to "Block2".
     }
 }
 
@@ -710,7 +714,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1400. 
-        else set BoosterGlideDistance to 1200.
+        else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.21.
         set LngCtrlPID:setpoint to 10. //75
@@ -748,7 +752,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1400. 
-        else set BoosterGlideDistance to 1200.
+        else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.21.
         set LngCtrlPID:setpoint to 10. //75
@@ -1688,7 +1692,7 @@ function Boostback {
     }
 
     if STOCK set BoosterGlideFactor to 1.
-    else if KSRSS set BoosterGlideFactor to 1.
+    else if KSRSS set BoosterGlideFactor to 1.12.
     else if RSS set BoosterGlideFactor to 0.9.
     else set BoosterGlideFactor to 1.
 
@@ -1731,6 +1735,7 @@ function Boostback {
         SetBoosterActive().
         wait 0.05.
     }
+    set config:ipu to 1800.
 
     if not GfC {
         set LandSomewhereElse to true.
@@ -1818,7 +1823,6 @@ function Boostback {
 
 
 
-    set config:ipu to 1600.
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
     when cAbort then {
@@ -2555,7 +2559,10 @@ function LandingGuidance {
                 set Fgs to Fgs * 0.9.
             }
         }
-        else set Ferr to Ferr * 0.6.
+        else {
+            set Ferr to Ferr * 0.6.
+            if KSRSS set Ferr to Ferr * 1.4.
+        }
 
         set Fgs to Fgs * max(min( -0.01*GSVec:mag + 1.4 , 1.2) , 0.4) * (1.03/max(closureRatio,0.5)^4).
         if RSS set Fgs to Fgs * (1.01/max(closureRatio,0.5)^4).
