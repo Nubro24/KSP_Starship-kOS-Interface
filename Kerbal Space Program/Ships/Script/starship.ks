@@ -15346,6 +15346,11 @@ function updateTelemetry {
         else set currentPitch to 360-vAng(facing:forevector,up:vector).
         if round(currentPitch) = 360 set currentPitch to 0.
         set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(currentPitch):tostring.
+    } else if ShipSubType = "Block2" {
+        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+        else set currentPitch to vang(facing:forevector,up:vector).
+        if round(currentPitch) = 360 set currentPitch to 0.
+        set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
     } else {
         if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
         else set currentPitch to vang(facing:forevector,up:vector).
