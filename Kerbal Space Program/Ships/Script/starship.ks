@@ -96,6 +96,7 @@ else set LSCoords to ("0,0").
 
 set RadarAlt to 0.
 set Hotstaging to false.
+set ShipSubType to "None".
 
 
 local VersionDisplay is GUI(100).
@@ -677,7 +678,6 @@ set shipThrust to 0.00001.
 set angle to 75.
 set speed to 12.
 set oldBooster to false.
-set ShipSubType to "None".
 
 
 
