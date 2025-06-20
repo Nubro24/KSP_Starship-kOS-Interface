@@ -53,6 +53,8 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - HullcamVDS - [github](https://github.com/linuxgurugamer/HullcamVDSContinued/releases)
 - Of Course I Still Love You (for multiple Camera Views on your Screen *using HullcamVDS*) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 - When launching empty Starships it is recommended to reduce Booster Fuel load by one stop in the VAB
+### Supported:
+- Vista's SEP Addon (VSEPM) - [github](https://github.com/vistastudios1/VistasKSPMods/releases)
 
 ### Incompatible:
 - TweakableEverything
