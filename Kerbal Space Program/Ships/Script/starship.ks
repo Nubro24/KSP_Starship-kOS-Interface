@@ -386,7 +386,7 @@ set config:obeyhideui to false.
 if RSS {         // Real Solar System
     set LandingAoA to 80.
     set MaxCargoToOrbit to 75000.
-    set MaxReEntryCargoThickAtmo to 2500.
+    set MaxReEntryCargoThickAtmo to 4500.
     set MaxIU to 200.
     set MaxReEntryCargoThinAtmo to 151000.
     set LaunchTimeSpanInSeconds to 480.
@@ -426,7 +426,7 @@ if RSS {         // Real Solar System
 else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set LandingAoA to 75.
     set MaxCargoToOrbit to 126000.
-    set MaxReEntryCargoThickAtmo to 1000.
+    set MaxReEntryCargoThickAtmo to 2500.
     set MaxIU to 100.
     set MaxReEntryCargoThinAtmo to 126000.
     set LaunchTimeSpanInSeconds to 360.
@@ -473,7 +473,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
 else {       // Stock Kerbin
     set LandingAoA to 75.
     set MaxCargoToOrbit to 77800.
-    set MaxReEntryCargoThickAtmo to 1000.
+    set MaxReEntryCargoThickAtmo to 2500.
     set MaxIU to 100.
     set MaxReEntryCargoThinAtmo to 77800.
     set LaunchTimeSpanInSeconds to 265.
