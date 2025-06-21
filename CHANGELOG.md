@@ -22,6 +22,7 @@
     - Added a new Settings menu (called from a button on the top left) for user settings
 - **Small improvements to Booster and Ship Landings**
 - Added Support for Raptor 1
+- Added Support for Vista's SEP Addon
 - Fixed RSS Max Cargo values (max. 69t to Orbit)
 - Fixed RSS Reentry loosing control
 - Fixed an Error with Real Fuels

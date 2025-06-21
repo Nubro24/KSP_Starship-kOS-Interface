@@ -1065,7 +1065,7 @@ function FindParts {
                 set BoosterCorrectVariant to true.
             }
             else {
-                set BoosterCorrectVariant to false.
+                set BoosterCorrectVariant to true.
             }
             if ShipType = "Depot" {
                 sendMessage(processor(volume("Booster")),"Depot").
@@ -1095,7 +1095,7 @@ function FindParts {
                 set BoosterCorrectVariant to true.
             }
             else {
-                set BoosterCorrectVariant to false.
+                set BoosterCorrectVariant to true.
             }
             if ShipType = "Depot" {
                 sendMessage(processor(volume("Booster")),"Depot").
