@@ -670,8 +670,8 @@ if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
         set Planet to "Earth".
-        set LaunchSites to lexicon("KSC", "28.6117,-80.58647").
-        set offshoreSite to latlng(28.6117,-80.52).
+        set LaunchSites to lexicon("KSC", "28.549072,-80.655925").
+        set offshoreSite to latlng(28.549,-80.5).
         set BoosterHeight to 70.6.
         if oldBooster set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
@@ -1264,7 +1264,7 @@ function Boostback {
         }
         set changed to false.
         set lastCheck to GfC.
-        
+
         until (ErrorVector:mag < BoosterGlideDistance + 5400 * Scale) or verticalspeed < -60 or BoostBackComplete {
             if not GfC = lastCheck {
                 set changed to true.
@@ -1284,7 +1284,7 @@ function Boostback {
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
             SetBoosterActive().
-            wait 0.08.
+            wait 0.05.
         }
 
         if BoosterSingleEngines

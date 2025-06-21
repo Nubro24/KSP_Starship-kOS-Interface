@@ -6541,19 +6541,22 @@ if addons:tr:available and not startup {
         if panels {
             set quickcargo2:pressed to true.
         }
-        if SLEngines[0]:ignition = true and VACEngines[0]:ignition = true {
-            set quickengine2:pressed to true.
-            set quickengine3:pressed to true.
-        }
-        if SLEngines[0]:ignition = true {
-            set quickengine2:pressed to true.
-        }
-        else if VACEngines[0]:ignition = true {
-            set quickengine3:pressed to true.
+        if SLEngines[0]:hassuffix("activate") and VACEngines[0]:hassuffix("activate") {
+            if SLEngines[0]:ignition = true and VACEngines[0]:ignition = true {
+                set quickengine2:pressed to true.
+                set quickengine3:pressed to true.
+            }
+            else if SLEngines[0]:ignition = true {
+                set quickengine2:pressed to true.
+            }
+            else if VACEngines[0]:ignition = true {
+                set quickengine3:pressed to true.
+            }
         }
         else {
             ShutDownAllEngines().
         }
+        
         if Boosterconnected {
             HideEngineToggles(1).
         }
