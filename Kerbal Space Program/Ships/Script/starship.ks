@@ -1146,8 +1146,10 @@ function FindParts {
         set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
         set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
         //set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
-        set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
-        set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+        if ship:partstitled("Starship Quick Disconnect Arm"):length > 0 set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+        else hudtext("Your Tower is missing the SQD",10,2,18,red,false).
+        if ship:partstitled("Water Cooled Steel Plate"):length > 0 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+        else hudtext("Your OLM is missing the Water Cooled Steel Plate",10,2,18,red,false).
         Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
         sendMessage(processor(volume("OrbitalLaunchMount")), "getArmsVersion").
         if RSS {
