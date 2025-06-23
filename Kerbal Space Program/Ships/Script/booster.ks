@@ -707,18 +707,18 @@ if bodyexists("Earth") {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2950. //3000
+        set LFBoosterFuelCutOff to 3000. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1400. 
-        else set BoosterGlideDistance to 1400.
+        if oldBooster set BoosterGlideDistance to 1600. 
+        else set BoosterGlideDistance to 1550.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.15.
-        set BoosterGlideFactor to 1.2.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
+        set BoosterGlideFactor to 1.25.
         set LngCtrlPID:setpoint to 24. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -746,18 +746,18 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2950. //3000
+        set LFBoosterFuelCutOff to 3000. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1400. 
-        else set BoosterGlideDistance to 1400.
+        if oldBooster set BoosterGlideDistance to 1600. 
+        else set BoosterGlideDistance to 1550.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.21.
-        set BoosterGlideFactor to 1.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
+        set BoosterGlideFactor to 1.25.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -789,6 +789,7 @@ else {
         else set BoosterGlideDistance to 800. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
+        set BoosterGlideFactor to 1.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -1983,12 +1984,14 @@ function Boostback {
     }
 
     when velocity:surface:mag < 69 and not MiddleEnginesShutdown and RadarAlt > 540 or 
-            velocity:surface:mag < 32 and not MiddleEnginesShutdown and KSRSS or 
+            velocity:surface:mag < 32 and not MiddleEnginesShutdown and KSRSS and RadarAlt > 100 or 
             velocity:surface:mag < 42 and not MiddleEnginesShutdown and STOCK and RadarAlt > 180 or 
-            velocity:surface:mag < 32 and not MiddleEnginesShutdown and STOCK or 
+            velocity:surface:mag < 32 and not MiddleEnginesShutdown and STOCK and RadarAlt > 80 or 
             velocity:surface:mag < 69 and not MiddleEnginesShutdown and RSS or 
             velocity:surface:mag < 52 and not MiddleEnginesShutdown and RadarAlt > 460 or
-            velocity:surface:mag < 42 and not MiddleEnginesShutdown and RSS then {
+            velocity:surface:mag < 42 and not MiddleEnginesShutdown and RSS and RadarAlt > 140 or
+            velocity:surface:mag < 24 and not MiddleEnginesShutdown and RSS or
+            velocity:surface:mag < 12 and not MiddleEnginesShutdown then {
 
         set MiddleEnginesShutdown to true.
 
@@ -2294,7 +2297,7 @@ FUNCTION SteeringCorrections {
                 else set dragFactor to 1 - 0.06 * (1 + 0.55*((airspeed/305)^2 - 1)).
             }
             
-            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3500),1250).
+            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3570),1250).
             if BoosterSingleEngines { 
                 set LandingBurnAlt to LandingBurnAlt * 1.05.
                 if RSS set LandingBurnAlt to LandingBurnAlt * 1.05.
