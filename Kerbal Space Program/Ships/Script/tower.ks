@@ -75,7 +75,7 @@ set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
 if ship:partsnamed("SLE.SS.OLIT.SQD"):length > 0 {
     set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
 }
-set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+if ship:partstitled("Water Cooled Steel Plate"):length > 0 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
 
 
 for part in ship:parts {

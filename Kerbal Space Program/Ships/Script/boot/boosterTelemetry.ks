@@ -561,16 +561,14 @@ function GUIupdate {
                         else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
                     }
                     else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
-                    set z to z+1.
                 } else {
                     if BoosterSingleEnginesRB[z-13]:hassuffix("activate") {
                         if BoosterSingleEnginesRB[z-13]:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/" + (z+1).
                         else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
                     }
                     else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
-                    
-                    set z to z+1.
                 }
+                set z to z+1.
             }
         } 
         else 
