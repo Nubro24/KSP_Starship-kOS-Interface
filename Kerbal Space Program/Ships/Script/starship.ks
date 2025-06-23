@@ -15440,16 +15440,16 @@ function updateTelemetry {
     }
 
     set sLOXLabel:text to "<b>LOX</b>   ".// + round(shipLOX,1) + " %".
-    set sLOXSlider:style:overflow:right to -196 + 2*round(shipLOX,1).
+    set sLOXSlider:style:overflow:right to -196*TScale + 2*round(shipLOX,1)*TScale.
     set sLOXNumber:text to round(shipLOX,1) + "%".
 
     if methane {
         set sCH4Label:text to "<b>CH4</b>   ".// + round(shipCH4,1) + " %".
-        set sCH4Slider:style:overflow:right to -196 + 2*round(shipCH4,1).
+        set sCH4Slider:style:overflow:right to -196*TScale + 2*round(shipCH4,1)*TScale.
         set sCH4Number:text to round(shipCH4,1) + "%".
     } else {
         set sCH4Label:text to "<b>Fuel</b>   ".// + round(shipCH4,1) + " %".
-        set sCH4Slider:style:overflow:right to -196 + 2*round(shipCH4,1).
+        set sCH4Slider:style:overflow:right to -196*TScale + 2*round(shipCH4,1)*TScale.
         set sCH4Number:text to round(shipCH4,1) + "%".
     }
 

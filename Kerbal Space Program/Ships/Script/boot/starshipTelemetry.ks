@@ -999,11 +999,11 @@ function updateTelemetry {
 
     if methane {
         set sCH4Label:text to "<b>CH4</b>   ".// + round(shipCH4,1) + " %".
-        set sCH4Slider:style:overflow:right to -196 + 2*round(shipCH4,1).
+        set sCH4Slider:style:overflow:right to -196*TScale + 2*round(shipCH4,1)*TScale.
         set sCH4Number:text to round(shipCH4,1) + "%".
     } else {
         set sCH4Label:text to "<b>Fuel</b>   ".// + round(shipCH4,1) + " %".
-        set sCH4Slider:style:overflow:right to -196 + 2*round(shipCH4,1).
+        set sCH4Slider:style:overflow:right to -196*TScale + 2*round(shipCH4,1)*TScale.
         set sCH4Number:text to round(shipCH4,1) + "%".
     }
 
