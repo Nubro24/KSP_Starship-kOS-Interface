@@ -76,26 +76,27 @@ set ECset to false.
 set BTset to false.
 set HSset to false.
 for part in ship:parts {
+    print RandomFlip.
     if part:name:contains("SEP.23.BOOSTER.INTEGRATED") and not BTset {
         set BoosterCore to part.
         set oldBooster to true.
         set BTset to true.
-        if not ShipType = "Block2" set RandomFlip to true.
+        if not ShipType:contains("Block2") set RandomFlip to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        if not ShipType = "Block2" set RandomFlip to true.
+        if not ShipType:contains("Block2") set RandomFlip to true.
     }
     if part:name = ("SEP.23.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        if not ShipType = "Block2" set RandomFlip to true.
+        if not ShipType:contains("Block2") set RandomFlip to true.
     }
     if part:name = ("SEP.24.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        if not ShipType = "Block2" set RandomFlip to true.
+        if not ShipType:contains("Block2") set RandomFlip to true.
     }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
@@ -665,7 +666,6 @@ set NoGo:onclick to {
     set GD to false.
 }.
 
-
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
@@ -686,6 +686,7 @@ if bodyexists("Earth") {
         else set BoosterGlideDistance to 2100. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
+        set BoosterGlideFactor to 0.9.
         set LngCtrlPID:setpoint to 12. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -716,7 +717,8 @@ if bodyexists("Earth") {
         if oldBooster set BoosterGlideDistance to 1400. 
         else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.21.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.15.
+        set BoosterGlideFactor to 1.2.
         set LngCtrlPID:setpoint to 24. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -755,6 +757,7 @@ else {
         else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.21.
+        set BoosterGlideFactor to 1.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -830,6 +833,7 @@ if exists("0:/BoosterFlightData.csv") {
 clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
+print ShipType + " " + RandomFlip.
 
 set OnceShipName to false.
 set ShipConnectedToBooster to true.
@@ -839,15 +843,10 @@ set PreDockPos to false.
 
 
 
-// set LandingZone to latlng(9.046756,167.756245).
-// setTargetOLM().
-// print TargetOLM.
-// set cAbort to false.
-// set LandSomewhereElse to false.
-// set GfC to true.
-// wait 0.1.
-// setTowerHeadingVector().
-// set drawRoV to vecDraw(BoosterCore:position,RollVector,yellow,"RollVec",2,true,0.05).
+
+
+
+
 
 when True then {
     GUIupdate().
@@ -1678,7 +1677,7 @@ function Boostback {
     
     lock steering to SteeringVector.
 
-    until alt:radar < 28000 and RSS or alt:radar < 18000 {
+    until alt:radar < 28000 and RSS or alt:radar < 26000 and KSRSS or alt:radar < 20000 {
         SteeringCorrections().
         if altitude > 33000 and RSS or altitude > 28000 and not (RSS) {
             rcs on.
@@ -1691,10 +1690,6 @@ function Boostback {
         wait 0.05.
     }
 
-    if STOCK set BoosterGlideFactor to 1.
-    else if KSRSS set BoosterGlideFactor to 1.12.
-    else if RSS set BoosterGlideFactor to 0.9.
-    else set BoosterGlideFactor to 1.
 
 
     lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
@@ -2400,6 +2395,7 @@ function LandingThrottle {
 
 
 function LandingGuidance {
+    if config:ipu < 1700 set config:ipu to 1800.
     set RadarRatio to RadarAlt/BoosterHeight.
     set angleToTarget to vAng(GSVec, PositionError). 
     set angleFromTarget to vAng(PositionError, ErrorVector).

@@ -7932,11 +7932,11 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
-            set LaunchRollVector to up:vector.
+            if ShipSubType:contains("Block2") set LaunchRollVector to up:vector.
             set Hotstaging to true.
         }
         else {
-            set LaunchRollVector to facing:topvector+up:vector.
+            if ShipSubType:contains("Block2") set LaunchRollVector to facing:topvector+up:vector.
             if RSS {
                 set result to lookDirUp(srfPrograde:vector + 0.26*up:vector, LaunchRollVector).
             } else {
