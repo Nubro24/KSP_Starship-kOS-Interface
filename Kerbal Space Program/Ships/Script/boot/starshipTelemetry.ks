@@ -41,6 +41,7 @@ if exists("0:/settings.json") {
     }
 }
 set RadarAlt to 0.
+set ShipSubType to "None".
 
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -450,7 +451,7 @@ function FindParts {
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
                 }
-                else if x:name:contains("VS_25_BL2_TILE_FWD") {
+                else if x:name:contains("VS.25.BL2.TILE.FWD") and x:title = "Starship BL2 Fwd Tiles" {
                     set ShipSubType to "Block2".
                 }
                 
@@ -659,7 +660,7 @@ function FindParts {
                 set BoosterCorrectVariant to true.
             }
             else {
-                set BoosterCorrectVariant to false.
+                set BoosterCorrectVariant to true.
             }
             if ShipType = "Depot" {
                 sendMessage(processor(volume("Booster")),"Depot").
@@ -689,7 +690,7 @@ function FindParts {
                 set BoosterCorrectVariant to true.
             }
             else {
-                set BoosterCorrectVariant to false.
+                set BoosterCorrectVariant to true.
             }
             if ShipType = "Depot" {
                 sendMessage(processor(volume("Booster")),"Depot").
@@ -708,10 +709,10 @@ function FindParts {
 
     }
 
-    if Boosterconnected {
-        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-            or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
-        set BoosterSingleEngines to true.
+    if Boosterconnected and not Hotstaging {
+        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+                or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+            set BoosterSingleEngines to true.
             set BoosterSingleEnginesRB to list().
             set BoosterSingleEnginesRC to list().
             set x to 1.
@@ -740,8 +741,8 @@ function FindParts {
         set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
         set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
         //set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
-        set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
-        set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+        if ship:partstitled("Starship Quick Disconnect Arm"):length > 0 set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+        if ship:partstitled("Water Cooled Steel Plate"):length > 0 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
         Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
         sendMessage(processor(volume("OrbitalLaunchMount")), "getArmsVersion").
         if RSS {
@@ -762,8 +763,6 @@ function FindParts {
         //print("Stack mass (no OLM found): " + StackMass).
     }
     set partsfound to true.
-
-    
 }
 
 
@@ -910,6 +909,11 @@ function updateTelemetry {
         else set currentPitch to 360-vAng(facing:forevector,up:vector).
         if round(currentPitch) = 360 set currentPitch to 0.
         set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(currentPitch):tostring.
+    } else if ShipSubType = "Block2" {
+        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+        else set currentPitch to vang(facing:forevector,up:vector).
+        if round(currentPitch) = 360 set currentPitch to 0.
+        set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
     } else {
         if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
         else set currentPitch to vang(facing:forevector,up:vector).
@@ -1057,6 +1061,5 @@ function updateTelemetry {
         set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
         VersionDisplay:show().
     }
-    
 }
 
