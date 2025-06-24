@@ -81,22 +81,22 @@ for part in ship:parts {
         set BoosterCore to part.
         set oldBooster to true.
         set BTset to true.
-        if not ShipType:contains("Block2") set RandomFlip to true.
+        set RandomFlip to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        if not ShipType:contains("Block2") set RandomFlip to true.
+        set RandomFlip to true.
     }
     if part:name = ("SEP.23.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        if not ShipType:contains("Block2") set RandomFlip to true.
+        set RandomFlip to true.
     }
     if part:name = ("SEP.24.BOOSTER") and not BTset {
         set BoosterCore to part.
         set BTset to true.
-        if not ShipType:contains("Block2") set RandomFlip to true.
+        set RandomFlip to true.
     }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
@@ -141,16 +141,22 @@ for part in ship:parts {
     if part:name:contains("frostbooster") {
         set Frost to true.
     }
-    if part:name = "VS.25.BL2.TILE.FWD" and part:title = "Starship BL2 Fwd Tiles" {
-        set RandomFlip to false.
-        set ShipType to "Block2".
-    }
 }
 
-set landingzone to ship:geoposition.
+
+if ship:partsnamed("VS.25.BL2.TILE.FWD"):length > 0 {
+    set RandomFlip to false.
+    set ShipType to "Block2".
+}
+else if ship:partsnamed("SEP.24.SHIP.FWD.RIGHT.FLAP"):length > 0 {
+    set ShipType to "Block1".
+}
+else if ship:partsnamed("SEP.23.SHIP.FWD.RIGHT"):length > 0 {
+    set ShipType to "Block0".
+}
+else set ShipType to "None".
 
 FindEngines().
-
 
 function FindEngines {
     set findingEngines to true.
@@ -804,6 +810,7 @@ else {
     }
 }
 lock RadarAlt to alt:radar - BoosterHeight*0.6.
+lock GSVec to vxcl(up:vector,velocity:surface).
 set LandingBurnAlt to 1800.
 
 set BoosterDockingHeight to 29.8*Scale.
@@ -817,7 +824,19 @@ if not oldBooster {
     set maxpusherengage to 0.3*Scale.
 }
 
-
+if not ship:status = "FLYING" and not ship:status = "SUB_ORBITAL" set landingzone to ship:geoposition.
+else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+    latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+            addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 set landingzone to 
+    latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+            addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+    latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+            addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+else set landingzone to 
+    latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+            addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
 
 for res in BoosterCore:resources {
     if res:name = "LqdMethane" {
@@ -1292,7 +1311,6 @@ function Boostback {
                 set HighLandingBurn to true.
 
 
-        lock GSVec to vxcl(up:vector,velocity:surface).
         if BoosterSingleEngines {
             set x to 1.
             for eng in BoosterSingleEnginesRC {
@@ -1380,12 +1398,22 @@ function Boostback {
                     set landingzone to offshoreSite.
                     addons:tr:settarget(landingzone).
                     NoGo:hide().
-                    if RadarAlt > 5000 {HUDTEXT("Booster offshore divert", 10, 2, 20, red, false).}
+                    if RadarAlt > 18000 {HUDTEXT("Booster offshore divert", 10, 2, 20, red, false).}
                     set ApproachUPVector to (landingzone:position - body:position):normalized.
                     set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
                     if (ErrorVector:mag < BoosterGlideDistance or ErrorVector:mag > 1.8*BoosterGlideDistance) and not GfC {
-                        set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
-                        set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+                        if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+                            latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                                    addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                        else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 set landingzone to 
+                            latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                                    addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                        else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+                            latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                                    addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                        else set landingzone to 
+                            latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                                    addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
                         addons:tr:settarget(landingzone).
                     }
                 }
@@ -1396,8 +1424,18 @@ function Boostback {
             NoGo:hide().
             SteeringCorrections().
             if ErrorVector:mag < BoosterGlideDistance {
-                set lngCorrection to 2*BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
-                set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+                if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+                    latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                            addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 set landingzone to 
+                    latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                            addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+                    latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                            addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                else set landingzone to 
+                    latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                            addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
                 addons:tr:settarget(landingzone).
             }
         }
@@ -1405,8 +1443,18 @@ function Boostback {
         if (abs(LngError - LngCtrlPID:setpoint) > BoosterGlideDistance) and not GfC {
             set landingzone to addons:tr:IMPACTPOS.
             if ErrorVector:mag < 2*BoosterGlideDistance {
-                set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
-                set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+                if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+                    latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                            addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 set landingzone to 
+                    latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                            addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+                    latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                            addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+                else set landingzone to 
+                    latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                            addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
                 addons:tr:settarget(landingzone).
             }
             addons:tr:settarget(landingzone).
@@ -1433,7 +1481,7 @@ function Boostback {
             BoosterCore:activate.
         }
 
-        BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 40).
+        BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
 
         set FuelDump to false.
         when time:seconds - turnTime > 1.8 and defined HSR and HSRJet then {
@@ -1568,8 +1616,18 @@ function Boostback {
         addons:tr:settarget(landingzone).
         NoGo:hide().
         if ErrorVector:mag < BoosterGlideDistance {
-            set lngCorrection to 2*BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
-            set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+            if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+                latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                        addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+            else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 set landingzone to 
+                latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                        addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+            else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+                latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                        addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+            else set landingzone to 
+                latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                        addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
             addons:tr:settarget(landingzone).
         }
     }
@@ -1660,9 +1718,19 @@ function Boostback {
     
     set steeringManager:rollcontrolanglerange to 15.
     
-    if (ErrorVector:mag < 1.1*BoosterGlideDistance or ErrorVector:mag > 1.8*BoosterGlideDistance) and not GfC {
-        set lngCorrection to BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius ).
-        set landingzone to latlng(landingzone:lat, landingzone:lng - lngCorrection).
+    if (ErrorVector:mag < BoosterGlideDistance or ErrorVector:mag > 1.8*BoosterGlideDistance) and not GfC {
+        if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+            latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                    addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+        else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 set landingzone to 
+            latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                    addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+        else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
+            latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                    addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
+        else set landingzone to 
+            latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius),
+                    addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
         addons:tr:settarget(landingzone).
     }
     
