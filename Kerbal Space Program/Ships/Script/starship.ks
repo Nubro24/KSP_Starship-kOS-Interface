@@ -347,6 +347,8 @@ else {
     }
 }
 
+set WaitTime to false.
+
 set FuelUnitsToKg to 11 + (1/9).
 for res in Core:part:resources {
     if res:name = "LqdMethane" {
@@ -1252,12 +1254,14 @@ print "Starship Interface startup complete!".
 
 //-------------Start Graphic User Interface-------------//
 
-set LOIgnCha to 1.
-set SLIgnCha to 1.
-set VCIgnCha to 1.
-set BBIgnCha to 1.
-set LB1IgnCha to 1.
-set LB2IgnCha to 1.
+set LOIgnCha to 98.
+set SLIgnCha to 99.
+set VCIgnCha to 99.
+set BBIgnCha to 96.
+set LB1IgnCha to 97.
+set LB2IgnCha to 98.
+set ifIgnCha to 0.4.
+set ifIgnCha2 to 0.4.
 
 
 local IgnitionChancesGUI is GUI(320).
@@ -1280,7 +1284,7 @@ local IgnitionChancesGUI is GUI(320).
     set IgnitionChancesGUI:skin:label:textcolor to white.
 local IgnChaLayout is IgnitionChancesGUI:addvlayout().
 local Quest is IgnChaLayout:addlabel().
-    set Quest:text to "<b>Multipliers for Ignition Chances</b>".
+    set Quest:text to "<b>Ignition Chances</b>".
     set Quest:style:margin:top to 12.
     set Quest:style:margin:bottom to 16.
     set Quest:style:margin:left to 8.
@@ -1299,7 +1303,7 @@ local LOSelect is LOLayout:addtextfield().
     set LOSelect:style:margin:bottom to 14.
     set LOSelect:style:margin:left to 12.
 local LOMult is LOLayout:addlabel().
-    set LOMult:text to " * 0.98".
+    set LOMult:text to "%".
     set LOMult:style:margin:left to 6.
     set LOMult:style:margin:bottom to 12.
 
@@ -1315,7 +1319,7 @@ local HSLayout is IgnChaLayout:addhlayout().
         set HSSelect1:style:margin:bottom to 12.
         set HSSelect1:style:margin:left to 12.
     local HS1Mult is HSLayout:addlabel().
-        set HS1Mult:text to " * 0.99".
+        set HS1Mult:text to "%".
         set HS1Mult:style:margin:left to 6.
         set HS1Mult:style:margin:bottom to 12.
     local HSSelect2 is HSLayout:addtextfield().
@@ -1324,7 +1328,7 @@ local HSLayout is IgnChaLayout:addhlayout().
         set HSSelect2:style:margin:bottom to 12.
         set HSSelect2:style:margin:right to 12.
     local HS2Mult is HSLayout:addlabel().
-        set HS2Mult:text to " * 0.99".
+        set HS2Mult:text to "%".
         set HS2Mult:style:margin:left to 6.
         set HS2Mult:style:margin:bottom to 12.
 
@@ -1340,7 +1344,7 @@ local BBSelect is BBLayout:addtextfield().
     set BBSelect:style:margin:bottom to 14.
     set BBSelect:style:margin:left to 12.
 local BBMult is BBLayout:addlabel().
-    set BBMult:text to " * 0.97".
+    set BBMult:text to "%".
     set BBMult:style:margin:left to 6.
     set BBMult:style:margin:bottom to 12.
 
@@ -1356,7 +1360,7 @@ local LBLayout is IgnChaLayout:addhlayout().
         set LBSelect1:style:margin:bottom to 12.
         set LBSelect1:style:margin:left to 12.
     local LB1Mult is LBLayout:addlabel().
-        set LB1Mult:text to " * 0.95".
+        set LB1Mult:text to "%".
         set LB1Mult:style:margin:left to 6.
         set LB1Mult:style:margin:bottom to 12.
     local LBSelect2 is LBLayout:addtextfield().
@@ -1365,9 +1369,42 @@ local LBLayout is IgnChaLayout:addhlayout().
         set LBSelect2:style:margin:bottom to 14.
         set LBSelect2:style:margin:right to 12.
     local LB2Mult is LBLayout:addlabel().
-        set LB2Mult:text to " * 0.97".
+        set LB2Mult:text to "%".
         set LB2Mult:style:margin:left to 6.
         set LB2Mult:style:margin:bottom to 12.
+
+local Quest2 is IgnChaLayout:addlabel().
+    set Quest2:text to "<b>In-Flight Failure Chance</b>".
+    set Quest2:style:margin:top to 12.
+    set Quest2:style:margin:bottom to 16.
+    set Quest2:style:margin:left to 8.
+    set Quest2:style:margin:right to 8.
+    set Quest2:style:fontsize to 16.
+
+local IFQuest is IgnChaLayout:addlabel().
+    set IFQuest:text to "<b>Booster:</b>".
+    set IFQuest:style:margin:top to 12.
+    set IFQuest:style:margin:bottom to 12.
+    set IFQuest:style:margin:left to 12.
+local IFLayout is IgnChaLayout:addhlayout().
+    local IFSelect1 is IFLayout:addtextfield().
+        set IFSelect1:tooltip to " Ascent".
+        set IFSelect1:style:width to 100.
+        set IFSelect1:style:margin:bottom to 12.
+        set IFSelect1:style:margin:left to 12.
+    local IF1Mult is IFLayout:addlabel().
+        set IF1Mult:text to "%".
+        set IF1Mult:style:margin:left to 6.
+        set IF1Mult:style:margin:bottom to 12.
+    local IFSelect2 is IFLayout:addtextfield().
+        set IFSelect2:tooltip to " Descent".
+        set IFSelect2:style:width to 100.
+        set IFSelect2:style:margin:bottom to 14.
+        set IFSelect2:style:margin:right to 12.
+    local IF2Mult is IFLayout:addlabel().
+        set IF2Mult:text to "%".
+        set IF2Mult:style:margin:left to 6.
+        set IF2Mult:style:margin:bottom to 12.
 
 local ButtonsLayout is IgnChaLayout:addhlayout().
 local IgnConfirm is ButtonsLayout:addbutton().
@@ -1382,14 +1419,18 @@ local IgnConfirm is ButtonsLayout:addbutton().
         if BBSelect:text = "" set BBSelect:text to "1".
         if LBSelect1:text = "" set LBSelect1:text to "1".
         if LBSelect2:text = "" set LBSelect2:text to "1".
+        if IFSelect1:text = "" set IFSelect1:text to "1".
+        if IFSelect2:text = "" set IFSelect2:text to "1".
         set LOIgnCha to LOSelect:text:toscalar.
         set SLIgnCha to HSSelect1:text:toscalar.
         set VCIgnCha to HSSelect2:text:toscalar.
         set BBIgnCha to BBSelect:text:toscalar.
         set LB1IgnCha to LBSelect1:text:toscalar.
         set LB2IgnCha to LBSelect2:text:toscalar.
+        set ifIgnCha to IFSelect1:text:toscalar.
+        set ifIgnCha2 to IFSelect2:text:toscalar.
 
-        if Boosterconnected sendMessage(processor(Volume("Booster")),"IgnChance,"+BBIgnCha:tostring+","+LB1IgnCha:tostring+","+LB2IgnCha:tostring).
+        if Boosterconnected sendMessage(processor(Volume("Booster")),"IgnChance,"+BBIgnCha:tostring+","+LB1IgnCha:tostring+","+LB2IgnCha:tostring+","+ifIgnCha2:tostring).
 
         set IgnitionChances:pressed to false.
         IgnitionChancesGUI:hide().
@@ -1407,12 +1448,16 @@ local IgnSave is ButtonsLayout:addbutton().
         if BBSelect:text = "" set BBSelect:text to "1".
         if LBSelect1:text = "" set LBSelect1:text to "1".
         if LBSelect2:text = "" set LBSelect2:text to "1".
+        if IFSelect1:text = "" set IFSelect1:text to "1".
+        if IFSelect2:text = "" set IFSelect2:text to "1".
         set LOIgnCha to LOSelect:text:toscalar.
         set SLIgnCha to HSSelect1:text:toscalar.
         set VCIgnCha to HSSelect2:text:toscalar.
         set BBIgnCha to BBSelect:text:toscalar.
         set LB1IgnCha to LBSelect1:text:toscalar.
         set LB2IgnCha to LBSelect2:text:toscalar.
+        set ifIgnCha to IFSelect1:text:toscalar.
+        set ifIgnCha2 to IFSelect2:text:toscalar.
 
         SaveToSettings("IgnChances1",LOIgnCha).
         SaveToSettings("IgnChances2",SLIgnCha).
@@ -1420,8 +1465,10 @@ local IgnSave is ButtonsLayout:addbutton().
         SaveToSettings("IgnChances4",BBIgnCha).
         SaveToSettings("IgnChances5",LB1IgnCha).
         SaveToSettings("IgnChances6",LB2IgnCha).
+        SaveToSettings("IgnChances7",ifIgnCha).
+        SaveToSettings("IgnChances8",ifIgnCha2).
 
-        if Boosterconnected sendMessage(processor(Volume("Booster")),"IgnChance,"+BBIgnCha:tostring+","+LB1IgnCha:tostring+","+LB2IgnCha:tostring).
+        if Boosterconnected sendMessage(processor(Volume("Booster")),"IgnChance,"+BBIgnCha:tostring+","+LB1IgnCha:tostring+","+LB2IgnCha:tostring+","+ifIgnCha2:tostring).
 
         set IgnitionChances:pressed to false.
         IgnitionChancesGUI:hide().
@@ -1445,6 +1492,10 @@ set IgnitionChances:ontoggle to {
                 set LBSelect1:text to LB1IgnCha:tostring.
                 set LB2IgnCha to L["IgnChances6"].
                 set LBSelect2:text to LB2IgnCha:tostring.
+                set ifIgnCha to L["IgnChances7"].
+                set IFSelect1:text to ifIgnCha:tostring.
+                set ifIgnCha2 to L["IgnChances8"].
+                set IFSelect2:text to ifIgnCha2:tostring.
             }
         } 
         IgnitionChancesGUI:show().
@@ -7180,7 +7231,7 @@ function Launch {
             
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
             else {
-                for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if random() < 0.98*LOIgnCha eng:activate.
+                for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
             }
 
             set EngineStartTime to time:seconds.
@@ -7194,7 +7245,7 @@ function Launch {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
                     if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
-                    else if eng:hassuffix("activate") if random() < 0.98*LOIgnCha eng:activate.
+                    else if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
                     set x to x + 1.
                 }
                 set inactiveEng to List(7,11,15,19,24).
@@ -7207,7 +7258,7 @@ function Launch {
             if BoosterSingleEngines {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
-                    if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < 0.98*LOIgnCha eng:activate.
+                    if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < LOIgnCha/100 eng:activate.
                     set x to x + 1.
                 }
             }
@@ -7910,6 +7961,19 @@ Function LaunchSteering {
     }
     else if not (TargetShip = 0) {
         set target to TargetShip.
+    }
+
+    if Boosterconnected and RadarAlt > 42 and not WaitTime and not Hotstaging {
+        set WaitTime to true.
+        if random() < ifIgnCha {
+            set failedEngNr to 1+floor(random()*32).
+            if failedEngNr > 13 if BoosterSingleEnginesRB[failedEngNr-14]:hassuffix("activate") BoosterSingleEnginesRB[failedEngNr-14]:shutdown.
+            else if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
+        }
+        local failureTimer to time:seconds.
+        when time:seconds - failureTimer > 2 then {
+            set WaitTime to false.
+        }
     }
 
     if altitude - LaunchElev < 120 {
@@ -11450,13 +11514,13 @@ function ReEntryData {
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                if random() < 0.99*SLIgnCha if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                if random() < SLIgnCha/100 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.7 then {
                     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                    if random() < 0.99*SLIgnCha if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                    if random() < SLIgnCha/100 if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 1.0 then {
                         if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                        if random() < 0.99*SLIgnCha if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                        if random() < SLIgnCha/100 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                         if not (TargetOLM = "False") {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
@@ -11480,13 +11544,13 @@ function ReEntryData {
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                if random() < 0.99*SLIgnCha if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                if random() < SLIgnCha/100 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.3 then {
                     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                    if random() < 0.99*SLIgnCha if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                    if random() < SLIgnCha/100 if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 0.5 then {
                         if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                        if random() < 0.99*SLIgnCha if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                        if random() < SLIgnCha/100 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                     }
                 }
@@ -12663,9 +12727,9 @@ function ClearInterfaceAndSteering {
 function ActivateEngines {
     parameter WhichEngines.
     if WhichEngines = 0 {
-        if SLEngines[0]:hassuffix("activate") if random() < 0.99*SLIgnCha SLEngines[0]:activate.
-        if SLEngines[1]:hassuffix("activate") if random() < 0.99*SLIgnCha SLEngines[1]:activate.
-        if SLEngines[2]:hassuffix("activate") if random() < 0.99*SLIgnCha SLEngines[2]:activate.
+        if SLEngines[0]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[0]:activate.
+        if SLEngines[1]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[1]:activate.
+        if SLEngines[2]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[2]:activate.
         if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
@@ -12673,7 +12737,7 @@ function ActivateEngines {
     }
     else {
         for eng in VACEngines {
-            if eng:hassuffix("activate") if random() < 0.99*VCIgnCha eng:activate.
+            if eng:hassuffix("activate") if random() < VCIgnCha/100 eng:activate.
         }
         LogToFile("VAC Engine Start Successful!").
     }

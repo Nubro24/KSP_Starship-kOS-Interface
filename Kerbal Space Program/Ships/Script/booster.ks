@@ -300,9 +300,10 @@ set Fpos to 0.
 set FposBase to 0.
 set CounterEngine to false.
 set LandingBurnEC to false.
-set BBIgn to 1.
-set LBIgnC to 1.
-set LBIgnM to 1.
+set BBIgn to 98.
+set LBIgnC to 98.
+set LBIgnM to 98.
+set ifIgn to 0.4.
 
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
@@ -978,6 +979,7 @@ until False {
         set BBIgn to message[1]:toscalar.
         set LBIgnC to message[2]:toscalar.
         set LBIgnM to message[3]:toscalar.
+        set ifIgn to message[4]:toscalar.
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -1173,23 +1175,23 @@ function Boostback {
                     set x to x + 1.
                 }
                 set tEngStart to time:seconds.
-                if random() < 0.98*BBIgn if BoosterSingleEnginesRC[3]:hassuffix("activate") BoosterSingleEnginesRC[3]:activate.
-                if random() < 0.98*BBIgn if BoosterSingleEnginesRC[8]:hassuffix("activate") BoosterSingleEnginesRC[8]:activate.
+                if random() < BBIgn/100 if BoosterSingleEnginesRC[3]:hassuffix("activate") BoosterSingleEnginesRC[3]:activate.
+                if random() < BBIgn/100 if BoosterSingleEnginesRC[8]:hassuffix("activate") BoosterSingleEnginesRC[8]:activate.
                 when time:seconds - tEngStart > 0.2 then {
-                    if random() < 0.98*BBIgn if BoosterSingleEnginesRC[4]:hassuffix("activate") BoosterSingleEnginesRC[4]:activate.
-                    if random() < 0.95*BBIgn if BoosterSingleEnginesRC[9]:hassuffix("activate") BoosterSingleEnginesRC[9]:activate.
+                    if random() < BBIgn/100 if BoosterSingleEnginesRC[4]:hassuffix("activate") BoosterSingleEnginesRC[4]:activate.
+                    if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[9]:hassuffix("activate") BoosterSingleEnginesRC[9]:activate.
                 }
                 when time:seconds - tEngStart > 0.4 then {
-                    if random() < 0.95*BBIgn if BoosterSingleEnginesRC[6]:hassuffix("activate") BoosterSingleEnginesRC[6]:activate.
-                    if random() < 0.98*BBIgn if BoosterSingleEnginesRC[11]:hassuffix("activate") BoosterSingleEnginesRC[11]:activate.
+                    if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[6]:hassuffix("activate") BoosterSingleEnginesRC[6]:activate.
+                    if random() < BBIgn/100 if BoosterSingleEnginesRC[11]:hassuffix("activate") BoosterSingleEnginesRC[11]:activate.
                 }
                 when time:seconds - tEngStart > 0.6 then {
-                    if random() < 0.95*BBIgn if BoosterSingleEnginesRC[7]:hassuffix("activate") BoosterSingleEnginesRC[7]:activate.
-                    if random() < 0.98*BBIgn if BoosterSingleEnginesRC[12]:hassuffix("activate") BoosterSingleEnginesRC[12]:activate.
+                    if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[7]:hassuffix("activate") BoosterSingleEnginesRC[7]:activate.
+                    if random() < BBIgn/100 if BoosterSingleEnginesRC[12]:hassuffix("activate") BoosterSingleEnginesRC[12]:activate.
                 }
                 when time:seconds - tEngStart > 0.8 then {
-                    if random() < 0.98*BBIgn if BoosterSingleEnginesRC[5]:hassuffix("activate") BoosterSingleEnginesRC[5]:activate.
-                    if random() < 0.95*BBIgn if BoosterSingleEnginesRC[10]:hassuffix("activate") BoosterSingleEnginesRC[10]:activate.
+                    if random() < BBIgn/100 if BoosterSingleEnginesRC[5]:hassuffix("activate") BoosterSingleEnginesRC[5]:activate.
+                    if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[10]:hassuffix("activate") BoosterSingleEnginesRC[10]:activate.
                 }
             }
             else {
@@ -1306,6 +1308,10 @@ function Boostback {
             else if not GfC and changed or cAbort {
                 set landingzone to offshoreSite.
                 set changed to false.
+            }
+            if random() < ifIgn/200 {
+                set failedEngNr to 1+floor(random()*12).
+                if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
             }
             SteeringCorrections().
             set SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
@@ -1842,16 +1848,16 @@ function Boostback {
     if BoosterSingleEngines {
         set x to 1.
         until x > 3 {
-            if BoosterSingleEnginesRC[x-1]:hassuffix("activate") if random() < 0.95*LBIgnC BoosterSingleEnginesRC[x-1]:activate.
+            if BoosterSingleEnginesRC[x-1]:hassuffix("activate") if random() < LBIgnC/100 BoosterSingleEnginesRC[x-1]:activate.
             set x to x + 1.
         }
     }
     if BoosterSingleEngines {
         when time:seconds - LandingBurnTime > 0.1 then {
-            set x to 1.
+            set x to 4.
             for eng in BoosterSingleEnginesRC {
                 if (x = 4 or x = 6 or x = 8 or x = 10 or x = 12) and eng:hassuffix("activate") {
-                    if random() < 0.98*LBIgnM eng:activate.
+                    if random() < LBIgnM/100 eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
@@ -1859,10 +1865,10 @@ function Boostback {
             set LandingBurnStarted to true.
         }
         when time:seconds - LandingBurnTime > 0.6 then {
-            set x to 1.
+            set x to 4.
             for eng in BoosterSingleEnginesRC {
                 if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if eng:hassuffix("activate") {
-                    if random() < 0.95*LBIgnM eng:activate.
+                    if random() < 0.98*LBIgnM/100 eng:activate.
                     set eng:gimbal:lock to false.
                 }
                 set x to x + 1.
@@ -2126,6 +2132,11 @@ function Boostback {
         PollUpdate().
         SetBoosterActive().
         DetectWobblyTower().
+
+        if random() < ifIgn {
+            set failedEngNr to 1+floor(random()*12).
+            if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
+        }
 
         set drawRoV to vecDraw(BoosterCore:position,RollVector,yellow,"RollVec",2,drawVecs,0.05).
         if GfC and landingzone:distance < 1500 set drawMZPos to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,up:vector,red,"RollVec",30,drawVecs,0.004).
