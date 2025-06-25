@@ -375,7 +375,9 @@ if ship:name:contains(" Real Size") and (RSS) {
 }
 
 set ShipType to "".
-set EngSet to false.
+set bEngSet to false.
+set sEngSetVac to false.
+set sEngSet to false.
 
 FindParts().
 if Tank:hasmodule("FARPartModule") {
@@ -869,9 +871,6 @@ function FindParts {
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
                 }
-                else if x:name:contains("VS.25.BL2.TILE.FWD") and x:title = "Starship BL2 Fwd Tiles" {
-                    set ShipSubType to "Block2".
-                }
                 
                 set ShipMassStep to ShipMassStep + (x:mass).
                 PartListStep:add(x).
@@ -880,7 +879,7 @@ function FindParts {
         }
     }
 
-    if SL {
+    if SL and not sEngSet {
         set SL1 to false.
         set SL2 to false.
         set SL3 to false.
@@ -911,19 +910,21 @@ function FindParts {
             }
         }
         set SLcount to 0.
-        if SL1 and SL2 and SL3 {}
+        if SL1 and SL2 and SL3 {
+            set sEngSet to true.
+        }
         else {
             if not SL1 set SLEnginesStep[0] to False.
             if not SL2 set SLEnginesStep[1] to False.
             if not SL3 set SLEnginesStep[2] to False.
         }
     } 
-    else {
+    else if not sEngSet {
         print("SLEngine count is wrong!").
         hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,2,18,red,false).
     }
 
-    if Vac and Vaccount = 3 {
+    if Vac and Vaccount = 3 and not sEngSetVac {
         set VACEnginesStep to List("","","").
         set Vac1 to false.
         set Vac2 to false.
@@ -955,14 +956,16 @@ function FindParts {
             }
         }
         set Vaccount to 0.
-        if Vac1 and Vac2 and Vac3 {}
+        if Vac1 and Vac2 and Vac3 {
+            set sEngSetVac to true.
+        }
         else {
             if not Vac1 set VACEnginesStep[0] to False.
             if not Vac2 set VACEnginesStep[1] to False.
             if not Vac3 set VACEnginesStep[2] to False.
         }
     } 
-    else if Vac and Vaccount = 6 {
+    else if Vac and Vaccount = 6 and not sEngSetVac {
         set Vac1 to false.
         set Vac2 to false.
         set Vac3 to false.
@@ -1017,7 +1020,9 @@ function FindParts {
             }
         }
         set Vaccount to 0.
-        if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {}
+        if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {
+            set sEngSetVac to true.
+        }
         else {
             if not Vac1 set VACEnginesStep[0] to False.
             if not Vac2 set VACEnginesStep[1] to False.
@@ -1027,7 +1032,7 @@ function FindParts {
             if not Vac6 set VACEnginesStep[5] to False.
         }
     } 
-    else {
+    else if not sEngSetVac {
         print("VACEngine count is wrong!").
         hudtext("VACEngine count is wrong! (" + Vaccount + "; needs 3 or 6)",10,2,18,red,false).
     }
@@ -1127,7 +1132,7 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not Hotstaging and not EngSet {
+    if Boosterconnected and not Hotstaging and not bEngSet {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
                 or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
             set BoosterSingleEngines to true.
@@ -1149,7 +1154,7 @@ function FindParts {
         else {
             set BoosterSingleEngines to false.
         }
-        set EngSet to true.
+        set bEngSet to true.
         print "bEngines set.. SingleEng.:" + BoosterSingleEngines.
     }
 
@@ -1257,6 +1262,10 @@ FindParts().
 
 if ship:name:contains("OrbitalLaunchMount") {
     set ship:name to ("Starship " + ShipType).
+}
+if ship:partsnamed("VS.25.BL2.TILE.FWD"):length > 0 {
+    set ShipSubType to "Block2".
+    set TRJCorrection to TRJCorrection*0.6.
 }
 print ShipType.
 print ShipSubType.
@@ -7966,7 +7975,7 @@ Function LaunchSteering {
         set target to TargetShip.
     }
 
-    if Boosterconnected and RadarAlt > 42 and not WaitTime and not Hotstaging {
+    if Boosterconnected and RadarAlt > 42 and not WaitTime and not Hotstaging and BoosterSingleEngines {
         set WaitTime to true.
         if random() < ifIgnCha {
             set failedEngNr to min(max(floor(random()*33),0),32).
@@ -8691,18 +8700,21 @@ function updatestatusbar {
             }
         }
 
-        if SLEngines[0]:ignition and not (VACEngines[0]:ignition) {
-            set EngineISP to 327.
-        }
-        else if VACEngines[0]:ignition and not (SLEngines[0]:ignition) {
-            set EngineISP to 378.
-        }
-        else if SLEngines[0]:ignition and VACEngines[0]:ignition {
-            set EngineISP to 352.5.
+        if SLEngines[0]:hassuffix("activate") and VACEngines[0]:hassuffix("activate") { 
+            if SLEngines[0]:ignition and not (VACEngines[0]:ignition) {
+                set EngineISP to 327.
+            }
+            else if VACEngines[0]:ignition and not (SLEngines[0]:ignition) {
+                set EngineISP to 378.
+            }
+            else if SLEngines[0]:ignition and VACEngines[0]:ignition {
+                set EngineISP to 352.5.
+            }
         }
         else {
             set EngineISP to 327.
         }
+        
         if FuelMass = 0 {
             set FuelMass to 0.001.
         }
@@ -8710,18 +8722,22 @@ function updatestatusbar {
         if currentdeltav > 275 {set status2:style:textcolor to white.}
         else if currentdeltav < 250 {set status2:style:textcolor to red.}
         else {set status2:style:textcolor to yellow.}
-        if SLEngines[0]:ignition and not (VACEngines[0]:ignition) {
-            set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s <b><size=12>@SL</size></b>".
-        }
-        else if VACEngines[0]:ignition and not (SLEngines[0]:ignition) {
-            set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s <b><size=12>@VAC</size></b>".
-        }
-        else if SLEngines[0]:ignition and VACEngines[0]:ignition {
-            set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s".
+
+        if SLEngines[0]:hassuffix("activate") and VACEngines[0]:hassuffix("activate") { 
+            if SLEngines[0]:ignition and not (VACEngines[0]:ignition) {
+                set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s <b><size=12>@SL</size></b>".
+            }
+            else if VACEngines[0]:ignition and not (SLEngines[0]:ignition) {
+                set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s <b><size=12>@VAC</size></b>".
+            }
+            else if SLEngines[0]:ignition and VACEngines[0]:ignition {
+                set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s".
+            }
         }
         else {
             set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s <b><size=12>@SL</size></b>".
         }
+
         set bat to round(100 * (ship:electriccharge / ELECcap), 2).
         if bat < 25 and bat > 15 {
             set status3:style:textcolor to yellow.
@@ -10926,8 +10942,10 @@ function ReEntryAndLand {
         when altitude < 39000 and STOCK then {
             set TRJCorrection to 1.45*TRJCorrection.
         }
-        when altitude < 28000 and STOCK and LngLatErrorList[0] < 0 then {
-            set TRJCorrection to 1.4*TRJCorrection.
+        when altitude < 28000 and STOCK then {
+            if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
+            else if LngLatErrorList[0] > 3000 set TRJCorrection to 0.2*TRJCorrection.
+            else if LngLatErrorList[0] > 1000 set TRJCorrection to 0.8*TRJCorrection.
         }
 
         when altitude < 55000 and KSRSS then {
@@ -15412,10 +15430,11 @@ function SetShipBGPage {
 
 function GetShipRotation {
     if not (TargetOLM = "false") {
-        set TowerHeadingVector to AngleAxis(8, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+        if Vessel(TargetOLM):distance < 2000 set TowerHeadingVector to AngleAxis(8, up:vector) * vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
         //print vang(TowerHeadingVector, heading(90,0):vector).
 
-        set varR to vang(vxcl(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position), AngleAxis(-30, up:vector) * TowerHeadingVector) - 21.8.
+        if Vessel(TargetOLM):distance < 2000 set varR to vang(vxcl(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position), AngleAxis(-30, up:vector) * TowerHeadingVector) - 21.8.
+        else set varR to 8.
 
         //set THVd to vecdraw(v(0, 0, 0), TowerHeadingVector, blue, "Tower Heading", 20, true, 0.005, true, true).
         //set THVc to vecdraw(v(0, 0, 0), AngleAxis(-30, up:vector) * TowerHeadingVector, red, "Tower Arms Measuring", 20, true, 0.005, true, true).
