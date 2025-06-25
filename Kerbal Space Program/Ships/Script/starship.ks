@@ -10858,7 +10858,7 @@ function ReEntryAndLand {
         when altitude < 39000 and STOCK then {
             set TRJCorrection to 1.45*TRJCorrection.
         }
-        when altitude < 28000 and STOCK and LngError < 0 then {
+        when altitude < 28000 and STOCK and LngLatErrorList[0] < 0 then {
             set TRJCorrection to 1.4*TRJCorrection.
         }
 
@@ -10880,6 +10880,12 @@ function ReEntryAndLand {
         }
         when altitude < 20000 and RSS then {
             set TRJCorrection to -TRJCorrection/1.5.
+        }
+        when airspeed < 350 and STOCK then {
+            set TRJCorrection to 0.69*TRJCorrection.
+        }
+        when airspeed < 320 and STOCK then {
+            set TRJCorrection to 0.5*TRJCorrection.
         }
         when altitude < 14000 and Stock or altitude < 17000 and KSRSS or altitude < 15000 and RSS then {
             set TRJCorrection to 0.
