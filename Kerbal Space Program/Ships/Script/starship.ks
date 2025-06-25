@@ -11841,10 +11841,10 @@ function LandingVector {
                     }
                 }
                 if verticalspeed < -30 {
-                    set result to up:vector - 0.01 * vxcl(up:vector, velocity:surface).
+                    set result to up:vector - 0.01 * GSVec.
                 }
                 else {
-                    set result to up:vector - 0.025 * vxcl(up:vector, velocity:surface).
+                    set result to up:vector - 0.025 * GSVec.
                 }
                 set message1:text to "<b>Landing Off-Target..</b>".
                 if ErrorVector:MAG < 10000 {
@@ -11886,10 +11886,10 @@ function LandingVector {
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.02*facing:topvector.
+                            set result to up:vector - 0.032 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.02*facing:topvector.
                             if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.022*facing:topvector.
                         } else {
-                            set result to up:vector - 0.024 * GSVec - 0.021*facing:topvector.
+                            set result to up:vector - 0.028 * GSVec - 0.021*facing:topvector.
                         }
                         if oneSL {
                             if ErrorVector:MAG > 5 * Scale {
@@ -12141,16 +12141,16 @@ function LngLatError {
             if TargetOLM {
                 if STOCK {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -42.
+                        set LngLatOffset to -50.
                     } else {
-                        set LngLatOffset to -42.
+                        set LngLatOffset to -50.
                     }
                 }
                 else if KSRSS {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -33.
+                        set LngLatOffset to -42.
                     } else {
-                        set LngLatOffset to -33.
+                        set LngLatOffset to -42.
                     }
                 }
                 else {
