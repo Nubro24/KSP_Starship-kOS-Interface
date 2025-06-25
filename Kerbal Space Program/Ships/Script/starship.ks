@@ -98,6 +98,15 @@ set RadarAlt to 0.
 set Hotstaging to false.
 set ShipSubType to "None".
 
+set LOIgnCha to 98.
+set SLIgnCha to 99.
+set VCIgnCha to 99.
+set BBIgnCha to 96.
+set LB1IgnCha to 97.
+set LB2IgnCha to 98.
+set ifIgnCha to 0.2.
+set ifIgnCha2 to 0.4.
+
 
 local VersionDisplay is GUI(100).
     set VersionDisplay:style:bg to "".
@@ -366,6 +375,8 @@ if ship:name:contains(" Real Size") and (RSS) {
 }
 
 set ShipType to "".
+set EngSet to false.
+
 FindParts().
 if Tank:hasmodule("FARPartModule") {
     set FAR to true.
@@ -1116,7 +1127,7 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not Hotstaging {
+    if Boosterconnected and not Hotstaging and not EngSet {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
                 or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
             set BoosterSingleEngines to true.
@@ -1138,6 +1149,7 @@ function FindParts {
         else {
             set BoosterSingleEngines to false.
         }
+        set EngSet to true.
         print "bEngines set.. SingleEng.:" + BoosterSingleEngines.
     }
 
@@ -1254,14 +1266,6 @@ print "Starship Interface startup complete!".
 
 //-------------Start Graphic User Interface-------------//
 
-set LOIgnCha to 98.
-set SLIgnCha to 99.
-set VCIgnCha to 99.
-set BBIgnCha to 96.
-set LB1IgnCha to 97.
-set LB2IgnCha to 98.
-set ifIgnCha to 0.4.
-set ifIgnCha2 to 0.4.
 
 
 local IgnitionChancesGUI is GUI(320).
@@ -1382,7 +1386,7 @@ local Quest2 is IgnChaLayout:addlabel().
     set Quest2:style:fontsize to 16.
 
 local IFQuest is IgnChaLayout:addlabel().
-    set IFQuest:text to "<b>Booster:</b>".
+    set IFQuest:text to "<b>Booster: </b>(Chance < 0.4% recommended)".
     set IFQuest:style:margin:top to 12.
     set IFQuest:style:margin:bottom to 12.
     set IFQuest:style:margin:left to 12.
@@ -1413,14 +1417,14 @@ local IgnConfirm is ButtonsLayout:addbutton().
     set IgnConfirm:style:margin:left to 8.
     set IgnConfirm:style:margin:right to 8.
     set IgnConfirm:onclick to {
-        if LOSelect:text = "" set LOSelect:text to "1".
-        if HSSelect1:text = "" set HSSelect1:text to "1".
-        if HSSelect2:text = "" set HSSelect2:text to "1".
-        if BBSelect:text = "" set BBSelect:text to "1".
-        if LBSelect1:text = "" set LBSelect1:text to "1".
-        if LBSelect2:text = "" set LBSelect2:text to "1".
-        if IFSelect1:text = "" set IFSelect1:text to "1".
-        if IFSelect2:text = "" set IFSelect2:text to "1".
+        if LOSelect:text = "" set LOSelect:text to "100".
+        if HSSelect1:text = "" set HSSelect1:text to "100".
+        if HSSelect2:text = "" set HSSelect2:text to "100".
+        if BBSelect:text = "" set BBSelect:text to "100".
+        if LBSelect1:text = "" set LBSelect1:text to "100".
+        if LBSelect2:text = "" set LBSelect2:text to "100".
+        if IFSelect1:text = "" set IFSelect1:text to "0.4".
+        if IFSelect2:text = "" set IFSelect2:text to "0.5".
         set LOIgnCha to LOSelect:text:toscalar.
         set SLIgnCha to HSSelect1:text:toscalar.
         set VCIgnCha to HSSelect2:text:toscalar.
@@ -1442,14 +1446,14 @@ local IgnSave is ButtonsLayout:addbutton().
     set IgnSave:style:margin:left to 8.
     set IgnSave:style:margin:right to 8.
     set IgnSave:onclick to {
-        if LOSelect:text = "" set LOSelect:text to "1".
-        if HSSelect1:text = "" set HSSelect1:text to "1".
-        if HSSelect2:text = "" set HSSelect2:text to "1".
-        if BBSelect:text = "" set BBSelect:text to "1".
-        if LBSelect1:text = "" set LBSelect1:text to "1".
-        if LBSelect2:text = "" set LBSelect2:text to "1".
-        if IFSelect1:text = "" set IFSelect1:text to "1".
-        if IFSelect2:text = "" set IFSelect2:text to "1".
+        if LOSelect:text = "" set LOSelect:text to "100".
+        if HSSelect1:text = "" set HSSelect1:text to "100".
+        if HSSelect2:text = "" set HSSelect2:text to "100".
+        if BBSelect:text = "" set BBSelect:text to "100".
+        if LBSelect1:text = "" set LBSelect1:text to "100".
+        if LBSelect2:text = "" set LBSelect2:text to "100".
+        if IFSelect1:text = "" set IFSelect1:text to "0.4".
+        if IFSelect2:text = "" set IFSelect2:text to "0.5".
         set LOIgnCha to LOSelect:text:toscalar.
         set SLIgnCha to HSSelect1:text:toscalar.
         set VCIgnCha to HSSelect2:text:toscalar.
@@ -7852,7 +7856,6 @@ function Launch {
         set message2:text to "<b>Orbit achieved!</b>".
         set message3:text to "<b>Launch Program completed..</b>".
         wait 0.001.
-        if not RSS {sendMessage(Vessel("Booster"), "Orbit Insertion").}
         HideEngineToggles(1).
         wait 0.001.
         Droppriority().
@@ -7966,12 +7969,13 @@ Function LaunchSteering {
     if Boosterconnected and RadarAlt > 42 and not WaitTime and not Hotstaging {
         set WaitTime to true.
         if random() < ifIgnCha {
-            set failedEngNr to 1+floor(random()*32).
-            if failedEngNr > 13 if BoosterSingleEnginesRB[failedEngNr-14]:hassuffix("activate") BoosterSingleEnginesRB[failedEngNr-14]:shutdown.
+            set failedEngNr to min(max(floor(random()*33),0),32).
+            print failedEngNr.
+            if failedEngNr > 12 if BoosterSingleEnginesRB[failedEngNr-13]:hassuffix("activate") BoosterSingleEnginesRB[failedEngNr-13]:shutdown.
             else if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
         }
         local failureTimer to time:seconds.
-        when time:seconds - failureTimer > 2 then {
+        when time:seconds - failureTimer > 3 then {
             set WaitTime to false.
         }
     }
@@ -8124,14 +8128,14 @@ Function LaunchSteering {
     else {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
-            if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,24),-24).
+            if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
             if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.9.
             else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.82.
         }
         if MaintainVS {
             if deltaV > 500*Scale {
                 set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 100.
-                if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,24),-24).
+                if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,28),-36).
             }
             else {
                 set OrbitBurnPitchCorrectionPID:setpoint to 0.
@@ -10898,7 +10902,7 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00002, 0, 0.0001, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.00002, 0, 0.0001, -25, 30 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
@@ -10999,12 +11003,12 @@ function ReEntryAndLand {
                             set YawPID:kp to 0.02. //0.1
                             set YawPID:ki to 0.045. //0.75
                             set YawPID:kd to 0.012. //0.25
-                            set maxDeltaV to 400.
+                            set maxDeltaV to 440.
                         }
                         else {
-                            set PitchPID:kp to 0.0012. //0.03
-                            set PitchPID:ki to 0.01. //0.035
-                            set PitchPID:kd to 0.008. //0.028
+                            set PitchPID:kp to 0.00012. //0.03
+                            set PitchPID:ki to 0. //0.035
+                            set PitchPID:kd to 0.001. //0.028
                             set YawPID:kp to 0.02. //0.1
                             set YawPID:ki to 0.045. //0.075
                             set YawPID:kd to 0.015. //0.025
@@ -12205,9 +12209,9 @@ function LngLatError {
             if TargetOLM {
                 if STOCK {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -50.
+                        set LngLatOffset to -60.
                     } else {
-                        set LngLatOffset to -50.
+                        set LngLatOffset to -60.
                     }
                 }
                 else if KSRSS {
@@ -12649,6 +12653,8 @@ function ClearInterfaceAndSteering {
     unlock throttle.
     set LandButtonIsRunning to false.
     set LaunchButtonIsRunning to false.
+    IgnitionChancesOpen:show().
+    scalebutton:show().
     wait 0.001.
     ToggleHeaderTank(1).
     if Boosterconnected {

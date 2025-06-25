@@ -417,7 +417,22 @@ else {
 }
 
 lock RadarAlt to alt:radar - BoosterHeight*0.5.
+lock GSVec to vxcl(up:vector,velocity:surface).
 
+if not ship:status = "FLYING" and not ship:status = "SUB_ORBITAL" or ship:status = "PRELAUNCH" set landingzone to ship:geoposition.
+else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to 
+    latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius),
+            addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius)).
+else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 and addons:tr:hasimpact set landingzone to 
+    latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius),
+            addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius)).
+else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to 
+    latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius),
+            addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius)).
+else if addons:tr:hasimpact set landingzone to 
+    latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius),
+            addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius)).
+else set landingzone to ship:geoposition.
 
 clearscreen.
 print "Booster Nominal Operation, awaiting command..".

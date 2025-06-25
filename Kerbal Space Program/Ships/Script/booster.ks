@@ -280,7 +280,6 @@ list targets in shiplist.
 set BoosterLanded to false.
 set Tminus to false.
 set Rotating to false.
-set ShipBurnComplete to true.
 set WobblyBooster to false.
 set wobbleCheckrunning to false.
 set TowerRotationVector to -vCrs(north:vector,up:vector).
@@ -820,6 +819,9 @@ else {
         set FinalDeceleration to 6.
     }
 }
+
+if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.06.
+
 lock RadarAlt to alt:radar - BoosterHeight*0.6.
 lock GSVec to vxcl(up:vector,velocity:surface).
 set LandingBurnAlt to 1800.
@@ -935,7 +937,6 @@ until False {
             }
         }
     IF RECEIVED:CONTENT = "Boostback" {
-        set ShipBurnComplete to false.
         print RandomFlip.
         Boostback().
     } else if RECEIVED:CONTENT = "HSRJet"{
@@ -963,10 +964,6 @@ until False {
     else if RECEIVED:CONTENT = "Countdown" {
         set missionTimer to time:seconds.
         set missionTimer to missionTimer + 17.
-    }
-    else if RECEIVED:content = "Orbit Insertion" {
-        hudtext("Ship orbit", 3, 3, 14, green, false).
-        set ShipBurnComplete to true.
     }
     else if command = "ScaleT" {
         bTelemetry:hide().
@@ -999,18 +996,6 @@ function Boostback {
     set steeringmanager:maxstoppingtime to 2.
     set bAttitude:style:bg to "starship_img/booster".
 
-    when not core:messages:empty then {
-        set RECEIVED to core:messages:pop.
-        if RECEIVED:content = "Orbit Insertion" {
-            hudtext("Ship orbit", 3, 3, 14, yellow, false).
-            set ShipBurnComplete to true.
-            SetLoadDistances("low").
-        }
-        ELSE {
-            PRINT "Unexpected message: " + RECEIVED:CONTENT.
-        }
-        preserve.
-    }
     set HighLandingBurn to false.
 
 
@@ -1683,12 +1668,6 @@ function Boostback {
 
     set OneTime to true.
 
-    when ShipBurnComplete then {
-        set LoadDistanceTime to time:seconds.
-        when time:seconds > LoadDistanceTime + 8 then {
-            SetLoadDistances("low").
-        }
-    }
 
     bGUI:show().
     when ((time:seconds > flipStartTime + 45 and RSS) or (time:seconds > flipStartTime + 55 and KSRSS)) or (time:seconds > flipStartTime + 40 and not (RSS or KSRSS)) then {
@@ -1713,7 +1692,7 @@ function Boostback {
                 set TimeStabilized to time:seconds.
                 SetBoosterActive().
             }
-            if time:seconds - TimeStabilized > 5 and OneTime { //and not ShipBurnComplete 
+            if time:seconds - TimeStabilized > 5 and OneTime { 
                 //if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
                 //SetStarshipActive().
                 BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 10).
@@ -1786,10 +1765,6 @@ function Boostback {
         when LngError > 0 then {
             lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         }
-    }
-
-    if not GE {
-        lock SteeringVector to lookDirUp(-velocity:surface:normalized + heading(facing:yaw,0),facing:topvector).
     }
 
     lock PositionError to vxcl(up:vector, BoosterCore:position - landingzone:position).
@@ -2126,7 +2101,7 @@ function Boostback {
 
     until (verticalspeed > CatchVS - 0.5 and RadarAlt < 5) or (verticalspeed > -0.1 and RadarAlt < 200) or hover {
         SteeringCorrections().
-        if GfC and landingzone:distance < 1500 set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
+        if GfC if landingzone:distance < 1500 set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
         set LandingVector to LandingGuidance().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         PollUpdate().
@@ -2139,8 +2114,8 @@ function Boostback {
         }
 
         set drawRoV to vecDraw(BoosterCore:position,RollVector,yellow,"RollVec",2,drawVecs,0.05).
-        if GfC and landingzone:distance < 1500 set drawMZPos to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,up:vector,red,"RollVec",30,drawVecs,0.004).
-        if GfC and landingzone:distance < 1500 set drawMZPos2 to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,-up:vector,red,"RollVec",30,drawVecs,0.004).
+        if GfC if landingzone:distance < 1500 set drawMZPos to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,up:vector,red,"RollVec",30,drawVecs,0.004).
+        if GfC if landingzone:distance < 1500 set drawMZPos2 to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,-up:vector,red,"RollVec",30,drawVecs,0.004).
 
         wait 0.05.
     }
