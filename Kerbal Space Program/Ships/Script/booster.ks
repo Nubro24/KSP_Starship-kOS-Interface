@@ -57,6 +57,7 @@ if homeconnection:isconnected {
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
 set ShipType to "".
+set HSRType to "".
 set Depot to false.
 set starship to "xxx".
 set ShipFound to false.
@@ -123,18 +124,27 @@ for part in ship:parts {
         set GFset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
+        set HSRType to "Block0".
         set HSR to part.
         set HSset to true.
     }
-    if (part:name:contains("SEP.25.BOOSTER.HSR") or part:name:contains("VS.25.HSR.BL3")) and not HSset {
+    if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
+        set HSRType to "Block1/2".
+        set HSR to part.
+        set HSset to true.
+    }
+    if part:name:contains("VS.25.HSR.BL3") and not HSset {
+        set HSRType to "Block3".
         set HSR to part.
         set HSset to true.
     }
     if part:name = ("SEP.HSR.1") and not HSset {
+        set HSRType to "Block2".
         set HSR to part.
         set HSset to true.
     }
     if part:name = ("SEP.HSR.2") and not HSset {
+        set HSRType to "Block3".
         set HSR to part.
         set HSset to true.
     }
@@ -854,14 +864,12 @@ if exists("0:/BoosterFlightData.csv") {
 clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
-print ShipType + " " + RandomFlip.
+print ShipType + "-Ship + " + HSRType + "-HSR --> RandomFlipDir:" + RandomFlip.
 
 set OnceShipName to false.
 set ShipConnectedToBooster to true.
 set ConnectedMessage to false.
 set PreDockPos to false.
-
-
 
 
 
@@ -1482,34 +1490,38 @@ function Boostback {
             BoosterCore:activate.
         }
 
+        if HSRType:contains("Block3") set HSRJet to false.
+
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
 
         set FuelDump to false.
-        when time:seconds - turnTime > 1.8 and defined HSR and HSRJet then {
-            if BoosterCore:thrust > 0 {
-                BoosterCore:shutdown.
-                set FuelDump to true.
+        if HSRJet {
+            when time:seconds - turnTime > 1.8 and defined HSR then {
+                if BoosterCore:thrust > 0 {
+                    BoosterCore:shutdown.
+                    set FuelDump to true.
+                }
+                wait 0.2.
+                BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
+                wait 0.01.
+                when vAng(facing:forevector, up:vector) < 64 and FuelDump then {
+                    BoosterCore:activate.
+                }
+                set RenameHSR to false.
+                if not Block1HSR and kuniverse:activevessel:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and kuniverse:activevessel:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 {
+                    set RenameHSR to true.
+                    kuniverse:forceactive(vessel("Booster Ship")).
+                } 
+                HUDTEXT("HSR-Jettison confirmed.. Rotating Booster for re-entry and landing..", 20, 2, 20, green, false).
+                set Rotating to true.
+                if not Block1HSR and RenameHSR {
+                    set vessel("Booster"):name to "Booster HSR".
+                }
+                set kuniverse:activevessel:name to "Booster".
+                set ShortBurst to time:seconds.
+                rcs on.
+                when ShortBurst + 1.4 < time:seconds then rcs off.
             }
-            wait 0.2.
-            BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
-            wait 0.01.
-            when vAng(facing:forevector, up:vector) < 64 and FuelDump then {
-                BoosterCore:activate.
-            }
-            set RenameHSR to false.
-            if not Block1HSR and kuniverse:activevessel:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and kuniverse:activevessel:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 {
-                set RenameHSR to true.
-                kuniverse:forceactive(vessel("Booster Ship")).
-            } 
-            HUDTEXT("HSR-Jettison confirmed.. Rotating Booster for re-entry and landing..", 20, 2, 20, green, false).
-            set Rotating to true.
-            if not Block1HSR and RenameHSR {
-                set vessel("Booster"):name to "Booster HSR".
-            }
-            set kuniverse:activevessel:name to "Booster".
-            set ShortBurst to time:seconds.
-            rcs on.
-            when ShortBurst + 1.4 < time:seconds then rcs off.
         }
         HUDTEXT("Booster Coast Phase - Timewarp available", 15, 2, 20, green, false).
         
