@@ -879,6 +879,9 @@ function FindParts {
         }
     }
 
+    set SLStep to false.
+    set VACStep to false.
+
     if SL and not sEngSet {
         set SL1 to false.
         set SL2 to false.
@@ -912,11 +915,13 @@ function FindParts {
         set SLcount to 0.
         if SL1 and SL2 and SL3 {
             set sEngSet to true.
+            set SLStep to true.
         }
         else {
             if not SL1 set SLEnginesStep[0] to False.
             if not SL2 set SLEnginesStep[1] to False.
             if not SL3 set SLEnginesStep[2] to False.
+            set SLStep to true.
         }
     } 
     else if not sEngSet {
@@ -958,11 +963,13 @@ function FindParts {
         set Vaccount to 0.
         if Vac1 and Vac2 and Vac3 {
             set sEngSetVac to true.
+            set VACStep to true.
         }
         else {
             if not Vac1 set VACEnginesStep[0] to False.
             if not Vac2 set VACEnginesStep[1] to False.
             if not Vac3 set VACEnginesStep[2] to False.
+            set VACStep to true.
         }
     } 
     else if Vac and Vaccount = 6 and not sEngSetVac {
@@ -1022,6 +1029,7 @@ function FindParts {
         set Vaccount to 0.
         if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {
             set sEngSetVac to true.
+            set VACStep to true.
         }
         else {
             if not Vac1 set VACEnginesStep[0] to False.
@@ -1030,6 +1038,7 @@ function FindParts {
             if not Vac4 set VACEnginesStep[3] to False.
             if not Vac5 set VACEnginesStep[4] to False.
             if not Vac6 set VACEnginesStep[5] to False.
+            set VACStep to true.
         }
     } 
     else if not sEngSetVac {
@@ -1037,8 +1046,14 @@ function FindParts {
         hudtext("VACEngine count is wrong! (" + Vaccount + "; needs 3 or 6)",10,2,18,red,false).
     }
 
-    set SLEngines to SLEnginesStep.
-    set VACEngines to VACEnginesStep.
+    if SLStep {
+        set SLEngines to SLEnginesStep.
+        set SLStep to false.
+    } 
+    if VACStep {
+        set VACEngines to VACEnginesStep.
+        set VACStep to false.
+    } 
     set NrOfVacEngines to VACEngines:length.
     set ShipMass to ShipMassStep * 1000.
     set CargoMass to CargoMassStep * 1000.
@@ -8710,8 +8725,12 @@ function updatestatusbar {
             else if SLEngines[0]:ignition and VACEngines[0]:ignition {
                 set EngineISP to 352.5.
             }
+            else {
+                set EngineISP to 327.
+            }
         }
         else {
+            print "2 ENGINES NOT SET CORRECTLY".
             set EngineISP to 327.
         }
         
