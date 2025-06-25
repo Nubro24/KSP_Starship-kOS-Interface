@@ -2133,7 +2133,7 @@ function Boostback {
         SetBoosterActive().
         DetectWobblyTower().
 
-        if random() < ifIgn {
+        if random() < ifIgn/100 {
             set failedEngNr to 1+floor(random()*12).
             if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
         }
