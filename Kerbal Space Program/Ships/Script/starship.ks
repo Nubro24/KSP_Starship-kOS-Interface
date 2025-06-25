@@ -507,7 +507,7 @@ else {       // Stock Kerbin
         set aoa to aoa - TRJCorrection.
     }
     else {
-        set TRJCorrection to -3.
+        set TRJCorrection to -2.
     }
 }
 set SNStart to 30.  // Defines the first Serial Number when multiple ships are found and renaming is necessary.
@@ -5216,8 +5216,10 @@ set launchbutton:ontoggle to {
                     ShowHomePage().
                     InhibitButtons(0, 0, 0).
                     set message1:text to "<b><color=red>Error: Not all tanks are full!</color></b> <color=yellow>(launch may fail)</color>".
-                    set message2:text to "<b>Refuel before proceeding?</b>".
+                    set message2:text to "<b>Refuel before proceeding? </b>".
                     set message3:text to "<b>Start refuelling <color=white>or</color> cancel refuelling?</b>".
+                    //set message3:text to missingStuffWhere.
+                    //set message3:text to missingStuffWhat.
                     set message3:style:textcolor to cyan.
                     set execute:text to "<b>REFUEL</b>".
                     if confirm() {
@@ -10854,10 +10856,10 @@ function ReEntryAndLand {
         }
 
         when altitude < 39000 and STOCK then {
-            set TRJCorrection to 1.5*TRJCorrection.
+            set TRJCorrection to 1.45*TRJCorrection.
         }
-        when altitude < 28000 and STOCK then {
-            set TRJCorrection to 1.5*TRJCorrection.
+        when altitude < 28000 and STOCK and LngError < 0 then {
+            set TRJCorrection to 1.4*TRJCorrection.
         }
 
         when altitude < 55000 and KSRSS then {
@@ -12133,9 +12135,9 @@ function LngLatError {
             if TargetOLM {
                 if STOCK {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -29.
+                        set LngLatOffset to -42.
                     } else {
-                        set LngLatOffset to -30.
+                        set LngLatOffset to -42.
                     }
                 }
                 else if KSRSS {
@@ -15077,11 +15079,14 @@ function CheckFullTanks {
         set FullTanks to true.
         local amount to 0.
         local cap to 0.
+        set missingStuffWhere to "".
+        set missingStuffWhat to "".
         if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
             for res in HeaderTank:resources {
-                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
+                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") {
                     set res:enabled to true.
                     set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "Header|".
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
                 } else {
@@ -15091,8 +15096,9 @@ function CheckFullTanks {
         }
         if ShipType = "Tanker" {
             for res in Nose:resources {
-                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
+                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") {
                     set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "TnkNose|".
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
                 }
@@ -15100,9 +15106,10 @@ function CheckFullTanks {
         }
         if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
             for res in HeaderTank:resources {
-                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
+                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") {
                     set res:enabled to true.
                     set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "V1Header|".
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
                 } else {
@@ -15111,8 +15118,9 @@ function CheckFullTanks {
             }
         }
         for res in Tank:resources {
-            if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not ShipType = "Block1" and not ShipType = "Block1Cargo" and not ShipType = "Block1PEZ" and not ShipType = "Cargo" {
+            if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and not ShipType = "Block1" and not ShipType = "Block1Cargo" and not ShipType = "Block1PEZ" and not ShipType = "Cargo" {
                 set FullTanks to false.
+                set missingStuffWhere to missingStuffWhere + "sMain|".
                 set amount to amount + res:amount.
                 set cap to cap + res:capacity.
             } else {
@@ -15128,33 +15136,37 @@ function CheckFullTanks {
 
         if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 and FullTanks {
             for res in BoosterCore[0]:resources {
-                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass > 24000 {
+                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass > 24000 {
                     set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "bOldHigh|".
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass <= 24000 {
+                } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass <= 24000 {
                     set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "bOldLow|".
                     set LowCargoMass to true.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
                 } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
                     for res2 in Tank:resources {
-                        if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass > 16000 {
+                        if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and not (res2:name = "SpareParts") and CargoMass > 16000 {
                             for res3 in BoosterCore[0]:resources {
                                 if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
                                     set res3:enabled to false.
                                 }
                             }
                             set FullTanks to false.
+                            set missingStuffWhere to missingStuffWhere + "V1MainHigh|".
                             set amount to amount + res2:amount.
                             set cap to cap + res2:capacity.
-                        } else if res2:amount < res2:capacity * 0.9 - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass <= 16000 {
+                        } else if res2:amount < res2:capacity * 0.9 - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and not (res2:name = "SpareParts") and CargoMass <= 16000 {
                             for res3 in BoosterCore[0]:resources {
                                 if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
                                     set res3:enabled to false.
                                 }
                             }
                             set FullTanks to false.
+                            set missingStuffWhere to missingStuffWhere + "V1MainLow|".
                             set LowCargoMass to true.
                             set amount to amount + res2:amount.
                             set cap to cap + res2:capacity.
@@ -15172,33 +15184,39 @@ function CheckFullTanks {
 
         if SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length > 0 and FullTanks {
             for res in BoosterCore[0]:resources {
-                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass > 24000 {
+                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass > 24000 {
                     set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "bNewHigh|".
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and CargoMass <= 24000 {
+                } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass <= 24000 {
                     set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "bNewLow|".
                     set LowCargoMass to true.
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
                 } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
                     for res2 in Tank:resources {
-                        if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass > 16000 {
+                        if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and not (res2:name = "SpareParts") and CargoMass > 16000 {
                             for res3 in BoosterCore[0]:resources {
                                 if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
                                     set res3:enabled to false.
                                 }
                             }
                             set FullTanks to false.
+                            set missingStuffWhere to missingStuffWhere + "V1MainHigh|".
+                            set missingStuffWhat to missingStuffWhat + res2:name.
                             set amount to amount + res2:amount.
                             set cap to cap + res2:capacity.
-                        } else if res2:amount < res2:capacity * 0.9 - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and CargoMass <= 16000 {
+                        } else if res2:amount < res2:capacity * 0.9 - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and not (res2:name = "SpareParts") and CargoMass <= 16000 {
                             for res3 in BoosterCore[0]:resources {
                                 if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
                                     set res3:enabled to false.
                                 }
                             }
                             set FullTanks to false.
+                            set missingStuffWhere to missingStuffWhere + "V1MainLow|".
+                            set missingStuffWhat to missingStuffWhat + res2:name.
                             set LowCargoMass to true.
                             set amount to amount + res2:amount.
                             set cap to cap + res2:capacity.
