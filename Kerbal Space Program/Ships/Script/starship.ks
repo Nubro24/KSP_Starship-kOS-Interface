@@ -8752,6 +8752,9 @@ function updatestatusbar {
             else if SLEngines[0]:ignition and VACEngines[0]:ignition {
                 set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s".
             }
+            else {
+                set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s <b><size=12>@SL</size></b>".
+            }
         }
         else {
             set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s <b><size=12>@SL</size></b>".
