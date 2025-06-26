@@ -104,7 +104,7 @@ set VCIgnCha to 99.
 set BBIgnCha to 96.
 set LB1IgnCha to 97.
 set LB2IgnCha to 98.
-set ifIgnCha to 0.2.
+set ifIgnCha to 0.16.
 set ifIgnCha2 to 0.4.
 
 

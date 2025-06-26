@@ -18,18 +18,20 @@
   - Added startup and shutdown sequences for Booster
   - Added poll checks for max missing engines
   - Added auto engine out compensation for final landing
-  - Added random Engine Failures
+  - Added random Engine Failures (on Ignition and In-Flight)
     - Added a new Settings menu (called from a button on the top left) for user settings
-- **Small improvements to Booster and Ship Landings**
-- Added Support for Raptor 1
-- Added Support for Vista's SEP Addon
-- Added Distance Checks for Booster Catch Abort
-- Fixed RSS Max Cargo values (max. 69t to Orbit)
-- Fixed RSS Reentry loosing control
-- Fixed an Error with Real Fuels
-- Fixed an Error during Hotstaging
-- Fixed Errors during offshore divert
-- Fixed Booster side correction
+- Other Changes/Additions:
+  - **Small improvements to Booster and Ship Landings**
+  - Added Support for Raptor 1
+  - Added Support for Vista's SEP Addon
+  - Added Distance Checks for automatic Booster Catch Abort
+- Bug/Error Fixes:
+  - Fixed RSS Max Cargo values (max. 69t to Orbit)
+  - Fixed RSS Reentry loosing control
+  - Fixed an Error with Real Fuels
+  - Fixed an Error during Hotstaging
+  - Fixed Errors during offshore divert
+  - Fixed Booster side correction
 
 # V3.5.1 (2025-05-18)
 - **Booster Catch Position precision improved**

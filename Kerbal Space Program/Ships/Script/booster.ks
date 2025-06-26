@@ -713,7 +713,7 @@ if bodyexists("Earth") {
         set CorrFactor to 0.7.
         set PIDFactor to 16.
         set CatchVS to -0.5.
-        set FinalDeceleration to 7.
+        set FinalDeceleration to 7.1.
     }
     else {
         set KSRSS to true.
@@ -745,7 +745,7 @@ if bodyexists("Earth") {
         set CorrFactor to 0.8.
         set PIDFactor to 8.
         set CatchVS to -0.4.
-        set FinalDeceleration to 3.
+        set FinalDeceleration to 3.3.
     }
 }
 else {
@@ -784,7 +784,7 @@ else {
         set CorrFactor to 0.8.
         set PIDFactor to 8.
         set CatchVS to -0.4.
-        set FinalDeceleration to 3.
+        set FinalDeceleration to 3.3.
     }
     else {
         set STOCK to true.
@@ -816,7 +816,7 @@ else {
         set CorrFactor to 0.8.
         set PIDFactor to 8.
         set CatchVS to -0.4.
-        set FinalDeceleration to 6.
+        set FinalDeceleration to 6.2.
     }
 }
 
@@ -2465,7 +2465,6 @@ function LandingThrottle {
 
 
 function LandingGuidance {
-    if config:ipu < 1700 set config:ipu to 1800.
     set RadarRatio to RadarAlt/BoosterHeight.
     set angleToTarget to vAng(GSVec, PositionError). 
     set angleFromTarget to vAng(PositionError, ErrorVector).
@@ -2714,8 +2713,8 @@ function LandingGuidance {
     print round(gsRatio,3).
     print round(vertRatio,3).
     print round(closureRatio,3).
-    print "".
-    print round(Ftrv,3).
+    //print "".
+    //print round(Ftrv,3).
 
 
     return lookDirUp(FinalVec, RollVector).
@@ -3435,6 +3434,10 @@ function PollUpdate {
 
 
 function GUIupdate {
+
+    if LandingBurnStarted and not BoosterLanded if config:ipu < 1700 set config:ipu to 1800.
+    else if BoostBackComplete and not LandingBurnStarted if config:ipu < 800 set config:ipu to 900.
+    else if not BoostBackComplete and RadarAlt > 20000 if config:ipu < 1000 set config:ipu to 1200.
 
     if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position)) < 90 set currentPitch to 360-vAng(facing:forevector,up:vector).
     else set currentPitch to vAng(facing:forevector,up:vector).
