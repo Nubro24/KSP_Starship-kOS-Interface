@@ -10961,43 +10961,76 @@ function ReEntryAndLand {
             set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
 
-        when altitude < 39000 and STOCK then {
-            set TRJCorrection to 1.45*TRJCorrection.
+        if STOCK {
+            when altitude < 44000 then {
+                set TRJCorrection to 1.5*TRJCorrection.
+            }
+            when altitude < 39000 then {
+                set TRJCorrection to 1.45*TRJCorrection.
+            }
+            when altitude < 28000 then {
+                if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
+                else if LngLatErrorList[0] > 3500 set TRJCorrection to -0.2*TRJCorrection.
+                else if LngLatErrorList[0] > 1300 set TRJCorrection to 0.6*TRJCorrection.
+            }
+            when altitude < 14000 then {
+                set TRJCorrection to 0.
+            }
+            when airspeed < 370 then {
+                set TRJCorrection to 0.69*TRJCorrection.
+            }
+            when airspeed < 320 then {
+                set TRJCorrection to 0.5*TRJCorrection.
+            }
         }
-        when altitude < 28000 and STOCK then {
-            if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
-            else if LngLatErrorList[0] > 3000 set TRJCorrection to 0.2*TRJCorrection.
-            else if LngLatErrorList[0] > 1000 set TRJCorrection to 0.8*TRJCorrection.
+        else if KSRSS {
+            when altitude < 55000 then {
+                set TRJCorrection to 2*TRJCorrection.
+            }
+            when altitude < 50000 then {
+                set TRJCorrection to 1.36*TRJCorrection.
+            }
+            when altitude < 45000 then {
+                set TRJCorrection to 2*TRJCorrection.
+            }
+            when altitude < 32000 then {
+                if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
+                else if LngLatErrorList[0] > 3500 set TRJCorrection to -0.2*TRJCorrection.
+                else if LngLatErrorList[0] > 1400 set TRJCorrection to 0.6*TRJCorrection.
+            }
+            when altitude < 17000 then {
+                set TRJCorrection to 0.
+            }
+            when airspeed < 370 then {
+                set TRJCorrection to 0.69*TRJCorrection.
+            }
+            when airspeed < 320 then {
+                set TRJCorrection to 0.5*TRJCorrection.
+            }
         }
-
-        when altitude < 55000 and KSRSS then {
-            set TRJCorrection to 2*TRJCorrection.
-        }
-        when altitude < 40000 and KSRSS then {
-            set TRJCorrection to 1.5*TRJCorrection.
-        }
-        when altitude < 50000 and KSRSS then {
-            set TRJCorrection to 1.36*TRJCorrection.
+        else if RSS {
+            when altitude < 74000then {
+                set TRJCorrection to 1.5*TRJCorrection.
+            }
+            when altitude < 44000 then {
+                set TRJCorrection to -TRJCorrection*1.5.
+            }
+            when altitude < 28000 then {
+                if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
+                else if LngLatErrorList[0] > 3500 set TRJCorrection to -0.2*TRJCorrection.
+                else if LngLatErrorList[0] > 1300 set TRJCorrection to 0.6*TRJCorrection.
+            }
+            when altitude < 15000 then {
+                set TRJCorrection to 0.
+            }
+            when airspeed < 370 then {
+                set TRJCorrection to 0.69*TRJCorrection.
+            }
+            when airspeed < 320 then {
+                set TRJCorrection to 0.5*TRJCorrection.
+            }
         }
         
-        when altitude < 44000 and Stock or altitude < 45000 and KSRSS or altitude < 74000 and RSS then {
-            set TRJCorrection to 1.5*TRJCorrection.
-        }
-        when altitude < 44000 and RSS then {
-            set TRJCorrection to -TRJCorrection*1.5.
-        }
-        when altitude < 20000 and RSS then {
-            set TRJCorrection to -TRJCorrection/1.5.
-        }
-        when airspeed < 350 and STOCK then {
-            set TRJCorrection to 0.69*TRJCorrection.
-        }
-        when airspeed < 320 and STOCK then {
-            set TRJCorrection to 0.5*TRJCorrection.
-        }
-        when altitude < 14000 and Stock or altitude < 17000 and KSRSS or altitude < 15000 and RSS then {
-            set TRJCorrection to 0.
-        }
 
         lock STEERING to ReEntrySteering().
 

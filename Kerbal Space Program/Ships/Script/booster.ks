@@ -299,6 +299,8 @@ set Fpos to 0.
 set FposBase to 0.
 set CounterEngine to false.
 set LandingBurnEC to false.
+set Idle to true.
+
 set BBIgn to 98.
 set LBIgnC to 98.
 set LBIgnM to 98.
@@ -986,6 +988,7 @@ until False {
 
 
 function Boostback {
+    set Idle to false.
     if BoosterSingleEngines for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
     wait until SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0.
     wait 0.001.
@@ -1486,8 +1489,8 @@ function Boostback {
         BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
 
         set FuelDump to false.
-        if HSRJet {
-            when time:seconds - turnTime > 1.8 and defined HSR then {
+        if HSRJet and defined HSR {
+            when time:seconds - turnTime > 1.8 then {
                 if BoosterCore:thrust > 0 {
                     BoosterCore:shutdown.
                     set FuelDump to true.
@@ -1495,7 +1498,7 @@ function Boostback {
                 wait 0.2.
                 BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                 wait 0.01.
-                when vAng(facing:forevector, up:vector) < 64 and FuelDump then {
+                if FuelDump when vAng(facing:forevector, up:vector) < 64 then {
                     BoosterCore:activate.
                 }
                 set RenameHSR to false.
@@ -1761,9 +1764,9 @@ function Boostback {
 
     lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.14 then { 
-        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.5*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.5*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError > 0 then {
-            lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+            if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         }
     }
 
@@ -1974,16 +1977,16 @@ function Boostback {
                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
                     if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
                     sendMessage(Vessel(TargetOLM), ("RetractSQD")).
-                    when RadarAlt < 3.4 * BoosterHeight and GfC then {
+                    when RadarAlt < 3.4 * BoosterHeight then {
                         sendMessage(Vessel(TargetOLM), "LandingDeluge").
                         NoGo:hide().
                         set steeringManager:maxstoppingtime to 0.8.
                         set steeringManager:rollcontrolanglerange to 24.
                     }
-                    when RadarAlt < 2.4 * BoosterHeight and GfC and RSS then {
+                    if RSS when RadarAlt < 2.4 * BoosterHeight then {
                         set steeringManager:maxstoppingtime to 1.2.
                     }
-                    when RadarAlt < 1.2 * BoosterHeight and GfC then {
+                    when RadarAlt < 1.2 * BoosterHeight then {
                         set steeringManager:maxstoppingtime to 0.69.
                         set steeringManager:rolltorquefactor to 2.
                     }
@@ -2033,7 +2036,7 @@ function Boostback {
                     lock RadarAlt to alt:radar - BoosterHeight*0.6.
                     ADDONS:TR:SETTARGET(landingzone).
                 }
-                when RadarAlt < -2 and GfC and not BoosterLanded then {
+                if GfC when RadarAlt < -1.7 and not BoosterLanded then {
                     set LandSomewhereElse to true.
                     lock RadarAlt to alt:radar - BoosterHeight*0.6.
                     HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
@@ -2240,6 +2243,7 @@ function Boostback {
     HUDTEXT("Booster may now be recovered!", 10, 2, 20, green, false).
     clearscreen.
     print "Booster may now be recovered!".
+    set Idle to true.
 
 
     function ClosingAngle {
@@ -2729,6 +2733,7 @@ function AfterLandingTowerOperations {
     // sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").
     // sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
     // <-------------------------->
+    set Idle to false.
 
     bGUI:hide().
     set stable to false.
@@ -3434,8 +3439,8 @@ function PollUpdate {
 
 
 function GUIupdate {
-
-    if LandingBurnStarted and not BoosterLanded if config:ipu < 1700 set config:ipu to 1800.
+    if Idle if config:ipu < 600 or config:ipu > 700 set config:ipu to 660.
+    else if LandingBurnStarted and not BoosterLanded if config:ipu < 1700 set config:ipu to 1800.
     else if BoostBackComplete and not LandingBurnStarted if config:ipu < 800 set config:ipu to 900.
     else if not BoostBackComplete and RadarAlt > 20000 if config:ipu < 1000 set config:ipu to 1200.
 
