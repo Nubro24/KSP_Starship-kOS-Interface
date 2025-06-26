@@ -516,10 +516,10 @@ function GUIupdate {
     else set boosterThrust to BoosterEngines[0]:thrust.
 
     for res in BoosterCore:resources {
-        if res:name = "Oxidizer" or res:name = "LqdOxygen" {
+        if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
             set boosterLOX to res:amount*100/res:capacity.
         }
-        if res:name = "LqdMethane" {
+        if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
             set boosterCH4 to res:amount*100/res:capacity.
             set methane to true.
         }

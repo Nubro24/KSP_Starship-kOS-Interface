@@ -15514,11 +15514,11 @@ function updateTelemetry {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
             }
-            if res:name = "LqdMethane" {
+            if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
                 set ch4 to res:amount.
                 set mch4 to res:capacity.
             }
-            if res:name = "Oxidizer" or res:name = "LqdOxygen" {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set lox to res:amount.
                 set mlox to res:capacity.
             }
@@ -15529,18 +15529,15 @@ function updateTelemetry {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
             }
-            if res:name = "LqdMethane" {
+            if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
             }
-            if res:name = "Oxidizer" or res:name = "LqdOxygen" {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set lox to lox + res:amount.
                 set mlox to mlox + res:capacity.
             }
         }
-
-
-    
 
 
 
