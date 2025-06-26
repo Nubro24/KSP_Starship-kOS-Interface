@@ -11009,16 +11009,18 @@ function ReEntryAndLand {
             }
         }
         else if RSS {
-            when altitude < 74000then {
+            when altitude < 90000 then {
                 set TRJCorrection to 1.5*TRJCorrection.
             }
             when altitude < 44000 then {
-                set TRJCorrection to -TRJCorrection*1.5.
+                if LngLatErrorList[0] < -10000 set TRJCorrection to 1.4*TRJCorrection.
+                else if LngLatErrorList[0] > 0 set TRJCorrection to -0.6*TRJCorrection.
+                else if LngLatErrorList[0] > -4000 set TRJCorrection to 0.4*TRJCorrection.
             }
             when altitude < 28000 then {
-                if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
-                else if LngLatErrorList[0] > 3500 set TRJCorrection to -0.2*TRJCorrection.
-                else if LngLatErrorList[0] > 1300 set TRJCorrection to 0.6*TRJCorrection.
+                if LngLatErrorList[0] < -5000 set TRJCorrection to 1.2*TRJCorrection.
+                else if LngLatErrorList[0] > 1500 set TRJCorrection to 0.1*TRJCorrection.
+                else if LngLatErrorList[0] > -1300 set TRJCorrection to 0.6*TRJCorrection.
             }
             when altitude < 15000 then {
                 set TRJCorrection to 0.
