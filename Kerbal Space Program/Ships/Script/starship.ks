@@ -98,14 +98,14 @@ set RadarAlt to 0.
 set Hotstaging to false.
 set ShipSubType to "None".
 
-set LOIgnCha to 98.
+set LOIgnCha to 98.5.
 set SLIgnCha to 99.
 set VCIgnCha to 99.
-set BBIgnCha to 96.
+set BBIgnCha to 98.
 set LB1IgnCha to 97.
 set LB2IgnCha to 98.
-set ifIgnCha to 0.16.
-set ifIgnCha2 to 0.4.
+set ifIgnCha to 0.05.
+set ifIgnCha2 to 0.3.
 
 
 local VersionDisplay is GUI(100).
@@ -498,7 +498,7 @@ else {       // Stock Kerbin
     set towerhgt to 60.
     set LaunchSites to lexicon("Launch Site", "-0.0972,-74.5562", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
     set DefaultLaunchSite to "-0.0972,-74.5562".
-    set FuelVentCutOffValue to 1000.
+    set FuelVentCutOffValue to 1175.
     set FuelBalanceSpeed to 20.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 2500.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
@@ -528,7 +528,7 @@ else {       // Stock Kerbin
 set SNStart to 30.  // Defines the first Serial Number when multiple ships are found and renaming is necessary.
 set MaxTilt to 3.5.  // Defines maximum allowed slope for the Landing Zone Search Function
 set maxstabengage to 0.  // Defines max closing of the stabilizers after landing.
-set CPUSPEED to 600.  // Defines cpu speed in lines per second.
+set CPUSPEED to 800.  // Defines cpu speed in lines per second.
 set FWDFlapDefault to 55.
 set AFTFlapDefault to 65.
 set rcsRaptorBoundary to 80.  // Defines the custom burn boundary velocity where the ship will burn either RCS/Single Raptor below it or VAC Raptors above it.
@@ -1410,7 +1410,7 @@ local Quest2 is IgnChaLayout:addlabel().
     set Quest2:style:fontsize to 16.
 
 local IFQuest is IgnChaLayout:addlabel().
-    set IFQuest:text to "<b>Booster: </b>(Chance < 0.4% recommended)".
+    set IFQuest:text to "<b>Booster: </b>(Chance < 0.3% recommended)".
     set IFQuest:style:margin:top to 12.
     set IFQuest:style:margin:bottom to 12.
     set IFQuest:style:margin:left to 12.
@@ -7543,7 +7543,8 @@ function Launch {
                     set LaunchRollVector to facing:topvector+up:vector.
                     set SteeringManager:rollts to 12.
                     set steeringManager:rolltorquefactor to 60.
-                    when steeringManager:rollerror < 30 and steeringManager:rollerror > -30 then set steeringManager:rolltorquefactor to 20.
+                    when steeringManager:rollerror < 30 and steeringManager:rollerror > -30 then set steeringManager:rolltorquefactor to 50.
+                    set ship:control:neutralize to true.
                 } 
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
@@ -7557,7 +7558,7 @@ function Launch {
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
                 if ShipSubType:contains("Block2") set LaunchRollVector to up:vector.
-                set steeringManager:rolltorquefactor to 4.
+                set steeringManager:rolltorquefactor to 42.
                 set Hotstaging to true.
                 if BoosterSingleEngines {
                     set x to 1.
@@ -7715,6 +7716,7 @@ function Launch {
                 set cancel:text to "<b>CANCEL</b>".
                 rcs on.
                 lock steering to LaunchSteering().
+                set steeringManager:rolltorquefactor to 4.
                 wait 0.1.
                 set kuniverse:activevessel to vessel(ship:name).
                 HideEngineToggles(1).
@@ -7741,9 +7743,7 @@ function Launch {
                     lock throttle to curThro + (tgtThro - curThro)*(time:seconds-HotStageTime-0.4)/2.
                     when throttle > tgtThro - 0.02 then lock throttle to LaunchThrottle().
                 }
-                if CPUSPEED < 1000 {
-                    set config:ipu to 1000.
-                }
+                set config:ipu to CPUSPEED.
                 list targets in shiplist.
                 RenameShip().
             }
@@ -7973,11 +7973,16 @@ function LaunchThrottle {
 }
 
 Function LaunchSteering {
+    //set drawRoll to vecDraw(Tank:position, steeringManager:target:topvector, red, "Roll", 30, true, 0.016).
     set myAzimuth to LAZcalc(LaunchData).
     clearscreen.
     print "Steering Error: " + round(SteeringManager:angleerror, 2).
     print "Roll Error: " + round(steeringManager:rollerror, 2).
     print " ".
+    //set unusedLines to opcodesleft.
+    //print "CPU operations: " + (config:ipu-unusedLines):tostring +"/"+config:ipu + " (unused: "+opcodesleft+")".
+    //print "CPU speed: " + config:ipu.
+    //print " ".
 
     if hastarget {
         set TargetError to vang(normal(target:orbit), normal(ship:orbit)).
@@ -7999,7 +8004,7 @@ Function LaunchSteering {
             else if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
         }
         local failureTimer to time:seconds.
-        when time:seconds - failureTimer > 3 then {
+        when time:seconds - failureTimer > 4 then {
             set WaitTime to false.
         }
     }
@@ -8030,7 +8035,7 @@ Function LaunchSteering {
             set Hotstaging to true.
         }
         else {
-            if ShipSubType:contains("Block2") set LaunchRollVector to facing:topvector+up:vector.
+            if ShipSubType:contains("Block2") set LaunchRollVector to facing:topvector+2*up:vector.
             if RSS {
                 set result to lookDirUp(srfPrograde:vector + 0.26*up:vector, LaunchRollVector).
             } else {
@@ -8070,7 +8075,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (11.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (11.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
@@ -11032,6 +11037,7 @@ function ReEntryAndLand {
                 set TRJCorrection to 0.5*TRJCorrection.
             }
         }
+        if ShipSubType:contains("Block2") when TRJCorrection = 0 then set TRJCorrection to 2.
         
 
         lock STEERING to ReEntrySteering().
@@ -11081,9 +11087,9 @@ function ReEntryAndLand {
                             set maxDeltaV to 440.
                         }
                         else {
-                            set PitchPID:kp to 0.00012. //0.03
-                            set PitchPID:ki to 0. //0.035
-                            set PitchPID:kd to 0.001. //0.028
+                            set PitchPID:kp to 0.002. //0.03
+                            set PitchPID:ki to 0.001. //0.035
+                            set PitchPID:kd to 0.002. //0.028
                             set YawPID:kp to 0.02. //0.1
                             set YawPID:ki to 0.045. //0.075
                             set YawPID:kd to 0.015. //0.025
@@ -11697,7 +11703,7 @@ function ReEntryData {
             LogToFile("Landing Procedure started. Starting Landing Flip Now!").
             
             when vang(-1 * velocity:surface, ship:facing:forevector) < FlipAngleFactor * FlipAngle then {
-                set config:ipu to 1.2*CPUSPEED.
+                set config:ipu to CPUSPEED.
                 setflaps(60, 60, 1, 0).
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
@@ -11786,6 +11792,8 @@ function ReEntryData {
                     SLEngines[2]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                     LogToFile("2nd engine shutdown; performing a single engine landing..").
                     set oneSL to true.
+                    set Slow to false.
+                    set Hover to false.
                 }
             }
 
@@ -11912,7 +11920,7 @@ function LandingThrottle {
     
     if verticalspeed > 3*CatchVS or Slow {
         set Slow to true.
-        return (minDecel+DesiredDecel)/2.
+        return (minDecel+2*DesiredDecel)/3.
     }
     if not (TargetOLM = "False") {
         set landingRatio to stopDist / (RadarAlt - 0.6).
@@ -12044,6 +12052,7 @@ function LandingVector {
                         }
                         if vAng(result, facing:forevector) > 3 set result to facing:forevector + result.
                     }
+                    if GSVec:mag < 1.5 set result to result + 0.5 * up:vector.
                 }
 
                 if ship:body:atm:sealevelpressure < 0.5 {

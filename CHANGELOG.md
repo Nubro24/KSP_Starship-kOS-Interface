@@ -4,6 +4,7 @@
   - Improved Hotstage Timings
   - Added Throttle down to limit G-Load
   - Added *random* Flip direction for Booster after Hotstage
+  - Added *apoapsis compensation* during boostback
 - **UI Improvements**:
   - Added new **Ship** Engine Pictograms for *all possible Combinations* (with 3 RVacs)
   - Changed Function to set the correct image
@@ -21,7 +22,8 @@
   - Added random Engine Failures (on Ignition and In-Flight)
     - Added a new Settings menu (called from a button on the top left) for user settings
 - Other Changes/Additions:
-  - **Small improvements to Booster and Ship Landings**
+  - **Greatly simplified Booster Landing Guidance**
+  - **Small improvements to Ship Landings**
   - Added Support for Raptor 1
   - Added Support for Vista's SEP Addon
   - Added Distance Checks for automatic Booster Catch Abort
