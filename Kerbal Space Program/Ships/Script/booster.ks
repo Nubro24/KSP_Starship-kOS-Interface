@@ -2497,7 +2497,7 @@ function LandingGuidance {
     set velRatio to vSpeed/GSVec:mag.
     set closureRatio to ((gsTime/vertTime) + RadarAlt/7000 )^max(ErrorVector:mag/(0.4*BoosterHeight),1).
     if RadarRatio > 0.05 {
-        if not MiddleEnginesShutdown and velRatio < 2.2 set closureRatio to max(closureRatio,0.9).
+        if not MiddleEnginesShutdown and velRatio < 2.2 set closureRatio to max(closureRatio,0.86).
         if RadarRatio < 1 set closureRatio to closureRatio^RadarRatio.
         else if RadarRatio < 2 set closureRatio to closureRatio^0.9.
     }
