@@ -435,7 +435,7 @@ if RSS {         // Real Solar System
         set aoa to aoa - TRJCorrection.
     }
     else {
-        set TRJCorrection to -2.4.
+        set TRJCorrection to -2.
     }
 }
 else if KSRSS {      // 2.5-2.7x scaled Kerbin
@@ -7535,16 +7535,15 @@ function Launch {
         }
 
         if Boosterconnected {
-            set steeringManager:maxstoppingtime to 0.8*Scale.
+            set steeringManager:maxstoppingtime to 0.7*Scale.
             when apoapsis > BoosterAp - 22000 * Scale then {
-                set steeringManager:maxstoppingtime to 0.2.
+                set steeringManager:maxstoppingtime to 0.6*Scale.
+                set steeringManager:pitchtorquefactor to 0.3*Scale.
+                set steeringManager:yawtorquefactor to 0.3*Scale.
+                set steeringManager:rolltorquefactor to 3.2*Scale.
                 if ShipSubType:contains("Block2") {
                     if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
-                    set LaunchRollVector to facing:topvector+up:vector.
-                    set SteeringManager:rollts to 12.
-                    set steeringManager:rolltorquefactor to 60.
-                    when steeringManager:rollerror < 30 and steeringManager:rollerror > -30 then set steeringManager:rolltorquefactor to 50.
-                    set ship:control:neutralize to true.
+                    set LaunchRollVector to up:vector.
                 } 
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
@@ -7775,7 +7774,7 @@ function Launch {
             when time:seconds > HotStageTime + 3 then {
                 lock steering to LaunchSteering().
             }
-            when time:seconds > HotStageTime + 5 then {
+            when time:seconds > HotStageTime + 2 then {
                 KUniverse:forceactive(vessel("Booster")).
             }
 
@@ -8031,11 +8030,10 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
-            if ShipSubType:contains("Block2") set LaunchRollVector to up:vector.
-            set Hotstaging to true.
+            set result to lookDirUp(srfPrograde:vector + 0.1*up:vector, LaunchRollVector).
+            if apoapsis > BoosterAp - 4000 * Scale set Hotstaging to true.
         }
         else {
-            if ShipSubType:contains("Block2") set LaunchRollVector to facing:topvector+2*up:vector.
             if RSS {
                 set result to lookDirUp(srfPrograde:vector + 0.26*up:vector, LaunchRollVector).
             } else {
@@ -8158,7 +8156,7 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
-            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.9.
+            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.88.
             else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.82.
         }
         if MaintainVS {
@@ -10945,23 +10943,23 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00002, 0, 0.0001, -25, 30 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.00002, 0, 0.0001, -20, 27 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
-                set PitchPID to PIDLOOP(0.00001, 0, 0.00005, -25, 30 - TRJCorrection).
+                set PitchPID to PIDLOOP(0.00001, 0, 0.00005, -20, 27 - TRJCorrection).
                 set YawPID to PIDLOOP(0.0012, 0, 0.000001, -50, 50).
             }
         }
         else if KSRSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 30 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -20, 27 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
             }
             set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
         else {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 30 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -20, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
@@ -11015,12 +11013,12 @@ function ReEntryAndLand {
         }
         else if RSS {
             when altitude < 90000 then {
-                set TRJCorrection to 1.5*TRJCorrection.
+                set TRJCorrection to 1.3*TRJCorrection.
             }
             when altitude < 44000 then {
                 if LngLatErrorList[0] < -10000 set TRJCorrection to 1.4*TRJCorrection.
-                else if LngLatErrorList[0] > 0 set TRJCorrection to -0.6*TRJCorrection.
-                else if LngLatErrorList[0] > -4000 set TRJCorrection to 0.4*TRJCorrection.
+                else if LngLatErrorList[0] > 0 set TRJCorrection to 0.2*TRJCorrection.
+                else if LngLatErrorList[0] > -4000 set TRJCorrection to 0.5*TRJCorrection.
             }
             when altitude < 28000 then {
                 if LngLatErrorList[0] < -5000 set TRJCorrection to 1.2*TRJCorrection.
@@ -11797,8 +11795,9 @@ function ReEntryData {
                 }
             }
 
-            until verticalspeed > CatchVS and RadarAlt < 15 * Scale and ship:groundspeed < 1 or Hover and ship:groundspeed < 1 {
+            until verticalspeed > CatchVS and RadarAlt < 15 * Scale and ship:groundspeed < 1 {
                 SendPing().
+                if config:ipu < 1300 set config:ipu to 1400.
                 if ship:body:atm:sealevelpressure > 0.5 {
                     if ErrorVector:MAG > (Scale * 2 * RadarAlt + 25) and RadarAlt > 55 and not (LandSomewhereElse) or RadarAlt < -1 and not (LandSomewhereElse) or verticalspeed > -15 and ErrorVector:MAG > 15 * Scale {
                         set LandSomewhereElse to true.
@@ -11828,12 +11827,9 @@ function ReEntryData {
                 wait 0.01.
             }
             if not (TargetOLM = "False") {
-                unlock throttle.
                 wait 0.001.
                 set t to time:seconds.
-                //lock steering to lookDirUp(up:vector - 0.01 * velocity:surface, RollVector).
-                lock throttle to max((Planet1G + (verticalspeed / CatchVS - 1)) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))), ThrottleMin).
-                until time:seconds > t + 8 or ship:status = "LANDED" and verticalspeed > -0.01 or RadarAlt < -1 {
+                until time:seconds > t + 8 or (ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.01 or RadarAlt < -1 {
                     SendPing().
                     BackGroundUpdate().
                     print "slowly lowering down ship..".
