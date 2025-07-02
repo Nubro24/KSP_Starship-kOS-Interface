@@ -10943,47 +10943,35 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00002, 0, 0.0001, -20, 27 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.00002, 0, 0.0001, -25, 27 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
-                set PitchPID to PIDLOOP(0.00001, 0, 0.00005, -20, 27 - TRJCorrection).
+                set PitchPID to PIDLOOP(0.00001, 0, 0.00005, -25, 27 - TRJCorrection).
                 set YawPID to PIDLOOP(0.0012, 0, 0.000001, -50, 50).
             }
         }
         else if KSRSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.0005, 0, 0, -20, 27 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 27 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
             }
             set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
         else {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.0005, 0, 0, -20, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
 
         if STOCK {
-            when altitude < 44000 then {
-                set TRJCorrection to 1.5*TRJCorrection.
-            }
-            when altitude < 39000 then {
-                set TRJCorrection to 1.45*TRJCorrection.
-            }
-            when altitude < 28000 then {
-                if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
-                else if LngLatErrorList[0] > 3500 set TRJCorrection to -0.2*TRJCorrection.
-                else if LngLatErrorList[0] > 1300 set TRJCorrection to 0.6*TRJCorrection.
-            }
-            when altitude < 14000 then {
-                set TRJCorrection to 0.
-            }
-            when airspeed < 370 then {
-                set TRJCorrection to 0.69*TRJCorrection.
+            when altitude < 55000*Scale and airspeed > 324 then {
+                if LngLatErrorList[0] < 0 set TRJCorrection to -2 * min((ErrorVector:mag/4000)^0.75,2) * (airspeed-320)/airspeed.
+                else set TRJCorrection to min((ErrorVector:mag/4000)^0.75,2) * (airspeed-320)/airspeed.
+                return true.
             }
             when airspeed < 320 then {
-                set TRJCorrection to 0.5*TRJCorrection.
+                set TRJCorrection to 0.
             }
         }
         else if KSRSS {
@@ -10998,7 +10986,7 @@ function ReEntryAndLand {
             }
             when altitude < 32000 then {
                 if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
-                else if LngLatErrorList[0] > 3500 set TRJCorrection to -0.2*TRJCorrection.
+                else if LngLatErrorList[0] > 3500 set TRJCorrection to 0.2*TRJCorrection.
                 else if LngLatErrorList[0] > 1400 set TRJCorrection to 0.6*TRJCorrection.
             }
             when altitude < 17000 then {

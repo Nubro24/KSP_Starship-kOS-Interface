@@ -316,6 +316,7 @@ local bTelemetry is GUI(150).
     set bTelemetry:skin:label:font to "Arial Bold".
     set bTelemetry:skin:textfield:font to "Arial Bold".
 local bAttitudeTelemetry is bTelemetry:addhlayout().
+local GDlamp is bAttitudeTelemetry:addlabel().
 local boosterCluster is bAttitudeTelemetry:addvlayout().
 local boosterStatus is bAttitudeTelemetry:addvlayout().
 local boosterAttitude is bAttitudeTelemetry:addvlayout().
@@ -543,6 +544,14 @@ function CreateTelemetry {
     set bTelemetry:y to 0.
     set bTelemetry:y to -220*TScale.
     
+    set GDlamp:style:margin:top to 200*TScale.
+    set GDlamp:style:margin:left to 0.
+    set GDlamp:style:width to 0.
+    set GDlamp:style:height to 0.
+    set GDlamp:style:overflow:left to -20*TScale.
+    set GDlamp:style:overflow:right to 40*TScale.
+    set GDlamp:style:overflow:top to 20*TScale.
+
     set overflow to 0.
     set EngBG:style:width to floor(200*TScale).
     set EngBG:style:height to floor(200*TScale).
@@ -882,12 +891,21 @@ set PreDockPos to false.
 
 
 
-
+on ag10 {
+    set GD to true.
+    set GDlamp:style:bg to "starship_img/telemetry_fuel".
+    return true.
+} 
+on ag9 {
+    set GD to false.
+    set GDlamp:style:bg to "starship_img/telemetry_fuel_bg".
+    return true.
+} 
 
 
 when True then {
     GUIupdate().
-    preserve.
+    return true.
 }
 
 
@@ -2026,7 +2044,8 @@ function Boostback {
                             }
                         }
                         wait 0.
-                        if not BoosterLanded and RadarAlt > 0.05*BoosterHeight preserve.
+                        if not BoosterLanded and RadarAlt > 0.05*BoosterHeight return true.
+                        else return false.
                     }
                 }
             }
@@ -2718,7 +2737,7 @@ function BoosterDocking {
         print "Position Error: " + round(PosDiff, 2) + "m".
         wait 0.001.
         if ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 {
-            preserve.
+            return true.
         } else {
             MidGimbMod:doaction("free gimbal", true).
             CtrGimbMod:doaction("free gimbal", true).
@@ -2749,7 +2768,7 @@ function BoosterDocking {
             set t to time:seconds.
             until time:seconds > t + 5 {wait 0.}
             set t to time:seconds.
-            preserve.
+            return true.
         }
         until time:seconds > t + 5 {wait 0.}
 
@@ -2770,7 +2789,7 @@ function BoosterDocking {
             wait 6 * Scale.
             sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + round(BoosterDockingHeight, 2) + ",0.05")).
             wait 6 * Scale.
-            preserve.
+            return false.
         }
         when ship:partstitled("Starship Orbital Launch Integration Tower Base"):length > 0 then {
             set BoosterDocked to true.
@@ -3271,6 +3290,8 @@ function GUIupdate {
     } else {
         set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
     }
+
+    if cAbort set GDlamp:style:bg to "starship_img/telemetry_red".
 
 
     set boosterAltitude to RadarAlt.
