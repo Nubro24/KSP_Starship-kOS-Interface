@@ -1255,9 +1255,9 @@ function Boostback {
             set steeringmanager:yawtorquefactor to 0.1.
 
         when ((time:seconds > flipStartTime + 45 and RSS) or (time:seconds > flipStartTime + 55 and KSRSS)) or (time:seconds > flipStartTime + 50 and not (RSS or KSRSS)) then {
-            Go:hide().
+            if not fullAuto Go:hide().
             set NoGo:text to "<color=red>ABORT</color>".
-            if not GfC {
+            if not GfC and not fullAuto {
                 NoGo:hide().
             }
         }
@@ -1710,11 +1710,11 @@ function Boostback {
     set OneTime to true.
 
 
-    bGUI:show().
+    if not fullAuto bGUI:show().
     when ((time:seconds > flipStartTime + 45 and RSS) or (time:seconds > flipStartTime + 55 and KSRSS)) or (time:seconds > flipStartTime + 40 and not (RSS or KSRSS)) then {
-        Go:hide().
+        if not fullAuto Go:hide().
         set NoGo:text to "<color=red>ABORT</color>".
-        if not GfC {
+        if not GfC and not fullAuto {
             NoGo:hide().
         }
     }
