@@ -1856,7 +1856,7 @@ function Boostback {
             } 
             set x to x + 1.
         }
-        when time:seconds - LandingBurnTime > 0.1 then {
+        when time:seconds - LandingBurnTime > 0.12 then {
             set x to 4.
             for eng in BoosterSingleEnginesRC {
                 if (x = 4 or x = 6 or x = 8 or x = 10 or x = 12) and eng:hassuffix("activate") {
@@ -1865,9 +1865,9 @@ function Boostback {
                 }
                 set x to x + 1.
             }
-            wait until x = 13.
+            wait 0.
             set LandingBurnStarted to true.
-            when time:seconds - LandingBurnTime > 0.6 then {
+            when time:seconds - LandingBurnTime > 0.69 then {
                 set x to 4.
                 for eng in BoosterSingleEnginesRC {
                     if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if eng:hassuffix("activate") {
