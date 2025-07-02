@@ -318,6 +318,7 @@ local bTelemetry is GUI(150).
     set bTelemetry:skin:textfield:font to "Arial Bold".
 local bAttitudeTelemetry is bTelemetry:addhlayout().
 local GDlamp is bAttitudeTelemetry:addlabel().
+    set GDlamp:style:bg to "starship_img/telemetry_fuel".
 local boosterCluster is bAttitudeTelemetry:addvlayout().
 local boosterStatus is bAttitudeTelemetry:addvlayout().
 local boosterAttitude is bAttitudeTelemetry:addvlayout().
@@ -549,10 +550,10 @@ function CreateTelemetry {
     set GDlamp:style:margin:left to 0.
     set GDlamp:style:width to 0.
     set GDlamp:style:height to 0.
-    set GDlamp:style:overflow:left to 0*TScale.
-    set GDlamp:style:overflow:right to 10*TScale.
-    set GDlamp:style:overflow:top to 10*TScale.
-    set GDlamp:style:overflow:bottom to -10*TScale.
+    set GDlamp:style:overflow:left to -10*TScale.
+    set GDlamp:style:overflow:right to 20*TScale.
+    set GDlamp:style:overflow:top to 0*TScale.
+    set GDlamp:style:overflow:bottom to -25*TScale.
 
     set overflow to 0.
     set EngBG:style:width to floor(200*TScale).
@@ -1025,7 +1026,7 @@ function Boostback {
 
     set HighLandingBurn to false.
 
-    set targetAp to ship:apoapsis - 1000*Scale.
+    set targetAp to ship:apoapsis - 500*Scale.
 
 
     setLandingZone().
@@ -1088,7 +1089,6 @@ function Boostback {
             else set FlipTime to 4.
 
         }
-        SteeringCorrections().
         unlock steering.
         set ship:name to "Booster".
         rcs on.
@@ -1118,6 +1118,7 @@ function Boostback {
                 set x to x + 1.
             }
         }
+        SteeringCorrections().
         
         
         
@@ -2332,7 +2333,7 @@ FUNCTION SteeringCorrections {
         set LngError to vdot(ApproachVector, ErrorVector).
 
 
-        if altitude < 30000 * Scale { //or KUniverse:activevessel = vessel(ship:name) {
+        if altitude < 30000 * Scale and BoostBackComplete { //or KUniverse:activevessel = vessel(ship:name) {
             set GS to groundspeed.
 
             if InitialError = -9999 and addons:tr:hasimpact {
@@ -3337,12 +3338,13 @@ function GUIupdate {
     set Mode to "NaN".
     if throttle > 0 {
         if not BoosterSingleEngines and boosterThrust > 60*Scale {
+            set lastMode to Mode.
             if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
                 set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
             }
+            if Mode = lastMode set ModeChanged to false. else set ModeChanged to true.
 
-
-            if Mode = "Center Three" {
+            if Mode = "Center Three" and ModeChanged {
                 set x to 1.
                 until x > 3 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -3352,7 +3354,7 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
-            } else if Mode = "Middle Inner" {
+            } else if Mode = "Middle Inner" and ModeChanged {
                 set x to 1.
                 until x > 13 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -3362,7 +3364,7 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
-            } else if Mode = "All Engines" {
+            } else if Mode = "All Engines" and ModeChanged {
                 set x to 1.
                 until x > 33 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.

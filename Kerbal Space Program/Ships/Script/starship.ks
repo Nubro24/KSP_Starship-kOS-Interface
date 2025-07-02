@@ -7776,11 +7776,11 @@ function Launch {
                     eng:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
                 }
             }
-            when time:seconds > HotStageTime + 3 then {
-                lock steering to LaunchSteering().
-            }
             when time:seconds > HotStageTime + 2 then {
                 KUniverse:forceactive(vessel("Booster")).
+            }
+            when time:seconds > HotStageTime + 3 then {
+                lock steering to LaunchSteering().
             }
 
             when altitude > 0.72*TargetAp then {
@@ -10972,64 +10972,16 @@ function ReEntryAndLand {
 
         if true {
             when altitude < 55000*Scale and airspeed > 324 then {
-                if LngLatErrorList[0] < 0 set TRJCorrection to -2 * min((ErrorVector:mag/4000)^0.75,2) * min((airspeed-320)/airspeed,1).
-                else set TRJCorrection to min((ErrorVector:mag/4000)^0.75,2) * min((airspeed-320)/airspeed,1).
+                if LngLatErrorList[0] < 0 set TRJCorrection to -2 * min((ErrorVector:mag/200)^0.9,2.5) * min(((airspeed-300)/airspeed)^0.8,1).
+                else set TRJCorrection to -2 * 1/(min((ErrorVector:mag/4000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1).
                 return true.
             }
             when airspeed < 320 then {
                 set TRJCorrection to 0.
             }
         }
-        else if KSRSS {
-            when altitude < 55000 then {
-                set TRJCorrection to 2*TRJCorrection.
-            }
-            when altitude < 50000 then {
-                set TRJCorrection to 1.36*TRJCorrection.
-            }
-            when altitude < 45000 then {
-                set TRJCorrection to 2*TRJCorrection.
-            }
-            when altitude < 32000 then {
-                if LngLatErrorList[0] < 0 set TRJCorrection to 1.4*TRJCorrection.
-                else if LngLatErrorList[0] > 3500 set TRJCorrection to 0.2*TRJCorrection.
-                else if LngLatErrorList[0] > 1400 set TRJCorrection to 0.6*TRJCorrection.
-            }
-            when altitude < 17000 then {
-                set TRJCorrection to 0.
-            }
-            when airspeed < 370 then {
-                set TRJCorrection to 0.69*TRJCorrection.
-            }
-            when airspeed < 320 then {
-                set TRJCorrection to 0.5*TRJCorrection.
-            }
-        }
-        else if RSS {
-            when altitude < 90000 then {
-                set TRJCorrection to 1.3*TRJCorrection.
-            }
-            when altitude < 44000 then {
-                if LngLatErrorList[0] < -10000 set TRJCorrection to 1.4*TRJCorrection.
-                else if LngLatErrorList[0] > 0 set TRJCorrection to 0.2*TRJCorrection.
-                else if LngLatErrorList[0] > -4000 set TRJCorrection to 0.5*TRJCorrection.
-            }
-            when altitude < 28000 then {
-                if LngLatErrorList[0] < -5000 set TRJCorrection to 1.2*TRJCorrection.
-                else if LngLatErrorList[0] > 1500 set TRJCorrection to 0.1*TRJCorrection.
-                else if LngLatErrorList[0] > -1300 set TRJCorrection to 0.6*TRJCorrection.
-            }
-            when altitude < 15000 then {
-                set TRJCorrection to 0.
-            }
-            when airspeed < 370 then {
-                set TRJCorrection to 0.69*TRJCorrection.
-            }
-            when airspeed < 320 then {
-                set TRJCorrection to 0.5*TRJCorrection.
-            }
-        }
-        if ShipSubType:contains("Block2") when TRJCorrection = 0 then set TRJCorrection to 2.
+        if ShipSubType:contains("Block2") when airspeed < 300 then set TRJCorrection to 1.9.
+        else when airspeed < 300 then set TRJCorrection to 0.5.
         
 
         lock STEERING to ReEntrySteering().
@@ -11252,6 +11204,7 @@ function ReEntrySteering {
         print "PitchCtrl: " + round(pitchctrl, 2).
         print "MaxOutput: " + round(PitchPID:maxoutput, 2).
         print "YawCtrl: " + round(yawctrl, 2).
+        print "TRJCorrection: " + round(TRJCorrection, 1).
 
         if ship:body:atm:sealevelpressure < 0.5 {
             print " ".
@@ -11647,7 +11600,7 @@ function ReEntryData {
             set LandingBurnStarted to false.
             set landingRatio to 0.
             set ShipLanded to false.
-            set LandingFlipTime to 2.8.
+            set LandingFlipTime to 2.5.
             if KSRSS {
                 set LandingFlipTime to 3.5.
             } else if RSS {
@@ -11699,8 +11652,14 @@ function ReEntryData {
                 setflaps(60, 60, 1, 0).
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
-                    if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 6.4.
-                    else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.8.
+                    if not ShipSubType:contains("Block2") {
+                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 6.4.
+                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.8.
+                    }
+                    else {
+                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 8.4.
+                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 13.8.
+                    }
                 }
                 set ship:control:neutralize to true.
                 
@@ -12147,16 +12106,31 @@ function LandingVector {
             //}
 
             if TargetOLM {
-                when time:seconds > ShutdownProcedureStart + 5 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(1.32 * Scale,2) + ",false")).
-                    sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
-                }
-                when time:seconds > ShutdownProcedureStart + 10 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(1.32 * Scale, 2) + ",false")).
-                    sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
-                }
-                when time:seconds > ShutdownProcedureStart + 15 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(1.32 * Scale, 2) + ",false")).
+                if ShipSubType:contains("Block2") {
+                    when time:seconds > ShutdownProcedureStart + 5 then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(0.3 * Scale,2) + ",false")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
+                    }
+                    when time:seconds > ShutdownProcedureStart + 10 then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.3 * Scale, 2) + ",false")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
+                    }
+                    when time:seconds > ShutdownProcedureStart + 15 then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.3 * Scale, 2) + ",false")).
+                    }
+                } 
+                else {
+                    when time:seconds > ShutdownProcedureStart + 5 then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(1.3 * Scale,2) + ",false")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
+                    }
+                    when time:seconds > ShutdownProcedureStart + 10 then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(1.3 * Scale, 2) + ",false")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
+                    }
+                    when time:seconds > ShutdownProcedureStart + 15 then {
+                        sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(1.3 * Scale, 2) + ",false")).
+                    }
                 }
             }
 
@@ -12284,9 +12258,9 @@ function LngLatError {
             if TargetOLM {
                 if STOCK {
                     if ShipType:contains("Block1"){
-                        set LngLatOffset to -60.
+                        set LngLatOffset to -16.
                     } else {
-                        set LngLatOffset to -60.
+                        set LngLatOffset to -16.
                     }
                 }
                 else if KSRSS {
