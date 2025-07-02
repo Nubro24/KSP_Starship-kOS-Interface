@@ -547,6 +547,7 @@ set steeringmanager:rolltorquefactor to 0.75.
 
 
 set startup to false.
+set fullAuto to false.
 set config:ipu to CPUSPEED.
 set NrOfGuisOpened to 0.
 set exit to false.
@@ -6997,6 +6998,7 @@ function Launch {
     if not AbortLaunchInProgress and not LaunchComplete {
         SetLoadDistances(ship, "default").
         set LaunchButtonIsRunning to true.
+        if fullAuto g:hide().
         set landingzone to latlng(0, 0).
         mainbox:showonly(flightstack).
         if hasnode {
@@ -7220,6 +7222,7 @@ function Launch {
                         wait 0.01.
                     }
                 }
+                if fullAuto g:show().
                 return.
             }
         }
@@ -7306,7 +7309,7 @@ function Launch {
                 BackGroundUpdate().
             }
 
-            g:hide().
+            if not fullAuto g:hide().
             
             set message1:text to "".
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
@@ -7345,6 +7348,7 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 8*Scale + ",0.8")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 ClearInterfaceAndSteering().
+                if fullAuto g:show().
                 return.
             }
             set lowTWR to false.
@@ -7430,6 +7434,7 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 8*Scale + ",0.8")).
                 ClearInterfaceAndSteering().
+                if fullAuto g:show().
                 return.
             }
             if bLiftOffThrust/(StackMass * Planet1G) < 1.3 set lowTWR to true.
@@ -7847,7 +7852,7 @@ function Launch {
             wait 0.1.
         }
         
-        g:show().
+        if not fullAuto g:show().
 
         unlock steering.
         SteeringManager:RESETTODEFAULT().
@@ -10844,6 +10849,7 @@ function LandwithoutAtmoLabels {
 function ReEntryAndLand {
     if addons:tr:hasimpact {
         set LandButtonIsRunning to true.
+        if fullAuto g:hide().
         set FindNewTarget to false.
         set LZsettoOLM to false.
         set tt to time:seconds.
@@ -12104,6 +12110,7 @@ function LandingVector {
             set runningprogram to "After Landing".
             rcs off.
             set ShutdownComplete to false.
+            if fullAuto g:show().
             set ShutdownProcedureStart to time:seconds.
             LogToFile("Vehicle Touchdown, performing self-check").
             if not LandSomewhereElse and not (TargetOLM) {

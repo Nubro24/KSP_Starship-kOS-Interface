@@ -13,6 +13,7 @@
   - Fixed pixel issues with Attitude Indicator
   - Added new Attitude Indicators for 360° (Credit: domino playz)
   - Updated Fuel Indicators to be more round (Credit: Vista)
+  - Added Flight Directors Decision to a small lamp buttom left (turns red on Abort)
   - **Known Issue: If your playing on resolutions not part of the 720, 1080, 1440, 2160, etc. system, The Booster Cluster UI might be misaligning, due to the limitation of pixels**
   - *I recommened deleting the starship_img folder for this update*
 - **Added Support for individual Engines on the Booster** *(Cluster Functionality unchanged)*
@@ -23,10 +24,13 @@
     - Added a new Settings menu (called from a button on the top left) for user settings
 - Other Changes/Additions:
   - **Greatly simplified Booster Landing Guidance**
-  - **Small improvements to Ship Landings**
+  - **Improved Ship Reentry and Landing**
   - Added Support for Raptor 1
   - Added Support for Vista's SEP Addon
   - Added Distance Checks for automatic Booster Catch Abort
+  - Added fully automatic Option, which shows Telemetry Only during operations 
+    - action groups 9 (NoGo) and 10 (Go) are Hotkeys for Flight Directors Return Decision 
+    - *to only see the Telemetry you also need to press F2*
 - Bug/Error Fixes:
   - Fixed RSS Max Cargo values (max. 69t to Orbit)
   - Fixed RSS Reentry loosing control

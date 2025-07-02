@@ -303,6 +303,7 @@ set Idle to true.
 set offshoreDivert to false.
 set AllSet to false.
 set AllOnce to false.
+set fullAuto to false.
 
 set BBIgn to 98.
 set LBIgnC to 98.
@@ -1237,7 +1238,7 @@ function Boostback {
             set steeringManager:rolltorquefactor to 6.
             lock throttle to 0.66.
             set FC to true.
-            bGUI:show().
+            if not fullAuto bGUI:show().
         }
         when time:seconds > flipStartTime + FlipTime * 1.24 then {
             set steeringmanager:maxstoppingtime to 0.8 + FlipAngle/(180*Scale).
@@ -1864,7 +1865,7 @@ function Boostback {
                 }
                 set x to x + 1.
             }
-            wait 0.
+            wait until x = 13.
             set LandingBurnStarted to true.
             when time:seconds - LandingBurnTime > 0.6 then {
                 set x to 4.
