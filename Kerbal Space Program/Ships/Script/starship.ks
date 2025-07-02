@@ -10970,10 +10970,10 @@ function ReEntryAndLand {
             set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
         }
 
-        if STOCK {
+        if true {
             when altitude < 55000*Scale and airspeed > 324 then {
-                if LngLatErrorList[0] < 0 set TRJCorrection to -2 * min((ErrorVector:mag/4000)^0.75,2) * (airspeed-320)/airspeed.
-                else set TRJCorrection to min((ErrorVector:mag/4000)^0.75,2) * (airspeed-320)/airspeed.
+                if LngLatErrorList[0] < 0 set TRJCorrection to -2 * min((ErrorVector:mag/4000)^0.75,2) * min((airspeed-320)/airspeed,1).
+                else set TRJCorrection to min((ErrorVector:mag/4000)^0.75,2) * min((airspeed-320)/airspeed,1).
                 return true.
             }
             when airspeed < 320 then {
