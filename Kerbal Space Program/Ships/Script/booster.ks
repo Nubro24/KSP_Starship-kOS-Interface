@@ -552,7 +552,7 @@ function CreateTelemetry {
     set GDlamp:style:overflow:left to 0*TScale.
     set GDlamp:style:overflow:right to 10*TScale.
     set GDlamp:style:overflow:top to 10*TScale.
-    set GDlamp:style:overflow:buttom to -10*TScale.
+    set GDlamp:style:overflow:bottom to -10*TScale.
 
     set overflow to 0.
     set EngBG:style:width to floor(200*TScale).
