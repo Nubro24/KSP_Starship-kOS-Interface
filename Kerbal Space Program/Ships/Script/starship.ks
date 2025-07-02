@@ -12257,24 +12257,30 @@ function LngLatError {
         if ship:body:atm:sealevelpressure > 0.5 {
             if TargetOLM {
                 if STOCK {
-                    if ShipType:contains("Block1"){
+                    if ShipSubType:contains("Block2") {
+                        set LngLatOffset to -28.
+                    } else if ShipType:contains("Block1"){
                         set LngLatOffset to -16.
                     } else {
-                        set LngLatOffset to -16.
+                        set LngLatOffset to -20.
                     }
                 }
                 else if KSRSS {
-                    if ShipType:contains("Block1"){
+                    if ShipSubType:contains("Block2") {
+                        set LngLatOffset to -50.
+                    } else if ShipType:contains("Block1"){
                         set LngLatOffset to -42.
                     } else {
                         set LngLatOffset to -42.
                     }
                 }
                 else {
-                    if ShipType:contains("Block1"){
+                    if ShipSubType:contains("Block2") {
+                        set LngLatOffset to -120.
+                    } else if ShipType:contains("Block1"){
                         set LngLatOffset to -116.
                     } else {
-                        set LngLatOffset to -116.
+                        set LngLatOffset to -110.
                     }
                 }
             }
