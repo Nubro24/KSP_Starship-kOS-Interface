@@ -549,9 +549,10 @@ function CreateTelemetry {
     set GDlamp:style:margin:left to 0.
     set GDlamp:style:width to 0.
     set GDlamp:style:height to 0.
-    set GDlamp:style:overflow:left to -20*TScale.
-    set GDlamp:style:overflow:right to 40*TScale.
-    set GDlamp:style:overflow:top to 20*TScale.
+    set GDlamp:style:overflow:left to 0*TScale.
+    set GDlamp:style:overflow:right to 10*TScale.
+    set GDlamp:style:overflow:top to 10*TScale.
+    set GDlamp:style:overflow:buttom to -10*TScale.
 
     set overflow to 0.
     set EngBG:style:width to floor(200*TScale).
@@ -1856,21 +1857,23 @@ function Boostback {
             } 
             set x to x + 1.
         }
-        when time:seconds - LandingBurnTime > 0.12 then {
-            set x to 4.
+        set startNumber to 3.
+        when time:seconds - LandingBurnTime > 0.1 then {
+            set x to 1.
             for eng in BoosterSingleEnginesRC {
                 if (x = 4 or x = 6 or x = 8 or x = 10 or x = 12) and eng:hassuffix("activate") {
                     if random() < LBIgnM/100 eng:activate.
                     set eng:gimbal:lock to false.
                 }
+                if x = 12 set startNumber to 8.
                 set x to x + 1.
             }
             wait 0.
             set LandingBurnStarted to true.
-            when time:seconds - LandingBurnTime > 0.69 then {
-                set x to 4.
+            when time:seconds - LandingBurnTime > 0.6 and startNumber = 8 then {
+                set x to 1.
                 for eng in BoosterSingleEnginesRC {
-                    if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if eng:hassuffix("activate") {
+                    if (x = 5 or x = 7 or x = 9 or x = 11 or x = 13) and eng:hassuffix("activate") {
                         if random() < 0.98*LBIgnM/100 eng:activate.
                         set eng:gimbal:lock to false.
                     }
