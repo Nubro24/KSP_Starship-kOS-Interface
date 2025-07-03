@@ -730,7 +730,7 @@ if bodyexists("Earth") {
         set CorrFactor to 0.7.
         set PIDFactor to 16.
         set CatchVS to -0.5.
-        set FinalDeceleration to 7.1.
+        set FinalDeceleration to 7.2.
     }
     else {
         set KSRSS to true.
@@ -2557,11 +2557,11 @@ function LandingGuidance {
 
     if not MiddleEnginesShutdown {  //13 Engine-Phase
         set lookUpDamp to 0.
-        if closureRatio > 1 set MidsteerDamp to min((max((streamOffset - 1) / 32, 0))^1.1, 0.7).
+        if closureRatio > 1 set MidsteerDamp to min((max((streamOffset - 1) / 28, 0))^1.2, 0.7).
     }
     else if RadarRatio < 1 {         //Center Three
         set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.2, 1).
-        set lookUpDamp to 0.2/max(RadarRatio,0.3).
+        set lookUpDamp to 0.5/(max(RadarRatio,0.1) + 0.3) - 0.3.
     }
     else if time:seconds - ShutdownTime < 1.5
         set steerDamp to steerDamp * 5.

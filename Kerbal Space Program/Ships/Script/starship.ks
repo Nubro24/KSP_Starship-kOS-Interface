@@ -6997,6 +6997,7 @@ function InhibitButtons {
 
 function Launch {
     if not AbortLaunchInProgress and not LaunchComplete {
+        set waitingTime to 6.
         SetLoadDistances(ship, "default").
         set LaunchButtonIsRunning to true.
         if fullAuto g:hide().
@@ -7867,6 +7868,12 @@ function Launch {
             SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
             SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
             SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+            if SLEngines[0]:getmodule("ModuleSEPRaptor"):GetField("actuate out") = true
+                SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
+            if SLEngines[1]:getmodule("ModuleSEPRaptor"):GetField("actuate out") = true
+                SLEngines[1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
+            if SLEngines[2]:getmodule("ModuleSEPRaptor"):GetField("actuate out") = true
+                SLEngines[2]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
         }
         wait 0.001.
         if hasnode {
@@ -8006,10 +8013,28 @@ Function LaunchSteering {
             set failedEngNr to min(max(floor(random()*33),0),32).
             print failedEngNr.
             if failedEngNr > 12 if BoosterSingleEnginesRB[failedEngNr-13]:hassuffix("activate") BoosterSingleEnginesRB[failedEngNr-13]:shutdown.
-            else if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
+            else if BoosterSingleEnginesRC[failedEngNr]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr]:shutdown.
         }
         local failureTimer to time:seconds.
         when time:seconds - failureTimer > 4 then {
+            set WaitTime to false.
+        }
+    }
+    else if ShipSubType:contains("Block2") and not WaitTime {
+        set WaitTime to true.
+        if random() < ifIgnCha/3 {
+            set failedEngNr to min(max(floor(random()*6),0),5).
+            print failedEngNr.
+            if failedEngNr > 2 if VACEngines[failedEngNr-3]:hassuffix("activate") VACEngines[failedEngNr-3]:shutdown.
+            else if SLEngines[failedEngNr]:hassuffix("activate") {
+                SLEngines[failedEngNr]:shutdown.
+                SLEngines[failedEngNr]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+            }
+            set waitingTime to max(waitingTime/2,2).
+            set ifIgnCha to max(ifIgnCha/2,2).
+        }
+        local failureTimer to time:seconds.
+        when time:seconds - failureTimer > waitingTime then {
             set WaitTime to false.
         }
     }
@@ -8036,8 +8061,9 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
-            set result to lookDirUp(srfPrograde:vector + 0.1*up:vector, LaunchRollVector).
-            if apoapsis > BoosterAp - 4000 * Scale set Hotstaging to true.
+            set steeringManager:pitchtorquefactor to 0.2*Scale.
+            set steeringManager:yawtorquefactor to 0.2*Scale.
+            set Hotstaging to true.
         }
         else {
             if RSS {
@@ -10950,7 +10976,7 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00002, 0, 0.0001, -25, 27 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.00001, 0, 0.0001, -25, 27 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
@@ -10973,13 +10999,14 @@ function ReEntryAndLand {
 
         if true {
             when altitude < 55000*Scale and airspeed > 324 then {
+                set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
                 if not RSS or RadarAlt > 48000 {
-                    if LngLatErrorList[0] < 0 set TRJCorrection to -2 * min((ErrorVector:mag/200)^0.9,2.5) * min(((airspeed-300)/airspeed)^0.8,1).
-                    else set TRJCorrection to -2 * 1/(min((ErrorVector:mag/4000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1).
+                    if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(-2 * min((ErrorVector:mag/200)^0.9,2.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                    else set TRJCorrection to ((DistanceDamp)*(-2 * 1/min((ErrorVector:mag/4000)^0.9,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < 0 set TRJCorrection to 0.5 * 1/(min((ErrorVector:mag/1000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1).
-                    else set TRJCorrection to 0.5 * (min((ErrorVector:mag/1000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1).
+                    if LngLatErrorList[0] < 0 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/2000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    else set TRJCorrection to ((1 * (min((ErrorVector:mag/1000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 } 
                 return true.
             }
@@ -11020,8 +11047,8 @@ function ReEntryAndLand {
                         set aoa to LandingAoA.
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
-                            set PitchPID:kp to 0.04.
-                            set PitchPID:ki to 0.03.
+                            set PitchPID:kp to 0.02.
+                            set PitchPID:ki to 0.01.
                             set PitchPID:kd to 0.025.
                             set YawPID:kp to 0.025.
                             set YawPID:ki to 0.0125.
@@ -11198,7 +11225,17 @@ function ReEntrySteering {
         }
         set result to SRFPRGD * R(-DesiredAoA * cos(yawctrl), 0, 0).
         set result to angleaxis(yawctrl, srfprograde:vector) * result.
-        set result to lookdirup(result:vector, -vxcl(result:vector, SRFPRGD:vector)).
+
+        set steeringOffset to vAng(result:vector,facing:forevector).
+        set steeringDamp to min((max((steeringOffset - 0.5) / 2, 0))^1.2, 1).
+        if steeringOffset > 0.5 set facingDamp to 1.
+        else {
+            set facingDamp to max(steeringOffset,0.1).
+            set steeringDamp to max(-steeringOffset+0.5,0).
+        }
+        set result to result:vector:normalized * facingDamp + facing:forevector:normalized * steeringDamp.
+
+        set result to lookdirup(result, -vxcl(result, SRFPRGD:vector)).
         if LandSomewhereElse {
             set result to srfprograde * R(-75, 0, 0).
         }
@@ -11322,21 +11359,19 @@ function ReEntryData {
         }
     }
 
-    if ship:partsnamed("NOSE.PEZ.BLOCK-2"):length = 0 {
-        //print("FuelBalancing Active").
-        if CoGFuelBalancing {
+    if CoGFuelBalancing {
         if altitude < ship:body:ATM:height - 10000 and RadarAlt > FlipAltitude + 100 {
             if not (RebalanceCoGox:status = "Transferring") or (RebalanceCoGlf:status = "Transferring") {
                 set PitchInput to SLEngines[0]:gimbal:pitchangle.
-                if PitchInput > 0.005 and PitchInput < 0.95 {
+                if PitchInput > 0.5 and PitchInput < 0.95 {
                     for res in HeaderTank:resources {
                         if res:name = "Oxidizer" {
                             if res:amount < abs(FuelBalanceSpeed * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "Oxidizer" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) and res:amount < res:capacity*0.9 {}
                                     else {
-                                        set RebalanceCoGox to TRANSFER("Oxidizer", HeaderTank, Tank, abs(FuelBalanceSpeed * PitchInput)).
+                                        set RebalanceCoGox to TRANSFER("Oxidizer", HeaderTank, Tank, abs(FuelBalanceSpeed * 0.7*PitchInput)).
                                     }
                                 }
                             }
@@ -11345,9 +11380,9 @@ function ReEntryData {
                             if res:amount < abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "LiquidFuel" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) and res:amount < res:capacity*0.9 {}
                                     else {
-                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", HeaderTank, Tank, abs(FuelBalanceSpeed/(11/9) * PitchInput)).
+                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", HeaderTank, Tank, abs(FuelBalanceSpeed/(11/9) * 0.7*PitchInput)).
                                     }
                                 }
                             }
@@ -11356,9 +11391,9 @@ function ReEntryData {
                             if res:amount < abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "LqdMethane" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) and res:amount < res:capacity*0.9 {}
                                     else {
-                                        set RebalanceCoGlf to TRANSFER("LqdMethane", HeaderTank, Tank, abs(FuelBalanceSpeed/(1/3) * PitchInput)).
+                                        set RebalanceCoGlf to TRANSFER("LqdMethane", HeaderTank, Tank, abs(FuelBalanceSpeed/(1/3) * 0.7*PitchInput)).
                                     }
                                 }
                             }
@@ -11373,7 +11408,7 @@ function ReEntryData {
                                 if res:name = "Oxidizer" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) {}
                                     else {
-                                        set RebalanceCoGox to TRANSFER("Oxidizer", Tank, HeaderTank, abs(FuelBalanceSpeed * PitchInput)).
+                                        set RebalanceCoGox to TRANSFER("Oxidizer", Tank, HeaderTank, abs(FuelBalanceSpeed * 0.7*PitchInput)).
                                     }
                                 }
                             }
@@ -11384,7 +11419,7 @@ function ReEntryData {
                                 if res:name = "LiquidFuel" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
                                     else {
-                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", Tank, HeaderTank, abs(FuelBalanceSpeed/(11/9) * PitchInput)).
+                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", Tank, HeaderTank, abs(FuelBalanceSpeed/(11/9) * 0.7*PitchInput)).
                                     }
                                 }
                             }
@@ -11395,7 +11430,7 @@ function ReEntryData {
                                 if res:name = "LqdMethane" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
                                     else {
-                                        set RebalanceCoGlf to TRANSFER("LqdMethane", Tank, HeaderTank, abs(FuelBalanceSpeed/(1/3) * PitchInput)).
+                                        set RebalanceCoGlf to TRANSFER("LqdMethane", Tank, HeaderTank, abs(FuelBalanceSpeed/(1/3) * 0.7*PitchInput)).
                                     }
                                 }
                             }
@@ -11406,9 +11441,8 @@ function ReEntryData {
                 set RebalanceCoGlf:ACTIVE to true.
             }
         }
-        } 
-    } else 
-        //print("FuelBalancing NOT active").
+    } 
+    
     set LngDistanceToTarget to 0.
     SetPlanetData().
     if (landingzone:lng - ship:geoposition:lng) < -180 {
@@ -11520,11 +11554,11 @@ function ReEntryData {
             }
             else if KSRSS {
                 set FlipAngleFactor to 0.5.
-                set CatchVS to -0.25.
+                set CatchVS to -0.35.
             }
             else {
                 set FlipAngleFactor to 0.7.
-                set CatchVS to -0.24.
+                set CatchVS to -0.4.
             }
             
             wait 0.001.
@@ -11611,7 +11645,7 @@ function ReEntryData {
             if KSRSS {
                 set LandingFlipTime to 3.5.
             } else if RSS {
-                set LandingFlipTime to 5.24.
+                set LandingFlipTime to 5.5.
             }
             set maxDecel to 0.
             set maxG to 4.
@@ -11671,7 +11705,7 @@ function ReEntryData {
                 set ship:control:neutralize to true.
                 
                 set LandingBurnStarted to true.
-                lock throttle to LandingThrottle().
+                lock throttle to max(min(LandingThrottle(),1),0).
                 
 
                 if TargetOLM {
@@ -11763,7 +11797,6 @@ function ReEntryData {
                         set LandSomewhereElse to true.
                         SetRadarAltitude().
                         LogToFile("Uh oh... Landing Off-Target").
-                        lock throttle to LandingThrottle().
                     }
                 }
                 else {
@@ -11803,7 +11836,7 @@ function ReEntryData {
                     SetRadarAltitude().
                     LogToFile("Uh oh... Ship not caught..").
                     lock steering to LandingVector().
-                    lock throttle to LandingThrottle.
+                    lock throttle to max(min(LandingThrottle(),1),0).
                     until ship:status = "LANDED" and verticalspeed > -0.01 {
                         SendPing().
                         LogToFile("Re-Entry Telemetry").
@@ -11852,18 +11885,12 @@ function ClosingSpeed {
 
 
 function LandingThrottle {
-    set minDecel to (Planet1G - 1.2) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
-    if LandSomewhereElse {
-        set minDecel to (Planet1G - 1.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface * 0.9, up:vector))).
-    }
-    if verticalSpeed < 8*CatchVS and Hover {
+    set minDecel to max(min((Planet1G - 1.2) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))),0.6),0.2).
+    if verticalSpeed < 3*CatchVS and Hover {
         set Hover to false.
     }
-    if verticalSpeed < 14*CatchVS and Hover {
+    if verticalSpeed < 8*CatchVS and Slow {
         set Slow to false.
-    }
-    if verticalSpeed > 0 {
-        return minDecel*0.5.
     }
     if verticalspeed > CatchVS or Hover {
         set Hover to true.
@@ -11874,26 +11901,29 @@ function LandingThrottle {
     set stopTime to airspeed / DesiredDecel.
     set stopDist to 0.5 * airspeed * stopTime.
     
-    if verticalspeed > 3*CatchVS or Slow {
+    if verticalspeed > 5*CatchVS or Slow {
         set Slow to true.
-        return (minDecel+2*DesiredDecel)/3.
+        return ((minDecel+2*DesiredDecel)/3)* min((-verticalSpeed/10)^0.8,1).
     }
     if not (TargetOLM = "False") {
-        set landingRatio to stopDist / (RadarAlt - 0.6).
+        set landingRatio to stopDist / (RadarAlt - 0.8).
     }
     else {
         set landingRatio to stopDist / RadarAlt.
     }
 
     if ship:body:atm:sealevelpressure > 0.5 {
-        return max(max(min((landingRatio * (DesiredDecel + Planet1G)) / maxDecel, maxG * Planet1G / maxDecel), minDecel), ThrottleMin).
+        set calcThr to max(max(min((landingRatio * (DesiredDecel + Planet1G)) / maxDecel, maxG * Planet1G / maxDecel), minDecel), ThrottleMin).
+        return calcThr * min((-verticalSpeed/12)^0.8,1).
     }
     else {
         if not (CancelVelocityHasFinished) {
-            return max(CancelDist / (vxcl(up:vector, ship:position - landingzone:position):mag - 200) * CancelDist / (vxcl(up:vector, ship:position - landingzone:position):mag - 200) * 0.825 * maxDecel / maxDecel, ThrottleMin).
+            set calcThr to max(CancelDist / (vxcl(up:vector, ship:position - landingzone:position):mag - 200) * CancelDist / (vxcl(up:vector, ship:position - landingzone:position):mag - 200) * 0.825 * maxDecel / maxDecel, ThrottleMin).
+            return calcThr * min((-verticalSpeed/12)^0.8,1).
         }
         else {
-            return max(max(min((landingRatio * (DesiredDecel + Planet1G)) / maxDecel, maxG * Planet1G / maxDecel), minDecel), 0.5 * ThrottleMin).
+            set calcThr to  max(max(min((landingRatio * (DesiredDecel + Planet1G)) / maxDecel, maxG * Planet1G / maxDecel), minDecel), 0.5 * ThrottleMin).
+            return calcThr * min((-verticalSpeed/12)^0.8,1).
         }
     }
 }
@@ -12283,11 +12313,11 @@ function LngLatError {
                 }
                 else {
                     if ShipSubType:contains("Block2") {
-                        set LngLatOffset to -120.
+                        set LngLatOffset to -139.
                     } else if ShipType:contains("Block1"){
-                        set LngLatOffset to -116.
+                        set LngLatOffset to -133.
                     } else {
-                        set LngLatOffset to -110.
+                        set LngLatOffset to -124.
                     }
                 }
             }
@@ -13555,12 +13585,12 @@ function LandAtOLM {
                 }
             }
             set LandAtOLMisrunning to false.
-            set FlipAltitude to FlipAltitude * 1.1.
+            set FlipAltitude to FlipAltitude * 1.05.
             return false.
         }
         else {
             set LandAtOLMisrunning to false.
-            set FlipAltitude to FlipAltitude * 1.1.
+            set FlipAltitude to FlipAltitude * 1.05.
             return false.
         }
     }
@@ -13957,7 +13987,9 @@ function PerformBurn {
             else {
                 set cancelconfirmed to true.
             }
-            TimeWarp(bTime, 45).
+            if vAng(nextNode:burnvector,facing:forevector) < 45 TimeWarp(bTime, 30).
+            else if vAng(nextNode:burnvector,facing:forevector) < 90 TimeWarp(bTime, 50).
+            else TimeWarp(bTime, 70).
             set message1:text to "<b>Starting Burn in:</b>  " + timeSpanCalculator(nextnode:eta - 0.5 * BurnDuration).
             set message2:text to "<b>Target Attitude:</b>    Burnvector".
             set message3:text to "<b>Burn Duration:</b>      " + round(BurnDuration) + "s".
