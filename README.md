@@ -23,6 +23,9 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
 
+## Demo Video:
+https://www.youtube.com/watch?v=w-loEI4gUKw
+
 
 ## Installation:
 - **Download and install all requirements listed below.**
