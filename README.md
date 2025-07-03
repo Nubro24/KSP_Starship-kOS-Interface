@@ -24,8 +24,6 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
 
 ## Demo Video:
-https://www.youtube.com/watch?v=w-loEI4gUKw
-
 [![Demo Video](http://img.youtube.com/vi/w-loEI4gUKw/0.jpg)](http://www.youtube.com/watch?v=w-loEI4gUKw)
 
 ## Installation:
