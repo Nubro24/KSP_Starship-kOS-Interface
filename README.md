@@ -26,6 +26,9 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ## Demo Video:
 https://www.youtube.com/watch?v=w-loEI4gUKw
 
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=YOUTUBE_VIDEO_ID_HERE
+" target="_blank"><img src="http://img.youtube.com/vi/w-loEI4gUKw/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
 ## Installation:
 - **Download and install all requirements listed below.**
