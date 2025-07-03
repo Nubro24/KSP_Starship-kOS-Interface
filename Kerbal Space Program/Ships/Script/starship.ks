@@ -2362,6 +2362,7 @@ set TargetLZPicker:onchange to {
                     set LSCoords to L["Launch Coordinates"].
                 }
             }
+            if LSCoords = "-0.0972,-74.5577" set LSCoords to "28.549072,-80.655925".
             set setting1:text to LSCoords.
             set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
             if homeconnection:isconnected {
@@ -2376,11 +2377,6 @@ set TargetLZPicker:onchange to {
                         set LSCoords to L["Launch Coordinates"].
                     }
                 }
-                set setting1:text to LSCoords.
-                set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
-                if homeconnection:isconnected {
-                    SaveToSettings("Landing Coordinates", LSCoords).
-                }
             }
             else {
                 if exists("0:/settings.json") {
@@ -2388,6 +2384,7 @@ set TargetLZPicker:onchange to {
                 if L:haskey("Launch Coordinates") {
                     set LSCoords to L["Launch Coordinates"].
                 }
+                if LSCoords = "-0.0972,-74.5577" set LSCoords to "28.497545,-80.535394".
             }
             set setting1:text to LSCoords.
             set landingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
