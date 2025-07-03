@@ -78,7 +78,8 @@ else {
 
 set runningprogram to "None".
 set missionTimer to 0.
-if exists("0:/settings.json") {
+if missionTime > 0  set missionTimer to time:seconds - missionTime.
+else if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("Launch Time") {
         set missionTimer to L["Launch Time"].
@@ -411,6 +412,7 @@ if RSS {         // Real Solar System
     set towerhgt to 96.
     set LaunchSites to lexicon("Launch Site", "28.549072,-80.655925").
     set DefaultLaunchSite to "28.549072,-80.655925".
+    set LSCoords to ("28.549072,-80.655925").
     set FuelVentCutOffValue to 3000.
     set FuelBalanceSpeed to 50.
     set RollVector to heading(270,0):vector.
@@ -452,11 +454,13 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     if RESCALE and bodyexists("Kerbin") {
         set LaunchSites to lexicon("Launch Site", "-0.0970,-74.5833", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set DefaultLaunchSite to "-0.0970,-74.5833".
+        set LSCoords to ("-0.0970,-74.5833").
         set FuelVentCutOffValue to 1150.
     }
     else {
         set LaunchSites to lexicon("Launch Site", "28.497545,-80.535394").
         set DefaultLaunchSite to "28.497545,-80.535394".
+        set LSCoords to ("28.497545,-80.535394").
         set FuelVentCutOffValue to 1150.
     }
     set FuelBalanceSpeed to 30.
@@ -10972,8 +10976,14 @@ function ReEntryAndLand {
 
         if true {
             when altitude < 55000*Scale and airspeed > 324 then {
-                if LngLatErrorList[0] < 0 set TRJCorrection to -2 * min((ErrorVector:mag/200)^0.9,2.5) * min(((airspeed-300)/airspeed)^0.8,1).
-                else set TRJCorrection to -2 * 1/(min((ErrorVector:mag/4000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1).
+                if not RSS or RadarAlt > 48000 {
+                    if LngLatErrorList[0] < 0 set TRJCorrection to -2 * min((ErrorVector:mag/200)^0.9,2.5) * min(((airspeed-300)/airspeed)^0.8,1).
+                    else set TRJCorrection to -2 * 1/(min((ErrorVector:mag/4000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1).
+                }
+                else {
+                    if LngLatErrorList[0] < 0 set TRJCorrection to 0.5 * 1/(min((ErrorVector:mag/1000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1).
+                    else set TRJCorrection to 0.5 * (min((ErrorVector:mag/1000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1).
+                } 
                 return true.
             }
             when airspeed < 320 then {
@@ -11623,7 +11633,7 @@ function ReEntryData {
                     when Vessel(TargetOLM):distance < 1300 then
                         sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
                 }
-                when vAng(facing:forevector, up:vector) < 3 then {
+                when vAng(facing:forevector, up:vector) < 3 and Vessel(TargetOLM):distance < 2000 then {
                     HUDTEXT("Distance Check 1", 3, 2, 15, white, false).
                     if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag > 2.4*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Tank:position), LandingForwardDirection) < 90 {
                         set LandSomewhereElse to true.

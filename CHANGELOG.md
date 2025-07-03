@@ -32,6 +32,7 @@
     - action groups 9 (NoGo) and 10 (Go) are Hotkeys for Flight Directors Return Decision 
     - *to only see the Telemetry you also need to press F2*
 - Bug/Error Fixes:
+  - Fixed mission Timer showing wrong Time
   - Fixed RSS Max Cargo values (max. 69t to Orbit)
   - Fixed RSS Reentry loosing control
   - Fixed an Error with Real Fuels
