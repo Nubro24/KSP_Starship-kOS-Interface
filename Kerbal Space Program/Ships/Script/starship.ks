@@ -432,6 +432,7 @@ if RSS {         // Real Solar System
     set OrbitPrecision to 250.
     set RendezvousOrbitLeadFactor to 0.6.
     set Scale to 1.6.
+    set TRJCorFactor to -2.
     if FAR {
         set TRJCorrection to -7. // The error between desired AoA and what AoA actually needs to be flown to follow this path.
         set aoa to aoa - TRJCorrection.
@@ -481,6 +482,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set OrbitPrecision to 150.
     set RendezvousOrbitLeadFactor to 0.6.
     set Scale to 1.
+    set TRJCorFactor to -2.2.
     if FAR {
         set TRJCorrection to -15. // The error between desired AoA and what AoA actually needs to be flown to follow this path.
         set aoa to aoa - TRJCorrection.
@@ -521,6 +523,7 @@ else {       // Stock Kerbin
     set OrbitPrecision to 100.
     set RendezvousOrbitLeadFactor to 0.6.
     set Scale to 1.
+    set TRJCorFactor to -2.
     if FAR {
         set TRJCorrection to -15. // The error between desired AoA and what AoA actually needs to be flown to follow this path.
         set aoa to aoa - TRJCorrection.
@@ -6997,7 +7000,9 @@ function InhibitButtons {
 
 function Launch {
     if not AbortLaunchInProgress and not LaunchComplete {
-        set waitingTime to 6.
+        set waitingTime to 4.5*Scale.
+        set engNumber to 6.
+        set runningEngines to list(0,1,2,3,4,5).
         SetLoadDistances(ship, "default").
         set LaunchButtonIsRunning to true.
         if fullAuto g:hide().
@@ -7547,7 +7552,7 @@ function Launch {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.3*Scale.
                 set steeringManager:yawtorquefactor to 0.3*Scale.
-                set steeringManager:rolltorquefactor to 3.2*Scale.
+                set steeringManager:rolltorquefactor to 3.4*Scale.
                 if ShipSubType:contains("Block2") {
                     if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                     set LaunchRollVector to up:vector.
@@ -8023,16 +8028,19 @@ Function LaunchSteering {
     else if ShipSubType:contains("Block2") and not WaitTime {
         set WaitTime to true.
         if random() < ifIgnCha/3 {
-            set failedEngNr to min(max(floor(random()*6),0),5).
-            print failedEngNr.
-            if failedEngNr > 2 if VACEngines[failedEngNr-3]:hassuffix("activate") VACEngines[failedEngNr-3]:shutdown.
-            else if SLEngines[failedEngNr]:hassuffix("activate") {
-                SLEngines[failedEngNr]:shutdown.
-                SLEngines[failedEngNr]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+            set failedEngNr to min(max(floor(random()*engNumber),0),5).
+            print runningEngines[failedEngNr].
+            if runningEngines[failedEngNr] > 2 if VACEngines[runningEngines[failedEngNr]-3]:hassuffix("activate") VACEngines[runningEngines[failedEngNr]-3]:shutdown.
+            else if SLEngines[runningEngines[failedEngNr]]:hassuffix("activate") {
+                SLEngines[runningEngines[failedEngNr]]:shutdown.
+                SLEngines[runningEngines[failedEngNr]]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
             }
+            runningEngines:remove(failedEngNr).
+            set engNumber to engNumber - 1.
             set waitingTime to max(waitingTime/2,2).
-            set ifIgnCha to max(ifIgnCha/2,2).
+            set ifIgnCha to ifIgnCha*2.
         }
+        set waitingTime to max(waitingTime-0.1,2).
         local failureTimer to time:seconds.
         when time:seconds - failureTimer > waitingTime then {
             set WaitTime to false.
@@ -11001,12 +11009,12 @@ function ReEntryAndLand {
             when altitude < 55000*Scale and airspeed > 324 then {
                 set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
                 if not RSS or RadarAlt > 48000 {
-                    if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(-2 * min((ErrorVector:mag/200)^0.9,2.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
-                    else set TRJCorrection to ((DistanceDamp)*(-2 * 1/min((ErrorVector:mag/4000)^0.9,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                    if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/200)^0.9,2.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                    else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * 1/min((ErrorVector:mag/4000)^0.9,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < 0 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/2000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
-                    else set TRJCorrection to ((1 * (min((ErrorVector:mag/1000)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < 0 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/4000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 } 
                 return true.
             }
@@ -11014,7 +11022,7 @@ function ReEntryAndLand {
                 set TRJCorrection to 0.
             }
         }
-        if ShipSubType:contains("Block2") when airspeed < 300 then set TRJCorrection to 1.9.
+        if ShipSubType:contains("Block2") when airspeed < 300 then set TRJCorrection to 1.9/Scale.
         else when airspeed < 300 then set TRJCorrection to 0.5.
         
 
@@ -11312,21 +11320,39 @@ function ReEntryData {
     if result = V(0,0,0) {
         set result to lookdirup(facing:forevector, facing:topvector).
     }
-    if altitude < ship:body:atm:height - 5000 and vang(facing:forevector, result:vector) > 29 or CargoMass > 25000 * Scale {
-        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
-        if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-        Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+    if altitude < ship:body:atm:height - 5000 and vang(facing:forevector, result:vector) > 30 or CargoMass > 25000 * Scale {
+        if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            }
+            Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         }
-        Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        else {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).}
+            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
+            }
+            Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
+        }
         set tt to time:seconds.
 
     }
     if time:seconds > tt + 15 {
-        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).}
-        if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-        Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
+        if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).}
+            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
+            }
+            Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
         }
-        Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
+        else {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).}
+            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).
+            }
+            Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 2).
+        }
     }
 
     if DynamicPitch and altitude < 0.75 * ship:body:atm:height {
@@ -11646,6 +11672,7 @@ function ReEntryData {
                 set LandingFlipTime to 3.5.
             } else if RSS {
                 set LandingFlipTime to 5.5.
+                if ShipSubType:contains("Block2") set LandingFlipTime to 6.
             }
             set maxDecel to 0.
             set maxG to 4.
@@ -12313,7 +12340,7 @@ function LngLatError {
                 }
                 else {
                     if ShipSubType:contains("Block2") {
-                        set LngLatOffset to -139.
+                        set LngLatOffset to -169.
                     } else if ShipType:contains("Block1"){
                         set LngLatOffset to -133.
                     } else {
@@ -12323,13 +12350,13 @@ function LngLatError {
             }
             else {
                 if STOCK {
-                    set LngLatOffset to -42.
+                    set LngLatOffset to -24.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -50.
+                    set LngLatOffset to -44.
                 }
                 else {
-                    set LngLatOffset to -112.
+                    set LngLatOffset to -130.
                     
                     
                 }

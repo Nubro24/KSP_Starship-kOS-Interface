@@ -2561,7 +2561,7 @@ function LandingGuidance {
     }
     else if RadarRatio < 1 {         //Center Three
         set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.2, 1).
-        set lookUpDamp to 0.5/(max(RadarRatio,0.1) + 0.3) - 0.3.
+        set lookUpDamp to 0.3/(RadarRatio + 0.25) - 0.22.
     }
     else if time:seconds - ShutdownTime < 1.5
         set steerDamp to steerDamp * 5.
