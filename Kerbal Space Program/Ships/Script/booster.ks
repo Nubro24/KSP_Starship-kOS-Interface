@@ -2033,9 +2033,6 @@ function Boostback {
                             }
                         }
                     }
-                    if RSS when RadarAlt < 2.4 * BoosterHeight then {
-                        set steeringManager:maxstoppingtime to 1.
-                    }
                     set SentTime to time:seconds.
                     when RadarAlt < 4 * BoosterHeight and RadarAlt > 0.05*BoosterHeight then {
                         if not BoosterLanded {
@@ -2061,7 +2058,7 @@ function Boostback {
         set MiddleEnginesShutdown to true.
         set ShutdownTime to time:seconds.
 
-        if ErrorVector:mag > 3 * BoosterHeight and not HSRJet and GfC and not cAbort {
+        if ErrorVector:mag > 2.4 * BoosterHeight and not HSRJet and GfC and not cAbort {
             HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
             HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
             set cAbort to true.
@@ -2084,11 +2081,11 @@ function Boostback {
                     if BoosterSingleEnginesRC[11]:thrust < 60*Scale set NrCounterEngine to 10.
                     else set NrCounterEngine to 11.
                 }
-                BoosterSingleEnginesRC[NrCounterEngine-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 65).
+                BoosterSingleEnginesRC[NrCounterEngine-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
             }
             set x to 1.
             for eng in BoosterSingleEnginesRC {
-                if x = 1 or x = 2 or x = 3 or (x = NrCounterEngine and CounterEngine) {} else {
+                if x = 1 or x = 2 or x = 3 or (x = NrCounterEngine and CounterEngine and not RSS) {} else {
                     eng:shutdown.
                     set eng:gimbal:lock to true.
                     eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).

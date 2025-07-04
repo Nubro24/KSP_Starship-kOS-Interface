@@ -7450,6 +7450,7 @@ function Launch {
             wait 0.01.
             set SteeringManager:rollts to 5.
             set steeringManager:rolltorquefactor to 2.
+            set SteeringManager:ROLLCONTROLANGLERANGE to 10.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
                 InhibitButtons(1, 1, 1).
             }
@@ -7550,9 +7551,9 @@ function Launch {
             set steeringManager:maxstoppingtime to 0.7*Scale.
             when apoapsis > BoosterAp - 22000 * Scale then {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
-                set steeringManager:pitchtorquefactor to 0.3*Scale.
-                set steeringManager:yawtorquefactor to 0.3*Scale.
-                set steeringManager:rolltorquefactor to 3.4*Scale.
+                set steeringManager:pitchtorquefactor to 0.15*Scale.
+                set steeringManager:yawtorquefactor to 0.15*Scale.
+                set steeringManager:rolltorquefactor to 3.2*Scale.
                 if ShipSubType:contains("Block2") {
                     if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                     set LaunchRollVector to up:vector.
@@ -7996,6 +7997,7 @@ Function LaunchSteering {
     print "Steering Error: " + round(SteeringManager:angleerror, 2).
     print "Roll Error: " + round(steeringManager:rollerror, 2).
     print " ".
+    print runningEngines.
     //set unusedLines to opcodesleft.
     //print "CPU operations: " + (config:ipu-unusedLines):tostring +"/"+config:ipu + " (unused: "+opcodesleft+")".
     //print "CPU speed: " + config:ipu.
@@ -8027,14 +8029,14 @@ Function LaunchSteering {
     }
     else if ShipSubType:contains("Block2") and not WaitTime {
         set WaitTime to true.
-        if random() < ifIgnCha/3 {
+        if random() < ifIgnCha/3 and runningEngines:length > 0 {
             set failedEngNr to min(max(floor(random()*engNumber),0),5).
-            print runningEngines[failedEngNr].
             if runningEngines[failedEngNr] > 2 if VACEngines[runningEngines[failedEngNr]-3]:hassuffix("activate") VACEngines[runningEngines[failedEngNr]-3]:shutdown.
             else if SLEngines[runningEngines[failedEngNr]]:hassuffix("activate") {
                 SLEngines[runningEngines[failedEngNr]]:shutdown.
                 SLEngines[runningEngines[failedEngNr]]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
             }
+            else hudtext("WTF",4,2,20,red,false).
             runningEngines:remove(failedEngNr).
             set engNumber to engNumber - 1.
             set waitingTime to max(waitingTime/2,2).
@@ -8069,8 +8071,8 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
-            set steeringManager:pitchtorquefactor to 0.2*Scale.
-            set steeringManager:yawtorquefactor to 0.2*Scale.
+            set steeringManager:pitchtorquefactor to 0.19*Scale.
+            set steeringManager:yawtorquefactor to 0.19*Scale.
             set Hotstaging to true.
         }
         else {
@@ -10989,20 +10991,20 @@ function ReEntryAndLand {
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
                 set PitchPID to PIDLOOP(0.00001, 0, 0.00005, -25, 27 - TRJCorrection).
-                set YawPID to PIDLOOP(0.0012, 0, 0.000001, -50, 50).
+                set YawPID to PIDLOOP(0.00024, 0, 0.000001, -50, 50).
             }
         }
         else if KSRSS {
             when airspeed < ChangeOverSensitivity then {
                 set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 27 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
             }
-            set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
+            set YawPID to PIDLOOP(0.0035, 0, 0, -50, 50).
         }
         else {
             when airspeed < ChangeOverSensitivity then {
                 set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
-            set YawPID to PIDLOOP(0.0055, 0, 0, -50, 50).
+            set YawPID to PIDLOOP(0.0035, 0, 0, -50, 50).
         }
 
         if true {
@@ -11013,8 +11015,14 @@ function ReEntryAndLand {
                     else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * 1/min((ErrorVector:mag/4000)^0.9,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < 0 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/4000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
-                    else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if ShipSubType:contains("Block2") {
+                        if LngLatErrorList[0] < -4000 set TRJCorrection to ((0.3 * 1/(min((ErrorVector:mag/8000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                        else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    }
+                    else {
+                        if LngLatErrorList[0] < -1000 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                        else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    }
                 } 
                 return true.
             }
@@ -11058,8 +11066,8 @@ function ReEntryAndLand {
                             set PitchPID:kp to 0.02.
                             set PitchPID:ki to 0.01.
                             set PitchPID:kd to 0.025.
-                            set YawPID:kp to 0.025.
-                            set YawPID:ki to 0.0125.
+                            set YawPID:kp to 0.024.
+                            set YawPID:ki to 0.0025.
                             set YawPID:kd to 0.01.
                             set maxDeltaV to 450.
                         }
@@ -11068,7 +11076,7 @@ function ReEntryAndLand {
                             set PitchPID:ki to 0.01. //0.0225
                             set PitchPID:kd to 0.005. //0.03
                             set YawPID:kp to 0.02. //0.1
-                            set YawPID:ki to 0.045. //0.75
+                            set YawPID:ki to 0.025. //0.75
                             set YawPID:kd to 0.012. //0.25
                             set maxDeltaV to 440.
                         }
@@ -11077,7 +11085,7 @@ function ReEntryAndLand {
                             set PitchPID:ki to 0.001. //0.035
                             set PitchPID:kd to 0.002. //0.028
                             set YawPID:kp to 0.02. //0.1
-                            set YawPID:ki to 0.045. //0.075
+                            set YawPID:ki to 0.025. //0.075
                             set YawPID:kd to 0.015. //0.025
                             set maxDeltaV to 400.
                         }
