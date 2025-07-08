@@ -523,7 +523,7 @@ else {       // Stock Kerbin
     set OrbitPrecision to 100.
     set RendezvousOrbitLeadFactor to 0.6.
     set Scale to 1.
-    set TRJCorFactor to -2.
+    set TRJCorFactor to -2.2.
     if FAR {
         set TRJCorrection to -15. // The error between desired AoA and what AoA actually needs to be flown to follow this path.
         set aoa to aoa - TRJCorrection.
@@ -11007,31 +11007,27 @@ function ReEntryAndLand {
             set YawPID to PIDLOOP(0.0035, 0, 0, -50, 50).
         }
 
-        if true {
-            when altitude < 55000*Scale and airspeed > 324 then {
-                set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
-                if not RSS or RadarAlt > 48000 {
-                    if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/200)^0.9,2.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
-                    else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * 1/min((ErrorVector:mag/4000)^0.9,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+        
+        when altitude < 55000*Scale and airspeed > 304 then {
+            set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
+            if not RSS or RadarAlt > 48000 {
+                if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/150)^1.1,3) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * 1/min((ErrorVector:mag/4000)^0.9,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+            }
+            else {
+                if ShipSubType:contains("Block2") {
+                    if LngLatErrorList[0] < -4000 set TRJCorrection to ((0.3 * 1/(min((ErrorVector:mag/8000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
                 else {
-                    if ShipSubType:contains("Block2") {
-                        if LngLatErrorList[0] < -4000 set TRJCorrection to ((0.3 * 1/(min((ErrorVector:mag/8000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
-                        else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
-                    }
-                    else {
-                        if LngLatErrorList[0] < -1000 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
-                        else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
-                    }
-                } 
-                return true.
-            }
-            when airspeed < 320 then {
-                set TRJCorrection to 0.
-            }
+                    if LngLatErrorList[0] < -1000 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                }
+            } 
+            return true.
         }
         if ShipSubType:contains("Block2") when airspeed < 300 then set TRJCorrection to 1.9/Scale.
-        else when airspeed < 300 then set TRJCorrection to 0.5.
+        else when airspeed < 300 then set TRJCorrection to 0.6.
         
 
         lock STEERING to ReEntrySteering().
@@ -11081,7 +11077,7 @@ function ReEntryAndLand {
                             set maxDeltaV to 440.
                         }
                         else {
-                            set PitchPID:kp to 0.002. //0.03
+                            set PitchPID:kp to 0.004. //0.03
                             set PitchPID:ki to 0.001. //0.035
                             set PitchPID:kd to 0.002. //0.028
                             set YawPID:kp to 0.02. //0.1
@@ -11244,12 +11240,30 @@ function ReEntrySteering {
 
         set steeringOffset to vAng(result:vector,facing:forevector).
         set steeringDamp to min((max((steeringOffset - 0.5) / 2, 0))^1.2, 1).
+        set preventDamp to 0.
         if steeringOffset > 0.5 set facingDamp to 1.
         else {
-            set facingDamp to max(steeringOffset,0.1).
+            set facingDamp to max(steeringOffset,0.2).
             set steeringDamp to max(-steeringOffset+0.5,0).
         }
-        set result to result:vector:normalized * facingDamp + facing:forevector:normalized * steeringDamp.
+        if vAng(facing:forevector, srfprograde:vector) < 45 and altitude > 12000*Scale {
+            set facingDamp to 0.1. 
+            set steeringDamp to 1.
+            set preventDamp to 1.4.
+        }
+        else if vAng(facing:forevector, srfprograde:vector) > 135 and altitude > 12000*Scale {
+            set facingDamp to 0.1. 
+            set steeringDamp to 1.
+            set preventDamp to -1.
+        }
+        else if airspeed < 300 and abs(LngLatErrorList[0]) > 1000 {
+            set facingDamp to facingDamp*0.9.
+            set steeringDamp to steeringDamp*1.1.
+        }
+        else if airspeed < 300 
+            set steeringDamp to steeringDamp*0.9.
+
+        set result to result:vector:normalized * facingDamp + facing:forevector:normalized * steeringDamp + facing:topvector * preventDamp.
 
         set result to lookdirup(result, -vxcl(result, SRFPRGD:vector)).
         if LandSomewhereElse {
@@ -11364,19 +11378,19 @@ function ReEntryData {
     }
 
     if DynamicPitch and altitude < 0.75 * ship:body:atm:height {
-        if time:seconds > t + 15 {
+        if time:seconds > t + 5 {
             set PitchInput to SLEngines[0]:gimbal:pitchangle.
             set t to time:seconds.
-            set FWDFlapDefault to max(min(70 - (PitchInput * 10 / Scale),80),60).
-            set AFTFlapDefault to max(min(65 + (PitchInput * 12 / Scale),75),55).
+            set FWDFlapDefault to max(min(70 - (PitchInput * 20 / Scale),80),55).
+            set AFTFlapDefault to max(min(65 + (PitchInput * 20 / Scale),75),50).
             if airspeed > 300 {
                 if ship:body:atm:sealevelpressure < 0.5 {
-                    setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 15).
+                    setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 16).
                 } else if altitude > 28000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 20).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 40).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 18).
                 }
             }
             else {
@@ -11384,10 +11398,10 @@ function ReEntryData {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
                 }
                 else if not (RSS) or altitude > 10000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 16).
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 24).
+                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 12).
                 }
             }
         }
@@ -11397,13 +11411,13 @@ function ReEntryData {
         if altitude < ship:body:ATM:height - 10000 and RadarAlt > FlipAltitude + 100 {
             if not (RebalanceCoGox:status = "Transferring") or (RebalanceCoGlf:status = "Transferring") {
                 set PitchInput to SLEngines[0]:gimbal:pitchangle.
-                if PitchInput > 0.5 and PitchInput < 0.95 {
+                if PitchInput > 0.3 and PitchInput < 0.95 {
                     for res in HeaderTank:resources {
                         if res:name = "Oxidizer" {
                             if res:amount < abs(FuelBalanceSpeed * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "Oxidizer" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) and res:amount < res:capacity*0.9 {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) and res:amount < res:capacity*0.8 {}
                                     else {
                                         set RebalanceCoGox to TRANSFER("Oxidizer", HeaderTank, Tank, abs(FuelBalanceSpeed * 0.7*PitchInput)).
                                     }
@@ -11414,7 +11428,7 @@ function ReEntryData {
                             if res:amount < abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "LiquidFuel" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) and res:amount < res:capacity*0.9 {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) and res:amount < res:capacity*0.8 {}
                                     else {
                                         set RebalanceCoGlf to TRANSFER("LiquidFuel", HeaderTank, Tank, abs(FuelBalanceSpeed/(11/9) * 0.7*PitchInput)).
                                     }
@@ -11425,7 +11439,7 @@ function ReEntryData {
                             if res:amount < abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "LqdMethane" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) and res:amount < res:capacity*0.9 {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) and res:amount < res:capacity*0.8 {}
                                     else {
                                         set RebalanceCoGlf to TRANSFER("LqdMethane", HeaderTank, Tank, abs(FuelBalanceSpeed/(1/3) * 0.7*PitchInput)).
                                     }
@@ -11442,7 +11456,7 @@ function ReEntryData {
                                 if res:name = "Oxidizer" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) {}
                                     else {
-                                        set RebalanceCoGox to TRANSFER("Oxidizer", Tank, HeaderTank, abs(FuelBalanceSpeed * 0.7*PitchInput)).
+                                        set RebalanceCoGox to TRANSFER("Oxidizer", Tank, HeaderTank, abs(FuelBalanceSpeed * 0.8*PitchInput)).
                                     }
                                 }
                             }
@@ -11453,7 +11467,7 @@ function ReEntryData {
                                 if res:name = "LiquidFuel" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
                                     else {
-                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", Tank, HeaderTank, abs(FuelBalanceSpeed/(11/9) * 0.7*PitchInput)).
+                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", Tank, HeaderTank, abs(FuelBalanceSpeed/(11/9) * 0.8*PitchInput)).
                                     }
                                 }
                             }
@@ -11464,7 +11478,7 @@ function ReEntryData {
                                 if res:name = "LqdMethane" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
                                     else {
-                                        set RebalanceCoGlf to TRANSFER("LqdMethane", Tank, HeaderTank, abs(FuelBalanceSpeed/(1/3) * 0.7*PitchInput)).
+                                        set RebalanceCoGlf to TRANSFER("LqdMethane", Tank, HeaderTank, abs(FuelBalanceSpeed/(1/3) * 0.8*PitchInput)).
                                     }
                                 }
                             }
@@ -11605,6 +11619,11 @@ function ReEntryData {
 
 
             if ship:body:atm:sealevelpressure > 0.5 and airspeed < 130 {
+                Tank:shutdown.
+                //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
+                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if abs(LngLatErrorList[0]) > 20 or abs(LngLatErrorList[1]) > 15 {
                     set LandSomewhereElse to true.
                     lock throttle to 0.55.
@@ -11613,19 +11632,14 @@ function ReEntryData {
                     LogToFile("Landing parameters out of bounds (Lng: " + LngLatErrorList[0] + "m,Lat: " + LngLatErrorList[1] + "m), Landing Off-Target").
                 }
                 wait 0.001.
-                Tank:shutdown.
-                //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
-                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                if random() < SLIgnCha/100 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                if random() < SLIgnCha/100 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                 when time:seconds > LandingFlipStart + 0.7 then {
                     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                     if random() < SLIgnCha/100 if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                     when time:seconds > LandingFlipStart + 1.0 then {
-                        if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                        if random() < SLIgnCha/100 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                        if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        if random() < SLIgnCha/100 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
                         if not (TargetOLM = "False") {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
@@ -11633,7 +11647,14 @@ function ReEntryData {
                         }
                     }
                 }
-            } else if ship:body:atm:sealevelpressure > 0.5 and airspeed > 130 {
+            } 
+            else if ship:body:atm:sealevelpressure > 0.5 and airspeed > 130 {
+                Tank:shutdown.
+                if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").}
+                //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
+                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
+                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if abs(LngLatErrorList[0]) > 20 or abs(LngLatErrorList[1]) > 15 {
                     set LandSomewhereElse to true.
                     lock throttle to 1.
@@ -11642,18 +11663,12 @@ function ReEntryData {
                     LogToFile("Landing parameters out of bounds (Lng: " + LngLatErrorList[0] + "m,Lat: " + LngLatErrorList[1] + "m), Landing Off-Target").
                 }
                 wait 0.001.
-                Tank:shutdown.
-                if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").}
-                //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
-                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                 if random() < SLIgnCha/100 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
-                when time:seconds > LandingFlipStart + 0.3 then {
+                when time:seconds > LandingFlipStart + 0.2 then {
                     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                     if random() < SLIgnCha/100 if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
-                    when time:seconds > LandingFlipStart + 0.5 then {
+                    when time:seconds > LandingFlipStart + 0.3 then {
                         if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                         if random() < SLIgnCha/100 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
@@ -11675,9 +11690,9 @@ function ReEntryData {
             set LandingBurnStarted to false.
             set landingRatio to 0.
             set ShipLanded to false.
-            set LandingFlipTime to 2.5.
+            set LandingFlipTime to 2.3.
             if KSRSS {
-                set LandingFlipTime to 3.5.
+                set LandingFlipTime to 3.4.
             } else if RSS {
                 set LandingFlipTime to 5.5.
                 if ShipSubType:contains("Block2") set LandingFlipTime to 6.
@@ -12058,15 +12073,15 @@ function LandingVector {
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.032 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.02*facing:topvector.
-                            if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.022*facing:topvector.
+                            set result to up:vector - 0.032 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.022*facing:topvector.
+                            if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.023*facing:topvector.
                         } else {
-                            set result to up:vector - 0.028 * GSVec - 0.021*facing:topvector.
+                            set result to up:vector - 0.028 * GSVec - 0.022*facing:topvector.
                         }
                         if oneSL {
                             if ErrorVector:MAG > 5 * Scale {
-                                set result to up:vector - 0.03 * GSVec - 0.005 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.02*facing:topvector - 0.023*facing:starvector.
-                                if RSS set result to up:vector - 0.034 * GSVec - 0.003 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.02*facing:topvector - 0.023*facing:starvector.
+                                set result to up:vector - 0.03 * GSVec - 0.005 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.021*facing:topvector - 0.023*facing:starvector.
+                                if RSS set result to up:vector - 0.034 * GSVec - 0.003 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.022*facing:topvector - 0.023*facing:starvector.
                             } else {
                                 set result to up:vector - 0.024 * GSVec - 0.02*facing:topvector - 0.023*facing:starvector.
                             }
@@ -12330,9 +12345,9 @@ function LngLatError {
             if TargetOLM {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
-                        set LngLatOffset to -28.
+                        set LngLatOffset to -30.
                     } else if ShipType:contains("Block1"){
-                        set LngLatOffset to -16.
+                        set LngLatOffset to -18.
                     } else {
                         set LngLatOffset to -20.
                     }
@@ -13565,21 +13580,21 @@ function LandAtOLM {
         set LandAtOLMisrunning to true.
         set TargetOLM to false.
         if STOCK {
-            if ShipType:contains("Block1"){
-                set FlipAltitude to 580.
+            if ShipType:contains("Block1") {
+                set FlipAltitude to 600.
             } else {
-                set FlipAltitude to 584.
+                set FlipAltitude to 595.
             }
         }
         else if KSRSS {
-            if ShipType:contains("Block1"){
-                set FlipAltitude to 624.
+            if ShipType:contains("Block1") {
+                set FlipAltitude to 625.
             } else {
-                set FlipAltitude to 624.
+                set FlipAltitude to 625.
             }
         }
         else {
-            if ShipType:contains("Block1"){
+            if ShipType:contains("Block1") {
                 set FlipAltitude to 610.
             } else {
                 set FlipAltitude to 610.

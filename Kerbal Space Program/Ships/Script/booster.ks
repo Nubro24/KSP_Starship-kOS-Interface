@@ -1026,7 +1026,8 @@ function Boostback {
 
     set HighLandingBurn to false.
 
-    set targetAp to ship:apoapsis - 500*Scale.
+    if RandomFlip set targetAp to ship:apoapsis - 300*Scale.
+    else set targetAp to ship:apoapsis + 600*Scale.
 
 
     setLandingZone().
@@ -1787,6 +1788,8 @@ function Boostback {
     
     lock steering to SteeringVector.
 
+    set DistanceError to landingzone:position - BoosterCore:position.
+
     until alt:radar < 28000 and RSS or alt:radar < 26000 and KSRSS or alt:radar < 20000 {
         SteeringCorrections().
         if altitude > 33000 and RSS or altitude > 28000 and not (RSS) {
@@ -1965,6 +1968,7 @@ function Boostback {
         when Vessel(TargetOLM):distance < 2000 then {
             set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Integration Tower Base")[0]:position).
             lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
+            lock DistanceError to Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position.
             if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
         }
         when Vessel(TargetOLM):distance < 1800 then {
@@ -2195,6 +2199,8 @@ function Boostback {
     set LandingTime to time:seconds.
     
     SetLoadDistances("default").
+    unlock PositionError.
+    unlock DistanceError.
 
     DeactivateGridFins().
     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -2294,6 +2300,8 @@ function Boostback {
         parameter vel, h.
 
         if not MiddleEnginesShutdown {
+            if stopDist3 > DistanceError:mag or throttle < 0.4
+                return true.
             if (vel < 69 and h > 540) or (vel < 52 and h > 460) or vel < 12
                 return true.
             if STOCK 
