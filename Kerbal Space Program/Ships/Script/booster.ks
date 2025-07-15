@@ -2301,7 +2301,7 @@ function Boostback {
         parameter vel, h.
 
         if not MiddleEnginesShutdown {
-            if stopDist3 > DistanceError:mag or throttle < 0.4
+            if stopDist3 > DistanceError:mag and throttle < 0.6
                 return true.
             if (vel < 69 and h > 540) or (vel < 52 and h > 460) or vel < 12
                 return true.
