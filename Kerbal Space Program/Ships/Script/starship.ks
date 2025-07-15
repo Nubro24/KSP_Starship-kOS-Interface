@@ -380,7 +380,6 @@ set bEngSet to false.
 set sEngSetVac to false.
 set sEngSet to false.
 
-FindParts().
 if Tank:hasmodule("FARPartModule") {
     set FAR to true.
     set FARValue to 1.
@@ -6523,7 +6522,6 @@ if addons:tr:available and not startup {
         InhibitButtons(0, 1, 1).
         SetRadarAltitude().
         set runningprogram to "None".
-        FindParts().
         if homeconnection:isconnected {
             if exists("0:/settings.json") {
                 set L to readjson("0:/settings.json").
@@ -9982,11 +9980,6 @@ function BackGroundUpdate {
         if prevCalcTime + 0.1 < time:seconds {
             SendPing().
             updatestatusbar().
-            if time:seconds < LiftOffTime + 90*Scale {
-                FindParts().
-            } else if time:seconds < HotStageTime + 12 and apoapsis > BoosterAp {
-                FindParts().
-            }
             SetPlanetData().
             if ShipIsDocked {
                 if Tank:getmodule("ModuleDockingNode"):hasevent("undock") {

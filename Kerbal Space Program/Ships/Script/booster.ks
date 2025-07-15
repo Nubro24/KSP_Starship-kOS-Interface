@@ -890,7 +890,7 @@ set OnceShipName to false.
 set ShipConnectedToBooster to true.
 set ConnectedMessage to false.
 set PreDockPos to false.
-
+set TelemetryTimer to time:seconds.
 
 
 
@@ -906,8 +906,9 @@ on ag9 {
 } 
 
 
-when True then {
+when time:seconds > TelemetryTimer + 0.05 then {
     GUIupdate().
+    set TelemetryTimer to time:seconds.
     return true.
 }
 
@@ -2563,13 +2564,17 @@ function LandingGuidance {
     if not MiddleEnginesShutdown {  //13 Engine-Phase
         set lookUpDamp to 0.
         if closureRatio > 1 set MidsteerDamp to min((max((streamOffset - 1) / 28, 0))^1.2, 0.7).
+        else set MidsteerDamp to min((max((streamOffset - 1) / 36, 0))^1.2, 0.6).
     }
     else if RadarRatio < 1 {         //Center Three
         set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.2, 1).
+        set MidsteerDamp to min((max((streamOffset - 1) / 42, 0))^1.2, 0.5).
         set lookUpDamp to 0.3/(RadarRatio + 0.25) - 0.22.
     }
     else if time:seconds - ShutdownTime < 1.5
         set steerDamp to steerDamp * 5.
+    
+    set lookUpDamp to lookUpDamp + (steeringOffset/12)^4.
     
     // === Final Vector ===
     set FinalVec to GuidVec:normalized + facing:forevector * steerDamp - velocity:surface:normalized * MidsteerDamp + up:vector * lookUpDamp.
