@@ -1932,7 +1932,7 @@ function Boostback {
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
     when cAbort then {
-        if not BoosterLanded {
+        if not BoosterLanded and RadarAlt > 5 {
             HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
             set abortTime to time:seconds.
             set LandSomewhereElse to true.
@@ -2126,7 +2126,7 @@ function Boostback {
         if random() < ifIgn/100 and BoosterSingleEngines {
             set failedEngNr to 1+floor(random()*12).
             if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
-            if MiddleEnginesShutdown and not RSS
+            if MiddleEnginesShutdown and not RSS and RadarAlt > 8*Scale and airspeed > 8
                 if failedEngNr = 1 {
                     if BoosterSingleEnginesRC[3]:hassuffix("activate") {
                             BoosterSingleEnginesRC[3]:activate.
