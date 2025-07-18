@@ -396,7 +396,9 @@ local bCH4Number is bCH4:addlabel("100%").
 
 local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
 local bAttitude is boosterAttitude:addlabel().
-    set bAttitude:style:bg to "starship_img/booster".
+    set bAttitude:style:bg to "starship_img/booster/0".
+local bAttitudeTw is boosterAttitude:addlabel().
+    set bAttitudeTw:style:bg to "starship_img/tower".
 local missionTimeLabel is missionTimeDisplay:addlabel().
 local ClockHeader is missionTimeDisplay:addlabel().
 local VersionDisplay is GUI(100).
@@ -664,6 +666,13 @@ function CreateTelemetry {
     set bAttitude:style:width to 180*TScale.
     set bAttitude:style:height to 180*TScale.
     set bAttitude:style:margin:top to 20*TScale.
+
+    set bAttitudeTw:style:margin:left to 20*TScale.
+    set bAttitudeTw:style:margin:right to 20*TScale.
+    set bAttitudeTw:style:width to 180*TScale.
+    set bAttitudeTw:style:height to 217*TScale.
+    set bAttitudeTw:style:overflow:top to -50*TScale.
+    set bAttitudeTw:style:overflow:bottom to 50*TScale.
 
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:margin:left to 100*TScale.
@@ -1093,6 +1102,7 @@ function Boostback {
         }
         unlock steering.
         set ship:name to "Booster".
+        wait 0.
         rcs on.
         lock throttle to 0.66.
         when time:seconds > SeparationTime + 0.5 then {lock throttle to 0.95.}
@@ -1990,9 +2000,9 @@ function Boostback {
                 PollUpdate().
                 set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                 if not RSS 
-                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 4.
+                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 3.8.
                 else 
-                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.2.
+                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.1.
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
 
@@ -2544,7 +2554,7 @@ function LandingGuidance {
         if RadarRatio > 0.05 set GuidStrength to 42.
         set PosError to PositionError:normalized * ((0.95/closureRatio)^2)*GSVec:mag.
 
-        set cancel to max(min(1/(RadarRatio^0.8),2),1).
+        set cancel to max(min(1/(RadarRatio^0.7),2),1).
         set Velclosure to max(min(RadarRatio,1),0.7)*((0.95/closureRatio)^3).
         set Posclosure to max(min(0.25*RadarRatio+0.6,1),0.65)*min(closureRatio^2,1.5).
         set Errclosure to min(closureRatio^3,2)*((vAng(ErrorVector,PositionError)/90)^0.2).
@@ -2569,12 +2579,12 @@ function LandingGuidance {
     else if RadarRatio < 1 {         //Center Three
         set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.2, 1).
         set MidsteerDamp to min((max((streamOffset - 1) / 42, 0))^1.2, 0.5).
-        set lookUpDamp to 0.3/(RadarRatio + 0.25) - 0.22.
+        set lookUpDamp to 0.3/(RadarRatio) - 0.24.
     }
     else if time:seconds - ShutdownTime < 1.5
         set steerDamp to steerDamp * 5.
     
-    set lookUpDamp to lookUpDamp + (steeringOffset/12)^4.
+    if steeringOffset > 5 set lookUpDamp to lookUpDamp + (steeringOffset/12)^4.
     
     // === Final Vector ===
     set FinalVec to GuidVec:normalized + facing:forevector * steerDamp - velocity:surface:normalized * MidsteerDamp + up:vector * lookUpDamp.
@@ -3304,7 +3314,20 @@ function GUIupdate {
         set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
     } else {
         set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
+        if RadarAlt < BoosterHeight * 1.5 and not BoosterLanded {
+            set bAttitudeTw:style:overflow:top to 195*TScale - round((RadarAlt/BoosterHeight)*195*TScale).
+            set bAttitudeTw:style:overflow:bottom to -195*TScale + round((RadarAlt/BoosterHeight)*195*TScale).
+            set bAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/BoosterHeight.
+            set bAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/BoosterHeight.
+        } 
+        else if not BoosterLanded {
+            set bAttitudeTw:style:overflow:top to -50*TScale.
+            set bAttitudeTw:style:overflow:bottom to 50*TScale.
+        }
     }
+
+    if GfC set bAttitudeTw:style:bg to "starship_img/tower".
+    else if not BoosterLanded set bAttitudeTw:style:bg to "starship_img/water".
 
     if cAbort set GDlamp:style:bg to "starship_img/telemetry_red".
 

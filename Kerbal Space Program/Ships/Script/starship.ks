@@ -380,6 +380,8 @@ set bEngSet to false.
 set sEngSetVac to false.
 set sEngSet to false.
 
+FindParts().
+
 if Tank:hasmodule("FARPartModule") {
     set FAR to true.
     set FARValue to 1.
