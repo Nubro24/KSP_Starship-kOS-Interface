@@ -11006,7 +11006,7 @@ function ReEntryAndLand {
         when altitude < 55000*Scale and airspeed > 304 then {
             set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
             if not RSS or RadarAlt > 48000 {
-                if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/150)^1.1,3) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/150)^1.25,3) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
                 else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * 1/min((ErrorVector:mag/4000)^0.9,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
             }
             else {
@@ -15580,7 +15580,12 @@ function DetectWobblyTower {
 
 function updateTelemetry {
 
-    if Boosterconnected {
+    if Boosterconnected and ShipSubType = "Block2" {
+        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+        else set currentPitch to 360-vAng(facing:forevector,up:vector).
+        if round(currentPitch) = 360 set currentPitch to 0.
+        set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(currentPitch):tostring.
+    } else if Boosterconnected {
         if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
         else set currentPitch to 360-vAng(facing:forevector,up:vector).
         if round(currentPitch) = 360 set currentPitch to 0.

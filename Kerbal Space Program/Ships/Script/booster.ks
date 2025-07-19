@@ -3309,11 +3309,14 @@ function GUIupdate {
     if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position)) < 90 set currentPitch to 360-vAng(facing:forevector,up:vector).
     else set currentPitch to vAng(facing:forevector,up:vector).
     if round(currentPitch) = 360 set currentPitch to 0.
-    //set ClockHeader:text to round(currentPitch) + "(" + round(currentPitch,3) + ")".
-    if ShipConnectedToBooster {
+
+    if ShipConnectedToBooster and ShipType:contains("Block2") {
+        set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
+    } else if ShipConnectedToBooster {
         set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
     } else {
         set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
+
         if RadarAlt < BoosterHeight * 1.5 and not BoosterLanded {
             set bAttitudeTw:style:overflow:top to 195*TScale - round((RadarAlt/BoosterHeight)*195*TScale).
             set bAttitudeTw:style:overflow:bottom to -195*TScale + round((RadarAlt/BoosterHeight)*195*TScale).
