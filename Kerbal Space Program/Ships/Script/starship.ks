@@ -11021,7 +11021,7 @@ function ReEntryAndLand {
             set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
             if not RSS or RadarAlt > 48000 {
                 if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/400)^1.3,3.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
-                else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * 1/min((ErrorVector:mag/2000)^0.8,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min(1/min((ErrorVector:mag/2000)^0.8,4),4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
             }
             else {
                 if ShipSubType:contains("Block2") {
@@ -12359,30 +12359,38 @@ function LngLatError {
             if TargetOLM {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
-                        set LngLatOffset to -30.
+                        if RadarAlt > 4000 set LngLatOffset to -30.
+                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
                     } else if ShipType:contains("Block1"){
-                        if RadarAlt > 4000 * Scale set LngLatOffset to -18.
-                        else set LngLatOffset to -18 - vxcl(up:vector, velocity:surface):mag + 8.
+                        if RadarAlt > 4000 set LngLatOffset to -18.
+                        else set LngLatOffset to -10 - vxcl(up:vector, velocity:surface):mag.
                     } else {
-                        set LngLatOffset to -20.
+                        if RadarAlt > 4000 set LngLatOffset to -20.
+                        else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag.
                     }
                 }
                 else if KSRSS {
                     if ShipSubType:contains("Block2") {
-                        set LngLatOffset to -50.
+                        if RadarAlt > 5000 set LngLatOffset to -46.
+                        else set LngLatOffset to -32 - vxcl(up:vector, velocity:surface):mag.
                     } else if ShipType:contains("Block1"){
-                        set LngLatOffset to -42.
+                        if RadarAlt > 5000 set LngLatOffset to -36.
+                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
                     } else {
-                        set LngLatOffset to -42.
+                        if RadarAlt > 5000 set LngLatOffset to -36.
+                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
                     }
                 }
                 else {
                     if ShipSubType:contains("Block2") {
-                        set LngLatOffset to -169.
+                        if RadarAlt > 6000 set LngLatOffset to -169.
+                        else set LngLatOffset to -151 - vxcl(up:vector, velocity:surface):mag.
                     } else if ShipType:contains("Block1"){
-                        set LngLatOffset to -133.
+                        if RadarAlt > 6000 set LngLatOffset to -133.
+                        else set LngLatOffset to -115 - vxcl(up:vector, velocity:surface):mag.
                     } else {
-                        set LngLatOffset to -124.
+                        if RadarAlt > 6000 set LngLatOffset to -124.
+                        else set LngLatOffset to -106 - vxcl(up:vector, velocity:surface):mag.
                     }
                 }
             }
@@ -15624,10 +15632,10 @@ function updateTelemetry {
         set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
 
         if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
-            set sAttitudeTw:style:overflow:top to 150*TScale - round((RadarAlt/ShipHeight)*150*TScale).
-            set sAttitudeTw:style:overflow:bottom to -150*TScale + round((RadarAlt/ShipHeight)*150*TScale).
-            set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 70*TScale.
-            set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 70*TScale.
+            set sAttitudeTw:style:overflow:top to 155*TScale - round((RadarAlt/ShipHeight)*155*TScale).
+            set sAttitudeTw:style:overflow:bottom to -155*TScale + round((RadarAlt/ShipHeight)*155*TScale).
+            set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 75*TScale.
+            set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 75*TScale.
         } 
         else if not ShipLanded {
             set sAttitudeTw:style:overflow:top to -50*TScale.
