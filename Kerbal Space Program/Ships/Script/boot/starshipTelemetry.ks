@@ -280,6 +280,8 @@ if ship:name:contains(" Real Size") and (RSS) {
 }
 set Boosterconnected to false.
 set ShipType to "".
+set sEngSet to false.
+set sEngSetVac to false.
 FindParts().
 SetRadarAltitude().
 
