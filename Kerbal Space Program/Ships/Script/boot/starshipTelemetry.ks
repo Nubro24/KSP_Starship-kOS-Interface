@@ -232,6 +232,9 @@ function CreateTelemetry {
 set partsfound to false.
 
 
+if ship:partsnamed("VS.25.BL2.TILE.FWD"):length > 0 {
+    set ShipSubType to "Block2".
+}
 
 
 //------------Initial Setup-------------//
