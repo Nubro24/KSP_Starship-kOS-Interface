@@ -34,7 +34,8 @@ if exists("0:/settings.json") {
 
 set runningprogram to "None".
 set missionTimer to 0.
-if exists("0:/settings.json") {
+if missionTime > 0  set missionTimer to time:seconds - missionTime.
+else if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("Launch Time") {
         set missionTimer to L["Launch Time"].
@@ -451,9 +452,6 @@ function FindParts {
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
                 }
-                else if x:name:contains("VS.25.BL2.TILE.FWD") and x:title = "Starship BL2 Fwd Tiles" {
-                    set ShipSubType to "Block2".
-                }
                 
                 set ShipMassStep to ShipMassStep + (x:mass).
                 PartListStep:add(x).
@@ -462,7 +460,10 @@ function FindParts {
         }
     }
 
-    if SL {
+    set SLStep to false.
+    set VACStep to false.
+
+    if SL and not sEngSet {
         set SL1 to false.
         set SL2 to false.
         set SL3 to false.
@@ -493,19 +494,23 @@ function FindParts {
             }
         }
         set SLcount to 0.
-        if SL1 and SL2 and SL3 {}
+        if SL1 and SL2 and SL3 {
+            set sEngSet to true.
+            set SLStep to true.
+        }
         else {
             if not SL1 set SLEnginesStep[0] to False.
             if not SL2 set SLEnginesStep[1] to False.
             if not SL3 set SLEnginesStep[2] to False.
+            set SLStep to true.
         }
     } 
-    else {
+    else if not sEngSet {
         print("SLEngine count is wrong!").
         hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,2,18,red,false).
     }
 
-    if Vac and Vaccount = 3 {
+    if Vac and Vaccount = 3 and not sEngSetVac {
         set VACEnginesStep to List("","","").
         set Vac1 to false.
         set Vac2 to false.
@@ -537,14 +542,18 @@ function FindParts {
             }
         }
         set Vaccount to 0.
-        if Vac1 and Vac2 and Vac3 {}
+        if Vac1 and Vac2 and Vac3 {
+            set sEngSetVac to true.
+            set VACStep to true.
+        }
         else {
             if not Vac1 set VACEnginesStep[0] to False.
             if not Vac2 set VACEnginesStep[1] to False.
             if not Vac3 set VACEnginesStep[2] to False.
+            set VACStep to true.
         }
     } 
-    else if Vac and Vaccount = 6 {
+    else if Vac and Vaccount = 6 and not sEngSetVac {
         set Vac1 to false.
         set Vac2 to false.
         set Vac3 to false.
@@ -599,7 +608,10 @@ function FindParts {
             }
         }
         set Vaccount to 0.
-        if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {}
+        if Vac1 and Vac2 and Vac3 and Vac4 and Vac5 and Vac6 {
+            set sEngSetVac to true.
+            set VACStep to true.
+        }
         else {
             if not Vac1 set VACEnginesStep[0] to False.
             if not Vac2 set VACEnginesStep[1] to False.
@@ -607,15 +619,22 @@ function FindParts {
             if not Vac4 set VACEnginesStep[3] to False.
             if not Vac5 set VACEnginesStep[4] to False.
             if not Vac6 set VACEnginesStep[5] to False.
+            set VACStep to true.
         }
     } 
-    else {
+    else if not sEngSetVac {
         print("VACEngine count is wrong!").
         hudtext("VACEngine count is wrong! (" + Vaccount + "; needs 3 or 6)",10,2,18,red,false).
     }
 
-    set SLEngines to SLEnginesStep.
-    set VACEngines to VACEnginesStep.
+    if SLStep {
+        set SLEngines to SLEnginesStep.
+        set SLStep to false.
+    } 
+    if VACStep {
+        set VACEngines to VACEnginesStep.
+        set VACStep to false.
+    } 
     set NrOfVacEngines to VACEngines:length.
     set ShipMass to ShipMassStep * 1000.
     set CargoMass to CargoMassStep * 1000.
@@ -709,30 +728,6 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not Hotstaging {
-        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-                or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
-            set BoosterSingleEngines to true.
-            set BoosterSingleEnginesRB to list().
-            set BoosterSingleEnginesRC to list().
-            set x to 1.
-            until x > 33 or not Boosterconnected {
-                if ship:partstagged(x:tostring):length > 0 {
-                    if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
-                    else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
-                }
-                else {
-                    if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
-                    else BoosterSingleEnginesRB:insert(x-14, False).
-                }
-                set x to x + 1.
-            }
-        } 
-        else {
-            set BoosterSingleEngines to false.
-        }
-        print "bEngines set.. SingleEng.:" + BoosterSingleEngines.
-    }
 
     if ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
         set OnOrbitalMount to True.

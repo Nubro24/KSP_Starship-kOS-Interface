@@ -187,12 +187,13 @@ function FindEngines {
             else {
                 if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
                 else BoosterSingleEnginesRB:insert(x-14, False).
+                MissingList:add(x).
             }
             set x to x + 1.
         }
         if MissingList:length > 0 {
             print("The Booster is missing " + MissingList:length + " Engines!").
-            //print MissingList.
+            if MissingList:length > 0 print MissingList.
         }
     } 
     else {
