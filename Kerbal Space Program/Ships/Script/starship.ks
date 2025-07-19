@@ -15608,65 +15608,70 @@ function DetectWobblyTower {
 
 function updateTelemetry {
 
-    if Boosterconnected and ShipSubType = "Block2" {
-        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
-        else set currentPitch to 360-vAng(facing:forevector,up:vector).
-        if round(currentPitch) = 360 set currentPitch to 0.
-        set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(currentPitch):tostring.
-    } else if Boosterconnected {
-        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
-        else set currentPitch to 360-vAng(facing:forevector,up:vector).
-        if round(currentPitch) = 360 set currentPitch to 0.
-        set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(currentPitch):tostring.
-    } else if ShipSubType = "Block2" {
-        if not LandingBurnStarted {
-            if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-            else set currentPitch to vang(facing:forevector,up:vector).
+    if ShipSubType = "Block2" {
+        if Boosterconnected {
+            if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+            else set currentPitch to 360-vAng(facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
+            set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(currentPitch):tostring.
         }
         else {
-            if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-            else set currentPitch to vang(facing:forevector,up:vector).
-            if round(currentPitch) = 360 set currentPitch to 0.
-        }
-        set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
+            if not LandingBurnStarted {
+                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+                else set currentPitch to vang(facing:forevector,up:vector).
+                if round(currentPitch) = 360 set currentPitch to 0.
+            }
+            else {
+                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+                else set currentPitch to vang(facing:forevector,up:vector).
+                if round(currentPitch) = 360 set currentPitch to 0.
+            }
+            set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
 
-        if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
-            set sAttitudeTw:style:overflow:top to 155*TScale - round((RadarAlt/ShipHeight)*155*TScale).
-            set sAttitudeTw:style:overflow:bottom to -155*TScale + round((RadarAlt/ShipHeight)*155*TScale).
-            set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 75*TScale.
-            set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 75*TScale.
-        } 
-        else if not ShipLanded {
-            set sAttitudeTw:style:overflow:top to -50*TScale.
-            set sAttitudeTw:style:overflow:bottom to 50*TScale.
+            if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
+                set sAttitudeTw:style:overflow:top to 155*TScale - round((RadarAlt/ShipHeight)*155*TScale).
+                set sAttitudeTw:style:overflow:bottom to -155*TScale + round((RadarAlt/ShipHeight)*155*TScale).
+                set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 75*TScale.
+                set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 75*TScale.
+            } 
+            else if not ShipLanded {
+                set sAttitudeTw:style:overflow:top to -50*TScale.
+                set sAttitudeTw:style:overflow:bottom to 50*TScale.
+            }
         }
-
     } else {
-        if not LandingBurnStarted {
-            if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-            else set currentPitch to vang(facing:forevector,up:vector).
+        if Boosterconnected {
+            if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+            else set currentPitch to 360-vAng(facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
+            set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(currentPitch):tostring.
         }
         else {
-            if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-            else set currentPitch to vang(facing:forevector,up:vector).
-            if round(currentPitch) = 360 set currentPitch to 0.
-        }
-        set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
+            if not LandingBurnStarted {
+                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+                else set currentPitch to vang(facing:forevector,up:vector).
+                if round(currentPitch) = 360 set currentPitch to 0.
+            }
+            else {
+                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+                else set currentPitch to vang(facing:forevector,up:vector).
+                if round(currentPitch) = 360 set currentPitch to 0.
+            }
+            set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
 
-        if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
-            set sAttitudeTw:style:overflow:top to 150*TScale - round((RadarAlt/ShipHeight)*150*TScale).
-            set sAttitudeTw:style:overflow:bottom to -150*TScale + round((RadarAlt/ShipHeight)*150*TScale).
-            set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 70*TScale.
-            set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 70*TScale.
-        } 
-        else if not ShipLanded {
-            set sAttitudeTw:style:overflow:top to -50*TScale.
-            set sAttitudeTw:style:overflow:bottom to 50*TScale.
+            if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
+                set sAttitudeTw:style:overflow:top to 150*TScale - round((RadarAlt/ShipHeight)*150*TScale).
+                set sAttitudeTw:style:overflow:bottom to -150*TScale + round((RadarAlt/ShipHeight)*150*TScale).
+                set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 70*TScale.
+                set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 70*TScale.
+            } 
+            else if not ShipLanded {
+                set sAttitudeTw:style:overflow:top to -50*TScale.
+                set sAttitudeTw:style:overflow:bottom to 50*TScale.
+            }
         }
-
     }
+
 
     if not LandSomewhereElse set sAttitudeTw:style:bg to "starship_img/tower".
     else set sAttitudeTw:style:bg to "starship_img/water".
