@@ -901,7 +901,7 @@ function BoosterExists {
 
 function updateTelemetry {
 
-    if ShipSubType = "Block2" {
+    if ShipSubType:contains("Block2") {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
