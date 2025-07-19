@@ -147,6 +147,8 @@ local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:text to "Startup".
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
+local sAttitudeTw is ShipAttitude:addlabel().
+    set sAttitudeTw:style:bg to "starship_img/tower".
 local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
 local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
@@ -215,6 +217,13 @@ function CreateTelemetry {
     set sAttitude:style:margin:top to 20*TScale.
     set sAttitude:style:width to 180*TScale.
     set sAttitude:style:height to 180*TScale.
+
+    set sAttitudeTw:style:margin:left to 20*TScale.
+    set sAttitudeTw:style:margin:right to 20*TScale.
+    set sAttitudeTw:style:width to 180*TScale.
+    set sAttitudeTw:style:height to 217*TScale.
+    set sAttitudeTw:style:overflow:top to -50*TScale.
+    set sAttitudeTw:style:overflow:bottom to 50*TScale.
 
     set sSpeed:style:margin:left to 45*TScale.
     set sSpeed:style:margin:top to 20*TScale.
@@ -308,7 +317,10 @@ function CreateTelemetry {
 
 }
 
+set PositionError to vCrs(up:vector, north:vector).
 set partsfound to false.
+set ShipLanded to false.
+set LandingBurnStarted to false.
 
 when partsfound then {
     updateTelemetry().
@@ -702,6 +714,7 @@ set shipThrust to 0.00001.
 set angle to 75.
 set speed to 12.
 set oldBooster to false.
+set LngLatOffset to 0.
 
 
 
@@ -10536,6 +10549,7 @@ function LandwithoutAtmo {
                     when landingRatio > 1 then {
                         lock throttle to min(((DesiredDecel + Planet1G) * landingRatio) / MaxAccel, 2 * 9.81 / MaxAccel).
                         set LandingBurnStarted to true.
+                        set LandingBurnDirection to vxcl(up:vector, velocity:surface).
                         LogToFile("Landing Burn Started").
                     }
                     LogToFile("LngError < 100m").
@@ -10560,7 +10574,7 @@ function LandwithoutAtmo {
                 set LandingBurnStarted to true.
             }
         }
-        lock STEERING to LandwithoutAtmoSteering.
+        lock STEERING to LandwithoutAtmoSteering().
 
         when verticalspeed > -10 and LandingBurnStarted then {
             GEAR on.
@@ -11006,8 +11020,8 @@ function ReEntryAndLand {
         when altitude < 55000*Scale and airspeed > 304 then {
             set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
             if not RSS or RadarAlt > 48000 {
-                if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/150)^1.25,3) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
-                else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * 1/min((ErrorVector:mag/4000)^0.9,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/400)^1.3,3.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * 1/min((ErrorVector:mag/2000)^0.8,4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
             }
             else {
                 if ShipSubType:contains("Block2") {
@@ -11274,6 +11288,7 @@ function ReEntrySteering {
         print "MaxOutput: " + round(PitchPID:maxoutput, 2).
         print "YawCtrl: " + round(yawctrl, 2).
         print "TRJCorrection: " + round(TRJCorrection, 1).
+        print LngLatOffset.
 
         if ship:body:atm:sealevelpressure < 0.5 {
             print " ".
@@ -11586,6 +11601,7 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 2.
             set LandingFlipStart to time:seconds.
+            set LandingBurnDirection to vxcl(up:vector, velocity:surface).
             set ship:control:pitch to 1.
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
             else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
@@ -11703,9 +11719,10 @@ function ReEntryData {
             set Hover to false.
             set Slow to false.
             if not (TargetOLM = "false") {
-                when Vessel(TargetOLM):distance < 1600 then {
-                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1400.
-                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1400.
+                when Vessel(TargetOLM):distance < 1800 then {
+                    lock PositionError to vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position).
+                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
+                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
                     when Vessel(TargetOLM):distance < 1300 then
                         sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
                 }
@@ -11900,6 +11917,8 @@ function ReEntryData {
             print "Ship Landing Confirmed!".
             set ShipLanded to true.
             LogToFile("Ship Landing Confirmed!").
+            if not (TargetOLM = "false") 
+                if Vessel(TargetOLM):distance < 1800 unlock PositionError.
 
 
 
@@ -12342,7 +12361,8 @@ function LngLatError {
                     if ShipSubType:contains("Block2") {
                         set LngLatOffset to -30.
                     } else if ShipType:contains("Block1"){
-                        set LngLatOffset to -18.
+                        if RadarAlt > 4000 * Scale set LngLatOffset to -18.
+                        else set LngLatOffset to -18 - vxcl(up:vector, velocity:surface):mag + 8.
                     } else {
                         set LngLatOffset to -20.
                     }
@@ -15591,16 +15611,57 @@ function updateTelemetry {
         if round(currentPitch) = 360 set currentPitch to 0.
         set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(currentPitch):tostring.
     } else if ShipSubType = "Block2" {
-        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-        else set currentPitch to vang(facing:forevector,up:vector).
-        if round(currentPitch) = 360 set currentPitch to 0.
+        if not LandingBurnStarted {
+            if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+            else set currentPitch to vang(facing:forevector,up:vector).
+            if round(currentPitch) = 360 set currentPitch to 0.
+        }
+        else {
+            if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+            else set currentPitch to vang(facing:forevector,up:vector).
+            if round(currentPitch) = 360 set currentPitch to 0.
+        }
         set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
+
+        if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
+            set sAttitudeTw:style:overflow:top to 150*TScale - round((RadarAlt/ShipHeight)*150*TScale).
+            set sAttitudeTw:style:overflow:bottom to -150*TScale + round((RadarAlt/ShipHeight)*150*TScale).
+            set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 70*TScale.
+            set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 70*TScale.
+        } 
+        else if not ShipLanded {
+            set sAttitudeTw:style:overflow:top to -50*TScale.
+            set sAttitudeTw:style:overflow:bottom to 50*TScale.
+        }
+
     } else {
-        if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-        else set currentPitch to vang(facing:forevector,up:vector).
-        if round(currentPitch) = 360 set currentPitch to 0.
+        if not LandingBurnStarted {
+            if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+            else set currentPitch to vang(facing:forevector,up:vector).
+            if round(currentPitch) = 360 set currentPitch to 0.
+        }
+        else {
+            if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
+            else set currentPitch to vang(facing:forevector,up:vector).
+            if round(currentPitch) = 360 set currentPitch to 0.
+        }
         set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
+
+        if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
+            set sAttitudeTw:style:overflow:top to 150*TScale - round((RadarAlt/ShipHeight)*150*TScale).
+            set sAttitudeTw:style:overflow:bottom to -150*TScale + round((RadarAlt/ShipHeight)*150*TScale).
+            set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 70*TScale.
+            set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 70*TScale.
+        } 
+        else if not ShipLanded {
+            set sAttitudeTw:style:overflow:top to -50*TScale.
+            set sAttitudeTw:style:overflow:bottom to 50*TScale.
+        }
+
     }
+
+    if not LandSomewhereElse set sAttitudeTw:style:bg to "starship_img/tower".
+    else set sAttitudeTw:style:bg to "starship_img/water".
 
 
     set shipAltitude to RadarAlt.
