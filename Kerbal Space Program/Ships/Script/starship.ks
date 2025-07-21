@@ -12360,37 +12360,37 @@ function LngLatError {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 4000 set LngLatOffset to -30.
-                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 4000 set LngLatOffset to -18.
-                        else set LngLatOffset to -10 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -10 - vxcl(up:vector, velocity:surface):mag.
                     } else {
                         if RadarAlt > 4000 set LngLatOffset to -20.
-                        else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag.
                     }
                 }
                 else if KSRSS {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 5000 set LngLatOffset to -46.
-                        else set LngLatOffset to -32 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -32 - vxcl(up:vector, velocity:surface):mag.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 5000 set LngLatOffset to -36.
-                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
                     } else {
                         if RadarAlt > 5000 set LngLatOffset to -36.
-                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
                     }
                 }
                 else {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 6000 set LngLatOffset to -169.
-                        else set LngLatOffset to -151 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -151 - vxcl(up:vector, velocity:surface):mag.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 6000 set LngLatOffset to -133.
-                        else set LngLatOffset to -115 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -115 - vxcl(up:vector, velocity:surface):mag.
                     } else {
                         if RadarAlt > 6000 set LngLatOffset to -124.
-                        else set LngLatOffset to -106 - vxcl(up:vector, velocity:surface):mag.
+                        //else set LngLatOffset to -106 - vxcl(up:vector, velocity:surface):mag.
                     }
                 }
             }
