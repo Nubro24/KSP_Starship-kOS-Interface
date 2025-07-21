@@ -156,7 +156,7 @@ for part in ship:parts {
 }
 
 
-if ship:partsnamed("VS.25.BL2.TILE.FWD"):length > 0 {
+if ship:partsnamedpattern("VS.25.BL2"):length > 1 {
     set RandomFlip to false.
     set ShipType to "Block2".
 }

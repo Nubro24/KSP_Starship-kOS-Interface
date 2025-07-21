@@ -1300,7 +1300,7 @@ FindParts().
 if ship:name:contains("OrbitalLaunchMount") {
     set ship:name to ("Starship " + ShipType).
 }
-if ship:partsnamed("VS.25.BL2.TILE.FWD"):length > 0 {
+if ship:partsnamedpattern("VS.25.BL2"):length > 1 {
     set ShipSubType to "Block2".
     set TRJCorrection to TRJCorrection*0.6.
 }
