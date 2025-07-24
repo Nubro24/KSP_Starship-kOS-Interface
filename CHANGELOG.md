@@ -5,6 +5,7 @@
   - Added Throttle down to limit G-Load
   - Added *random* Flip direction for Booster after Hotstage
   - Added *apoapsis compensation* during boostback
+  - Improved RSS Ascent Profile
 - **UI Improvements**:
   - Added new **Ship** Engine Pictograms for *all possible Combinations* (with 3 RVacs)
   - Changed Function to set the correct image
@@ -25,12 +26,15 @@
 - Other Changes/Additions:
   - **Greatly simplified Booster Landing Guidance**
   - **Improved Ship Reentry and Landing**
+    - Added Overcorrect Prevention
+    - Added dynamic target Setpoint before Catch depending on horizontal speed
   - Added Support for Raptor 1
   - Added Support for Vista's SEP Addon
   - Added Distance Checks for automatic Booster Catch Abort
   - Added fully automatic Option, which shows Telemetry Only during operations 
     - action groups 9 (NoGo) and 10 (Go) are Hotkeys for Flight Directors Return Decision 
     - *to only see the Telemetry you also need to press F2*
+    - to activate it open the IgnitionChancesMenu
   - Optimized CoG/Fuel Shift during Reentry
 - Bug/Error Fixes:
   - Fixed mission Timer showing wrong Time

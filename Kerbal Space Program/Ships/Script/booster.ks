@@ -730,7 +730,7 @@ if bodyexists("Earth") {
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
         set BoosterGlideFactor to 0.9.
-        set LngCtrlPID:setpoint to 12. //84
+        set LngCtrlPID:setpoint to 24. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -984,13 +984,10 @@ until False {
         set HSRJet to false.
         set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 5*Scale.
     }
-    else if RECEIVED:CONTENT = "Arms,true" {
-        set oldArms to true.
-        print "Old Arms".
-    }
-    else if RECEIVED:CONTENT = "Arms,false" {
-        set oldArms to false.
-        print "New Arms".
+    else if command = "Arms" {
+        set oldArms to MesParameter.
+        if oldArms print "Old Arms".
+        else print "New Arms".
     }
     else if RECEIVED:CONTENT = "Depot" {
         set Depot to true.
@@ -1014,6 +1011,9 @@ until False {
         set LBIgnC to message[2]:toscalar.
         set LBIgnM to message[3]:toscalar.
         set ifIgn to message[4]:toscalar.
+    }
+    else if command = "fullAuto" {
+        set fullAuto to MesParameter.
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -2549,7 +2549,7 @@ function LandingGuidance {
         set PosError to PositionError:normalized * ((0.9/closureRatio)^2)*GSVec:mag.
         set PosGuid to -min(closureRatio^2,2)*PosError.
         set ErrGuid to -min(closureRatio^2,2)*ErrorVector*min(velRatio/3,1)^2.
-        set VelGuid to -((0.9/closureRatio)^2)*GSVec.
+        set VelGuid to -((0.94/closureRatio)^2)*GSVec.
     }
     else {                          //Center Three
         if RadarRatio > 0.05 set GuidStrength to 42.
@@ -2579,13 +2579,15 @@ function LandingGuidance {
     }
     else if RadarRatio < 1 {         //Center Three
         set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.2, 1).
-        set MidsteerDamp to min((max((streamOffset - 1) / 42, 0))^1.2, 0.5).
-        set lookUpDamp to 0.3/(RadarRatio) - 0.24.
+        set MidsteerDamp to min(vSpeed/15,0.2).
+        set lookUpDamp to min(0.12/(RadarRatio) - 0.11,2).
     }
-    else if time:seconds - ShutdownTime < 1.5
+    else if time:seconds - ShutdownTime < 1.5 {
+        set MidsteerDamp to min((max((streamOffset - 1) / 45, 0))^1.3, 0.5).
         set steerDamp to steerDamp * 5.
-    
+    }
     if steeringOffset > 5 set lookUpDamp to lookUpDamp + (steeringOffset/12)^4.
+    set steerDamp to steerDamp*1.1.
     
     // === Final Vector ===
     set FinalVec to GuidVec:normalized + facing:forevector * steerDamp - velocity:surface:normalized * MidsteerDamp + up:vector * lookUpDamp.

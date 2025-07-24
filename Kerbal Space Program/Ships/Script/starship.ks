@@ -98,6 +98,7 @@ else set LSCoords to ("0,0").
 set RadarAlt to 0.
 set Hotstaging to false.
 set ShipSubType to "None".
+set TargetOLM to false.
 
 set LOIgnCha to 98.5.
 set SLIgnCha to 99.
@@ -658,7 +659,6 @@ set LandingFacingVector to v(0, 0, 0).
 set MaxAccel to 10.
 set Launch180 to false.
 set ShipWasDocked to false.
-set TargetOLM to false.
 set StageSepComplete to false.
 set FLflap to false.
 set FRflap to false.
@@ -1333,13 +1333,35 @@ local IgnitionChancesGUI is GUI(320).
     set IgnitionChancesGUI:skin:button:textcolor to white.
     set IgnitionChancesGUI:skin:label:textcolor to white.
 local IgnChaLayout is IgnitionChancesGUI:addvlayout().
-local Quest is IgnChaLayout:addlabel().
+local Header is IgnChaLayout:addhlayout().
+local Quest is Header:addlabel().
     set Quest:text to "<b>Ignition Chances</b>".
-    set Quest:style:margin:top to 12.
+    set Quest:style:margin:top to 14.
     set Quest:style:margin:bottom to 16.
-    set Quest:style:margin:left to 8.
+    set Quest:style:margin:left to 12.
     set Quest:style:margin:right to 8.
     set Quest:style:fontsize to 16.
+local IFTMode is Header:addradiobutton("  OFT-Sim").
+    set IFTMode:toggle to true.
+    set IFTMode:style:fontsize to 12.
+    set IFTMode:style:margin:left to 4.
+    set IFTMode:style:margin:top to 15.
+    set IFTMode:style:width to 112.
+    set IFTMode:style:height to 18.
+    set IFTMode:style:overflow:right to -60.
+    set IFTMode:toggle to false.
+set lastChangeTimer to time:seconds.
+set IFTMode:ontoggle to {
+    parameter toggle.
+    if toggle and time:seconds > lastChangeTimer + 0.5 {
+        set fullAuto to not fullAuto.
+        print fullAuto.
+        set IFTMode:text to "  OFT-Sim ("+fullAuto+")".
+        sendMessage(processor(volume("Booster")),"fullAuto,"+fullAuto).
+        set lastChangeTimer to time:seconds.
+        set IFTMode:pressed to false.
+    }
+}.
 
 local LOQuest is IgnChaLayout:addlabel().
     set LOQuest:text to "<b>Lift-Off:</b>".
@@ -1432,7 +1454,7 @@ local Quest2 is IgnChaLayout:addlabel().
     set Quest2:style:fontsize to 16.
 
 local IFQuest is IgnChaLayout:addlabel().
-    set IFQuest:text to "<b>Booster: </b>(Chance < 0.3% recommended)".
+    set IFQuest:text to "<b>Booster: </b>(Chance < 0.2% recommended)".
     set IFQuest:style:margin:top to 12.
     set IFQuest:style:margin:bottom to 12.
     set IFQuest:style:margin:left to 12.
@@ -1469,7 +1491,7 @@ local IgnConfirm is ButtonsLayout:addbutton().
         if BBSelect:text = "" set BBSelect:text to "100".
         if LBSelect1:text = "" set LBSelect1:text to "100".
         if LBSelect2:text = "" set LBSelect2:text to "100".
-        if IFSelect1:text = "" set IFSelect1:text to "0.4".
+        if IFSelect1:text = "" set IFSelect1:text to "0.08".
         if IFSelect2:text = "" set IFSelect2:text to "0.5".
         set LOIgnCha to LOSelect:text:toscalar.
         set SLIgnCha to HSSelect1:text:toscalar.
@@ -1498,7 +1520,7 @@ local IgnSave is ButtonsLayout:addbutton().
         if BBSelect:text = "" set BBSelect:text to "100".
         if LBSelect1:text = "" set LBSelect1:text to "100".
         if LBSelect2:text = "" set LBSelect2:text to "100".
-        if IFSelect1:text = "" set IFSelect1:text to "0.4".
+        if IFSelect1:text = "" set IFSelect1:text to "0.08".
         if IFSelect2:text = "" set IFSelect2:text to "0.5".
         set LOIgnCha to LOSelect:text:toscalar.
         set SLIgnCha to HSSelect1:text:toscalar.
@@ -2268,7 +2290,7 @@ local quicksetting1 is settingscheckboxes:addcheckbox("<b>Auto-Stack</b>").
     set quicksetting1:style:overflow:top to -4.
     set quicksetting1:style:overflow:bottom to -9.
     set quicksetting1:tooltip to "Auto stacks both Ship and Booster (unable in RSS)".
-local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX500</b>").
+local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX800</b>").
     set quicksetting2:style:fontsize to 14.
     set quicksetting2:style:margin:left to 10.
     set quicksetting2:style:bg to "starship_img/starship_toggle_off".
@@ -2283,7 +2305,7 @@ local quicksetting2 is settingscheckboxes:addcheckbox("<b>  KX500</b>").
     set quicksetting2:style:overflow:left to -3.
     set quicksetting2:style:overflow:top to -4.
     set quicksetting2:style:overflow:bottom to -9.
-    set quicksetting2:tooltip to "kOS CPU speed. KX2000 = 4x faster, but also 4x heavier on performance".
+    set quicksetting2:tooltip to "kOS CPU speed. KX2000 = 2.5x faster, but also 2.5x heavier on performance".
 local quicksetting3 is settingscheckboxes:addcheckbox("<b>Log Data</b>").
     set quicksetting3:toggle to true.
     set quicksetting3:style:fontsize to 14.
@@ -7074,10 +7096,10 @@ function Launch {
                 set BoosterAp to 106000 + (cos(targetincl) * 3000).
                 set turnAltitude to 750.
             } else if CargoMass > 32000 {
-                set BoosterAp to 96000 + (cos(targetincl) * 3000).
+                set BoosterAp to 99000 + (cos(targetincl) * 3000).
                 set turnAltitude to 280.
             } else {
-                set BoosterAp to 90000 + (cos(targetincl) * 3000).
+                set BoosterAp to 94000 + (cos(targetincl) * 3000).
                 set turnAltitude to 280.
             }
             set PitchIncrement to 0 + 2.4 * CargoMass / MaxCargoToOrbit.
@@ -8040,22 +8062,25 @@ Function LaunchSteering {
             set WaitTime to false.
         }
     }
-    else if ShipSubType:contains("Block2") and not WaitTime {
+    else if ShipSubType:contains("Block2") and not WaitTime and fullAuto {
         set WaitTime to true.
-        if random() < ifIgnCha/3 and runningEngines:length > 0 {
+        if random() < ifIgnCha/5 and runningEngines:length > 0 {
             set failedEngNr to min(max(floor(random()*engNumber),0),5).
-            if runningEngines[failedEngNr] > 2 if VACEngines[runningEngines[failedEngNr]-3]:hassuffix("activate") VACEngines[runningEngines[failedEngNr]-3]:shutdown.
+            if runningEngines[failedEngNr] > 2 {
+                if VACEngines[runningEngines[failedEngNr]-3]:hassuffix("activate") VACEngines[runningEngines[failedEngNr]-3]:shutdown.
+                runningEngines:remove(failedEngNr).
+            }
             else if SLEngines[runningEngines[failedEngNr]]:hassuffix("activate") {
                 SLEngines[runningEngines[failedEngNr]]:shutdown.
                 SLEngines[runningEngines[failedEngNr]]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                runningEngines:remove(failedEngNr).
             }
-            else hudtext("WTF",4,2,20,red,false).
-            runningEngines:remove(failedEngNr).
+            else hudtext("HELP",4,2,20,red,false).
             set engNumber to engNumber - 1.
             set waitingTime to max(waitingTime/2,2).
-            set ifIgnCha to ifIgnCha*2.
+            set ifIgnCha to ifIgnCha*3.
         }
-        set waitingTime to max(waitingTime-0.1,2).
+        set waitingTime to max(waitingTime-0.05,2).
         local failureTimer to time:seconds.
         when time:seconds - failureTimer > waitingTime then {
             set WaitTime to false.
@@ -8099,10 +8124,10 @@ Function LaunchSteering {
     else if Boosterconnected and not lowTWR and CargoMass < 50001 and not Hotstaging {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
+                set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
             else {
-                set targetpitch to 90 - (8.42 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/950)).
             }
         }
         else if KSRSS {
@@ -8136,10 +8161,10 @@ Function LaunchSteering {
     else if Boosterconnected and not lowTWR and CargoMass > 50000 and not Hotstaging {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                set targetpitch to 90 - (7.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (8.48 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.6 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
             }
         }
         else if KSRSS {
@@ -8173,10 +8198,10 @@ Function LaunchSteering {
     else if Boosterconnected and not Hotstaging {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (7.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1350)).
+                set targetpitch to 90 - (7.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (8.3 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -11000,7 +11025,7 @@ function ReEntryAndLand {
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
                 set PitchPID to PIDLOOP(0.00001, 0, 0.00005, -25, 27 - TRJCorrection).
-                set YawPID to PIDLOOP(0.00024, 0, 0.000001, -50, 50).
+                set YawPID to PIDLOOP(0.00036, 0, 0.000001, -50, 50).
             }
         }
         else if KSRSS {
@@ -11069,7 +11094,7 @@ function ReEntryAndLand {
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
                             set PitchPID:kp to 0.02.
-                            set PitchPID:ki to 0.01.
+                            set PitchPID:ki to 0.004.
                             set PitchPID:kd to 0.025.
                             set YawPID:kp to 0.024.
                             set YawPID:ki to 0.0025.
@@ -11078,7 +11103,7 @@ function ReEntryAndLand {
                         }
                         else if KSRSS {
                             set PitchPID:kp to 0.01. //0.25
-                            set PitchPID:ki to 0.01. //0.0225
+                            set PitchPID:ki to 0.002. //0.0225
                             set PitchPID:kd to 0.005. //0.03
                             set YawPID:kp to 0.02. //0.1
                             set YawPID:ki to 0.025. //0.75
@@ -11086,10 +11111,10 @@ function ReEntryAndLand {
                             set maxDeltaV to 440.
                         }
                         else {
-                            set PitchPID:kp to 0.004. //0.03
+                            set PitchPID:kp to 0.008. //0.03
                             set PitchPID:ki to 0.001. //0.035
-                            set PitchPID:kd to 0.002. //0.028
-                            set YawPID:kp to 0.02. //0.1
+                            set PitchPID:kd to 0.003. //0.028
+                            set YawPID:kp to 0.01. //0.1
                             set YawPID:ki to 0.025. //0.075
                             set YawPID:kd to 0.015. //0.025
                             set maxDeltaV to 400.
@@ -11248,19 +11273,21 @@ function ReEntrySteering {
         set result to angleaxis(yawctrl, srfprograde:vector) * result.
 
         set steeringOffset to vAng(result:vector,facing:forevector).
+        set streamOffset to vAng(velocity:surface,facing:forevector).
         set steeringDamp to min((max((steeringOffset - 0.5) / 2, 0))^1.2, 1).
-        set preventDamp to 0.
+        //if airspeed < 400 and streamOffset < 50 set preventDamp to 0.1/min((max((streamOffset) / 85, 0.1))^2, 1).
+        set preventDamp to 0. //else 
         if steeringOffset > 0.5 set facingDamp to 1.
         else {
             set facingDamp to max(steeringOffset,0.2).
             set steeringDamp to max(-steeringOffset+0.5,0).
         }
-        if vAng(facing:forevector, srfprograde:vector) < 45 and altitude > 12000*Scale {
+        if vAng(facing:forevector, srfprograde:vector) < 45 and altitude > 11000*Scale {
             set facingDamp to 0.1. 
             set steeringDamp to 1.
-            set preventDamp to 1.4.
+            set preventDamp to 1.5.
         }
-        else if vAng(facing:forevector, srfprograde:vector) > 135 and altitude > 12000*Scale {
+        else if vAng(facing:forevector, srfprograde:vector) > 135 and altitude > 11000*Scale {
             set facingDamp to 0.1. 
             set steeringDamp to 1.
             set preventDamp to -1.
@@ -12360,37 +12387,37 @@ function LngLatError {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 4000 set LngLatOffset to -30.
-                        //else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -20 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 4000 set LngLatOffset to -18.
-                        //else set LngLatOffset to -10 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -10 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else {
                         if RadarAlt > 4000 set LngLatOffset to -20.
-                        //else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag*0.7.
                     }
                 }
                 else if KSRSS {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 5000 set LngLatOffset to -46.
-                        //else set LngLatOffset to -32 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -32 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 5000 set LngLatOffset to -36.
-                        //else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else {
                         if RadarAlt > 5000 set LngLatOffset to -36.
-                        //else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag*0.7.
                     }
                 }
                 else {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 6000 set LngLatOffset to -169.
-                        //else set LngLatOffset to -151 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -151 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 6000 set LngLatOffset to -133.
-                        //else set LngLatOffset to -115 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -115 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else {
                         if RadarAlt > 6000 set LngLatOffset to -124.
-                        //else set LngLatOffset to -106 - vxcl(up:vector, velocity:surface):mag.
+                        else set LngLatOffset to -106 - vxcl(up:vector, velocity:surface):mag*0.7.
                     }
                 }
             }
@@ -13604,23 +13631,23 @@ function LandAtOLM {
         set TargetOLM to false.
         if STOCK {
             if ShipType:contains("Block1") {
-                set FlipAltitude to 600.
+                set FlipAltitude to 615.
             } else {
-                set FlipAltitude to 595.
+                set FlipAltitude to 605.
             }
         }
         else if KSRSS {
             if ShipType:contains("Block1") {
-                set FlipAltitude to 625.
+                set FlipAltitude to 628.
             } else {
-                set FlipAltitude to 625.
+                set FlipAltitude to 626.
             }
         }
         else {
             if ShipType:contains("Block1") {
-                set FlipAltitude to 610.
+                set FlipAltitude to 620.
             } else {
-                set FlipAltitude to 610.
+                set FlipAltitude to 615.
             }
         }
         list targets in shiplist.
@@ -15629,8 +15656,8 @@ function updateTelemetry {
             set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
 
             if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
-                set sAttitudeTw:style:overflow:top to 155*TScale - round((RadarAlt/ShipHeight)*155*TScale).
-                set sAttitudeTw:style:overflow:bottom to -155*TScale + round((RadarAlt/ShipHeight)*155*TScale).
+                set sAttitudeTw:style:overflow:top to 160*TScale - round((RadarAlt/ShipHeight)*160*TScale).
+                set sAttitudeTw:style:overflow:bottom to -160*TScale + round((RadarAlt/ShipHeight)*160*TScale).
                 set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 75*TScale.
                 set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 75*TScale.
             } 
@@ -15639,7 +15666,8 @@ function updateTelemetry {
                 set sAttitudeTw:style:overflow:bottom to 50*TScale.
             }
         }
-    } else {
+    } 
+    else {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
@@ -15660,8 +15688,8 @@ function updateTelemetry {
             set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
 
             if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
-                set sAttitudeTw:style:overflow:top to 150*TScale - round((RadarAlt/ShipHeight)*150*TScale).
-                set sAttitudeTw:style:overflow:bottom to -150*TScale + round((RadarAlt/ShipHeight)*150*TScale).
+                set sAttitudeTw:style:overflow:top to 158*TScale - round((RadarAlt/ShipHeight)*158*TScale).
+                set sAttitudeTw:style:overflow:bottom to -158*TScale + round((RadarAlt/ShipHeight)*158*TScale).
                 set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 70*TScale.
                 set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 70*TScale.
             } 
@@ -15673,8 +15701,8 @@ function updateTelemetry {
     }
 
 
-    if not LandSomewhereElse set sAttitudeTw:style:bg to "starship_img/tower".
-    else set sAttitudeTw:style:bg to "starship_img/water".
+    if LandSomewhereElse or TargetOLM = "False" set sAttitudeTw:style:bg to "starship_img/water".
+    else set sAttitudeTw:style:bg to "starship_img/tower".
 
 
     set shipAltitude to RadarAlt.
