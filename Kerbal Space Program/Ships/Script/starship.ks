@@ -11067,7 +11067,8 @@ function ReEntryAndLand {
         when altitude < 3000 and TimeTrue then {
             set TimeTrue to false.
             set TimeTrueTimer to time:seconds.
-            set TRJCorrection to min(max(0.07*LngLatErrorList[0] + 0.5,-2.4),2.4).
+            if ShipSubType:contains("Block2") set TRJCorrection to min(max(0.07*LngLatErrorList[0] + 1.9*Scale,-2.4),2.4).
+            else set TRJCorrection to min(max(0.07*LngLatErrorList[0] + 0.6,-2.4),2.4).
             if not LandingBurnStarted {
                 when time:seconds > TimeTrueTimer + 0.2 then set TimeTrue to true.
                 return true.
@@ -12398,10 +12399,10 @@ function LngLatError {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 4000 set LngLatOffset to -30.
-                        else set LngLatOffset to -20 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -14 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 4000 set LngLatOffset to -18.
-                        else set LngLatOffset to -10 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -5 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else {
                         if RadarAlt > 4000 set LngLatOffset to -20.
                         else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag*0.7.
