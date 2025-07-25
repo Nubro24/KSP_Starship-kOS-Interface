@@ -730,6 +730,7 @@ if bodyexists("Earth") {
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
         set BoosterGlideFactor to 0.9.
+        set VelCancelFactor to 1.
         set LngCtrlPID:setpoint to 24. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -762,6 +763,7 @@ if bodyexists("Earth") {
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
+        set VelCancelFactor to 0.4.
         set LngCtrlPID:setpoint to 24. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -801,6 +803,7 @@ else {
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
+        set VelCancelFactor to 0.4.
         set LngCtrlPID:setpoint to 10. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
@@ -829,10 +832,11 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1000. 
-        else set BoosterGlideDistance to 880. //1100
+        else set BoosterGlideDistance to 869. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
-        set BoosterGlideFactor to 1.
+        set BoosterGlideFactor to 1.05.
+        set VelCancelFactor to 0.2.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
@@ -2579,7 +2583,7 @@ function LandingGuidance {
     }
     else if RadarRatio < 1 {         //Center Three
         set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.2, 1).
-        set MidsteerDamp to min(vSpeed/20,0.15).
+        set MidsteerDamp to min(vSpeed/20,0.15)*VelCancelFactor.
         set lookUpDamp to min(0.12/(RadarRatio) - 0.11,2).
     }
     else if time:seconds - ShutdownTime < 1.5 {
