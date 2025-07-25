@@ -836,7 +836,7 @@ else {
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
         set BoosterGlideFactor to 1.05.
-        set VelCancelFactor to 0.2.
+        set VelCancelFactor to 0.3.
         set LngCtrlPID:setpoint to 10. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
