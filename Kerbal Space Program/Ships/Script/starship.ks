@@ -11067,8 +11067,8 @@ function ReEntryAndLand {
         when altitude < 3000 and TimeTrue then {
             set TimeTrue to false.
             set TimeTrueTimer to time:seconds.
-            if ShipSubType:contains("Block2") set TRJCorrection to min(max(0.07*LngLatErrorList[0] + 1.9*Scale,-2.4),2.4).
-            else set TRJCorrection to min(max(0.07*LngLatErrorList[0] + 0.6,-2.4),2.4).
+            if ShipSubType:contains("Block2") set TRJCorrection to min(max( (4/(1+constant:e^(-0.08*LngLatErrorList[0]))) - 0.1*Scale ,-2.4),2.4).
+            else set TRJCorrection to min(max( (4/(1+constant:e^(-0.08*LngLatErrorList[0]))) - 1.4*Scale ,-2.4),2.4).
             if not LandingBurnStarted {
                 when time:seconds > TimeTrueTimer + 0.2 then set TimeTrue to true.
                 return true.
