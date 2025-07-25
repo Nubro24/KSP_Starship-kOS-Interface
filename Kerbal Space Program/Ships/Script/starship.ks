@@ -11045,7 +11045,7 @@ function ReEntryAndLand {
         when altitude < 55000*Scale and airspeed > 304 then {
             set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
             if not RSS or RadarAlt > 48000 {
-                if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/400)^1.3,3.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/300)^1.3,3.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
                 else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min(1/min((ErrorVector:mag/2000)^0.8,4),4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
             }
             else {
@@ -11062,6 +11062,17 @@ function ReEntryAndLand {
         }
         if ShipSubType:contains("Block2") when airspeed < 300 then set TRJCorrection to 1.9/Scale.
         else when airspeed < 300 then set TRJCorrection to 0.6.
+        
+        set TimeTrue to true.
+        when altitude < 3000 and TimeTrue then {
+            set TimeTrue to false.
+            set TimeTrueTimer to time:seconds.
+            set TRJCorrection to min(max(0.07*LngLatErrorList[0] + 0.5,-2.4),2.4).
+            if not LandingBurnStarted {
+                when time:seconds > TimeTrueTimer + 0.2 then set TimeTrue to true.
+                return true.
+            }
+        }
         
 
         lock STEERING to ReEntrySteering().
@@ -11273,16 +11284,16 @@ function ReEntrySteering {
         set result to angleaxis(yawctrl, srfprograde:vector) * result.
 
         set steeringOffset to vAng(result:vector,facing:forevector).
-        set streamOffset to vAng(velocity:surface,facing:forevector).
+        set streamOffset to vAng(srfprograde:vector,facing:forevector).
         set steeringDamp to min((max((steeringOffset - 0.5) / 2, 0))^1.2, 1).
-        //if airspeed < 400 and streamOffset < 50 set preventDamp to 0.1/min((max((streamOffset) / 85, 0.1))^2, 1).
-        set preventDamp to 0. //else 
+        if airspeed < 400 and altitude > 5000 set preventDamp to min(max((-(1/100000)*(streamOffset-86)^3)^3,-1.5),1.5).
+        else set preventDamp to 0. 
         if steeringOffset > 0.5 set facingDamp to 1.
         else {
             set facingDamp to max(steeringOffset,0.2).
             set steeringDamp to max(-steeringOffset+0.5,0).
         }
-        if vAng(facing:forevector, srfprograde:vector) < 45 and altitude > 11000*Scale {
+        if vAng(facing:forevector, srfprograde:vector) < 40 and altitude > 11000*Scale {
             set facingDamp to 0.1. 
             set steeringDamp to 1.
             set preventDamp to 1.5.
@@ -11290,7 +11301,7 @@ function ReEntrySteering {
         else if vAng(facing:forevector, srfprograde:vector) > 135 and altitude > 11000*Scale {
             set facingDamp to 0.1. 
             set steeringDamp to 1.
-            set preventDamp to -1.
+            set preventDamp to -1.5.
         }
         else if airspeed < 300 and abs(LngLatErrorList[0]) > 1000 {
             set facingDamp to facingDamp*0.9.
