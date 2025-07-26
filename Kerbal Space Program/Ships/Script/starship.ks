@@ -12126,7 +12126,7 @@ function LandingVector {
                         }
                     }
                     else if vxcl(TowerRotationVector, ErrorVector):mag > 12 and not twoSL {
-                        if ErrorVector:MAG > 15 * Scale and ship:groundspeed > 8 {
+                        if ErrorVector:MAG > 15 * Scale and ship:groundspeed > 10 {
                             set result to up:vector - 0.01 * vxcl(TowerRotationVector, ErrorVector) - 0.01 * GSVec - 0.005 * ErrorVector.
                         } else {
                             set result to up:vector - 0.004 * GSVec - 0.013 * vxcl(TowerRotationVector, ErrorVector) - 0.004 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
@@ -12137,10 +12137,10 @@ function LandingVector {
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.032 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
+                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                             if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                         } else {
-                            set result to up:vector - 0.028 * GSVec - 0.022*facing:topvector.
+                            set result to up:vector - 0.027 * GSVec - 0.022*facing:topvector.
                         }
                         if oneSL {
                             if ErrorVector:MAG > 5 * Scale {
