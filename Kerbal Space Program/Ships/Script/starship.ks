@@ -132,8 +132,10 @@ local IgnitionChancesOpen is GUI(100).
 local sTelemetry is GUI(150).
     set sTelemetry:style:bg to "starship_img/telemetry_bg".
     set sTelemetry:skin:label:textcolor to white.
+    set sTelemetry:skin:button:textcolor to white.
     set sTelemetry:skin:textfield:textcolor to white.
     set sTelemetry:skin:label:font to "Arial Bold".
+    set sTelemetry:skin:button:font to "Arial Bold".
     set sTelemetry:skin:textfield:font to "Arial Bold".
 local sAttitudeTelemetry is sTelemetry:addhlayout().
 local BoosterSpace is sAttitudeTelemetry:addvlayout().
@@ -150,8 +152,16 @@ local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
 local sAttitudeTw is ShipAttitude:addlabel().
     set sAttitudeTw:style:bg to "starship_img/tower".
-local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
+local sSpeed is ShipStatus:addbutton("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
+    set sSpeed:style:bg to "".
+    set sSpeed:style:align to "left".
+    set sSpeed:style:hover:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:hover_on:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:active:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:active_on:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:focused:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:focused_on:bg to sSpeed:style:normal:bg.
 local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
     set sAltitude:style:wordwrap to false.
 
@@ -226,7 +236,7 @@ function CreateTelemetry {
     set sAttitudeTw:style:overflow:top to -50*TScale.
     set sAttitudeTw:style:overflow:bottom to 50*TScale.
 
-    set sSpeed:style:margin:left to 45*TScale.
+    set sSpeed:style:margin:left to 43*TScale.
     set sSpeed:style:margin:top to 20*TScale.
     set sSpeed:style:width to 296*TScale.
     set sSpeed:style:fontsize to 30*TScale.
@@ -428,7 +438,7 @@ if RSS {         // Real Solar System
     set DefaultLaunchSite to "28.549072,-80.655925".
     set LSCoords to ("28.549072,-80.655925").
     set FuelVentCutOffValue to 3000.
-    set FuelBalanceSpeed to 50.
+    set FuelBalanceSpeed to 180.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 10000.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
     set OriginalTargetAp to 225000.
@@ -478,7 +488,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
         set LSCoords to ("28.497545,-80.535394").
         set FuelVentCutOffValue to 1150.
     }
-    set FuelBalanceSpeed to 30.
+    set FuelBalanceSpeed to 60.
     set RollVector to heading(242,0):vector.
     set SafeAltOverLZ to 5000.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
     set OriginalTargetAp to 125000.
@@ -519,7 +529,7 @@ else {       // Stock Kerbin
     set LaunchSites to lexicon("Launch Site", "-0.0972,-74.5562", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
     set DefaultLaunchSite to "-0.0972,-74.5562".
     set FuelVentCutOffValue to 1175.
-    set FuelBalanceSpeed to 20.
+    set FuelBalanceSpeed to 50.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 2500.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
     set OriginalTargetAp to 75000.
@@ -1644,6 +1654,11 @@ local g is GUI(600).
     set g:x to -130.
     SetInterfaceLocation().
 
+set sSpeed:onclick to {
+    g:hide().
+    wait 0.
+    g:show().
+}.
 
 //-------------------------Skin-------------------------//
 
@@ -11045,8 +11060,8 @@ function ReEntryAndLand {
         when altitude < 55000*Scale and airspeed > 304 then {
             set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
             if not RSS or RadarAlt > 48000 {
-                if LngLatErrorList[0] < 0 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/300)^1.3,3.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
-                else set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min(1/min((ErrorVector:mag/2000)^0.8,4),4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                if LngLatErrorList[0] < 2500 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/300)^1.3,3.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
+                else set TRJCorrection to ((DistanceDamp)*(2*TRJCorFactor * min(((airspeed-300)/airspeed)^0.8,1) + TRJCorFactor * min(1/min((ErrorVector:mag/2300)^0.8,4),4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
             }
             else {
                 if ShipSubType:contains("Block2") {
@@ -12110,31 +12125,27 @@ function LandingVector {
                             set result to up:vector - 0.01 * ErrorVector - 0.003 * GSVec.
                         }
                     }
-                    else if vxcl(TowerRotationVector, ErrorVector):mag > 8 and not twoSL {
-                        if ErrorVector:MAG > 12 * Scale and ship:groundspeed > 3.5 {
+                    else if vxcl(TowerRotationVector, ErrorVector):mag > 12 and not twoSL {
+                        if ErrorVector:MAG > 15 * Scale and ship:groundspeed > 8 {
                             set result to up:vector - 0.01 * vxcl(TowerRotationVector, ErrorVector) - 0.01 * GSVec - 0.005 * ErrorVector.
                         } else {
-                            set result to up:vector - 0.01 * GSVec - 0.013 * vxcl(TowerRotationVector, ErrorVector) - 0.004 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
+                            set result to up:vector - 0.004 * GSVec - 0.013 * vxcl(TowerRotationVector, ErrorVector) - 0.004 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
                         }
                     } 
-                    else if not twoSL {
-                        if ErrorVector:MAG > 9 * Scale and ship:groundspeed > 3.5 {
-                            set result to 1.4 * up:vector - 0.015 * GSVec - 0.011 * vxcl(TowerRotationVector, ErrorVector) - 0.007 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
-                        } else {
-                            set result to 1.8 * up:vector - 0.02 * GSVec - 0.01 * vxcl(TowerRotationVector, ErrorVector) - 0.002 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
-                        }
+                    else if not twoSL { 
+                        set result to 1.4 * up:vector - 0.05 * GSVec - 0.011 * vxcl(TowerRotationVector, ErrorVector) - 0.006 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) + 0.01 * vxcl(up:vector, landingzone:position - Nose:position).
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.032 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.022*facing:topvector.
-                            if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.023*facing:topvector.
+                            set result to up:vector - 0.032 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
+                            if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                         } else {
                             set result to up:vector - 0.028 * GSVec - 0.022*facing:topvector.
                         }
                         if oneSL {
                             if ErrorVector:MAG > 5 * Scale {
-                                set result to up:vector - 0.03 * GSVec - 0.005 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.021*facing:topvector - 0.023*facing:starvector.
-                                if RSS set result to up:vector - 0.034 * GSVec - 0.003 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.022*facing:topvector - 0.023*facing:starvector.
+                                set result to up:vector - 0.03 * GSVec - 0.005 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.022*facing:topvector - 0.023*facing:starvector.
+                                if RSS set result to up:vector - 0.034 * GSVec - 0.003 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.023*facing:topvector - 0.023*facing:starvector.
                             } else {
                                 set result to up:vector - 0.024 * GSVec - 0.02*facing:topvector - 0.023*facing:starvector.
                             }
@@ -12399,13 +12410,13 @@ function LngLatError {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 4000 set LngLatOffset to -30.
-                        else set LngLatOffset to -14 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -14 - vxcl(up:vector, velocity:surface):mag*0.6.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 4000 set LngLatOffset to -18.
-                        else set LngLatOffset to -5 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -6 - vxcl(up:vector, velocity:surface):mag*0.6.
                     } else {
                         if RadarAlt > 4000 set LngLatOffset to -20.
-                        else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -8 - vxcl(up:vector, velocity:surface):mag*0.6.
                     }
                 }
                 else if KSRSS {
@@ -12422,11 +12433,11 @@ function LngLatError {
                 }
                 else {
                     if ShipSubType:contains("Block2") {
-                        if RadarAlt > 6000 set LngLatOffset to -169.
-                        else set LngLatOffset to -151 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        if RadarAlt > 6000 set LngLatOffset to -148.
+                        else set LngLatOffset to -132 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 6000 set LngLatOffset to -133.
-                        else set LngLatOffset to -115 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -114 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else {
                         if RadarAlt > 6000 set LngLatOffset to -124.
                         else set LngLatOffset to -106 - vxcl(up:vector, velocity:surface):mag*0.7.
@@ -13643,9 +13654,9 @@ function LandAtOLM {
         set TargetOLM to false.
         if STOCK {
             if ShipType:contains("Block1") {
-                set FlipAltitude to 615.
+                set FlipAltitude to 632.
             } else {
-                set FlipAltitude to 605.
+                set FlipAltitude to 620.
             }
         }
         else if KSRSS {

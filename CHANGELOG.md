@@ -37,6 +37,8 @@
     - to activate it open the IgnitionChancesMenu
   - Optimized CoG/Fuel Shift during Reentry
 - Bug/Error Fixes:
+  - Added Function to Speed Label on Ship Telemetry: 
+    - reshows the Interface to fix it getting stuck behind Telemetry
   - Fixed mission Timer showing wrong Time
   - Fixed RSS Max Cargo values (max. 69t to Orbit)
   - Fixed RSS Reentry loosing control

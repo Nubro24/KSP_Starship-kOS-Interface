@@ -833,11 +833,11 @@ else {
         }
         if oldBooster set BoosterGlideDistance to 1000. 
         else set BoosterGlideDistance to 869. //1100
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.45.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.4.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 0.3.
-        set LngCtrlPID:setpoint to 10. //50
+        set LngCtrlPID:setpoint to 16. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 125.
@@ -2424,10 +2424,11 @@ FUNCTION SteeringCorrections {
                 else set dragFactor to 1 - 0.059 * (1 + 0.55*((airspeed/320)^2 - 1)).
             }
             
-            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3570),1250).
+            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3650),1250).
+
             if BoosterSingleEngines { 
                 set LandingBurnAlt to LandingBurnAlt * 1.05.
-                if RSS set LandingBurnAlt to LandingBurnAlt * 1.05.
+                if RSS set LandingBurnAlt to LandingBurnAlt * 1.04.
             }
             if HighLandingBurn set LandingBurnAlt to LandingBurnAlt * 1.1.
         }
