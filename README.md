@@ -50,6 +50,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Starship Launch Expansion - [github](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Experimental) - *Experimental branch recommended*
 - kOS - [github](https://github.com/KSP-KOS/KOS/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/165628-ksp-1101-and-111-kos-v1310-kos-scriptable-autopilot-system/)
 - Trajectories - [github](https://github.com/neuoy/KSPTrajectories/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/162324-18-112x-trajectories-v241-2021-06-27-atmospheric-predictions/)
+- Kopernicus - [github](https://github.com/Kopernicus/Kopernicus/releases)
 ### Recommended:
 - HangarExtender - [github](https://github.com/linuxgurugamer/FShangarExtender/releases)
 - HullcamVDS - [github](https://github.com/linuxgurugamer/HullcamVDSContinued/releases)
