@@ -1942,7 +1942,11 @@ function Boostback {
             set abortTime to time:seconds.
             set LandSomewhereElse to true.
             lock RadarAlt to alt:radar - BoosterHeight*0.6.
+            set LZchange to true.
+            wait 0.
             set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng+0.002).
+            set LZchange to false.
+            wait 0.
             addons:tr:settarget(landingzone).
             lock SteeringVector to lookDirUp(up:vector - 0.1*ErrorVector - 0.03 * velocity:surface, facing:topvector).
             lock steering to SteeringVector.
@@ -1998,7 +2002,11 @@ function Boostback {
         if not (TargetOLM = "false") and TowerExists {
             //setTowerHeadingVector().
             PollUpdate().
+            set LZchange to true.
+            wait 0.
             set landingzone to latlng(landingzone:lat, landingzone:lng - 0.00004).
+            set LZchange to false.
+            wait 0.
             addons:tr:settarget(landingzone).
             when ErrorVector:mag > 1.1*BoosterHeight then set cAbort to true.
             if Vessel(TargetOLM):distance < 2240 and GfC {
@@ -2120,7 +2128,7 @@ function Boostback {
     }
 
 
-    if landingzone:hassuffix(distance) {}
+    if landingzone:hassuffix("distance") {}
     else {
         HUDTEXT("Landingzone Problem", 10, 2, 20, red, false).
         set landingzone to ship:geoposition.
@@ -2129,7 +2137,7 @@ function Boostback {
 
     until (verticalspeed > CatchVS - 0.5 and RadarAlt < 5) or (verticalspeed > -0.1 and RadarAlt < 200) or hover {
         SteeringCorrections().
-        if GfC and not offshoreDivert if landingzone:distance < 1500 set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
+        if GfC and not offshoreDivert and not LZchange if landingzone:distance < 1500 set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
         set LandingVector to LandingGuidance().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         PollUpdate().
@@ -3073,36 +3081,36 @@ function setLandingZone {
             }
             else {
                 if RSS {
-                    set landingzone to latlng(28.6117,-80.58647).
+                    set landingzone to latlng(28.549072,-80.655925).
                 }
                 else if KSRSS {
                     if Rescale {
                         set landingzone to latlng(-0.0970,-74.5833).
                     }
                     else {
-                        set landingzone to latlng(28.50895,-81.20396).
+                        set landingzone to latlng(28.497545,-80.535394).
                     }
                 }
                 else {
-                    set landingzone to latlng(-000.0972,-074.5577).
+                    set landingzone to latlng(-0.0972,-74.5562).
                 }
             }
         }
     }
     else {
         if RSS {
-            set landingzone to latlng(28.6117,-80.58647).
+            set landingzone to latlng(28.549072,-80.655925).
         }
         else if KSRSS {
             if Rescale {
                 set landingzone to latlng(-0.0970,-74.5833).
             }
             else {
-                set landingzone to latlng(28.50895,-81.20396).
+                set landingzone to latlng(28.497545,-80.535394).
             }
         }
         else {
-            set landingzone to latlng(-000.0972,-074.5577).
+            set landingzone to latlng(-0.0972,-74.5562).
         }
         wait 1.
         setLandingZone().
