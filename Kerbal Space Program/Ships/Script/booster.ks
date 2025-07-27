@@ -2120,6 +2120,13 @@ function Boostback {
     }
 
 
+    if landingzone:hassuffix(distance) {}
+    else {
+        HUDTEXT("Landingzone Problem", 10, 2, 20, red, false).
+        set landingzone to ship:geoposition.
+    }
+
+
     until (verticalspeed > CatchVS - 0.5 and RadarAlt < 5) or (verticalspeed > -0.1 and RadarAlt < 200) or hover {
         SteeringCorrections().
         if GfC and not offshoreDivert if landingzone:distance < 1500 set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
@@ -2156,8 +2163,8 @@ function Boostback {
         }
 
         set drawRoV to vecDraw(BoosterCore:position,RollVector,yellow,"RollVec",2,drawVecs,0.05).
-        if GfC and not offshoreDivert if landingzone:distance < 1500 set drawMZPos to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,up:vector,red,"RollVec",30,drawVecs,0.004).
-        if GfC and not offshoreDivert if landingzone:distance < 1500 set drawMZPos2 to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,-up:vector,red,"RollVec",30,drawVecs,0.004).
+        if GfC and not offshoreDivert and drawVecs if landingzone:distance < 1500 set drawMZPos to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,up:vector,red,"RollVec",30,drawVecs,0.004).
+        if GfC and not offshoreDivert and drawVecs if landingzone:distance < 1500 set drawMZPos2 to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,-up:vector,red,"RollVec",30,drawVecs,0.004).
 
         if config:ipu < 2000   set config:ipu to 2000.
         wait 0.05.
