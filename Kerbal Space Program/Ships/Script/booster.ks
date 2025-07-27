@@ -305,6 +305,7 @@ set offshoreDivert to false.
 set AllSet to false.
 set AllOnce to false.
 set fullAuto to false.
+set LZchange to false.
 
 set BBIgn to 98.
 set LBIgnC to 98.
