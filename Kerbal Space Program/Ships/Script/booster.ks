@@ -2009,7 +2009,7 @@ function Boostback {
             set LZchange to false.
             wait 0.
             addons:tr:settarget(landingzone).
-            when ErrorVector:mag > 1.1*BoosterHeight then set cAbort to true.
+            when MiddleEnginesShutdown then if ErrorVector:mag > 1.2*BoosterHeight set cAbort to true.
             if Vessel(TargetOLM):distance < 2240 and GfC {
                 PollUpdate().
                 set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).

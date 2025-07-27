@@ -11059,17 +11059,17 @@ function ReEntryAndLand {
         
         when altitude < 55000*Scale and airspeed > 304 then {
             set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
-            if not RSS or RadarAlt > 48000 {
+            if not RSS or RadarAlt > 55000 {
                 if LngLatErrorList[0] < 2500 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/300)^1.3,3.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
                 else set TRJCorrection to ((DistanceDamp)*(2*TRJCorFactor * min(((airspeed-300)/airspeed)^0.8,1) + TRJCorFactor * min(1/min((ErrorVector:mag/2300)^0.8,4),4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
             }
             else {
                 if ShipSubType:contains("Block2") {
-                    if LngLatErrorList[0] < -4000 set TRJCorrection to ((0.3 * 1/(min((ErrorVector:mag/8000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -8000 set TRJCorrection to ((0.3 * 1/(min((ErrorVector:mag/8000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < -1000 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -6000 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
             } 
@@ -11079,11 +11079,12 @@ function ReEntryAndLand {
         else when airspeed < 300 then set TRJCorrection to 0.6.
         
         set TimeTrue to true.
+        if KSRSS set sScale to 1.35. else set sScale to Scale.
         when altitude < 3000 and TimeTrue then {
             set TimeTrue to false.
             set TimeTrueTimer to time:seconds.
-            if ShipSubType:contains("Block2") set TRJCorrection to min(max( (4/(1+constant:e^(-0.08*LngLatErrorList[0]))) - 0.1*Scale ,-2.4),2.4).
-            else set TRJCorrection to min(max( (4/(1+constant:e^(-0.08*LngLatErrorList[0]))) - 1.4*Scale ,-2.4),2.4).
+            if ShipSubType:contains("Block2") set TRJCorrection to min(max( (3/(1+constant:e^(-0.08*LngLatErrorList[0]*(sScale/1.6)))) + 0.45*Scale ,-2.4),2.4).
+            else set TRJCorrection to min(max( (4/(1+constant:e^(-0.08*LngLatErrorList[0]*(sScale/1.6)))) - 1.4*Scale ,-2.4),2.4).
             if not LandingBurnStarted {
                 when time:seconds > TimeTrueTimer + 0.2 then set TimeTrue to true.
                 return true.
@@ -11670,7 +11671,7 @@ function ReEntryData {
                 set CatchVS to -0.35.
             }
             else {
-                set FlipAngleFactor to 0.7.
+                set FlipAngleFactor to 0.6.
                 set CatchVS to -0.4.
             }
             
@@ -11759,8 +11760,8 @@ function ReEntryData {
             if KSRSS {
                 set LandingFlipTime to 3.4.
             } else if RSS {
-                set LandingFlipTime to 5.5.
-                if ShipSubType:contains("Block2") set LandingFlipTime to 6.
+                set LandingFlipTime to 5.3.
+                if ShipSubType:contains("Block2") set LandingFlipTime to 5.8.
             }
             set maxDecel to 0.
             set maxG to 4.
@@ -11804,7 +11805,7 @@ function ReEntryData {
             }
             LogToFile("Landing Procedure started. Starting Landing Flip Now!").
             
-            when vang(-1 * velocity:surface, ship:facing:forevector) < FlipAngleFactor * FlipAngle then {
+            when vang(-velocity:surface, ship:facing:forevector) < FlipAngleFactor * FlipAngle then {
                 set config:ipu to CPUSPEED.
                 setflaps(60, 60, 1, 0).
                 rcs on.
