@@ -19,27 +19,9 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - **Using the (old) provided Craft Files you might have to change the Fuel levels back and forth one time in the VAB to prevent Fuel overload on first launch**
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
-- Booster might land in front of the tower, due to differrent possible descent trajectories with KSP
+- Booster might land in front of or in the tower, due to descent glitches or a not fully refined landing guidance
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
-
-## Demo Video:
-[![Demo Video](http://img.youtube.com/vi/w-loEI4gUKw/0.jpg)](http://www.youtube.com/watch?v=w-loEI4gUKw)
-
-## Installation:
-- **Download and install all requirements listed below.**
-- Download the latest release .zip
-- Extract the contents to a folder.
-- Move the contents of the _/Kerbal Space Program_ folder (_GameData_ and _Ships_ folders) into your /Kerbal Space Program folder (and overwrite if you are updating).
-
-- **You need to create a new craft file if the provided ones aren't what your looking for** ( [Tutorial](https://github.com/Nubro24/KSP_Starship-kOS-Interface/blob/main/HowToMakeACraftFile.md) )
-
-**Correct folder structure:**
-  - _Kerbal Space Program/GameData/StarshipInterface_    (location of the patch)
-  - _Kerbal Space Program/Ships/Script_                  (here the kOS scripts are saved)
-  - _Kerbal Space Program/Ships/VAB_                     (location of the .craft files)
-      - you can also move the .craft files you need directly to your main save
-        ( *_Kerbal Space Program/saves/<saveTitle>/Ships/VAB_* )
 
 
 ## Requirements:
@@ -69,6 +51,25 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - PEKKA's Starship Pack
 - Atmospheric Autopilot
 
+
+## Demo Video:
+[![Demo Video](http://img.youtube.com/vi/w-loEI4gUKw/0.jpg)](http://www.youtube.com/watch?v=w-loEI4gUKw)
+
+
+## Installation:
+- **Download and install all requirements listed below.**
+- Download the latest release .zip
+- Extract the contents to a folder.
+- Move the contents of the _/Kerbal Space Program_ folder (_GameData_ and _Ships_ folders) into your /Kerbal Space Program folder (and overwrite if you are updating).
+
+- **You need to create a new craft file if the provided ones aren't what your looking for** ( [Tutorial](https://github.com/Nubro24/KSP_Starship-kOS-Interface/blob/main/HowToMakeACraftFile.md) )
+
+**Correct folder structure:**
+  - _Kerbal Space Program/GameData/StarshipInterface_    (location of the patch)
+  - _Kerbal Space Program/Ships/Script_                  (here the kOS scripts are saved)
+  - _Kerbal Space Program/Ships/VAB_                     (location of the .craft files)
+      - you can also move the .craft files you need directly to your main save
+        ( *_Kerbal Space Program/saves/<saveTitle>/Ships/VAB_* )
 
 
 > [!IMPORTANT]
