@@ -2590,7 +2590,7 @@ function LandingGuidance {
     // === TVC compensation ===
     set steeringOffset to vAng(GuidVec,facing:forevector).
     set streamOffset to vAng(GuidVec,-velocity:surface).
-    set steerDamp to min((max((steeringOffset - 1) / 12, 0))^1.2, 1).
+    set steerDamp to min((max((steeringOffset - 1) / 10, 0))^1.4, 1).
     set lookUpDamp to min(0.6/max(RadarRatio,1),0.3).
 
     if not MiddleEnginesShutdown {  //13 Engine-Phase
@@ -2599,12 +2599,13 @@ function LandingGuidance {
         else set MidsteerDamp to min((max((streamOffset - 1) / 36, 0))^1.2, 0.6).
     }
     else if RadarRatio < 1 {         //Center Three
-        set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.2, 1).
+        set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1).
         set MidsteerDamp to min(vSpeed/20,0.15)*VelCancelFactor.
         set lookUpDamp to min(0.12/(RadarRatio) - 0.11,2).
     }
     else if time:seconds - ShutdownTime < 1.5 {
-        set MidsteerDamp to min((max((streamOffset - 1) / 45, 0))^1.3, 0.5).
+        set MidsteerDamp to min((max((streamOffset - 1) / 32, 0))^1.3, 0.5).
+        if vAng(PositionError,ErrorVector) > 90 set MidsteerDamp to MidsteerDamp * 2.
         set steerDamp to steerDamp * 5.
     }
     if steeringOffset > 5 set lookUpDamp to lookUpDamp + (steeringOffset/12)^4.
@@ -2621,7 +2622,7 @@ function LandingGuidance {
         set drawGuid to vecDraw(BoosterCore:position, GuidVec, grey, "Guid", 1, drawVecs, 0.2).
         set drawFin to vecDraw(BoosterCore:position, FinalVec, white, "Final", 24, drawVecs, 0.008).
     }
-    print round(gsTime,3).    print round(vertTime,3).    print round(closureRatio,3).      print round(RadarRatio,2).
+    print round(gsTime,3)+ " _ " +round(vertTime,3)+ " - " +round(closureRatio,3)+ " / " +round(RadarRatio,2).
 
     return lookDirUp(FinalVec, RollVector).
 }

@@ -7357,11 +7357,12 @@ function Launch {
                 SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
             }
             BoosterCore[0]:activate.
+            wait 1.
 
             until time:seconds - EngineStartTime > 3.8 or cancelconfirmed {
                 set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
                 set message1:text to "<b>Clamps Release in:   </b>" + round(-time:seconds + EngineStartTime + 4.2, 1) + "<b> seconds</b>".
-                lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 1.8) / 2.
+                lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 2.8) / 1.
                 
                 BackGroundUpdate().
             }
@@ -7642,7 +7643,7 @@ function Launch {
                     }
                 }
                 updateTelemetry().
-                wait 0.12.
+                wait 0.08.
                 
                 if BoosterSingleEngines {
                     set x to 1.
@@ -7652,7 +7653,7 @@ function Launch {
                     }
                 }
 
-                wait 0.12.
+                wait 0.08.
                 //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -7669,7 +7670,7 @@ function Launch {
                 set message3:text to "".
                 ShowHomePage().
                 updateTelemetry().
-                wait 0.12.
+                wait 0.08.
                 
                 if BoosterSingleEngines {
                     set x to 1.
@@ -7679,7 +7680,7 @@ function Launch {
                     }
                     for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
                 }
-                wait 0.12.
+                wait 0.08.
                 set CargoBeforeSeparation to CargoMass.
                 //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
                 //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
@@ -7693,7 +7694,7 @@ function Launch {
                     }
                 }
                 updateTelemetry().
-                wait 0.24.
+                wait 0.08.
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRC {
@@ -7701,9 +7702,9 @@ function Launch {
                         set x to x + 1.
                     }
                 }
-                wait 0.02.
+                wait 0.05.
                 set t to time:seconds.
-                until time:seconds > t + 2.5 {
+                until time:seconds > t + 2 {
                     clearscreen.
                     SendPing().
                     BackGroundUpdate().
@@ -7722,7 +7723,7 @@ function Launch {
                     }
                 }
                 set steeringManager:maxstoppingtime to 0.4.
-                until time:seconds > t + 2.93 {
+                until time:seconds > t + 2.42 {
                     clearscreen.
                     SendPing().
                     BackGroundUpdate().
@@ -8248,11 +8249,11 @@ Function LaunchSteering {
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
     else {
-        set ProgradeAngle to 90 - vang(velocity:surface, up:vector).
+        set ProgradeAngle to 90 - vang(velocity:surface, up:vector)*1.04.
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
-            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.88.
-            else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.82.
+            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.94.
+            else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.86.
         }
         if MaintainVS {
             if deltaV > 500*Scale {
@@ -11189,6 +11190,15 @@ function ReEntryAndLand {
         }
         
         if ship:body:atm:sealevelpressure > 0.5 {
+            if not (TargetOLM = "false") {
+                when Vessel(TargetOLM):distance < 1800 then {
+                    lock PositionError to vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position).
+                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
+                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
+                    when Vessel(TargetOLM):distance < 1300 then
+                        sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
+                }
+            }
             until RadarAlt < FlipAltitude or altitude - AvailableLandingSpots[4] < FlipAltitude or cancelconfirmed and not ClosingIsRunning or vAng(facing:forevector,up:vector) < 45 and RadarAlt < 3*FlipAltitude {
                 ReEntryData().
             }
@@ -11774,13 +11784,6 @@ function ReEntryData {
             set Hover to false.
             set Slow to false.
             if not (TargetOLM = "false") {
-                when Vessel(TargetOLM):distance < 1800 then {
-                    lock PositionError to vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position).
-                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
-                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
-                    when Vessel(TargetOLM):distance < 1300 then
-                        sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
-                }
                 when vAng(facing:forevector, up:vector) < 3 and Vessel(TargetOLM):distance < 2000 then {
                     HUDTEXT("Distance Check 1", 3, 2, 15, white, false).
                     if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag > 2.4*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Tank:position), LandingForwardDirection) < 90 {
@@ -12128,20 +12131,20 @@ function LandingVector {
                     }
                     else if vxcl(TowerRotationVector, ErrorVector):mag > 12 and not twoSL {
                         if ErrorVector:MAG > 15 * Scale and ship:groundspeed > 10 {
-                            set result to up:vector - 0.01 * vxcl(TowerRotationVector, ErrorVector) - 0.01 * GSVec - 0.005 * ErrorVector.
+                            set result to up:vector - 0.01 * GSVec - 0.01 * vxcl(TowerRotationVector, ErrorVector) - 0.005 * ErrorVector.
                         } else {
-                            set result to up:vector - 0.004 * GSVec - 0.013 * vxcl(TowerRotationVector, ErrorVector) - 0.004 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector).
+                            set result to up:vector - 0.004 * GSVec - 0.01 * vxcl(TowerRotationVector, ErrorVector) - 0.004 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) + 0.01 * vxcl(up:vector, landingzone:position - Nose:position).
                         }
                     } 
                     else if not twoSL { 
-                        set result to 1.4 * up:vector - 0.05 * GSVec - 0.011 * vxcl(TowerRotationVector, ErrorVector) - 0.006 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) + 0.01 * vxcl(up:vector, landingzone:position - Nose:position).
+                        set result to 1.4 * up:vector - 0.05 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.003 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) + 0.03 * vxcl(up:vector, landingzone:position - Nose:position).
                     } 
                     else {
                         if ErrorVector:MAG > 5 * Scale {
-                            set result to up:vector - 0.03 * GSVec - 0.008 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                             if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
+                            else set result to up:vector - 0.03 * GSVec - 0.007 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                         } else {
-                            set result to up:vector - 0.027 * GSVec - 0.022*facing:topvector.
+                            set result to up:vector - 0.027 * GSVec - 0.003 * vxcl(TowerRotationVector, ErrorVector) - 0.022*facing:topvector.
                         }
                         if oneSL {
                             if ErrorVector:MAG > 5 * Scale {
@@ -12411,25 +12414,25 @@ function LngLatError {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 4000 set LngLatOffset to -30.
-                        else set LngLatOffset to -14 - vxcl(up:vector, velocity:surface):mag*0.6.
+                        else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag*0.6.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 4000 set LngLatOffset to -18.
-                        else set LngLatOffset to -6 - vxcl(up:vector, velocity:surface):mag*0.6.
+                        else set LngLatOffset to -6 - vxcl(up:vector, velocity:surface):mag*0.5.
                     } else {
                         if RadarAlt > 4000 set LngLatOffset to -20.
-                        else set LngLatOffset to -8 - vxcl(up:vector, velocity:surface):mag*0.6.
+                        else set LngLatOffset to -8 - vxcl(up:vector, velocity:surface):mag*0.55.
                     }
                 }
                 else if KSRSS {
                     if ShipSubType:contains("Block2") {
-                        if RadarAlt > 5000 set LngLatOffset to -46.
-                        else set LngLatOffset to -32 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        if RadarAlt > 5000 set LngLatOffset to -42.
+                        else set LngLatOffset to -26 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else if ShipType:contains("Block1"){
-                        if RadarAlt > 5000 set LngLatOffset to -36.
-                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        if RadarAlt > 5000 set LngLatOffset to -32.
+                        else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else {
                         if RadarAlt > 5000 set LngLatOffset to -36.
-                        else set LngLatOffset to -22 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -15 - vxcl(up:vector, velocity:surface):mag*0.7.
                     }
                 }
                 else {
@@ -13655,9 +13658,9 @@ function LandAtOLM {
         set TargetOLM to false.
         if STOCK {
             if ShipType:contains("Block1") {
-                set FlipAltitude to 632.
+                set FlipAltitude to 636.
             } else {
-                set FlipAltitude to 620.
+                set FlipAltitude to 625.
             }
         }
         else if KSRSS {
@@ -15714,8 +15717,8 @@ function updateTelemetry {
             if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
                 set sAttitudeTw:style:overflow:top to 158*TScale - round((RadarAlt/ShipHeight)*158*TScale).
                 set sAttitudeTw:style:overflow:bottom to -158*TScale + round((RadarAlt/ShipHeight)*158*TScale).
-                set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 70*TScale.
-                set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 70*TScale.
+                set sAttitudeTw:style:overflow:left to PositionError:mag*170*TScale/ShipHeight - 20*TScale.
+                set sAttitudeTw:style:overflow:right to -PositionError:mag*170*TScale/ShipHeight + 20*TScale.
             } 
             else if not ShipLanded {
                 set sAttitudeTw:style:overflow:top to -50*TScale.
