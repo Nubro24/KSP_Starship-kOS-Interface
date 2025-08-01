@@ -920,6 +920,12 @@ on ag9 {
     return true.
 } 
 
+on ag8 {
+    if not BoostBackComplete set HSRJet to false.
+    set message0:text to message0:text + "   NoHSRjet".
+    return true.
+} 
+
 
 when time:seconds > TelemetryTimer + 0.05 then {
     GUIupdate().
@@ -2604,7 +2610,7 @@ function LandingGuidance {
         set lookUpDamp to min(0.12/(RadarRatio) - 0.11,2).
     }
     else if time:seconds - ShutdownTime < 1.5 {
-        set MidsteerDamp to min((max((streamOffset - 1) / 32, 0))^1.3, 0.5).
+        set MidsteerDamp to min((max((streamOffset - 1) / 36, 0))^1.4, 0.5).
         if vAng(PositionError,ErrorVector) > 90 set MidsteerDamp to MidsteerDamp * 2.
         set steerDamp to steerDamp * 5.
     }

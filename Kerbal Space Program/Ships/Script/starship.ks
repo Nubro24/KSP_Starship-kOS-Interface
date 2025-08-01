@@ -11036,12 +11036,12 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00001, 0, 0.0001, -25, 27 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.00001, 0, 0.00008, -15, 17 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
                 set PitchPID to PIDLOOP(0.00001, 0, 0.00005, -25, 27 - TRJCorrection).
-                set YawPID to PIDLOOP(0.00036, 0, 0.000001, -50, 50).
+                set YawPID to PIDLOOP(0.0005, 0, 0.000001, -50, 50).
             }
         }
         else if KSRSS {
@@ -11070,7 +11070,7 @@ function ReEntryAndLand {
                     else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < -6000 set TRJCorrection to ((-1.3 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -6000 set TRJCorrection to ((-1.15 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
             } 
@@ -11115,6 +11115,7 @@ function ReEntryAndLand {
                 }
 
                 when airspeed < 300 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 750 and ship:body:atm:sealevelpressure < 0.5 and KSRSS or airspeed < 2000 and ship:body:atm:sealevelpressure < 0.5 and RSS or airspeed < 450 and ship:body:atm:sealevelpressure < 0.5 and STOCK then {
+                    set FuelBalanceSpeed to FuelBalanceSpeed*0.65.
                     CheckLZReachable().
                     set t to time:seconds.
                     if ship:body:atm:sealevelpressure > 0.5 {
@@ -11661,7 +11662,7 @@ function ReEntryData {
 
 
         if LandButtonIsRunning and not LaunchButtonIsRunning and not cancelconfirmed {
-            set config:ipu to 1000.
+            set config:ipu to 2000.
             unlock throttle.
             rcs off.
             set steeringManager:maxstoppingtime to 2.
@@ -12438,13 +12439,13 @@ function LngLatError {
                 else {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 6000 set LngLatOffset to -148.
-                        else set LngLatOffset to -132 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -118 - vxcl(up:vector, velocity:surface):mag*0.85.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 6000 set LngLatOffset to -133.
-                        else set LngLatOffset to -114 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -100 - vxcl(up:vector, velocity:surface):mag*0.85.
                     } else {
                         if RadarAlt > 6000 set LngLatOffset to -124.
-                        else set LngLatOffset to -106 - vxcl(up:vector, velocity:surface):mag*0.7.
+                        else set LngLatOffset to -106 - vxcl(up:vector, velocity:surface):mag*0.8.
                     }
                 }
             }
@@ -15685,8 +15686,8 @@ function updateTelemetry {
             if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
                 set sAttitudeTw:style:overflow:top to 160*TScale - round((RadarAlt/ShipHeight)*160*TScale).
                 set sAttitudeTw:style:overflow:bottom to -160*TScale + round((RadarAlt/ShipHeight)*160*TScale).
-                set sAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/ShipHeight - 75*TScale.
-                set sAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/ShipHeight + 75*TScale.
+                set sAttitudeTw:style:overflow:left to PositionError:mag*170*TScale/ShipHeight + 20*TScale.
+                set sAttitudeTw:style:overflow:right to -PositionError:mag*170*TScale/ShipHeight - 20*TScale.
             } 
             else if not ShipLanded {
                 set sAttitudeTw:style:overflow:top to -50*TScale.
@@ -15717,8 +15718,8 @@ function updateTelemetry {
             if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
                 set sAttitudeTw:style:overflow:top to 158*TScale - round((RadarAlt/ShipHeight)*158*TScale).
                 set sAttitudeTw:style:overflow:bottom to -158*TScale + round((RadarAlt/ShipHeight)*158*TScale).
-                set sAttitudeTw:style:overflow:left to PositionError:mag*170*TScale/ShipHeight - 20*TScale.
-                set sAttitudeTw:style:overflow:right to -PositionError:mag*170*TScale/ShipHeight + 20*TScale.
+                set sAttitudeTw:style:overflow:left to PositionError:mag*170*TScale/ShipHeight + 20*TScale.
+                set sAttitudeTw:style:overflow:right to -PositionError:mag*170*TScale/ShipHeight - 20*TScale.
             } 
             else if not ShipLanded {
                 set sAttitudeTw:style:overflow:top to -50*TScale.
