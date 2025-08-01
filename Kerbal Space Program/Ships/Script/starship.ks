@@ -7516,7 +7516,7 @@ function Launch {
             else {
                 OLM:getmodule("LaunchClamp"):DoEvent("release clamp").
             }
-            if SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER"):length > 0 {
+            if SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER"):length > 0 or SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER"):length > 0 {
                 if BoosterEngines[0]:getmodule("ModuleDockingNode"):hasevent("undock") {
                     BoosterEngines[0]:getmodule("ModuleDockingNode"):doevent("undock").
                 }
@@ -11060,17 +11060,17 @@ function ReEntryAndLand {
         
         when altitude < 55000*Scale and airspeed > 304 then {
             set DistanceDamp to max(min(500/DistanceToTarget,1.2),0.2).
-            if not RSS or RadarAlt > 55000 {
+            if not RSS {
                 if LngLatErrorList[0] < 2500 set TRJCorrection to ((DistanceDamp)*(TRJCorFactor * min((ErrorVector:mag/300)^1.3,3.5) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
                 else set TRJCorrection to ((DistanceDamp)*(2*TRJCorFactor * min(((airspeed-300)/airspeed)^0.8,1) + TRJCorFactor * min(1/min((ErrorVector:mag/2300)^0.8,4),4) * min(((airspeed-300)/airspeed)^0.8,1)) + (2-DistanceDamp)*TRJCorrection)/2.
             }
             else {
                 if ShipSubType:contains("Block2") {
-                    if LngLatErrorList[0] < -8000 set TRJCorrection to ((0.3 * 1/(min((ErrorVector:mag/8000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -4000 set TRJCorrection to ((-0.3 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < -6000 set TRJCorrection to ((-1.15 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -2000 set TRJCorrection to ((-1.15 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
             } 
@@ -11116,7 +11116,6 @@ function ReEntryAndLand {
 
                 when airspeed < 300 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 750 and ship:body:atm:sealevelpressure < 0.5 and KSRSS or airspeed < 2000 and ship:body:atm:sealevelpressure < 0.5 and RSS or airspeed < 450 and ship:body:atm:sealevelpressure < 0.5 and STOCK then {
                     set FuelBalanceSpeed to FuelBalanceSpeed*0.65.
-                    CheckLZReachable().
                     set t to time:seconds.
                     if ship:body:atm:sealevelpressure > 0.5 {
                         setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
@@ -11169,6 +11168,8 @@ function ReEntryAndLand {
                         }
                     }
                     set runningprogram to "Final Approach".
+                    wait 0.1.
+                    CheckLZReachable().
                     LogToFile("Vehicle is Subsonic, precise steering activated").
                     when RadarAlt < 12000 then {
                         //InhibitButtons(1, 1, 1).
