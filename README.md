@@ -52,9 +52,10 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Atmospheric Autopilot
 
 
-## Demo Video:
+## Demo Videos:
 [![Demo Video](http://img.youtube.com/vi/w-loEI4gUKw/0.jpg)](http://www.youtube.com/watch?v=w-loEI4gUKw)
 
+[![Demo Video 2](http://img.youtube.com/vi/XFetKa4sLSM/0.jpg)](http://www.youtube.com/watch?v=XFetKa4sLSM)
 
 ## Installation:
 - **Download and install all requirements listed below.**
