@@ -50,6 +50,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Stage Recovery
 - PEKKA's Starship Pack
 - Atmospheric Autopilot
+- RSS Adapter
 
 
 ## Demo Videos:
