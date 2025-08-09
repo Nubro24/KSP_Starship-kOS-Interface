@@ -25,7 +25,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ## Requirements:
-- Stock-size Kerbin or Real Solar System or KSRSS or SigmaDimensions (2.5-2.7x)
+- **Stock**-size Kerbin or **Real Solar System** or KSRSS or SigmaDimensions (2.5-2.7x)
 - KSP language set to **English**
 - Starship Expansion Project - [github](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with beta6 (**Craft files only support beta5**)*
     - with ***all*** dependencies
