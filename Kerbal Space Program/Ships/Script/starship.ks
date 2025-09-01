@@ -6146,6 +6146,65 @@ set landbutton:ontoggle to {
                                     ShutDownAllEngines().
                                     ToggleHeaderTank(1).
                                     rcs off.
+
+                                    //Header Transfer EXPERIMENTAL
+                                    IRLFuelBalance().
+                                    function IRLFuelBalance {
+                                        hudtext("Experimental Fuel Vent",6,3,14,yellow,true).
+                                        wait 1.
+                                        for res in tank:resources {
+                                            if res:name = "Oxidizer" {
+                                                set RepositionOxidizer to TRANSFERALL("Oxidizer", Tank, HeaderTank).
+                                                set RepositionOxidizer:ACTIVE to TRUE.
+                                            }
+                                            if res:name = "LiquidFuel" {
+                                                set RepositionLF to TRANSFERALL("LiquidFuel", Tank, HeaderTank).
+                                                set RepositionLF:ACTIVE to TRUE.
+                                            }
+                                            if res:name = "LqdMethane" {
+                                                set RepositionLF to TRANSFERALL("LqdMethane", Tank, HeaderTank).
+                                                set RepositionLF:ACTIVE to TRUE.
+                                            }
+                                        }
+                                        until RepositionOxidizer:STATUS = "Finished" and RepositionLF:status = "Finished" {wait 0.2.}
+                                        for res in HeaderTank:resources {
+                                            if res:name = "Oxidizer" {
+                                                set res:enabled to false.
+                                            }
+                                            if res:name = "LiquidFuel" {
+                                                set res:enabled to false.
+                                            }
+                                            if res:name = "LqdMethane" {
+                                                set res:enabled to false.
+                                            }
+                                        }
+                                        set tankFuel to 999999.
+                                        set tankOx to 999999.
+                                        wait 0.4.
+                                        Tank:activate.
+                                        until tankFuel < 1 or tankOx < 1 {
+                                            for res in Tank:resources {
+                                                if res:name = "Oxidizer" set tankOx to res:amount.
+                                                if res:name = "LiquidFuel" set tankFuel to res:amount.
+                                                if res:name = "LqdMethane" set tankFuel to res:amount.
+                                                wait 0.2.
+                                            }
+                                        }
+                                        Tank:shutdown.
+                                        wait 0.4.
+                                        for res in HeaderTank:resources {
+                                            if res:name = "Oxidizer" {
+                                                set res:enabled to true.
+                                            }
+                                            if res:name = "LiquidFuel" {
+                                                set res:enabled to true.
+                                            }
+                                            if res:name = "LqdMethane" {
+                                                set res:enabled to true.
+                                            }
+                                        }
+                                    }
+
                                     LogToFile("Stop Venting").
                                     if kuniverse:timewarp:warp > 0 {
                                         set kuniverse:timewarp:warp to 0.
@@ -11070,7 +11129,7 @@ function ReEntryAndLand {
                     else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < -2000 set TRJCorrection to ((-1.15 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -2000 set TRJCorrection to ((-1.12 * (min((ErrorVector:mag/1400)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
             } 
