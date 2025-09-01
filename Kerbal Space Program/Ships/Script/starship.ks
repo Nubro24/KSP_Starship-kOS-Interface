@@ -6148,7 +6148,7 @@ set landbutton:ontoggle to {
                                     rcs off.
 
                                     //Header Transfer EXPERIMENTAL
-                                    IRLFuelBalance().
+                                    if RSS IRLFuelBalance().
                                     function IRLFuelBalance {
                                         hudtext("Experimental Fuel Vent",6,3,14,yellow,true).
                                         wait 1.
