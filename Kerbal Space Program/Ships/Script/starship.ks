@@ -6187,8 +6187,8 @@ set landbutton:ontoggle to {
                                                 if res:name = "Oxidizer" set tankOx to res:amount.
                                                 if res:name = "LiquidFuel" set tankFuel to res:amount.
                                                 if res:name = "LqdMethane" set tankFuel to res:amount.
-                                                wait 0.2.
                                             }
+                                            wait 0.2.
                                         }
                                         Tank:shutdown.
                                         wait 0.4.
