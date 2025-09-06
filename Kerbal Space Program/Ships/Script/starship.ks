@@ -106,8 +106,8 @@ set VCIgnCha to 99.
 set BBIgnCha to 98.
 set LB1IgnCha to 97.
 set LB2IgnCha to 98.
-set ifIgnCha to 0.05.
-set ifIgnCha2 to 0.3.
+set ifIgnCha to 0.04.
+set ifIgnCha2 to 0.2.
 
 
 local VersionDisplay is GUI(100).
@@ -8314,8 +8314,8 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector)*1.02.
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
-            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.94.
-            else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.86.
+            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.95.
+            else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.87.
         }
         if MaintainVS {
             if deltaV > 500*Scale {

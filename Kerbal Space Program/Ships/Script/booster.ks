@@ -727,12 +727,12 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 2240. 
-        else set BoosterGlideDistance to 2100. //1640 
+        else set BoosterGlideDistance to 1800. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
         set BoosterGlideFactor to 0.9.
         set VelCancelFactor to 1.
-        set LngCtrlPID:setpoint to 24. //84
+        set LngCtrlPID:setpoint to 26. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -1828,7 +1828,8 @@ function Boostback {
 
 
 
-    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*0.2*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    when alt:radar < 16000 and RSS or 14000 then lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.14 then { 
         if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.5*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError > 0 then {
@@ -2112,27 +2113,33 @@ function Boostback {
         }
 
         if BoosterSingleEngines {
-            set NrCounterEngine to 0.
+            set NrCounterEngine to list().
+            set NrMisEng to 0.
             if CounterEngine {
                 if BoosterSingleEnginesRC[0]:thrust < 60*Scale {
-                    if BoosterSingleEnginesRC[4]:thrust < 60*Scale set NrCounterEngine to 5.
-                    else set NrCounterEngine to 4.
+                    if BoosterSingleEnginesRC[4]:thrust < 60*Scale NrCounterEngine:add(5).
+                    else NrCounterEngine:add(4).
+                    set NrMisEng to NrMisEng+1.
+                    BoosterSingleEnginesRC[NrCounterEngine[NrMisEng-1]-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
                 }
                 if BoosterSingleEnginesRC[1]:thrust < 60*Scale {
-                    if BoosterSingleEnginesRC[7]:thrust < 60*Scale set NrCounterEngine to 8.
-                    else set NrCounterEngine to 7.
+                    if BoosterSingleEnginesRC[7]:thrust < 60*Scale NrCounterEngine:add(8).
+                    else NrCounterEngine:add(7).
+                    set NrMisEng to NrMisEng+1.
+                    BoosterSingleEnginesRC[NrCounterEngine[NrMisEng-1]-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
                 }
                 if BoosterSingleEnginesRC[2]:thrust < 60*Scale {
-                    if BoosterSingleEnginesRC[11]:thrust < 60*Scale set NrCounterEngine to 10.
-                    else set NrCounterEngine to 11.
+                    if BoosterSingleEnginesRC[11]:thrust < 60*Scale NrCounterEngine:add(10).
+                    else NrCounterEngine:add(11).
+                    set NrMisEng to NrMisEng+1.
+                    BoosterSingleEnginesRC[NrCounterEngine[NrMisEng-1]-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
                 }
-                BoosterSingleEnginesRC[NrCounterEngine-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
             }
             wait 0.
             set x to 1.
             for eng in BoosterSingleEnginesRC {
-                if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (x = NrCounterEngine and CounterEngine and not RSS) {} 
-                else if eng:hassuffix("activate") and x <> NrCounterEngine {
+                if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine and not RSS) {} 
+                else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
                     eng:shutdown.
                     set eng:gimbal:lock to true.
                     eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
@@ -2140,9 +2147,9 @@ function Boostback {
                 set x to x + 1.
             }
             set x to 1.
-            when time:seconds > ShutdownTime + 0.12 then for eng in BoosterSingleEnginesRC {
-                if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (x = NrCounterEngine and CounterEngine and not RSS) {}
-                else if eng:hassuffix("activate") and x <> NrCounterEngine {
+            when time:seconds > ShutdownTime + 0.08 then for eng in BoosterSingleEnginesRC {
+                if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine and not RSS) {}
+                else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
                     eng:shutdown.
                     set eng:gimbal:lock to true.
                     eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
@@ -2154,6 +2161,7 @@ function Boostback {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             MidGimbMod:doaction("lock gimbal", true).
         }
+        when airspeed < 10 then set EC to false.
     }
 
 
@@ -2197,7 +2205,7 @@ function Boostback {
                             BoosterSingleEnginesRC[10]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                         }
                     }
-        }
+        } 
 
         set drawRoV to vecDraw(BoosterCore:position,RollVector,yellow,"RollVec",2,drawVecs,0.05).
         if GfC and not offshoreDivert and drawVecs if landingzone:distance < 1500 set drawMZPos to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,up:vector,red,"RollVec",30,drawVecs,0.004).
@@ -2494,6 +2502,7 @@ FUNCTION SteeringCorrections {
             print "MZ Rotation: " + Round(BoosterRot,1).
             print "Ship Mass: " + round(ship:mass,3).
             print "Descent Angle: " + round(vang(-velocity:surface, up:vector), 1).
+            print "AoA: " + round(vAng(-velocity:surface,facing:forevector),1).
             print "GS: " + round(groundspeed,2).
             print " ".
             print "Dist.: " + round(landDistance,1) + "m     Ratio: " + round(distNorm,1).
@@ -2589,16 +2598,16 @@ function LandingGuidance {
     if RadarRatio > 0.05 {
         if not MiddleEnginesShutdown and velRatio < 2.2 set closureRatio to max(closureRatio,0.86).
         if RadarRatio < 1 set closureRatio to closureRatio^RadarRatio.
-        else if RadarRatio < 2 set closureRatio to closureRatio^0.9.
+        else if RadarRatio < 2 set closureRatio to closureRatio^0.95.
     }
     if closureRatio > 0.98 set closureRatio to closureRatio^0.5.
 
     // === Guidance ===
     if not MiddleEnginesShutdown {  //13 Engine-Phase
-        set PosError to PositionError:normalized * ((0.9/closureRatio)^2)*GSVec:mag.
+        set PosError to PositionError:normalized * ((0.87/closureRatio)^2)*GSVec:mag.
         set PosGuid to -min(closureRatio^2,2)*PosError.
         set ErrGuid to -min(closureRatio^2,2)*ErrorVector*min(velRatio/3,1)^2.
-        set VelGuid to -((0.94/closureRatio)^2)*GSVec.
+        set VelGuid to -((0.95/closureRatio)^2)*GSVec.
     }
     else {                          //Center Three
         if RadarRatio > 0.05 set GuidStrength to 42.
@@ -2631,7 +2640,7 @@ function LandingGuidance {
         set MidsteerDamp to min(vSpeed/20,0.15)*VelCancelFactor.
         set lookUpDamp to min(0.12/(RadarRatio) - 0.11,2).
     }
-    else if time:seconds - ShutdownTime < 1.5 {
+    else if time:seconds - ShutdownTime < 1.2 {
         set MidsteerDamp to min((max((streamOffset - 1) / 36, 0))^1.4, 0.5).
         if vAng(PositionError,ErrorVector) > 90 set MidsteerDamp to MidsteerDamp * 2.
         set steerDamp to steerDamp * 5.
@@ -3287,8 +3296,8 @@ function PollUpdate {
                 for eng in BoosterSingleEnginesRC {
                     if eng:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
                 }
-                if missingCount > 1 set GE to false.
-                else if inactiveCount > 2 set GE to false.
+                if missingCount > 1 and inactiveCount > 1 or missingCount > 2 set GE to false.
+                else if inactiveCount > 3 set GE to false.
                 else set GE to true.
                 if BoosterSingleEnginesRC[0]:thrust < 60*Scale or BoosterSingleEnginesRC[1]:thrust < 60*Scale or BoosterSingleEnginesRC[2]:thrust < 60*Scale set CounterEngine to true.
             } else if MiddleEnginesShutdown {
