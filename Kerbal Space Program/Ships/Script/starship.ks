@@ -7604,9 +7604,11 @@ function Launch {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
                 set steeringManager:yawtorquefactor to 0.15*Scale.
-                set steeringManager:rolltorquefactor to 3.2*Scale.
+                set steeringManager:rolltorquefactor to 3.3*Scale.
+                set SteeringManager:ROLLCONTROLANGLERANGE to 14.
+                if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") {
-                    if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
+                    if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
                     set LaunchRollVector to up:vector.
                 } 
                 if HSRJet {
@@ -7621,7 +7623,7 @@ function Launch {
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
                 if ShipSubType:contains("Block2") set LaunchRollVector to up:vector.
-                set steeringManager:rolltorquefactor to 42.
+                set steeringManager:rolltorquefactor to 5.
                 set Hotstaging to true.
                 if BoosterSingleEngines {
                     set x to 1.
@@ -8125,8 +8127,9 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
-            set steeringManager:pitchtorquefactor to 0.19*Scale.
-            set steeringManager:yawtorquefactor to 0.19*Scale.
+            set steeringManager:pitchtorquefactor to 0.14*Scale.
+            set steeringManager:yawtorquefactor to 0.14*Scale.
+            if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
             set Hotstaging to true.
         }
         else {
@@ -8249,7 +8252,7 @@ Function LaunchSteering {
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
     else {
-        set ProgradeAngle to 90 - vang(velocity:surface, up:vector)*1.04.
+        set ProgradeAngle to 90 - vang(velocity:surface, up:vector)*1.02.
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
             if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.94.
@@ -8499,8 +8502,8 @@ Function AbortLaunch {
         if Boosterconnected {
             if not BoosterSingleEngines BoosterEngines[0]:shutdown.
             else {
-                for eng in BoosterSingleEnginesRB eng:shutdown.
-                for eng in BoosterSingleEnginesRC eng:shutdown.
+                for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
+                for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:shutdown.
             }
             wait 0.1.
             HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
@@ -10937,6 +10940,7 @@ function ReEntryAndLand {
     if addons:tr:hasimpact {
         set LandButtonIsRunning to true.
         if fullAuto g:hide().
+        IgnitionChancesOpen:hide().
         set FindNewTarget to false.
         set LZsettoOLM to false.
         set tt to time:seconds.
@@ -11355,7 +11359,7 @@ function ReEntrySteering {
         print "MaxOutput: " + round(PitchPID:maxoutput, 2).
         print "YawCtrl: " + round(yawctrl, 2).
         print "TRJCorrection: " + round(TRJCorrection, 1).
-        print LngLatOffset.
+        print "LngLatOffset: " + round(LngLatOffset,1).
 
         if ship:body:atm:sealevelpressure < 0.5 {
             print " ".
@@ -12002,7 +12006,7 @@ function ClosingSpeed {
 
     set speed to min(max((angle/(currentSpeed/currentDec))*1.5,2),12).
 
-    if currentSpeed < 10 set speed to currentSpeed.
+    if currentSpeed > speed and speed < 3 set speed to currentSpeed.
 
     return round(speed,1).
 }
@@ -12142,7 +12146,7 @@ function LandingVector {
                         set result to 1.4 * up:vector - 0.05 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.003 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) + 0.03 * vxcl(up:vector, landingzone:position - Nose:position).
                     } 
                     else {
-                        if ErrorVector:MAG > 5 * Scale {
+                        if ErrorVector:MAG > 5 * Scale and RadarAlt > 5*Scale {
                             if RSS set result to up:vector - 0.034 * GSVec - 0.006 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                             else set result to up:vector - 0.03 * GSVec - 0.007 * vxcl(TowerRotationVector, ErrorVector) - 0.001 * vxcl(vCrs(TowerRotationVector, up:vector), ErrorVector) - 0.024*facing:topvector.
                         } else {
@@ -12206,6 +12210,10 @@ function LandingVector {
 
     set ShipRot to GetShipRotation().
     DetectWobblyTower().
+
+    set steeringOffset to vAng(facing:forevector, result).
+    set steeringDamp to min((max((steeringOffset - 1) / 20, 0))^1.2, 1.2).
+    set result to result*1.2 + facing:forevector * steeringDamp.
 
     wait 0.001.
     if TargetOLM and RadarAlt < 70 * Scale and not (LandSomewhereElse) {
@@ -15687,8 +15695,8 @@ function updateTelemetry {
             if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
                 set sAttitudeTw:style:overflow:top to 160*TScale - round((RadarAlt/ShipHeight)*160*TScale).
                 set sAttitudeTw:style:overflow:bottom to -160*TScale + round((RadarAlt/ShipHeight)*160*TScale).
-                set sAttitudeTw:style:overflow:left to PositionError:mag*170*TScale/ShipHeight + 20*TScale.
-                set sAttitudeTw:style:overflow:right to -PositionError:mag*170*TScale/ShipHeight - 20*TScale.
+                set sAttitudeTw:style:overflow:left to PositionError:mag*TScale/Scale - 20*TScale.
+                set sAttitudeTw:style:overflow:right to -PositionError:mag*TScale/Scale + 20*TScale.
             } 
             else if not ShipLanded {
                 set sAttitudeTw:style:overflow:top to -50*TScale.
@@ -15719,8 +15727,8 @@ function updateTelemetry {
             if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
                 set sAttitudeTw:style:overflow:top to 158*TScale - round((RadarAlt/ShipHeight)*158*TScale).
                 set sAttitudeTw:style:overflow:bottom to -158*TScale + round((RadarAlt/ShipHeight)*158*TScale).
-                set sAttitudeTw:style:overflow:left to PositionError:mag*170*TScale/ShipHeight + 20*TScale.
-                set sAttitudeTw:style:overflow:right to -PositionError:mag*170*TScale/ShipHeight - 20*TScale.
+                set sAttitudeTw:style:overflow:left to PositionError:mag*TScale/Scale - 20*TScale.
+                set sAttitudeTw:style:overflow:right to -PositionError:mag*TScale/Scale + 20*TScale.
             } 
             else if not ShipLanded {
                 set sAttitudeTw:style:overflow:top to -50*TScale.

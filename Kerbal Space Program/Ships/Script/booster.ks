@@ -922,7 +922,7 @@ on ag9 {
 
 on ag8 {
     if not BoostBackComplete set HSRJet to false.
-    set message0:text to message0:text + "   NoHSRjet".
+    set message0:text to message0:text + "  <size=10>NoHSRjet</size>".
     return true.
 } 
 
@@ -1221,16 +1221,16 @@ function Boostback {
                 set tEngStart to time:seconds.
                 if random() < BBIgn/100 if BoosterSingleEnginesRC[3]:hassuffix("activate") BoosterSingleEnginesRC[3]:activate.
                 if random() < BBIgn/100 if BoosterSingleEnginesRC[8]:hassuffix("activate") BoosterSingleEnginesRC[8]:activate.
-                when time:seconds - tEngStart > 0.2 then {
+                when time:seconds - tEngStart > 0.24 then {
                     if random() < BBIgn/100 if BoosterSingleEnginesRC[4]:hassuffix("activate") BoosterSingleEnginesRC[4]:activate.
                     if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[9]:hassuffix("activate") BoosterSingleEnginesRC[9]:activate.
-                    when time:seconds - tEngStart > 0.4 then {
+                    when time:seconds - tEngStart > 0.48 then {
                         if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[6]:hassuffix("activate") BoosterSingleEnginesRC[6]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRC[11]:hassuffix("activate") BoosterSingleEnginesRC[11]:activate.
-                        when time:seconds - tEngStart > 0.6 then {
+                        when time:seconds - tEngStart > 0.72 then {
                             if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[7]:hassuffix("activate") BoosterSingleEnginesRC[7]:activate.
                             if random() < BBIgn/100 if BoosterSingleEnginesRC[12]:hassuffix("activate") BoosterSingleEnginesRC[12]:activate.
-                            when time:seconds - tEngStart > 0.8 then {
+                            when time:seconds - tEngStart > 0.96 then {
                                 if random() < BBIgn/100 if BoosterSingleEnginesRC[5]:hassuffix("activate") BoosterSingleEnginesRC[5]:activate.
                                 if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[10]:hassuffix("activate") BoosterSingleEnginesRC[10]:activate.
                                 set EC to true.
@@ -1840,6 +1840,20 @@ function Boostback {
 
 
     lock steering to SteeringVector.
+
+    when RadarAlt < 24000 then {
+        set LngCtrlPID:setpoint to -LngCtrlPID:setpoint - 10*Scale.
+        when RadarAlt < 6400 then 
+            set LngCtrlPID:setpoint to -LngCtrlPID:setpoint + 15*Scale.
+    }
+
+    when RadarAlt < LandingBurnAlt * 1.1 then {
+        set s0ev to 0.
+        lock adev to 0.08.
+
+        lock SteeringVector to lookdirup(-0.44 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
+        lock steering to SteeringVector.
+    }
     
     set once to false.
     until alt:radar < LandingBurnAlt {
@@ -1917,17 +1931,13 @@ function Boostback {
         set LandingBurnStarted to true.
     }
 
-    set s0ev to 0.
-    lock adev to 0.04.
     if vAng(landingzone:position - BoosterCore:position, -up:vector) > 40 lock adev to velocity:surface:mag / 463.
     when vAng(ErrorVector,PositionError) < 90 then {
         set s0ev to 1.
         lock adev to velocity:surface:mag / 380.
     }
-    
+
     hudtext(throttle, 3, 2, 10, white, false).
-    lock SteeringVector to lookdirup(-0.44 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
-    lock steering to SteeringVector.
 
     when velocity:surface:mag < 250 or ErrorVector:mag < 0.5 * BoosterHeight or RadarAlt < 1000 then {
         set LandingVector to LandingGuidance().
@@ -2118,9 +2128,21 @@ function Boostback {
                 }
                 BoosterSingleEnginesRC[NrCounterEngine-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
             }
+            wait 0.
             set x to 1.
             for eng in BoosterSingleEnginesRC {
-                if x = 1 or x = 2 or x = 3 or (x = NrCounterEngine and CounterEngine and not RSS) {} else {
+                if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (x = NrCounterEngine and CounterEngine and not RSS) {} 
+                else if eng:hassuffix("activate") and x <> NrCounterEngine {
+                    eng:shutdown.
+                    set eng:gimbal:lock to true.
+                    eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                }
+                set x to x + 1.
+            }
+            set x to 1.
+            when time:seconds > ShutdownTime + 0.12 then for eng in BoosterSingleEnginesRC {
+                if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (x = NrCounterEngine and CounterEngine and not RSS) {}
+                else if eng:hassuffix("activate") and x <> NrCounterEngine {
                     eng:shutdown.
                     set eng:gimbal:lock to true.
                     eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
@@ -2596,7 +2618,7 @@ function LandingGuidance {
     // === TVC compensation ===
     set steeringOffset to vAng(GuidVec,facing:forevector).
     set streamOffset to vAng(GuidVec,-velocity:surface).
-    set steerDamp to min((max((steeringOffset - 1) / 10, 0))^1.4, 1).
+    set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set lookUpDamp to min(0.6/max(RadarRatio,1),0.3).
 
     if not MiddleEnginesShutdown {  //13 Engine-Phase
@@ -2605,7 +2627,7 @@ function LandingGuidance {
         else set MidsteerDamp to min((max((streamOffset - 1) / 36, 0))^1.2, 0.6).
     }
     else if RadarRatio < 1 {         //Center Three
-        set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1).
+        set steerDamp to min((max((steeringOffset - 1) / 9, 0))^1.4, 1).
         set MidsteerDamp to min(vSpeed/20,0.15)*VelCancelFactor.
         set lookUpDamp to min(0.12/(RadarRatio) - 0.11,2).
     }
@@ -2615,7 +2637,6 @@ function LandingGuidance {
         set steerDamp to steerDamp * 5.
     }
     if steeringOffset > 5 set lookUpDamp to lookUpDamp + (steeringOffset/12)^4.
-    set steerDamp to steerDamp*1.1.
     
     // === Final Vector ===
     set FinalVec to GuidVec:normalized + facing:forevector * steerDamp - velocity:surface:normalized * MidsteerDamp + up:vector * lookUpDamp.
