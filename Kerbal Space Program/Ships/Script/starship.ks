@@ -200,20 +200,6 @@ set sTelemetry:draggable to false.
 CreateTelemetry().
 
 function CreateTelemetry {
-    set sTelemetry:style:border:h to 10*TScale.
-    set sTelemetry:style:border:v to 10*TScale.
-    set sTelemetry:style:padding:v to 0.
-    set sTelemetry:style:padding:h to 0.
-    set sTelemetry:x to 0.
-    set sTelemetry:y to -220*TScale.
-
-    set bSpace:style:width to 860*TScale.
-
-    set missionTimeLabel:style:margin:left to 0.
-    set missionTimeLabel:style:margin:right to 120*TScale.
-    set missionTimeLabel:style:margin:top to 80*TScale.
-    set missionTimeLabel:style:width to 160*TScale.
-    set missionTimeLabel:style:fontsize to 42*TScale.
 
     set VersionDisplay:x to 0.
     set VersionDisplay:y to 36*TScale.
@@ -223,33 +209,50 @@ function CreateTelemetry {
     set IgnitionChancesOpen:x to 340*TScale.
     set IgnitionChancesOpen:y to 0.
 
-    set sAttitude:style:margin:left to 20*TScale.
-    set sAttitude:style:margin:right to 20*TScale.
-    set sAttitude:style:margin:top to 20*TScale.
-    set sAttitude:style:width to 180*TScale.
-    set sAttitude:style:height to 180*TScale.
+
+
+    set sTelemetry:style:border:h to 10*TScale.
+    set sTelemetry:style:border:v to 10*TScale.
+    set sTelemetry:style:padding:v to 0.
+    set sTelemetry:style:padding:h to 0.
+    set sTelemetry:x to 0.
+    set sTelemetry:y to -200*TScale.
+
+    set bSpace:style:width to 860*TScale.
+
+    set missionTimeLabel:style:margin:left to 0.
+    set missionTimeLabel:style:margin:right to 120*TScale.
+    set missionTimeLabel:style:margin:top to 80*TScale.
+    set missionTimeLabel:style:width to 160*TScale.
+    set missionTimeLabel:style:fontsize to 42*TScale.
+
+    set sAttitude:style:margin:left to 25*TScale.
+    set sAttitude:style:margin:right to 25*TScale.
+    set sAttitude:style:margin:top to 15*TScale.
+    set sAttitude:style:width to 170*TScale.
+    set sAttitude:style:height to 170*TScale.
 
     set sAttitudeTw:style:margin:left to 20*TScale.
     set sAttitudeTw:style:margin:right to 20*TScale.
-    set sAttitudeTw:style:width to 180*TScale.
-    set sAttitudeTw:style:height to 217*TScale.
+    set sAttitudeTw:style:width to 170*TScale.
+    set sAttitudeTw:style:height to 205*TScale.
     set sAttitudeTw:style:overflow:top to -50*TScale.
     set sAttitudeTw:style:overflow:bottom to 50*TScale.
 
     set sSpeed:style:margin:left to 43*TScale.
-    set sSpeed:style:margin:top to 20*TScale.
+    set sSpeed:style:margin:top to 18*TScale.
     set sSpeed:style:width to 296*TScale.
-    set sSpeed:style:fontsize to 30*TScale.
+    set sSpeed:style:fontsize to 28*TScale.
 
     set sAltitude:style:margin:left to 45*TScale.
     set sAltitude:style:margin:top to 2*TScale.
     set sAltitude:style:width to 296*TScale.
-    set sAltitude:style:fontsize to 30*TScale.
+    set sAltitude:style:fontsize to 28*TScale.
 
     set sLOXLabel:style:margin:left to 50*TScale.
     set sLOXLabel:style:margin:top to 10*TScale.
     set sLOXLabel:style:width to 60*TScale.
-    set sLOXLabel:style:fontsize to 20*TScale.
+    set sLOXLabel:style:fontsize to 18*TScale.
 
     set sLOXBorder:style:margin:left to 0*TScale.
     set sLOXBorder:style:margin:top to 19*TScale.
@@ -283,7 +286,7 @@ function CreateTelemetry {
     set sCH4Label:style:margin:left to 50*TScale.
     set sCH4Label:style:margin:top to 4*TScale.
     set sCH4Label:style:width to 60*TScale.
-    set sCH4Label:style:fontsize to 20*TScale.
+    set sCH4Label:style:fontsize to 18*TScale.
 
     set sCH4Border:style:margin:left to 0*TScale.
     set sCH4Border:style:margin:top to 12*TScale.
@@ -315,15 +318,15 @@ function CreateTelemetry {
     set sCH4Number:style:overflow:bottom to 0*TScale.
 
     set sThrust:style:margin:left to 45*TScale.
-    set sThrust:style:margin:top to 15*TScale.
+    set sThrust:style:margin:top to 12*TScale.
     set sThrust:style:width to 150*TScale.
-    set sThrust:style:fontsize to 16*TScale.
+    set sThrust:style:fontsize to 14*TScale.
 
     set sEngines:style:width to 180*TScale.
     set sEngines:style:height to 180*TScale.
-    set sEngines:style:margin:top to 20*TScale.
-    set sEngines:style:margin:left to 25*TScale.
-    set sEngines:style:margin:right to 5*TScale.
+    set sEngines:style:margin:top to 12*TScale.
+    set sEngines:style:margin:left to 22*TScale.
+    set sEngines:style:margin:right to 10*TScale.
     set sEngines:style:margin:bottom to 20*TScale.
 
 }
@@ -414,7 +417,9 @@ else {
     set FARValue to 0.
 }
 set aoa to 60.
-if RSS set aoa to 58.
+if RSS set aoa to 58.2.
+set currentAoA to aoa.
+
 set BoosterAp to 35000.
 
 set config:obeyhideui to false.
@@ -424,7 +429,7 @@ set config:obeyhideui to false.
 
 
 if RSS {         // Real Solar System
-    set LandingAoA to 77.
+    set LandingAoA to 79.
     set MaxCargoToOrbit to 75000.
     set MaxReEntryCargoThickAtmo to 4500.
     set MaxIU to 200.
@@ -437,7 +442,7 @@ if RSS {         // Real Solar System
     set LaunchSites to lexicon("Launch Site", "28.549072,-80.655925").
     set DefaultLaunchSite to "28.549072,-80.655925".
     set LSCoords to ("28.549072,-80.655925").
-    set FuelVentCutOffValue to 3000.
+    set FuelVentCutOffValue to 2750.
     set FuelBalanceSpeed to 180.
     set RollVector to heading(270,0):vector.
     set SafeAltOverLZ to 10000.  // Defines the Safe Altitude it should reach over the landing zone during landing on a moon.
@@ -11013,6 +11018,7 @@ function LandwithoutAtmoLabels {
 
 function ReEntryAndLand {
     if addons:tr:hasimpact {
+        if ShipSubType:contains("Block2") set aoa to 59.
         set LandButtonIsRunning to true.
         if fullAuto g:hide().
         IgnitionChancesOpen:hide().
@@ -11149,8 +11155,8 @@ function ReEntryAndLand {
             }
             else {
                 if ShipSubType:contains("Block2") {
-                    if LngLatErrorList[0] < -4000 set TRJCorrection to ((-0.3 * (min((ErrorVector:mag/2000)^0.8,5)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
-                    else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -2000 set TRJCorrection to ((-0.3 * (min((ErrorVector:mag/1400)^0.8,12)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    else set TRJCorrection to ((0.4 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
                 else {
                     if LngLatErrorList[0] < -2000 set TRJCorrection to ((-1.14 * (min((ErrorVector:mag/1400)^0.8,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
@@ -11159,7 +11165,7 @@ function ReEntryAndLand {
             } 
             return true.
         }
-        if ShipSubType:contains("Block2") when airspeed < 300 then set TRJCorrection to 1.9/Scale.
+        if ShipSubType:contains("Block2") when airspeed < 300 then set TRJCorrection to 1.9.
         else when airspeed < 300 then set TRJCorrection to 0.6.
         
         set TimeTrue to true.
@@ -11196,27 +11202,27 @@ function ReEntryAndLand {
                         set aoa to LandingAoA.
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
-                            set PitchPID:kp to 0.02.
-                            set PitchPID:ki to 0.004.
-                            set PitchPID:kd to 0.025.
+                            set PitchPID:kp to 0.002.
+                            set PitchPID:ki to 0.0004.
+                            set PitchPID:kd to 0.0024.
                             set YawPID:kp to 0.024.
                             set YawPID:ki to 0.0025.
                             set YawPID:kd to 0.01.
                             set maxDeltaV to 450.
                         }
                         else if KSRSS {
-                            set PitchPID:kp to 0.01. //0.25
-                            set PitchPID:ki to 0.002. //0.0225
-                            set PitchPID:kd to 0.005. //0.03
+                            set PitchPID:kp to 0.001. //0.25
+                            set PitchPID:ki to 0.0002. //0.0225
+                            set PitchPID:kd to 0.0005. //0.03
                             set YawPID:kp to 0.02. //0.1
                             set YawPID:ki to 0.025. //0.75
                             set YawPID:kd to 0.012. //0.25
                             set maxDeltaV to 440.
                         }
                         else {
-                            set PitchPID:kp to 0.008. //0.03
-                            set PitchPID:ki to 0.001. //0.035
-                            set PitchPID:kd to 0.003. //0.028
+                            set PitchPID:kp to 0.0008. //0.03
+                            set PitchPID:ki to 0.0001. //0.035
+                            set PitchPID:kd to 0.0003. //0.028
                             set YawPID:kp to 0.01. //0.1
                             set YawPID:ki to 0.025. //0.075
                             set YawPID:kd to 0.015. //0.025
@@ -11244,7 +11250,7 @@ function ReEntryAndLand {
                     set runningprogram to "Final Approach".
                     wait 0.1.
                     set below300Time to time:seconds.
-                    when time:seconds > below300Time + 2 then CheckLZReachable().
+                    when time:seconds > below300Time + 1.2 then CheckLZReachable().
                     LogToFile("Vehicle is Subsonic, precise steering activated").
                     when RadarAlt < 12000 then {
                         //InhibitButtons(1, 1, 1).
@@ -11371,6 +11377,7 @@ function ReEntrySteering {
 
         set pitchctrl to -PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]).
         set yawctrl to YawPID:UPDATE(TIME:SECONDS, LngLatErrorList[1]).
+        if RSS set yawctrl to yawctrl * 1.1.
         if RadarAlt > 5000 {
             set SRFPRGD to srfprograde.
         }
@@ -11393,12 +11400,12 @@ function ReEntrySteering {
             set facingDamp to max(steeringOffset,0.2).
             set steeringDamp to max(-steeringOffset+0.5,0).
         }
-        if vAng(facing:forevector, srfprograde:vector) < 40 and altitude > 11000*Scale {
+        if vAng(facing:forevector, srfprograde:vector) < 40 and altitude > 11000*Scale and altitude < 58000*Scale {
             set facingDamp to 0.1. 
             set steeringDamp to 1.
             set preventDamp to 1.5.
         }
-        else if vAng(facing:forevector, srfprograde:vector) > 135 and altitude > 11000*Scale {
+        else if vAng(facing:forevector, srfprograde:vector) > 135 and altitude > 11000*Scale and altitude < 58000*Scale {
             set facingDamp to 0.1. 
             set steeringDamp to 1.
             set preventDamp to -1.5.
@@ -11501,9 +11508,9 @@ function ReEntryData {
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 80).
         }
         else {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).}
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 30).}
             if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 30).
             }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
         }
@@ -11532,6 +11539,7 @@ function ReEntryData {
         if time:seconds > t + 4 {
             set PitchInput to SLEngines[0]:gimbal:pitchangle.
             set t to time:seconds.
+            if altitude < 0.75 * ship:body:atm:height set currentAoA to 0.8*aoa + 0.2*vAng(facing:forevector,-velocity:surface).
             if PitchInputOld > 6 and PitchInput > 6 {
                 set FWDFlapDefault to max(min(75 - (PitchInput * 20 / Scale),85),55).
                 set AFTFlapDefault to max(min(70 + (PitchInput * 20 / Scale),80),50).
@@ -11570,7 +11578,7 @@ function ReEntryData {
                             if res:amount < abs(FuelBalanceSpeed * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "Oxidizer" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) and res:amount < res:capacity*0.8 {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) and res:amount < res:capacity*0.1 {}
                                     else {
                                         set RebalanceCoGox to TRANSFER("Oxidizer", HeaderTank, Tank, abs(FuelBalanceSpeed * 0.7*PitchInput)).
                                     }
@@ -11581,7 +11589,7 @@ function ReEntryData {
                             if res:amount < abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "LiquidFuel" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) and res:amount < res:capacity*0.8 {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) and res:amount < res:capacity*0.1 {}
                                     else {
                                         set RebalanceCoGlf to TRANSFER("LiquidFuel", HeaderTank, Tank, abs(FuelBalanceSpeed/(11/9) * 0.7*PitchInput)).
                                     }
@@ -11592,7 +11600,7 @@ function ReEntryData {
                             if res:amount < abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
                             for res in Tank:resources {
                                 if res:name = "LqdMethane" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) and res:amount < res:capacity*0.8 {}
+                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) and res:amount < res:capacity*0.1 {}
                                     else {
                                         set RebalanceCoGlf to TRANSFER("LqdMethane", HeaderTank, Tank, abs(FuelBalanceSpeed/(1/3) * 0.7*PitchInput)).
                                     }
@@ -11609,7 +11617,7 @@ function ReEntryData {
                                 if res:name = "Oxidizer" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) {}
                                     else {
-                                        set RebalanceCoGox to TRANSFER("Oxidizer", Tank, HeaderTank, abs(FuelBalanceSpeed * 0.8*PitchInput)).
+                                        set RebalanceCoGox to TRANSFER("Oxidizer", Tank, HeaderTank, abs(FuelBalanceSpeed * 0.85*PitchInput)).
                                     }
                                 }
                             }
@@ -11620,7 +11628,7 @@ function ReEntryData {
                                 if res:name = "LiquidFuel" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
                                     else {
-                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", Tank, HeaderTank, abs(FuelBalanceSpeed/(11/9) * 0.8*PitchInput)).
+                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", Tank, HeaderTank, abs(FuelBalanceSpeed/(11/9) * 0.85*PitchInput)).
                                     }
                                 }
                             }
@@ -11631,7 +11639,7 @@ function ReEntryData {
                                 if res:name = "LqdMethane" {
                                     if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
                                     else {
-                                        set RebalanceCoGlf to TRANSFER("LqdMethane", Tank, HeaderTank, abs(FuelBalanceSpeed/(1/3) * 0.8*PitchInput)).
+                                        set RebalanceCoGlf to TRANSFER("LqdMethane", Tank, HeaderTank, abs(FuelBalanceSpeed/(1/3) * 0.85*PitchInput)).
                                     }
                                 }
                             }
@@ -11654,7 +11662,7 @@ function ReEntryData {
     }
     set LatDistanceToTarget to max(landingzone:lat - ship:geoposition:lat, ship:geoposition:lat - landingzone:lat) * Planet1Degree.
     if LatDistanceToTarget < 0 {set LatDistanceToTarget to -1 * LatDistanceToTarget.}
-    print(LngDistanceToTarget).
+    //print(LngDistanceToTarget).
     set DistanceToTarget to sqrt(LngDistanceToTarget * LngDistanceToTarget + LatDistanceToTarget * LatDistanceToTarget).
 
     if not ClosingIsRunning {
@@ -11789,7 +11797,10 @@ function ReEntryData {
 
             if ship:body:atm:sealevelpressure > 0.5 and airspeed < 130 {
                 Tank:shutdown.
-                //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
+                if not (TargetOLM = "False") when Vessel(TargetOLM):distance < 2000 then {
+                    sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,26,80,true")).
+                    sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
+                }
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
@@ -11819,8 +11830,10 @@ function ReEntryData {
             } 
             else if ship:body:atm:sealevelpressure > 0.5 and airspeed > 130 {
                 Tank:shutdown.
-                if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").}
-                //if not (TargetOLM = "False") {sendMessage(Vessel(TargetOLM), "RetractMechazillaRails").}
+                if not (TargetOLM = "False") when Vessel(TargetOLM):distance < 2000 then {
+                    sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,26,80,true")).
+                    sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
+                }
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
@@ -12002,7 +12015,7 @@ function ReEntryData {
                 }
             }
 
-            until verticalspeed > CatchVS and RadarAlt < 15 * Scale and ship:groundspeed < 1 {
+            until verticalspeed > CatchVS and RadarAlt < 15 * Scale and ship:groundspeed < 2 {
                 SendPing().
                 if config:ipu < 1300 set config:ipu to 1400.
                 if ship:body:atm:sealevelpressure > 0.5 {
@@ -12035,12 +12048,13 @@ function ReEntryData {
             if not (TargetOLM = "False") {
                 wait 0.001.
                 set t to time:seconds.
-                until time:seconds > t + 8 or (ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.01 or RadarAlt < -1 {
+                until time:seconds > t + 8 or (ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.01 or RadarAlt < -1 or ShipLanded {
                     SendPing().
                     BackGroundUpdate().
                     print "slowly lowering down ship..".
                     rcs on.
-                    wait 0.01.
+                    if alt:radar < 2 and verticalSpeed > -0.1 set ShipLanded to true.
+                    wait 0.04.
                 }
                 set LngLatErrorList to LngLatError().
                 wait 1.
@@ -15895,7 +15909,8 @@ function updateTelemetry {
     set sEngines:style:bg to picPath.
 
     
-    set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
+    if shipSpeed < 9999 set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
+    else set sSpeed:text to "<b><size=24>SPEED</size>       </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
     if shipAltitude > 99999 {
         set sAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(shipAltitude/1000) + " <size=24>KM</size>".
     } else if shipAltitude > 999 {

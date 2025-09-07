@@ -73,6 +73,7 @@ set ErrorVector to V(0, 0, 0).
 set oldBooster to false.
 set Frost to false.
 set RandomFlip to false.
+set GoForCatch to false.
 
 set GFset to false.
 set ECset to false.
@@ -548,9 +549,9 @@ function CreateTelemetry {
     set bTelemetry:style:padding:h to 0.
     set bTelemetry:x to 0.
     set bTelemetry:y to 0.
-    set bTelemetry:y to -220*TScale.
+    set bTelemetry:y to -200*TScale.
     
-    set GDlamp:style:margin:top to 200*TScale.
+    set GDlamp:style:margin:top to 170*TScale.
     set GDlamp:style:margin:left to 0.
     set GDlamp:style:width to 0.
     set GDlamp:style:height to 0.
@@ -560,39 +561,39 @@ function CreateTelemetry {
     set GDlamp:style:overflow:bottom to -25*TScale.
 
     set overflow to 0.
-    set EngBG:style:width to floor(200*TScale).
-    set EngBG:style:height to floor(200*TScale).
-    set EngBG:style:margin:top to ceiling(15*TScale).
+    set EngBG:style:width to floor(170*TScale).
+    set EngBG:style:height to floor(170*TScale).
+    set EngBG:style:margin:top to ceiling(14*TScale).
     set EngBG:style:margin:left to 19*TScale.
-    set EngBG:style:margin:right to ceiling(21*TScale).
+    set EngBG:style:margin:right to ceiling(20*TScale).
     set EngBG:style:overflow:top to overflow.
     set EngBG:style:overflow:bottom to -overflow.
-    set overflow to overflow + floor(215*TScale).
+    set overflow to overflow + floor(184*TScale).
     for engLbl in EngClusterDisplay {
-        set engLbl:style:width to floor(200*TScale).
-        set engLbl:style:height to floor(200*TScale).
-        set engLbl:style:margin:top to ceiling(15*TScale).
+        set engLbl:style:width to floor(170*TScale).
+        set engLbl:style:height to floor(170*TScale).
+        set engLbl:style:margin:top to ceiling(14*TScale).
         set engLbl:style:margin:left to 19*TScale.
-        set engLbl:style:margin:right to ceiling(21*TScale).
+        set engLbl:style:margin:right to ceiling(20*TScale).
         set engLbl:style:overflow:top to overflow.
         set engLbl:style:overflow:bottom to -overflow.
-        set overflow to overflow + floor(215*TScale).
+        set overflow to overflow + floor(184*TScale).
     }
 
     set bSpeed:style:margin:left to 10*TScale.
-    set bSpeed:style:margin:top to 20*TScale.
+    set bSpeed:style:margin:top to 18*TScale.
     set bSpeed:style:width to 296*TScale.
-    set bSpeed:style:fontsize to 30*TScale.
+    set bSpeed:style:fontsize to 28*TScale.
 
     set bAltitude:style:margin:left to 10*TScale.
     set bAltitude:style:margin:top to 2*TScale.
     set bAltitude:style:width to 296*TScale.
-    set bAltitude:style:fontsize to 30*TScale.
+    set bAltitude:style:fontsize to 28*TScale.
 
     set bLOXLabel:style:margin:left to 15*TScale.
     set bLOXLabel:style:margin:top to 10*TScale.
     set bLOXLabel:style:width to 60*TScale.
-    set bLOXLabel:style:fontsize to 20*TScale.
+    set bLOXLabel:style:fontsize to 18*TScale.
 
     set bLOXBorder:style:margin:left to 0*TScale.
     set bLOXBorder:style:margin:top to 19*TScale.
@@ -626,7 +627,7 @@ function CreateTelemetry {
     set bCH4Label:style:margin:left to 15*TScale.
     set bCH4Label:style:margin:top to 4*TScale.
     set bCH4Label:style:width to 60*TScale.
-    set bCH4Label:style:fontsize to 20*TScale.
+    set bCH4Label:style:fontsize to 18*TScale.
 
     set bCH4Border:style:margin:left to 0*TScale.
     set bCH4Border:style:margin:top to 13*TScale.
@@ -659,25 +660,25 @@ function CreateTelemetry {
 
      set bThrust:style:wordwrap to false.
      set bThrust:style:margin:left to 10*TScale.
-     set bThrust:style:margin:top to 15*TScale.
+     set bThrust:style:margin:top to 12*TScale.
      set bThrust:style:width to 150*TScale.
-     set bThrust:style:fontsize to 16*TScale.
+     set bThrust:style:fontsize to 14*TScale.
 
     set bAttitude:style:margin:left to 20*TScale.
     set bAttitude:style:margin:right to 20*TScale.
-    set bAttitude:style:width to 180*TScale.
-    set bAttitude:style:height to 180*TScale.
-    set bAttitude:style:margin:top to 20*TScale.
+    set bAttitude:style:width to 170*TScale.
+    set bAttitude:style:height to 170*TScale.
+    set bAttitude:style:margin:top to 15*TScale.
 
     set bAttitudeTw:style:margin:left to 20*TScale.
     set bAttitudeTw:style:margin:right to 20*TScale.
-    set bAttitudeTw:style:width to 180*TScale.
-    set bAttitudeTw:style:height to 217*TScale.
+    set bAttitudeTw:style:width to 170*TScale.
+    set bAttitudeTw:style:height to 205*TScale.
     set bAttitudeTw:style:overflow:top to -50*TScale.
     set bAttitudeTw:style:overflow:bottom to 50*TScale.
 
     set missionTimeLabel:style:wordwrap to false.
-    set missionTimeLabel:style:margin:left to 100*TScale.
+    set missionTimeLabel:style:margin:left to 140*TScale.
     set missionTimeLabel:style:margin:right to 160*TScale.
     set missionTimeLabel:style:margin:top to 80*TScale.
     set missionTimeLabel:style:width to 160*TScale.
@@ -727,12 +728,12 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 2240. 
-        else set BoosterGlideDistance to 1800. //1640 
+        else set BoosterGlideDistance to 2200. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
-        set BoosterGlideFactor to 0.9.
+        set BoosterGlideFactor to 1.
         set VelCancelFactor to 1.
-        set LngCtrlPID:setpoint to 26. //84
+        set LngCtrlPID:setpoint to 36. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -1804,7 +1805,7 @@ function Boostback {
 
     BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     if not cAbort {
-        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     } else {
         lock SteeringVector to lookdirup((ErrorVector:normalized + 1.2*up:vector:normalized), ApproachVector * AngleAxis(2 * LatCtrl, -up:vector)).
     }
@@ -1828,7 +1829,7 @@ function Boostback {
 
 
 
-    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*0.2*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*0.5*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when alt:radar < 16000 and RSS or 14000 then lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.14 then { 
         if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.5*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
@@ -1923,12 +1924,15 @@ function Boostback {
                 }
                 when time:seconds - LandingBurnTime > 0.8 then
                     set LandingBurnEC to true.
+                set GoForCatch to true.
             }
         }
     }
     else {
-        when time:seconds - LandingBurnTime > 0.3 then
+        when time:seconds - LandingBurnTime > 0.3 then {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+            set GoForCatch to true.
+        }
         set LandingBurnStarted to true.
     }
 
@@ -1955,6 +1959,7 @@ function Boostback {
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
     when cAbort then {
+        set GoForCatch to false.
         if not BoosterLanded and RadarAlt > 5 {
             HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
             set abortTime to time:seconds.
@@ -2607,7 +2612,8 @@ function LandingGuidance {
         set PosError to PositionError:normalized * ((0.87/closureRatio)^2)*GSVec:mag.
         set PosGuid to -min(closureRatio^2,2)*PosError.
         set ErrGuid to -min(closureRatio^2,2)*ErrorVector*min(velRatio/3,1)^2.
-        set VelGuid to -((0.95/closureRatio)^2)*GSVec.
+        if GoForCatch set VelGuid to -((0.91/closureRatio)^2)*GSVec.
+        else set VelGuid to -((0.98/closureRatio)^2)*GSVec.
     }
     else {                          //Center Three
         if RadarRatio > 0.05 set GuidStrength to 42.
@@ -2615,7 +2621,7 @@ function LandingGuidance {
 
         set cancel to max(min(1/(RadarRatio^0.7),2),1).
         set Velclosure to max(min(RadarRatio,1),0.7)*((0.95/closureRatio)^3).
-        set Posclosure to max(min(0.25*RadarRatio+0.6,1),0.65)*min(closureRatio^2,1.5).
+        set Posclosure to max(min(0.25*RadarRatio+0.6,1),0.65)*min((closureRatio+0.03)^4,1.5).
         set Errclosure to min(closureRatio^3,2)*((vAng(ErrorVector,PositionError)/90)^0.2).
 
         set ErrGuid to -Errclosure*ErrorVector.
