@@ -424,7 +424,7 @@ set config:obeyhideui to false.
 
 
 if RSS {         // Real Solar System
-    set LandingAoA to 80.
+    set LandingAoA to 77.
     set MaxCargoToOrbit to 75000.
     set MaxReEntryCargoThickAtmo to 4500.
     set MaxIU to 200.
@@ -6146,9 +6146,26 @@ set landbutton:ontoggle to {
                                     ShutDownAllEngines().
                                     ToggleHeaderTank(1).
                                     rcs off.
+                                    LogToFile("Stop Venting").
+                                    if kuniverse:timewarp:warp > 0 {
+                                        set kuniverse:timewarp:warp to 0.
+                                        until kuniverse:timewarp:warp = 0 {}
+                                        wait 1.
+                                    }
+                                    HideEngineToggles(0).
+                                    set message1:text to "".
+                                    set message2:text to "".
+                                    set message3:text to "".
+                                    if cancelconfirmed {
+                                        ShutDownAllEngines().
+                                        HideEngineToggles(0).
+                                        LogToFile("Venting stopped by user").
+                                        set runningprogram to "None".
+                                        ClearInterfaceAndSteering().
+                                    }
 
                                     //Header Transfer EXPERIMENTAL
-                                    if RSS IRLFuelBalance().
+                                    //if RSS IRLFuelBalance().
                                     function IRLFuelBalance {
                                         hudtext("Experimental Fuel Vent",6,3,14,yellow,true).
                                         wait 1.
@@ -6182,12 +6199,8 @@ set landbutton:ontoggle to {
                                         set tankOx to 999999.
                                         wait 0.4.
                                         Tank:activate.
-                                        until tankFuel < 1 or tankOx < 1 {
-                                            for res in Tank:resources {
-                                                if res:name = "Oxidizer" set tankOx to res:amount.
-                                                if res:name = "LiquidFuel" set tankFuel to res:amount.
-                                                if res:name = "LqdMethane" set tankFuel to res:amount.
-                                            }
+                                        until ShipFuelAmount < 10 or ShipLoxAmount < 10 {
+                                            BackGroundUpdate().
                                             wait 0.2.
                                         }
                                         Tank:shutdown.
@@ -6203,24 +6216,6 @@ set landbutton:ontoggle to {
                                                 set res:enabled to true.
                                             }
                                         }
-                                    }
-
-                                    LogToFile("Stop Venting").
-                                    if kuniverse:timewarp:warp > 0 {
-                                        set kuniverse:timewarp:warp to 0.
-                                        until kuniverse:timewarp:warp = 0 {}
-                                        wait 1.
-                                    }
-                                    HideEngineToggles(0).
-                                    set message1:text to "".
-                                    set message2:text to "".
-                                    set message3:text to "".
-                                    if cancelconfirmed {
-                                        ShutDownAllEngines().
-                                        HideEngineToggles(0).
-                                        LogToFile("Venting stopped by user").
-                                        set runningprogram to "None".
-                                        ClearInterfaceAndSteering().
                                     }
                                 }
                                 else {
@@ -10228,6 +10223,27 @@ function setflaps {
     }
 }
 
+function setFlapFwdL {
+    parameter angleFlapFL.
+    set curFL to FLflap:getmodule("ModuleSEPControlSurface"):GetField("Deploy Angle").
+    FLflap:getmodule("ModuleSEPControlSurface"):SetField("Deploy Angle", curFL + angleFlapFL).
+}
+function setFlapFwdR {
+    parameter angleFlapFR.
+    set curFR to FRflap:getmodule("ModuleSEPControlSurface"):GetField("Deploy Angle").
+    FRflap:getmodule("ModuleSEPControlSurface"):SetField("Deploy Angle", curFR + angleFlapFR).
+}
+function setFlapAftL {
+    parameter angleFlapAL.
+    set curAL to ALflap:getmodule("ModuleSEPControlSurface"):GetField("Deploy Angle").
+    ALflap:getmodule("ModuleSEPControlSurface"):SetField("Deploy Angle", curAL + angleFlapAL).
+}
+function setFlapAftR {
+    parameter angleFlapAR.
+    set curAR to ARflap:getmodule("ModuleSEPControlSurface"):GetField("Deploy Angle").
+    ARflap:getmodule("ModuleSEPControlSurface"):SetField("Deploy Angle", curAR + angleFlapAR).
+}
+
 
 
 
@@ -11006,8 +11022,10 @@ function ReEntryAndLand {
         set config:ipu to CPUSPEED.
         set LandSomewhereElse to false.
         set WobblyTower to false.
+        set DistanceToTarget to 5000.
         SetPlanetData().
         set FlipAltitude to 700.
+        set PitchInputOld to 0.
 
         set steeringManager:maxstoppingtime to 0.9.
 
@@ -11095,15 +11113,17 @@ function ReEntryAndLand {
         set steeringmanager:yawts to 10.
 
         set PitchPID to PIDLOOP(0.000025, 0, 0, -10, 10 - TRJCorrection).
-        set ChangeOverSensitivity to ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)).
+        set ChangeOverSensitivity to ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)) * 1.1.
+
+        LngLatError().
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00001, 0, 0.00008, -15, 17 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.00001, 0, 0.00007, -15, 17 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
             }
             set YawPID to PIDLOOP(0.0005, 0, 0, -50, 50).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
-                set PitchPID to PIDLOOP(0.00001, 0, 0.00005, -25, 27 - TRJCorrection).
+                set PitchPID to PIDLOOP(0.000007, 0, 0.00006, -25, 27 - TRJCorrection).
                 set YawPID to PIDLOOP(0.0005, 0, 0.000001, -50, 50).
             }
         }
@@ -11129,11 +11149,11 @@ function ReEntryAndLand {
             }
             else {
                 if ShipSubType:contains("Block2") {
-                    if LngLatErrorList[0] < -4000 set TRJCorrection to ((-0.3 * (min((ErrorVector:mag/2000)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -4000 set TRJCorrection to ((-0.3 * (min((ErrorVector:mag/2000)^0.8,5)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1.3 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < -2000 set TRJCorrection to ((-1.12 * (min((ErrorVector:mag/1400)^0.8,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -2000 set TRJCorrection to ((-1.14 * (min((ErrorVector:mag/1400)^0.8,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1 * (min((ErrorVector:mag/500)^0.9,4)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
             } 
@@ -11143,20 +11163,11 @@ function ReEntryAndLand {
         else when airspeed < 300 then set TRJCorrection to 0.6.
         
         set TimeTrue to true.
-        if KSRSS set sScale to 1.35. else set sScale to Scale.
-        when altitude < 3000 and TimeTrue then {
-            set TimeTrue to false.
-            set TimeTrueTimer to time:seconds.
-            if ShipSubType:contains("Block2") set TRJCorrection to min(max( (3/(1+constant:e^(-0.08*LngLatErrorList[0]*(sScale/1.6)))) + 0.45*Scale ,-2.4),2.4).
-            else set TRJCorrection to min(max( (4/(1+constant:e^(-0.08*LngLatErrorList[0]*(sScale/1.6)))) - 1.4*Scale ,-2.4),2.4).
-            if not LandingBurnStarted {
-                when time:seconds > TimeTrueTimer + 0.2 then set TimeTrue to true.
-                return true.
-            }
-        }
         
 
         lock STEERING to ReEntrySteering().
+
+
 
         when altitude < body:atm:height then {
             //set quickstatus1:pressed to true.
@@ -11232,7 +11243,8 @@ function ReEntryAndLand {
                     }
                     set runningprogram to "Final Approach".
                     wait 0.1.
-                    CheckLZReachable().
+                    set below300Time to time:seconds.
+                    when time:seconds > below300Time + 2 then CheckLZReachable().
                     LogToFile("Vehicle is Subsonic, precise steering activated").
                     when RadarAlt < 12000 then {
                         //InhibitButtons(1, 1, 1).
@@ -11343,6 +11355,7 @@ function ReEntryAndLand {
 function ReEntrySteering {
     if not SteeringIsRunning and time:seconds > TimeSinceLastSteering + 0.2 {
         set SteeringIsRunning to true.
+        if aoa:typename = "String" {set aoa to (aoa):toscalar.}
         rcs on.
 
         if RadarAlt > FlipAltitude + 100 {
@@ -11351,19 +11364,12 @@ function ReEntrySteering {
 
         set LngLatErrorList to LngLatError().
 
-        if ship:body:atm:sealevelpressure > 0.5 {
-            set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (12 * Scale) + 2), 36).
-        }
-        else {
-            set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (15 * Scale) + 2), 24).
-        }
+        set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (15 * Scale) + 2), 32).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 20 + 1), 50).
         set YawPID:minoutput to -YawPID:maxoutput.
 
-        if aoa:typename = "String" {set aoa to (aoa):toscalar.}
         set pitchctrl to -PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]).
-        set DesiredAoA to aoa + pitchctrl + TRJCorrection.
         set yawctrl to YawPID:UPDATE(TIME:SECONDS, LngLatErrorList[1]).
         if RadarAlt > 5000 {
             set SRFPRGD to srfprograde.
@@ -11372,12 +11378,14 @@ function ReEntrySteering {
             set t to time:seconds.
             set SRFPRGD to srfprograde.
         }
+        set DesiredAoA to min(max(38 , aoa + pitchctrl + TRJCorrection), 120).
         set result to SRFPRGD * R(-DesiredAoA * cos(yawctrl), 0, 0).
         set result to angleaxis(yawctrl, srfprograde:vector) * result.
 
+        //SteeringCompensation
         set steeringOffset to vAng(result:vector,facing:forevector).
         set streamOffset to vAng(srfprograde:vector,facing:forevector).
-        set steeringDamp to min((max((steeringOffset - 0.5) / 2, 0))^1.2, 1).
+        set steeringDamp to min((max((steeringOffset - 0.5) / 5, 0))^1.2, 1).
         if airspeed < 400 and altitude > 5000 set preventDamp to min(max((-(1/100000)*(streamOffset-86)^3)^3,-1.5),1.5).
         else set preventDamp to 0. 
         if steeringOffset > 0.5 set facingDamp to 1.
@@ -11419,6 +11427,8 @@ function ReEntrySteering {
         print "YawCtrl: " + round(yawctrl, 2).
         print "TRJCorrection: " + round(TRJCorrection, 1).
         print "LngLatOffset: " + round(LngLatOffset,1).
+        print "".
+        print "Angular Momentum: " + round(ship:angularmomentum:mag,1).
 
         if ship:body:atm:sealevelpressure < 0.5 {
             print " ".
@@ -11484,16 +11494,16 @@ function ReEntryData {
     }
     if altitude < ship:body:atm:height - 5000 and vang(facing:forevector, result:vector) > 30 or CargoMass > 25000 * Scale {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 70).}
             if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 70).
             }
-            Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 80).
         }
         else {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).}
             if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
             }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
         }
@@ -11504,44 +11514,47 @@ function ReEntryData {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).}
             if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
             }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
         }
         else {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).}
             if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).
             }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 2).
         }
     }
 
     if DynamicPitch and altitude < 0.75 * ship:body:atm:height {
-        if time:seconds > t + 5 {
+        if time:seconds > t + 2 and time:seconds < t + 2.4 set PitchInputOld to SLEngines[0]:gimbal:pitchangle.
+        if time:seconds > t + 4 {
             set PitchInput to SLEngines[0]:gimbal:pitchangle.
             set t to time:seconds.
-            set FWDFlapDefault to max(min(70 - (PitchInput * 20 / Scale),80),55).
-            set AFTFlapDefault to max(min(65 + (PitchInput * 20 / Scale),75),50).
-            if airspeed > 300 {
-                if ship:body:atm:sealevelpressure < 0.5 {
-                    setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 16).
-                } else if altitude > 28000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 20).
+            if PitchInputOld > 6 and PitchInput > 6 {
+                set FWDFlapDefault to max(min(75 - (PitchInput * 20 / Scale),85),55).
+                set AFTFlapDefault to max(min(70 + (PitchInput * 20 / Scale),80),50).
+                if airspeed > 300 {
+                    if ship:body:atm:sealevelpressure < 0.5 {
+                        setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 16).
+                    } else if altitude > 28000 {
+                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 18).
+                    }
+                    else {
+                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 16).
+                    }
                 }
                 else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 18).
-                }
-            }
-            else {
-                if ship:body:atm:sealevelpressure < 0.5 {
-                    setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
-                }
-                else if not (RSS) or altitude > 10000 {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 16).
-                }
-                else {
-                    setflaps(FWDFlapDefault, AFTFlapDefault, 1, 12).
+                    if ship:body:atm:sealevelpressure < 0.5 {
+                        setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12).
+                    }
+                    else if not (RSS) or altitude > 10000 {
+                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 16).
+                    }
+                    else {
+                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 12).
+                    }
                 }
             }
         }
@@ -11727,6 +11740,21 @@ function ReEntryData {
 
         if LandButtonIsRunning and not LaunchButtonIsRunning and not cancelconfirmed {
             set config:ipu to 2000.
+            
+            for res in tank:resources {
+                if res:name = "Oxidizer" {
+                    set RepositionOxidizer to TRANSFERALL("Oxidizer", HeaderTank, Tank).
+                    set RepositionOxidizer:ACTIVE to TRUE.
+                }
+                if res:name = "LiquidFuel" {
+                    set RepositionLF to TRANSFERALL("LiquidFuel", HeaderTank, Tank).
+                    set RepositionLF:ACTIVE to TRUE.
+                }
+                if res:name = "LqdMethane" {
+                    set RepositionLF to TRANSFERALL("LqdMethane", HeaderTank, Tank).
+                    set RepositionLF:ACTIVE to TRUE.
+                }
+            }
             unlock throttle.
             rcs off.
             set steeringManager:maxstoppingtime to 2.
@@ -13934,7 +13962,7 @@ function LandingZoneFinder {
 function CheckLZReachable {
     set LngLatErrorList to LngLatError().
     if ship:body:atm:sealevelpressure > 0.5 {
-        if abs(LngLatErrorList[0]) > 7000 or abs(LngLatErrorList[1]) > 2000 {
+        if abs(LngLatErrorList[0]) > 8600 or abs(LngLatErrorList[1]) > 2000 {
             set AvailableLandingSpots to CheckSlope(1).
             wait 0.1.
             set FindNewTarget to true.
@@ -13949,7 +13977,7 @@ function CheckLZReachable {
         LogToFile("Dense Atmo Planet Automated Landing Activated").
     }
     else if ship:body:atm:sealevelpressure < 0.5 and ship:body:atm:exists {
-        if abs(LngLatErrorList[0]) > 7500 and not (RSS) or abs(LngLatErrorList[0]) > 200000 and RSS or abs(LngLatErrorList[1]) > 2500 and not (RSS) or abs(LngLatErrorList[1]) > 10000 and RSS {
+        if abs(LngLatErrorList[0]) > 7000 and not (RSS) or abs(LngLatErrorList[0]) > 200000 and RSS or abs(LngLatErrorList[1]) > 2500 and not (RSS) or abs(LngLatErrorList[1]) > 10000 and RSS {
             set AvailableLandingSpots to CheckSlope(1).
             wait 0.1.
             set FindNewTarget to true.
@@ -15830,14 +15858,17 @@ function updateTelemetry {
             if res:name = "LiquidFuel" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
+                set ShipFuelAmount to res:amount.
             }
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
+                set ShipFuelAmount to res:amount.
             }
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set lox to lox + res:amount.
                 set mlox to mlox + res:capacity.
+                set ShipLoxAmount to res:amount.
             }
         }
 
