@@ -733,7 +733,7 @@ if bodyexists("Earth") {
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
         set BoosterGlideFactor to 1.
         set VelCancelFactor to 1.
-        set LngCtrlPID:setpoint to 30. //84
+        set LngCtrlPID:setpoint to 24. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -1846,7 +1846,7 @@ function Boostback {
     when LngError > -BoosterGlideDistance*0.18 then { 
         if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.3*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError > -50*Scale then {
-            if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+            if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.7*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         }
     }
 
@@ -2637,7 +2637,7 @@ function LandingGuidance {
         if RadarRatio > 0.05 set GuidStrength to 42.
         set PosError to PositionError:normalized * ((0.95/closureRatio)^2)*GSVec:mag.
 
-        set cancel to max(min(1/(RadarRatio^0.72),2),1).
+        set cancel to max(min(1/(RadarRatio^0.72),2.4),0.98).
         set Velclosure to max(min(RadarRatio,1),0.7)*((0.95/closureRatio)^3).
         set Posclosure to max(min(0.25*RadarRatio+0.6,1),0.65)*min((closureRatio)^2,1.5).
         set Errclosure to min(closureRatio^2,2)*(((vAng(ErrorVector,PositionError)/90)^0.2)).

@@ -11156,12 +11156,12 @@ function ReEntryAndLand {
             }
             else {
                 if ShipSubType:contains("Block2") {
-                    if LngLatErrorList[0] < -5000 set TRJCorrection to ((-1.1 * (min((ErrorVector:mag/1000)^0.6,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
-                    else if LngLatErrorList[0] < -500 set TRJCorrection to ((-0.4 * (min((ErrorVector:mag/600)^0.8,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -9000 set TRJCorrection to ((-1.1 * (min((ErrorVector:mag/1000)^0.6,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    else if LngLatErrorList[0] < -3500 set TRJCorrection to ((-0.4 * (min((ErrorVector:mag/600)^0.8,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1 * (min((ErrorVector:mag/1000)^0.8,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
                 else {
-                    if LngLatErrorList[0] < -6000 set TRJCorrection to ((-1.1 * (min((ErrorVector:mag/1000)^0.6,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
+                    if LngLatErrorList[0] < -8000 set TRJCorrection to ((-1.1 * (min((ErrorVector:mag/1000)^0.6,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else if LngLatErrorList[0] < -3000 set TRJCorrection to ((-0.4 * (min((ErrorVector:mag/600)^0.8,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                     else set TRJCorrection to ((1 * (min((ErrorVector:mag/1000)^0.8,6)) * min(((airspeed-300)/airspeed)^0.8,1)) + TRJCorrection)/2.
                 }
@@ -11437,13 +11437,16 @@ function ReEntrySteering {
         //set ReEntryVector to vecdraw(v(0, 0, 0), 1.5 * result:vector, green, "Re-Entry Vector", 25, true, 0.005, true, true).
         print "LngError: " + round(LngLatErrorList[0]).
         print "LatError: " + round(LngLatErrorList[1]).
-        print "Desired AoA: " + round(DesiredAoA, 2).
+        print "AoA - Desired: " + round(DesiredAoA, 2) + "  |  Current: " + round(currentAoA,2).
+        print "      Plotted: " + round(aoa,2).
+        print " ".
         print "PitchCtrl: " + round(pitchctrl, 2).
         print "MaxOutput: " + round(PitchPID:maxoutput, 2).
         print "YawCtrl: " + round(yawctrl, 2).
+        print " ".
         print "TRJCorrection: " + round(TRJCorrection, 1).
         print "LngLatOffset: " + round(LngLatOffset,1).
-        print "".
+        print " ".
         print "Angular Momentum: " + round(ship:angularmomentum:mag,1).
 
         if ship:body:atm:sealevelpressure < 0.5 {
@@ -11480,7 +11483,7 @@ function ReEntryData {
         set runningprogram to "De-orbit & Landing".
         set status1:style:textcolor to green.
     }
-    else if RadarAlt > 10000 {
+    else if RadarAlt > 8000 {
         set runningprogram to "Final Approach".
         set status1:style:textcolor to green.
     }
@@ -13572,12 +13575,17 @@ function SetPlanetData {
     set Planet1Degree to (ship:body:radius / 1000 * 2 * constant:pi) / 360.
     set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
     if ship:body:atm:sealevelpressure > 0.5 {
-        if alt:radar < 10000 and airspeed < 300 and verticalspeed < -10 {
+        if alt:radar < 10000*(Scale^0.6) and airspeed < 300 and verticalspeed < -15 {
             set aoa to LandingAoA.
-            set DescentAngles to list(aoa, aoa, aoa, LandingAoA).
+            set DescentAngles to list(aoa, aoa, aoa, aoa).
         }
         else {
-            set DescentAngles to list(aoa, aoa, aoa, LandingAoA).
+            if currentAoA < aoa - 2 and not aoaChangeLow {set aoa to aoa - 2. set aoaChangeLow to true.}
+            else if aoaChangeLow and currentAoA > aoa {set aoa to aoa + 2. set aoaChangeLow to false.}
+            else if currentAoA > aoa + 2 and not aoaChangeHigh {set aoa to aoa + 2. set aoaChangeHigh to true.}
+            else if aoaChangeHigh and currentAoA > aoa {set aoa to aoa - 2. set aoaChangeHigh to false.}
+
+            set DescentAngles to list(aoa, aoa, (aoa+LandingAoA)/2, LandingAoA).
         }
         if RSS {
             set LongitudinalAcceptanceLimit to 460000.
