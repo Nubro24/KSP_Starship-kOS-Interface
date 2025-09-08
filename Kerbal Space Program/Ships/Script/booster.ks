@@ -479,7 +479,7 @@ function CreateTelemetry {
     
     set bGUI:style:border:h to 10*TScale.
     set bGUI:style:border:v to 10*TScale.
-    set bGUI:y to -402*TScale.
+    set bGUI:y to -382*TScale.
     set bGUI:skin:button:border:v to 10*TScale.
     set bGUI:skin:button:border:h to 10*TScale.
 
@@ -561,23 +561,23 @@ function CreateTelemetry {
     set GDlamp:style:overflow:bottom to -25*TScale.
 
     set overflow to 0.
-    set EngBG:style:width to floor(170*TScale).
-    set EngBG:style:height to floor(170*TScale).
-    set EngBG:style:margin:top to ceiling(14*TScale).
+    set EngBG:style:width to floor(180*TScale).
+    set EngBG:style:height to floor(180*TScale).
+    set EngBG:style:margin:top to ceiling(12*TScale).
     set EngBG:style:margin:left to 19*TScale.
     set EngBG:style:margin:right to ceiling(20*TScale).
     set EngBG:style:overflow:top to overflow.
     set EngBG:style:overflow:bottom to -overflow.
-    set overflow to overflow + floor(184*TScale).
+    set overflow to overflow + floor(192*TScale).
     for engLbl in EngClusterDisplay {
-        set engLbl:style:width to floor(170*TScale).
-        set engLbl:style:height to floor(170*TScale).
-        set engLbl:style:margin:top to ceiling(14*TScale).
+        set engLbl:style:width to floor(180*TScale).
+        set engLbl:style:height to floor(180*TScale).
+        set engLbl:style:margin:top to ceiling(12*TScale).
         set engLbl:style:margin:left to 19*TScale.
         set engLbl:style:margin:right to ceiling(20*TScale).
         set engLbl:style:overflow:top to overflow.
         set engLbl:style:overflow:bottom to -overflow.
-        set overflow to overflow + floor(184*TScale).
+        set overflow to overflow + floor(192*TScale).
     }
 
     set bSpeed:style:margin:left to 10*TScale.
@@ -733,7 +733,7 @@ if bodyexists("Earth") {
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
         set BoosterGlideFactor to 1.
         set VelCancelFactor to 1.
-        set LngCtrlPID:setpoint to 36. //84
+        set LngCtrlPID:setpoint to 30. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -933,6 +933,18 @@ when time:seconds > TelemetryTimer + 0.05 then {
     set TelemetryTimer to time:seconds.
     return true.
 }
+
+if oldBooster {
+    Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+    Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+} 
+else {
+    Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+    Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy angle", 7). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy angle", 7).
+    Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+    Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy angle", 7). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy angle", 7).
+}
+
 
 
 
@@ -1805,7 +1817,7 @@ function Boostback {
 
     BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     if not cAbort {
-        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-1.8*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     } else {
         lock SteeringVector to lookdirup((ErrorVector:normalized + 1.2*up:vector:normalized), ApproachVector * AngleAxis(2 * LatCtrl, -up:vector)).
     }
@@ -1829,11 +1841,11 @@ function Boostback {
 
 
 
-    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*0.5*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*1.6*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when alt:radar < 16000 and RSS or 14000 then lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    when LngError > -BoosterGlideDistance*0.14 then { 
-        if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.5*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-        when LngError > 0 then {
+    when LngError > -BoosterGlideDistance*0.18 then { 
+        if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.3*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        when LngError > -50*Scale then {
             if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.8*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         }
     }
@@ -1845,11 +1857,11 @@ function Boostback {
 
     when RadarAlt < 24000 then {
         set LngCtrlPID:setpoint to -LngCtrlPID:setpoint - 10*Scale.
-        when RadarAlt < 6400 then 
+        when RadarAlt < 7200 then 
             set LngCtrlPID:setpoint to -LngCtrlPID:setpoint + 15*Scale.
     }
 
-    when RadarAlt < LandingBurnAlt * 1.1 then {
+    when RadarAlt < LandingBurnAlt * 1.15 then {
         set s0ev to 0.
         lock adev to 0.08.
 
@@ -2013,6 +2025,11 @@ function Boostback {
             lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
             lock DistanceError to Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position.
             if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
+            set LZchange to true.
+            wait 0.
+            set landingzone to ship:body:geoPositionOf(landingzone:position + 0.4*vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position)).
+            set LZchange to false.
+            wait 0.
         }
         when Vessel(TargetOLM):distance < 1800 then {
             set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
@@ -2020,19 +2037,14 @@ function Boostback {
         }
     }
 
-    when RadarAlt < 1500 and not (LandSomewhereElse) then {
+    when RadarAlt < 1600 and not (LandSomewhereElse) then {
         set steeringManager:maxstoppingtime to 1.2.
         if not (TargetOLM = "false") and TowerExists {
             //setTowerHeadingVector().
             PollUpdate().
-            set LZchange to true.
-            wait 0.
-            set landingzone to latlng(landingzone:lat, landingzone:lng - 0.00004).
-            set LZchange to false.
-            wait 0.
             addons:tr:settarget(landingzone).
             when MiddleEnginesShutdown then if ErrorVector:mag > 1.2*BoosterHeight set cAbort to true.
-            if Vessel(TargetOLM):distance < 2240 and GfC {
+            if GfC when Vessel(TargetOLM):distance < 2240 then {
                 PollUpdate().
                 set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                 if not RSS 
@@ -2139,6 +2151,11 @@ function Boostback {
                     set NrMisEng to NrMisEng+1.
                     BoosterSingleEnginesRC[NrCounterEngine[NrMisEng-1]-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
                 }
+                when airspeed < 6 then {
+                    BoosterSingleEnginesRC[NrCounterEngine[0]-1]:shutdown.
+                    set BoosterSingleEnginesRC[NrCounterEngine[0]-1]:gimbal:lock to true.
+                    BoosterSingleEnginesRC[NrCounterEngine[0]-1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                } 
             }
             wait 0.
             set x to 1.
@@ -2309,6 +2326,7 @@ function Boostback {
                             eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
                     }
                 }
+                set bAttitudeTw:style:bg to "starship_img/water".
 
                 lock RadarAlt to alt:radar - BoosterHeight*0.6.
                 
@@ -2605,7 +2623,7 @@ function LandingGuidance {
         if RadarRatio < 1 set closureRatio to closureRatio^RadarRatio.
         else if RadarRatio < 2 set closureRatio to closureRatio^0.95.
     }
-    if closureRatio > 0.98 set closureRatio to closureRatio^0.5.
+    if closureRatio > 0.98 set closureRatio to closureRatio^0.6.
 
     // === Guidance ===
     if not MiddleEnginesShutdown {  //13 Engine-Phase
@@ -2619,10 +2637,10 @@ function LandingGuidance {
         if RadarRatio > 0.05 set GuidStrength to 42.
         set PosError to PositionError:normalized * ((0.95/closureRatio)^2)*GSVec:mag.
 
-        set cancel to max(min(1/(RadarRatio^0.7),2),1).
+        set cancel to max(min(1/(RadarRatio^0.72),2),1).
         set Velclosure to max(min(RadarRatio,1),0.7)*((0.95/closureRatio)^3).
-        set Posclosure to max(min(0.25*RadarRatio+0.6,1),0.65)*min((closureRatio+0.03)^4,1.5).
-        set Errclosure to min(closureRatio^3,2)*((vAng(ErrorVector,PositionError)/90)^0.2).
+        set Posclosure to max(min(0.25*RadarRatio+0.6,1),0.65)*min((closureRatio)^2,1.5).
+        set Errclosure to min(closureRatio^2,2)*(((vAng(ErrorVector,PositionError)/90)^0.2)).
 
         set ErrGuid to -Errclosure*ErrorVector.
         set PosGuid to -(1/cancel)*Posclosure*PosError.
