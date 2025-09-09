@@ -1814,6 +1814,7 @@ function Boostback {
     
     SetBoosterActive().
     set SteeringManager:yawtorquefactor to 0.8.
+    set steeringManager:rolltorquefactor to 0.8.
 
     BoosterCore:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     if not cAbort {
@@ -1857,6 +1858,7 @@ function Boostback {
 
     when RadarAlt < 24000 then {
         set LngCtrlPID:setpoint to -LngCtrlPID:setpoint - 10*Scale.
+        set steeringManager:rolltorquefactor to 1.
         when RadarAlt < 7200 then 
             set LngCtrlPID:setpoint to -LngCtrlPID:setpoint + 15*Scale.
     }
@@ -2072,7 +2074,7 @@ function Boostback {
                         set steeringManager:rollcontrolanglerange to 24.
                         when RadarAlt < 1.2 * BoosterHeight then {
                             set steeringManager:maxstoppingtime to 0.69.
-                            set steeringManager:rolltorquefactor to 2.
+                            set steeringManager:rolltorquefactor to 2.2.
                             when RadarAlt < 0.5*BoosterHeight then {
                                 set steeringManager:maxstoppingtime to 1.4.
                                 when RadarAlt < 0.12*BoosterHeight then {

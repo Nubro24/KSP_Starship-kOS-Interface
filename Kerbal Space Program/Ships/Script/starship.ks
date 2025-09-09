@@ -95,6 +95,24 @@ if exists("0:/settings.json") {
 } 
 else set LSCoords to ("0,0").
 
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("fullAuto") {
+        set fullAuto to L["fullAuto"].
+    }
+    else set fullAuto to false.
+} 
+else set fullAuto to false.
+
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("HSRJetQuest") {
+        set HSRJetQuest to L["HSRJetQuest"].
+    }
+    else set HSRJetQuest to false.
+} 
+else set HSRJetQuest to false.
+
 set RadarAlt to 0.
 set Hotstaging to false.
 set ShipSubType to "None".
@@ -126,7 +144,7 @@ local IgnitionChancesOpen is GUI(100).
         set IgnitionChances:toggle to true.
         set IgnitionChances:style:wordwrap to false.
         set IgnitionChances:style:align to "center".
-        set IgnitionChances:text to "Ignition Chances".
+        set IgnitionChances:text to "Flight Settings".
 
 
 local sTelemetry is GUI(150).
@@ -419,6 +437,7 @@ else {
 set aoa to 60.
 if RSS set aoa to 64.
 set currentAoA to aoa.
+set PlotAoA to aoa.
 
 set BoosterAp to 35000.
 
@@ -583,7 +602,7 @@ set steeringmanager:rolltorquefactor to 0.75.
 
 
 set startup to false.
-set fullAuto to false.
+set HSRJetQuest to false.
 set config:ipu to CPUSPEED.
 set NrOfGuisOpened to 0.
 set exit to false.
@@ -1349,7 +1368,9 @@ local IgnitionChancesGUI is GUI(320).
     set IgnitionChancesGUI:skin:button:border:h to 10.
     set IgnitionChancesGUI:skin:button:textcolor to white.
     set IgnitionChancesGUI:skin:label:textcolor to white.
-local IgnChaLayout is IgnitionChancesGUI:addvlayout().
+local SettingsMenu is IgnitionChancesGUI:addhlayout().
+local FlightSettingsLayout is SettingsMenu:addvlayout().
+local IgnChaLayout is SettingsMenu:addvlayout().
 local Header is IgnChaLayout:addhlayout().
 local Quest is Header:addlabel().
     set Quest:text to "<b>Ignition Chances</b>".
@@ -1358,27 +1379,6 @@ local Quest is Header:addlabel().
     set Quest:style:margin:left to 12.
     set Quest:style:margin:right to 8.
     set Quest:style:fontsize to 16.
-local IFTMode is Header:addradiobutton("  OFT-Sim").
-    set IFTMode:toggle to true.
-    set IFTMode:style:fontsize to 12.
-    set IFTMode:style:margin:left to 4.
-    set IFTMode:style:margin:top to 15.
-    set IFTMode:style:width to 112.
-    set IFTMode:style:height to 18.
-    set IFTMode:style:overflow:right to -60.
-    set IFTMode:toggle to false.
-set lastChangeTimer to time:seconds.
-set IFTMode:ontoggle to {
-    parameter toggle.
-    if toggle and time:seconds > lastChangeTimer + 0.5 {
-        set fullAuto to not fullAuto.
-        print fullAuto.
-        set IFTMode:text to "  OFT-Sim ("+fullAuto+")".
-        sendMessage(processor(volume("Booster")),"fullAuto,"+fullAuto).
-        set lastChangeTimer to time:seconds.
-        set IFTMode:pressed to false.
-    }
-}.
 
 local LOQuest is IgnChaLayout:addlabel().
     set LOQuest:text to "<b>Lift-Off:</b>".
@@ -1562,6 +1562,61 @@ local IgnSave is ButtonsLayout:addbutton().
         set IgnitionChances:pressed to false.
         IgnitionChancesGUI:hide().
     }.
+
+
+local FlightSettingsHeader is FlightSettingsLayout:addlabel().
+    set Quest:text to "<b>(Pre-)Flight Settings</b>".
+    set Quest:style:margin:top to 14.
+    set Quest:style:margin:bottom to 16.
+    set Quest:style:margin:left to 12.
+    set Quest:style:margin:right to 8.
+    set Quest:style:fontsize to 16.
+local IFTMode is FlightSettingsLayout:addbutton(" Automatic Mode").
+    set IFTMode:style:fontsize to 16.
+    set IFTMode:style:margin:left to 24.
+    set IFTMode:style:margin:top to 20.
+    set IFTMode:style:height to 24.
+local IFTModeTooltip is FlightSettingsLayout:addlabel().
+    set IFTModeTooltip:style:fontsize to 10.
+    set IFTModeTooltip:style:margin:left to 24.
+    set IFTModeTooltip:style:margin:top to 5.
+    set IFTModeTooltip:style:height to 18.
+    set IFTModeTooltip:text to "Removes more UI (Catch Decision with AG9 and AG10)".
+local IFTModeLabel is FlightSettingsLayout:addlabel().
+    set IFTModeLabel:style:fontsize to 12.
+    set IFTModeLabel:style:margin:left to 24.
+    set IFTModeLabel:style:margin:top to 5.
+    set IFTModeLabel:style:height to 18.
+    if fullAuto set IFTModeLabel:text to "Currently On".
+    else set IFTModeLabel:text to "Currently Off".
+set lastChangeTimer to time:seconds.
+set IFTMode:onclick to {
+    set fullAuto to not fullAuto.
+    SaveToSettings("fullAuto", fullAuto).
+    if fullAuto set IFTModeLabel:text to "Currently On".
+    else set IFTModeLabel:text to "Currently Off".
+}.
+
+
+local HSRSetting is FlightSettingsLayout:addbutton(" HSR Question before launch").
+    set HSRSetting:style:fontsize to 16.
+    set HSRSetting:style:margin:left to 24.
+    set HSRSetting:style:margin:top to 20.
+    set HSRSetting:style:height to 24.
+local HSRSettingLabel is FlightSettingsLayout:addlabel().
+    set HSRSettingLabel:style:fontsize to 12.
+    set HSRSettingLabel:style:margin:left to 24.
+    set HSRSettingLabel:style:margin:top to 5.
+    set HSRSettingLabel:style:height to 18.
+    if HSRJetQuest set HSRSettingLabel:text to "Currently On".
+    else set HSRSettingLabel:text to "Currently Off".
+set HSRSetting:onclick to {
+    set HSRJetQuest to not HSRJetQuest.
+    SaveToSettings("HSRJetQuest", HSRJetQuest).
+    if HSRJetQuest set HSRSettingLabel:text to "Currently On".
+    else set HSRSettingLabel:text to "Currently Off".
+}.
+
 
 set IgnitionChances:ontoggle to {
     parameter toggle.
@@ -5490,7 +5545,7 @@ set launchbutton:ontoggle to {
                             }
                         }
 
-                        if oldBooster {   
+                        if oldBooster or HSRJetQuest {   
                             set message1:text to "<b>HSR Jettison after Boostback?</b>".
                             set message2:text to "".
                             set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
@@ -11439,8 +11494,8 @@ function ReEntrySteering {
         //set ReEntryVector to vecdraw(v(0, 0, 0), 1.5 * result:vector, green, "Re-Entry Vector", 25, true, 0.005, true, true).
         print "LngError: " + round(LngLatErrorList[0]).
         print "LatError: " + round(LngLatErrorList[1]).
-        print "AoA - Desired: " + round(DesiredAoA, 2) + "  |  Current: " + round(currentAoA,2).
-        print "      Plotted: " + round(aoa,2).
+        print "AoA - Desired: " + round(DesiredAoA, 1) + "  |  Current: " + round(currentAoA,1).
+        print "      Plotted: " + round(PlotAoA,1) + "  |  Planned: " + round(aoa,1).
         print " ".
         print "PitchCtrl: " + round(pitchctrl, 2).
         print "MaxOutput: " + round(PitchPID:maxoutput, 2).
@@ -13578,16 +13633,16 @@ function SetPlanetData {
     set Planet1G to CONSTANT():G * (ship:body:mass / (ship:body:radius * ship:body:radius)).
     if ship:body:atm:sealevelpressure > 0.5 {
         if alt:radar < 10000*(Scale^0.6) and airspeed < 300 and verticalspeed < -15 {
-            set aoa to LandingAoA.
-            set DescentAngles to list(aoa, aoa, aoa, aoa).
+            set PlotAoA to LandingAoA.
+            set DescentAngles to list(PlotAoA, PlotAoA, PlotAoA, PlotAoA).
         }
         else {
-            if currentAoA < aoa - 2 and not aoaChangeLow {set aoa to aoa - 2. set aoaChangeLow to true.}
-            else if aoaChangeLow and currentAoA > aoa {set aoa to aoa + 2. set aoaChangeLow to false.}
-            else if currentAoA > aoa + 2 and not aoaChangeHigh {set aoa to aoa + 2. set aoaChangeHigh to true.}
-            else if aoaChangeHigh and currentAoA > aoa {set aoa to aoa - 2. set aoaChangeHigh to false.}
+            if currentAoA < PlotAoA - 2 and not aoaChangeLow {set PlotAoA to PlotAoA - 2. set aoaChangeLow to true.}
+            else if aoaChangeLow and currentAoA > PlotAoA {set PlotAoA to PlotAoA + 2. set aoaChangeLow to false.}
+            else if currentAoA > PlotAoA + 2 and not aoaChangeHigh {set PlotAoA to PlotAoA + 2. set aoaChangeHigh to true.}
+            else if aoaChangeHigh and currentAoA > PlotAoA {set PlotAoA to PlotAoA - 2. set aoaChangeHigh to false.}
 
-            set DescentAngles to list(aoa, aoa, (aoa+LandingAoA)/2, LandingAoA).
+            set DescentAngles to list(PlotAoA, PlotAoA, (PlotAoA+LandingAoA)/2, LandingAoA).
         }
         if RSS {
             set LongitudinalAcceptanceLimit to 460000.
