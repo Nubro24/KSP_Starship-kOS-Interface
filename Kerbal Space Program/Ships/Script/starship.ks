@@ -730,6 +730,8 @@ set angle to 75.
 set speed to 12.
 set oldBooster to false.
 set LngLatOffset to 0.
+set aoaChangeLow to false.
+set aoaChangeHigh to false.
 
 
 
