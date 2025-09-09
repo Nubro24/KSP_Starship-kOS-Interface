@@ -613,6 +613,8 @@ set prevCargoPageTime to time:seconds.
 set TimeSinceLastSteering to time:seconds - 1.
 set TimeSinceLastAttSteering to time:seconds - 1.
 set prevattroll to 0.
+set aoaChangeLow to false.
+set aoaChangeHigh to false.
 SetPlanetData().
 set prevattpitch to aoa.
 set towerrot to 8.
@@ -730,8 +732,6 @@ set angle to 75.
 set speed to 12.
 set oldBooster to false.
 set LngLatOffset to 0.
-set aoaChangeLow to false.
-set aoaChangeHigh to false.
 
 
 
