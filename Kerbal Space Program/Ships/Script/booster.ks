@@ -729,7 +729,7 @@ if bodyexists("Earth") {
         }
         if oldBooster set BoosterGlideDistance to 2240. 
         else set BoosterGlideDistance to 2200. //1640 
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.25.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.36.
         set BoosterGlideFactor to 1.
         set VelCancelFactor to 1.
@@ -762,7 +762,7 @@ if bodyexists("Earth") {
         }
         if oldBooster set BoosterGlideDistance to 1600. 
         else set BoosterGlideDistance to 1550.
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
@@ -802,7 +802,7 @@ else {
         }
         if oldBooster set BoosterGlideDistance to 1600. 
         else set BoosterGlideDistance to 1500.
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.35.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
@@ -835,7 +835,7 @@ else {
         }
         if oldBooster set BoosterGlideDistance to 1000. 
         else set BoosterGlideDistance to 869. //1100
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.4.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.3.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 0.3.

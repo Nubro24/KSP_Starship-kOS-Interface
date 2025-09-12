@@ -435,7 +435,7 @@ else {
     set FARValue to 0.
 }
 set aoa to 60.
-if RSS set aoa to 65.
+if RSS set aoa to 65.7.
 set currentAoA to aoa.
 
 set BoosterAp to 35000.
@@ -447,7 +447,7 @@ set config:obeyhideui to false.
 
 
 if RSS {         // Real Solar System
-    set LandingAoA to 83.
+    set LandingAoA to 80.
     set MaxCargoToOrbit to 75000.
     set MaxReEntryCargoThickAtmo to 4500.
     set MaxIU to 200.
@@ -11191,8 +11191,11 @@ function ReEntryAndLand {
         }
 
         SteeringManager:RESETTODEFAULT().
-        set steeringManager:pitchtorquefactor to 0.8.
-        set steeringManager:yawtorquefactor to 0.3.
+        set steeringManager:pitchtorquefactor to 0.95.
+        set steeringManager:yawtorquefactor to 0.5.
+        set steeringManager:yawpid:kp to steeringManager:yawpid:kp*0.1.
+        set steeringManager:yawpid:ki to steeringManager:yawpid:kp*0.06.
+        set steeringManager:yawpid:kd to steeringManager:yawpid:kp*0.08.
         set steeringManager:rolltorquefactor to 1.
         set steeringManager:rollcontrolanglerange to 25.
 
@@ -11249,17 +11252,21 @@ function ReEntryAndLand {
                     else set PitchPID:kp to 0.00005.
                 }
 
+                when airspeed < 900 then
+                    set trCompensation to trCompensation/2.
+
                 when airspeed < 300 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 750 and ship:body:atm:sealevelpressure < 0.5 and KSRSS or airspeed < 2000 and ship:body:atm:sealevelpressure < 0.5 and RSS or airspeed < 450 and ship:body:atm:sealevelpressure < 0.5 and STOCK then {
                     set FuelBalanceSpeed to FuelBalanceSpeed*0.65.
                     set t to time:seconds.
+                    set trCompensation to 0.
                     if ship:body:atm:sealevelpressure > 0.5 {
                         setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
                         set aoa to LandingAoA.
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
-                            set PitchPID:kp to 0.175.
-                            set PitchPID:ki to 0.15.
-                            set PitchPID:kd to 0.125.
+                            set PitchPID:kp to 0.1.
+                            set PitchPID:ki to 0.07.
+                            set PitchPID:kd to 0.09.
                             set YawPID:kp to 0.025.
                             set YawPID:ki to 0.0125.
                             set YawPID:kd to 0.01.
@@ -11310,6 +11317,17 @@ function ReEntryAndLand {
                     when RadarAlt < 12000 then {
                         //InhibitButtons(1, 1, 1).
                         LandAtOLM().
+                        wait 0.
+                        if not (TargetOLM = "False") and not LandSomewhereElse when Vessel(TargetOLM):distance < 2000 then {
+                            lock PositionError to vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position).
+                            set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
+                            set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
+                            when Vessel(TargetOLM):distance < 1300 then {
+                                sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,26,80,true")).
+                                sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
+                            }
+                        }
                         if ship:body:atm:sealevelpressure > 0.5 {
                             when RadarAlt < 1500 then {
                                 if currentdeltav > maxDeltaV*1.1 and ship:body:atm:sealevelpressure > 0.5 {
@@ -11328,15 +11346,6 @@ function ReEntryAndLand {
         }
         
         if ship:body:atm:sealevelpressure > 0.5 {
-            if not (TargetOLM = "false") {
-                when Vessel(TargetOLM):distance < 1800 then {
-                    lock PositionError to vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position).
-                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
-                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
-                    when Vessel(TargetOLM):distance < 1300 then
-                        sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
-                }
-            }
             until RadarAlt < FlipAltitude or altitude - AvailableLandingSpots[4] < FlipAltitude or cancelconfirmed and not ClosingIsRunning or vAng(facing:forevector,up:vector) < 45 and RadarAlt < 3*FlipAltitude {
                 ReEntryData().
                 if time:seconds > TimeSinceLastSteering + 0.2 set ReentryVector to ReEntrySteering().
@@ -11431,7 +11440,8 @@ function ReEntrySteering {
         set LngLatErrorList to LngLatError().
 
         set aoa_adjust to min(max(-5 ,round(0.005*((LngLatErrorList[0] - trCompensation)/1000)^3 + 0.15*((LngLatErrorList[0] - trCompensation)/1000),1)/2), 5).
-        set aoa to min(max(PlotAoA - 5 ,aoa + aoa_adjust), PlotAoA + 5).
+        if airspeed > 300 set aoa to min(max(PlotAoA - 5 ,aoa + aoa_adjust), PlotAoA + 5).
+        else set aoa to PlotAoA.
 
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (12 * Scale) + 2), 38).
         set PitchPID:minoutput to -PitchPID:maxoutput.
@@ -11469,8 +11479,9 @@ function ReEntrySteering {
         //set ReEntryVector to vecdraw(v(0, 0, 0), 1.5 * result:vector, green, "Re-Entry Vector", 25, true, 0.005, true, true).
         print "LngError: " + round(LngLatErrorList[0]).
         print "LatError: " + round(LngLatErrorList[1]).
-        print "AoA - Desired: " + round(DesiredAoA, 1) + "  |  Current: " + round(currentAoA,1).
-        print "      Plotted: " + round(PlotAoA,1) + "  |  Planned: " + round(aoa,1).
+        print "AoA - Desired: " + round(DesiredAoA, 1).
+        print " |    Current: " + round(currentAoA,1).
+        print " |    Plotted: " + round(PlotAoA,1) + "  |  Planned: " + round(aoa,1).
         print " ".
         print "PitchCtrl: " + round(pitchctrl, 2).
         print "MaxOutput: " + round(PitchPID:maxoutput, 2).
@@ -11844,10 +11855,6 @@ function ReEntryData {
 
             if ship:body:atm:sealevelpressure > 0.5 and airspeed < 130 {
                 Tank:shutdown.
-                if not (TargetOLM = "False") when Vessel(TargetOLM):distance < 2000 then {
-                    sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,26,80,true")).
-                    sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
-                }
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
@@ -12311,6 +12318,7 @@ function LandingVector {
                         if vAng(result, facing:forevector) > 3 set result to facing:forevector + result.
                     }
                     if GSVec:mag < 1.5 set result to result + 0.5 * up:vector.
+                    if RadarAlt < 2 set result to -velocity:surface + up:vector.
                 }
 
                 if ship:body:atm:sealevelpressure < 0.5 {
@@ -13613,7 +13621,7 @@ function SetPlanetData {
             set DescentAngles to list(PlotAoA, PlotAoA, PlotAoA, PlotAoA).
         }
         else {
-            set DescentAngles to list(PlotAoA, PlotAoA - 0.5*Scale, PlotAoA, LandingAoA).
+            set DescentAngles to list(PlotAoA, PlotAoA - 1*Scale, PlotAoA, LandingAoA). 
         }
         if RSS {
             set LongitudinalAcceptanceLimit to 460000.
