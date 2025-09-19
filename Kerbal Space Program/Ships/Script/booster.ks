@@ -2190,7 +2190,7 @@ function Boostback {
             wait 0.
             set x to 1.
             for eng in BoosterSingleEnginesRC {
-                if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine and not RSS) {} 
+                if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
                 else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
                     eng:shutdown.
                     set eng:gimbal:lock to true.
@@ -2201,7 +2201,7 @@ function Boostback {
             set x to 1.
             when time:seconds > ShutdownTime + 0.08 then 
                 for eng in BoosterSingleEnginesRC {
-                    if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine and not RSS) {}
+                    if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
                     else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
                         eng:shutdown.
                         set eng:gimbal:lock to true.
@@ -2236,7 +2236,7 @@ function Boostback {
         if random() < ifIgn/100 and BoosterSingleEngines {
             set failedEngNr to 1+floor(random()*12).
             if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
-            if MiddleEnginesShutdown and not RSS and RadarAlt > 8*Scale and airspeed > 8
+            if MiddleEnginesShutdown and RadarAlt > 8*Scale and airspeed > 8
                 if failedEngNr = 1 {
                     if BoosterSingleEnginesRC[3]:hassuffix("activate") {
                             BoosterSingleEnginesRC[3]:activate.
