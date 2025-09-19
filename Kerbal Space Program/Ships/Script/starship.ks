@@ -11080,7 +11080,7 @@ function LandwithoutAtmoLabels {
 
 function ReEntryAndLand {
     if addons:tr:hasimpact {
-        if ShipSubType:contains("Block2") {set aoa to 59. set LandingAoA to LandingAoA*1.05.}
+        if ShipSubType:contains("Block2") {set aoa to 62. set LandingAoA to LandingAoA*1.02.}
         set LandButtonIsRunning to true.
         if fullAuto g:hide().
         IgnitionChancesOpen:hide().
@@ -11854,8 +11854,8 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6*(Scale^0.6).
 
-            set closingPID to pidLoop(0.045, 0.006, 0.04,-2,2).
-            set cancelPID to pidLoop(0.1, 0.001, 0.1,-2,2).
+            set closingPID to pidLoop(0.045*(Scale^0.7), 0.006*(Scale^0.7), 0.04*(Scale^0.7),-2,2).
+            set cancelPID to pidLoop(0.08, 0.004, 0.07,-2,2).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
@@ -12049,7 +12049,7 @@ function ReEntryData {
                             if not ShipLanded preserve.
                         }
                             when RadarAlt <  0.1 * ShipHeight then {
-                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",4.2,24,false")).
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",8,24,false")).
                                 sendMessage(Vessel(TargetOLM), ("CloseArms")).
                             }
                         if LandSomewhereElse {
@@ -12193,7 +12193,7 @@ function ClosingAngle {
 }
 
 function ClosingSpeed {
-    set speed to min(max(4,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 10), 25).
+    set speed to min(max(4,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 12), 25).
 
     return round(speed,1).
 }
