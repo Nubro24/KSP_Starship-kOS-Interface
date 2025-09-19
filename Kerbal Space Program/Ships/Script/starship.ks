@@ -11207,7 +11207,7 @@ function ReEntryAndLand {
             set YawPID to PIDLOOP(0.001, 0.000001, 0.000001, -42, 42).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
                 set PitchPID to PIDLOOP(0.00005, 0.000001, 0.00001, -25, 27 - TRJCorrection).
-                set YawPID to PIDLOOP(0.002, 0.000001, 0.00001, -50, 50).
+                set YawPID to PIDLOOP(0.0005, 0.0000001, 0.0001, -50, 50).
             }
         }
         else if KSRSS {
@@ -11278,10 +11278,10 @@ function ReEntryAndLand {
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
                             set PitchPID:kp to 0.1.
-                            set PitchPID:ki to 0.05.
-                            set PitchPID:kd to 0.1.
-                            set YawPID:kp to 0.025.
-                            set YawPID:ki to 0.0115.
+                            set PitchPID:ki to 0.08.
+                            set PitchPID:kd to 0.14.
+                            set YawPID:kp to 0.03.
+                            set YawPID:ki to 0.015.
                             set YawPID:kd to 0.01.
                             set maxDeltaV to 480.
                         }
@@ -11852,13 +11852,13 @@ function ReEntryData {
             }
             unlock throttle.
             rcs off.
-            set steeringManager:maxstoppingtime to 6.
+            set steeringManager:maxstoppingtime to 6*(Scale^0.6).
 
             set closingPID to pidLoop(0.045, 0.006, 0.04,-2,2).
             set cancelPID to pidLoop(0.1, 0.001, 0.1,-2,2).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
-            set RadarRatio to 99.
+            set RadarRatio to 24.
 
             set LandingFlipStart to time:seconds.
             set LandingBurnDirection to vxcl(up:vector, velocity:surface).
@@ -11964,10 +11964,10 @@ function ReEntryData {
             set ShipLanded to false.
             set LandingFlipTime to 1.8.
             if KSRSS {
-                set LandingFlipTime to 3.4.
+                set LandingFlipTime to 2.2.
             } else if RSS {
-                set LandingFlipTime to 5.3.
-                if ShipSubType:contains("Block2") set LandingFlipTime to 5.8.
+                set LandingFlipTime to 2.8.
+                if ShipSubType:contains("Block2") set LandingFlipTime to 2.7.
             }
             set maxDecel to 0.
             set maxG to 4.
@@ -12041,7 +12041,7 @@ function ReEntryData {
                             set steeringManager:maxstoppingtime to 0.6*Scale.
                         }
 
-                        when RadarAlt < 2.8 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
+                        when RadarAlt < 5 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
                             set angle to ClosingAngle().
                             set speed to ClosingSpeed().
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + "," + speed + "," + angle + ",true")).
@@ -12180,10 +12180,10 @@ function ReEntryData {
 
 //------------------Landing Loop-----------------------///
 function ClosingAngle {
-    if (53/(1+constant:e^(-3.3*((RadarAlt/ShipHeight) - 2)))) + 28 > 30 {
-        set angle to (53/(1+constant:e^(-3.3*((RadarAlt/ShipHeight) - 2)))) + 28.
+    if (53/(1+constant:e^(-2.2*((RadarRatio) - 2.8)))) + 28 > 29.8 {
+        set angle to (53/(1+constant:e^(-2.2*((RadarRatio) - 2.8)))) + 28.
     } else {
-        set angle to (30/(1+constant:e^(-10*((RadarAlt/ShipHeight) - 0.4)))) + 0.2.
+        set angle to (30/(1+constant:e^(-6*((RadarRatio) - 0.6)))) + 0.3.
     }
     if angle > 80 set angle to 80.
     
@@ -12193,16 +12193,7 @@ function ClosingAngle {
 }
 
 function ClosingSpeed {
-    //set currentDec to shipThrust / (ship:mass).
-    //if currentDec = 0 set currentDec to 0.00001.
-    set currentSpeed to verticalSpeed.
-    if currentSpeed = 0 set currentSpeed to 0.00001.
-    if currentSpeed < 0 set currentSpeed to -currentSpeed.
-
-    //set speed to min(max((angle/(currentSpeed/currentDec))*1.5,2),12).
-    set speed to lastAngle-angle * 20.
-
-    if currentSpeed > speed and speed < 4 set speed to currentSpeed.
+    set speed to min(max(4,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 10), 25).
 
     return round(speed,1).
 }
@@ -12274,6 +12265,7 @@ function LandingVector {
                 set ErrorVector to ErrorVector:normalized * min(max(RadarAlt / 5, 1), 7.5).
             }
         }
+        set RadarRatio to max(0.02,RadarAlt/ShipHeight).
 
         if time:seconds < LandingFlipStart + LandingFlipTime {
             if LandSomewhereElse {
@@ -12321,7 +12313,6 @@ function LandingVector {
             }
             else {
                 if ship:body:atm:sealevelpressure > 0.5 {
-                    set RadarRatio to max(0.02,RadarAlt/ShipHeight).
                     if TargetOLM and altitude < 1000 set TowerRotationVector to vCrs(vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position),up:vector).
                     else set TowerRotationVector to north:vector.
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
@@ -12632,14 +12623,14 @@ function LngLatError {
                 }
                 else {
                     if ShipSubType:contains("Block2") {
-                        if RadarAlt > 6000 set LngLatOffset to -148.
-                        else set LngLatOffset to -100 - vxcl(up:vector, velocity:surface):mag*0.85.
+                        if RadarAlt > 6000 set LngLatOffset to -120.
+                        else set LngLatOffset to -70 - vxcl(up:vector, velocity:surface):mag*0.85.
                     } else if ShipType:contains("Block1"){
-                        if RadarAlt > 6000 set LngLatOffset to -133.
-                        else set LngLatOffset to -80 - vxcl(up:vector, velocity:surface):mag*0.83.
+                        if RadarAlt > 6000 set LngLatOffset to -110.
+                        else set LngLatOffset to -65 - vxcl(up:vector, velocity:surface):mag*0.83.
                     } else {
-                        if RadarAlt > 6000 set LngLatOffset to -124.
-                        else set LngLatOffset to -86 - vxcl(up:vector, velocity:surface):mag*0.8.
+                        if RadarAlt > 6000 set LngLatOffset to -100.
+                        else set LngLatOffset to -65 - vxcl(up:vector, velocity:surface):mag*0.8.
                     }
                 }
             }
@@ -13867,9 +13858,9 @@ function LandAtOLM {
         }
         else {
             if ShipType:contains("Block1") {
-                set FlipAltitude to 620.
+                set FlipAltitude to 700.
             } else {
-                set FlipAltitude to 615.
+                set FlipAltitude to 700.
             }
         }
         list targets in shiplist.

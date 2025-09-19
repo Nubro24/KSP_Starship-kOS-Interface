@@ -2679,7 +2679,7 @@ function LandingGuidance {
     set streamOffset to vAng(GuidVec,-velocity:surface).
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((steeringOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-150)/50, 1).
-    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.4, 0.05)) + (vAng(up:vector,GuidVec)-5)/30.
+    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (vAng(up:vector,GuidVec)-5)/30.
 
     // === Final Vector ===
     set FinalVec to GuidVec:normalized + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp.
