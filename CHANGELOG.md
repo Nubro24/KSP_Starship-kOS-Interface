@@ -1,3 +1,18 @@
+# V3.5.2.5 (2025-09-22)
+- **Reworked Catch Guidance for Booster and Ship** 
+  - uses Catch position instead ground impact position
+  - PID based (better adjustments in different situations + easier fine tuning)
+- **Improved Reentry Guidance for Ship**
+- **UI Changes**
+  - Added Flight Settings:
+    - Hide Inteface during Flight Operations
+    - Automatic Mode (further reduced UI + higher V2 Ship Failure)
+    - Question for HSR Jettison after Boostback
+  - Reduced the Telemetry Height to match SpaceXs old Telemetry
+  - Telemetry Rescaling now requires Input of Horizontal and Vertical Resolution
+    - Uses Ratio to determine the best Scaling
+- multiple Bug-/Errorfixes
+
 # V3.5.2 (2025-06-04)
 - **Ascent Changes**:
   - Improved Ascent Profile
