@@ -1988,6 +1988,8 @@ function Boostback {
 
     HUDTEXT("Performing Landing Burn..", 3, 2, 20, green, false).
 
+    if GfC when not Gfc then set cAbort to true.
+
     when cAbort then {
         set GoForCatch to false.
         if not BoosterLanded and (RadarAlt > 5 or PositionError:mag > 10) {
@@ -3322,12 +3324,14 @@ function PollUpdate {
                 else set missingCount to missingCount + 1.
             }
             if not BoostBackComplete and ErrorVector:mag > BoosterGlideDistance + 5450 * Scale {
-                if missingCount > 2 set GE to false.
+                if (missingCount > 2 and not RSS) or missingCount > 3 set GE to false.
                 else if inactiveCount > 3 set GE to false.
                 else set GE to true.
             } else if LandingBurnEC and not MiddleEnginesShutdown {
-                if missingCount > 1 and inactiveCount > 1 or missingCount > 2 set GE to false.
-                else if inactiveCount > 2 set GE to false.
+                if (missingCount > 1 and inactiveCount > 1 and not RSS) 
+                    or (missingCount > 2 and not RSS) or (missingCount > 2 and inactiveCount < 1) 
+                    or (inactiveCount > 1 and missingCount > 2) or missingCount > 3 set GE to false.
+                else if (inactiveCount > 2 and not RSS) or inactiveCount > 3 set GE to false.
                 else set GE to true.
                 if BoosterSingleEnginesRC[0]:hassuffix("activate") and BoosterSingleEnginesRC[1]:hassuffix("activate") and BoosterSingleEnginesRC[2]:hassuffix("activate") {
                     if BoosterSingleEnginesRC[0]:thrust < 60*Scale or BoosterSingleEnginesRC[1]:thrust < 60*Scale or BoosterSingleEnginesRC[2]:thrust < 60*Scale 
@@ -3340,7 +3344,7 @@ function PollUpdate {
                 if BoosterSingleEnginesRC[1]:hassuffix("activate") if BoosterSingleEnginesRC[1]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
                 if BoosterSingleEnginesRC[2]:hassuffix("activate") if BoosterSingleEnginesRC[2]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
                 if missingCount > 1 set GE to false.
-                else if inactiveCount > 1 set GE to false.
+                else if inactiveCount > 1 or (ActiveRC < 3 and not RSS) set GE to false.
                 else set GE to true.
             }
         }
