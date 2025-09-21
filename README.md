@@ -33,6 +33,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - kOS - [github](https://github.com/KSP-KOS/KOS/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/165628-ksp-1101-and-111-kos-v1310-kos-scriptable-autopilot-system/)
 - Trajectories - [github](https://github.com/neuoy/KSPTrajectories/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/162324-18-112x-trajectories-v241-2021-06-27-atmospheric-predictions/)
 - Kopernicus - [github](https://github.com/Kopernicus/Kopernicus/releases)
+- Community Resource Pack [github](https://github.com/UmbraSpaceIndustries/CommunityResourcePack/releases)
 ### Recommended:
 - HangarExtender - [github](https://github.com/linuxgurugamer/FShangarExtender/releases)
 - HullcamVDS - [github](https://github.com/linuxgurugamer/HullcamVDSContinued/releases)
@@ -114,3 +115,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 >
 > ### By the editor:
 > This work has mostly been done by Janus in the original script. My Edits mainly focus on bringing functionallity back, while not rewriting the script.
+
+
+#### If you want to support what I'm doing
+> [Patreon](https://patreon.com/Nubro?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink)
