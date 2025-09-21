@@ -13,7 +13,7 @@
     - Uses Ratio to determine the best Scaling
 - multiple Bug-/Errorfixes
 
-# V3.5.2 (2025-06-04)
+# V3.5.2 (2025-06-25)
 - **Ascent Changes**:
   - Improved Ascent Profile
   - Improved Hotstage Timings
