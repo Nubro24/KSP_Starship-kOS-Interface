@@ -97,6 +97,15 @@ else set LSCoords to ("0,0").
 
 if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
+    if L:haskey("HideGUI") {
+        set HideGUI to L["HideGUI"].
+    }
+    else set HideGUI to false.
+} 
+else set HideGUI to false.
+
+if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
     if L:haskey("fullAuto") {
         set fullAuto to L["fullAuto"].
     }
@@ -1576,10 +1585,30 @@ local FlightSettingsHeader is FlightSettingsLayout:addlabel().
     set Quest:style:margin:left to 12.
     set Quest:style:margin:right to 8.
     set Quest:style:fontsize to 16.
+
+local HideInterfaceSetting is FlightSettingsLayout:addbutton(" Hide Interface during Flight Operations").
+    set HideInterfaceSetting:style:fontsize to 16.
+    set HideInterfaceSetting:style:margin:left to 24.
+    set HideInterfaceSetting:style:margin:top to 24.
+    set HideInterfaceSetting:style:height to 24.
+local HISettingLabel is FlightSettingsLayout:addlabel().
+    set HISettingLabel:style:fontsize to 12.
+    set HISettingLabel:style:margin:left to 24.
+    set HISettingLabel:style:margin:top to 5.
+    set HISettingLabel:style:height to 18.
+    if HideGUI set HISettingLabel:text to "Currently On".
+    else set HISettingLabel:text to "Currently Off".
+set HideInterfaceSetting:onclick to {
+    set HideGUI to not HideGUI.
+    SaveToSettings("HideGUI", HideGUI).
+    if HideGUI set HISettingLabel:text to "Currently On".
+    else set HISettingLabel:text to "Currently Off".
+}.
+
 local IFTMode is FlightSettingsLayout:addbutton(" Automatic Mode").
     set IFTMode:style:fontsize to 16.
     set IFTMode:style:margin:left to 24.
-    set IFTMode:style:margin:top to 20.
+    set IFTMode:style:margin:top to 24.
     set IFTMode:style:height to 24.
 local IFTModeTooltip is FlightSettingsLayout:addlabel().
     set IFTModeTooltip:style:fontsize to 10.
@@ -1606,7 +1635,7 @@ set IFTMode:onclick to {
 local HSRSetting is FlightSettingsLayout:addbutton(" HSR Question before launch").
     set HSRSetting:style:fontsize to 16.
     set HSRSetting:style:margin:left to 24.
-    set HSRSetting:style:margin:top to 20.
+    set HSRSetting:style:margin:top to 24.
     set HSRSetting:style:height to 24.
 local HSRSettingLabel is FlightSettingsLayout:addlabel().
     set HSRSettingLabel:style:fontsize to 12.
@@ -7488,7 +7517,7 @@ function Launch {
                 BackGroundUpdate().
             }
 
-            if not fullAuto g:hide().
+            if HideGUI g:hide().
             
             set message1:text to "".
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
@@ -11082,7 +11111,7 @@ function ReEntryAndLand {
     if addons:tr:hasimpact {
         if ShipSubType:contains("Block2") {set aoa to 62. set LandingAoA to LandingAoA*1.02.}
         set LandButtonIsRunning to true.
-        if fullAuto g:hide().
+        if fullAuto or HideGUI g:hide().
         IgnitionChancesOpen:hide().
         set FindNewTarget to false.
         set LZsettoOLM to false.
