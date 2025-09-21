@@ -117,16 +117,17 @@ for part in ship:parts {
     }
     if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "23".
-        set Gridfins to list("","","","").
+        set GridfinLength to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length.
         set GFset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "25".
-        set Gridfins to list("","","","").
+        set GridfinLength to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length.
         set GFset to true.
     }
     if part:name = ("SEP.Gridfin") and not GFset {
-        set Gridfins to ship:partsnamed("SEP.Gridfin").
+        set GridfinsType to "Vista".
+        set GridfinLength to ship:partsnamed("Sep.Gridfin"):length.
         set GFset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
@@ -159,18 +160,60 @@ for part in ship:parts {
     }
 }
 
-for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {
-    if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
-        set Gridfins[0] to fin.
+if GridfinLength = 4 {
+    set Gridfins to list("","","","").
+    if GridfinsType = "Vista" for fin in ship:partsnamed("Sep.Gridfin") {
+        if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
+            set Gridfins[0] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
+            set Gridfins[1] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
+            set Gridfins[2] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
+            set Gridfins[3] to fin.
+        }
+    } 
+    else for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {
+        if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
+            set Gridfins[0] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
+            set Gridfins[1] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
+            set Gridfins[2] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
+            set Gridfins[3] to fin.
+        }
     }
-    else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
-        set Gridfins[1] to fin.
-    }
-    else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
-        set Gridfins[2] to fin.
-    }
-    else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
-        set Gridfins[3] to fin.
+}
+else if GridfinLength = 3 {
+    set Gridfins to list("","","").
+    if GridfinsType = "Vista" for fin in ship:partsnamed("Sep.Gridfin") {
+        if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), -facing:topvector) < 60 {
+            set Gridfins[0] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 60 {
+            set Gridfins[1] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), -facing:starvector) < 60 {
+            set Gridfins[2] to fin.
+        }
+    } 
+    else for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {
+        if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), -facing:topvector) < 60 {
+            set Gridfins[0] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 60 {
+            set Gridfins[1] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), -facing:starvector) < 60 {
+            set Gridfins[2] to fin.
+        }
     }
 }
 
@@ -3351,11 +3394,18 @@ function PollUpdate {
         else set GE to true.
     } else {set GE to false.}
 
-    if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length > 3 or ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length > 3 set GG to true.
-    else set GG to false.
-    if ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length < Gridfins:length and ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length > 0 set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
-    else if ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length < Gridfins:length  and ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length > 0 set Gridfins to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN").
-    
+    if GridfinsType = "Vista" {
+        if ship:partsnamed("Sep.Gridfin"):length < GridfinLength set GG to false.
+        else set GG to true.
+        if ship:partsnamed("Sep.Gridfin"):length < Gridfins:length and ship:partsnamed("Sep.Gridfin"):length > 0 
+            set Gridfins to ship:partsnamed("Sep.Gridfin").
+    }
+    else {
+        if ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN"):length < GridfinLength set GG to false.
+        else set GG to true.
+        if ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN"):length < Gridfins:length and ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN"):length > 0 
+            set Gridfins to ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN").
+    }
     
     if not GTn set GTn to true.
 
@@ -3645,9 +3695,9 @@ function GUIupdate {
     }
 
     if GG {
-        set data3:text to "Grindfins: <b><color=green>GO</color></b>".
+        set data3:text to "Gridfins: <b><color=green>GO</color></b>".
     } else {
-        set data3:text to "Grindfins: <b><color=red>NOGo</color></b>".
+        set data3:text to "Gridfins: <b><color=red>NOGo</color></b>".
     }
 
     if GTn {

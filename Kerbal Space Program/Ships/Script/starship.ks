@@ -1354,6 +1354,12 @@ if ship:partsnamedpattern("VS.25.BL2"):length > 1 {
     set ShipSubType to "Block2".
     set TRJCorrection to TRJCorrection*0.6.
 }
+if ShipType:contains("Block1") {
+    if RSS {
+        set VentRate to VentRate * 1.4.
+    }
+    else set VentRate to VentRate * 1.6.
+}
 print ShipType.
 print ShipSubType.
 print "Starship Interface startup complete!".
@@ -1708,12 +1714,12 @@ local ScaleUI is GUI(300).
     set ScaleUI:skin:label:textcolor to white.
 local ScaleLayout is ScaleUI:addvlayout().
 local ScaleQuest is ScaleLayout:addlabel().
-    set ScaleQuest:text to "Enter your Vertical Resolution (f.e. 1080 for 1080p):".
+    set ScaleQuest:text to "Enter your Horizontal-Vertical Resolution (f.e. '1920-1080' for 1080p-16:9):".
     set ScaleQuest:style:margin:top to 12.
     set ScaleQuest:style:margin:bottom to 12.
     set ScaleQuest:style:margin:left to 12.
 local ScaleSelect is ScaleLayout:addtextfield().
-    set ScaleSelect:tooltip to "Vertical Resolution".
+    set ScaleSelect:tooltip to "Horizontal-Vertical Resolution".
     set ScaleSelect:style:margin:bottom to 12.
     set ScaleSelect:style:margin:left to 12.
 local ScaleConfirm is ScaleLayout:addbutton().
@@ -1722,7 +1728,16 @@ local ScaleConfirm is ScaleLayout:addbutton().
         sTelemetry:hide().
         if ScaleSelect:text = "" {}
         else {
-            set TScale to round(ScaleSelect:text:toscalar/1080,12).
+            set Resol to ScaleSelect:text:split("-").
+            if Resol[0]/Resol[1] > 16/9 {
+                set setResol to Resol[1].
+                set ScaleResol to 1080.
+            }
+            else {
+                set setResol to Resol[0].
+                set ScaleResol to 1920.
+            }
+            set TScale to round(setResol/ScaleResol,12).
             CreateTelemetry().
             if Boosterconnected {
                 sendMessage(processor(Volume("Booster")),"ScaleT,"+TScale:tostring).
@@ -6085,7 +6100,7 @@ set landbutton:ontoggle to {
                             ClearInterfaceAndSteering().
                             return.
                         }
-                        else if RSS and apoapsis > 500000 and ship:body:atm:sealevelpressure > 0.5 or not (RSS) and apoapsis > 250000 and ship:body:atm:sealevelpressure > 0.5 or RSS and apoapsis > 300000 and ship:body:atm:sealevelpressure < 0.5 or not (RSS) and apoapsis > 100000 and ship:body:atm:sealevelpressure < 0.5 or periapsis < ship:body:atm:height or abs(ship:orbit:inclination) + 2.5 < abs(setting1:text:split(",")[0]:toscalar(0)) {
+                        else if RSS and apoapsis > 600000 and ship:body:atm:sealevelpressure > 0.5 or not (RSS) and apoapsis > 250000 and ship:body:atm:sealevelpressure > 0.5 or RSS and apoapsis > 300000 and ship:body:atm:sealevelpressure < 0.5 or not (RSS) and apoapsis > 100000 and ship:body:atm:sealevelpressure < 0.5 or periapsis < ship:body:atm:height or abs(ship:orbit:inclination) + 2.5 < abs(setting1:text:split(",")[0]:toscalar(0)) {
                             ShowHomePage().
                             LogToFile("De-Orbit cancelled due to orbit requirements not fulfilled").
                             set message1:text to "<b>Automatic De-Orbit Requirements:</b>".
@@ -6258,60 +6273,6 @@ set landbutton:ontoggle to {
                                         LogToFile("Venting stopped by user").
                                         set runningprogram to "None".
                                         ClearInterfaceAndSteering().
-                                    }
-
-                                    //Header Transfer EXPERIMENTAL
-                                    //if RSS IRLFuelBalance().
-                                    function IRLFuelBalance {
-                                        hudtext("Experimental Fuel Vent",6,3,14,yellow,true).
-                                        wait 1.
-                                        for res in tank:resources {
-                                            if res:name = "Oxidizer" {
-                                                set RepositionOxidizer to TRANSFERALL("Oxidizer", Tank, HeaderTank).
-                                                set RepositionOxidizer:ACTIVE to TRUE.
-                                            }
-                                            if res:name = "LiquidFuel" {
-                                                set RepositionLF to TRANSFERALL("LiquidFuel", Tank, HeaderTank).
-                                                set RepositionLF:ACTIVE to TRUE.
-                                            }
-                                            if res:name = "LqdMethane" {
-                                                set RepositionLF to TRANSFERALL("LqdMethane", Tank, HeaderTank).
-                                                set RepositionLF:ACTIVE to TRUE.
-                                            }
-                                        }
-                                        until RepositionOxidizer:STATUS = "Finished" and RepositionLF:status = "Finished" {wait 0.2.}
-                                        for res in HeaderTank:resources {
-                                            if res:name = "Oxidizer" {
-                                                set res:enabled to false.
-                                            }
-                                            if res:name = "LiquidFuel" {
-                                                set res:enabled to false.
-                                            }
-                                            if res:name = "LqdMethane" {
-                                                set res:enabled to false.
-                                            }
-                                        }
-                                        set tankFuel to 999999.
-                                        set tankOx to 999999.
-                                        wait 0.4.
-                                        Tank:activate.
-                                        until ShipFuelAmount < 10 or ShipLoxAmount < 10 {
-                                            BackGroundUpdate().
-                                            wait 0.2.
-                                        }
-                                        Tank:shutdown.
-                                        wait 0.4.
-                                        for res in HeaderTank:resources {
-                                            if res:name = "Oxidizer" {
-                                                set res:enabled to true.
-                                            }
-                                            if res:name = "LiquidFuel" {
-                                                set res:enabled to true.
-                                            }
-                                            if res:name = "LqdMethane" {
-                                                set res:enabled to true.
-                                            }
-                                        }
                                     }
                                 }
                                 else {
@@ -11510,7 +11471,11 @@ function ReEntrySteering {
         set steeringOffset to vAng(GuidVec:vector,facing:forevector).
         set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0))^1.2, 1).
 
-        set resultVec to GuidVec:vector:normalized + facing:forevector:normalized * steeringDamp.
+        if currentAoA > 100 set stableDamp to -(currentAoA-100)/40.
+        else if currentAoA < 50 set stableDamp to (50-currentAoA)/40.
+        else set stableDamp to 0.
+
+        set resultVec to GuidVec:vector:normalized + facing:forevector:normalized * steeringDamp + facing:topvector * stableDamp.
 
         //set GuidVec to vecDraw(HeaderTank:position, 0.5 * GuidVec:vector, red, "Guid Vector", 25, true, 0.005, true, true).
         //set ReentryVec to vecDraw(HeaderTank:position, 1 * resultVec, green, "Re-Entry Vector", 25, true, 0.005, true, true).
