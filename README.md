@@ -11,3 +11,7 @@
 >
 > ### By the editor:
 > This work has mostly been done by Janus in the original script. My Edits mainly focus on bringing functionallity back, ~~while not rewriting the script~~ adding more features and improving guidance.
+
+
+#### If you want to support what I'm doing
+> [Patreon](https://patreon.com/Nubro?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink)
