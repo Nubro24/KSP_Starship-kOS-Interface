@@ -100,20 +100,19 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ### Planned Features:
-- Rendezvous Maneuver
-- better Ship Catch Abort
-- (Gridfin Tilt for Hotstaging)
 - Landings with sub-meter precision
+- better Ship Catch Abort
 - IFT - Flight profile option
 - Implement unused Heat Pictograms
+- Rendezvous Maneuver
 
 
 
 > [!NOTE]
-> ### By the author:
+> ### By the author (Janus92):
 > This has been a pet project of mine since around May 2021, and I had a lot of fun making and using this Interface. I hope you will too! Let me know what you think! I thank all the mod makers whose work I have been able to rely on, and without whom none of this would have been possible. Especially I want to thank Kari, Sofie, all others that have contributed to SEP and SAMCG14 for his work on SLE.
 >
-> ### By the editor:
+> ### By the editor (Nubro):
 > This work has mostly been done by Janus in the original script. My Edit mainly focuses on bringing back functionality, ~~while not rewriting the script~~ adding more features and improving guidance.
 
 
