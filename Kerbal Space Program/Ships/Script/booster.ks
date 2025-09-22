@@ -3497,12 +3497,12 @@ function GUIupdate {
 
     if not MaxQ {
         if qCheck = 1 {
-            set LastQ to q.
+            set LastQ to ship:q.
             set qCheck to qCheck + 1.
         } else if qCheck < 10 {
             set qCheck to qCheck + 1.
         }
-        else if LastQ > q set MaxQ to true.
+        else if LastQ > ship:q set MaxQ to true.
     }
 
     set boosterAltitude to RadarAlt.

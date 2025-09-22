@@ -12029,10 +12029,13 @@ function ReEntryData {
             wait 0.
 
             when cAbort then {
+                set LandSomewhereElse to true.
                 set landingzone to ship:body:geoPositionOf(landingzone:position + vxcl(up:vector, velocity:surface)*ShipHeight + ShipHeight * north:vector).
                 ADDONS:TR:SETTARGET(landingzone).
                 lock RadarAlt to alt:radar - ShipHeight.
             }
+
+            if not (TargetOLM = "false") and GfC and TargetOLM when LandSomewhereElse then set cAbort to true.
             
             if SLactive <> 3 set cAbort to true.
 
