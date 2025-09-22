@@ -3495,7 +3495,7 @@ function GUIupdate {
 
     if cAbort set GDlamp:style:bg to "starship_img/telemetry_red".
 
-    if not MaxQ {
+    if not MaxQ and airspeed > 2 {
         if qCheck = 1 {
             set LastQ to ship:q.
             set qCheck to qCheck + 1.
@@ -3503,6 +3503,7 @@ function GUIupdate {
             set qCheck to qCheck + 1.
         }
         else if LastQ > ship:q set MaxQ to true.
+        else set qCheck to 1.
     }
 
     set boosterAltitude to RadarAlt.
