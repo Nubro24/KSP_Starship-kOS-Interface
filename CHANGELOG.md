@@ -3,6 +3,7 @@
   - uses Catch position instead ground impact position
   - PID based (better adjustments in different situations + easier fine tuning)
 - **Improved Reentry Guidance for Ship**
+- Added Support for a Booster with 3 Gridfins (V3 Layout)
 - **UI Changes**
   - Added Flight Settings:
     - Hide Inteface during Flight Operations

@@ -2149,16 +2149,18 @@ function Boostback {
                                     }
                                 }
                                 for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 0).
-                                for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 10).
-                                if oldBooster {
+                                if oldBooster and GridfinLength = 4 {
+                                    for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 10).
                                     Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
                                     Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                                    for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", true).
                                 } 
-                                else {
+                                else if GridfinLength = 4 {
+                                    for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 10).
                                     Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
                                     Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                                    for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", true).
                                 }
-                                for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", true).
                             }
                         }
                     }
@@ -2428,8 +2430,10 @@ function Boostback {
                 
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 15).
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 0).
-                        Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
-                        Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                        if GridfinLength = 4 {
+                            Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                            Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
+                        }
                         for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", false).
             }
 
