@@ -989,15 +989,32 @@ on ag8 {
     return true.
 } 
 
+set MaxQ to false.
+set Hotstaging to false.
+set SECO to false.
 
-when time:seconds > TelemetryTimer + 0.05 then {
+when time:seconds > TelemetryTimer + 0.03 then {
     GUIupdate().
     set TelemetryTimer to time:seconds.
     return true.
 }
 
 
-
+when MaxQ then {
+    set ClockHeader:text to "Max Q".
+    set MaxQTime to time:seconds.
+    when MaxQTime + 3 < time:seconds then set ClockHeader:text to MissionName.
+}
+when Hotstaging then {
+    set ClockHeader:text to "Hotstaging".
+    set HotstagingTime to time:seconds.
+    when HotstagingTime + 5 < time:seconds then set ClockHeader:text to MissionName.
+} 
+when SECO then {
+    set ClockHeader:text to "SECO".
+    set SECOTime to time:seconds.
+    when SECOTime + 3 < time:seconds then set ClockHeader:text to MissionName.
+} 
 
 wait 0.1.
 
@@ -1092,6 +1109,12 @@ until False {
     }
     else if command = "MissionName" {
         set MissionName to MesParameter.
+    }
+    else if command = "Hotstaging" {
+        set Hotstaging to true.
+    }
+    else if command = "SECO" {
+        set SECO to true.
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -3473,9 +3496,17 @@ function GUIupdate {
         set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
     }
 
-
     if cAbort set GDlamp:style:bg to "starship_img/telemetry_red".
 
+    if not MaxQ {
+        if qCheck = 1 {
+            set LastQ to q.
+            set qCheck to qCheck + 1.
+        } else if qCheck < 10 {
+            set qCheck to qCheck + 1.
+        }
+        else if LastQ > q set MaxQ to true.
+    }
 
     set boosterAltitude to RadarAlt.
     set boosterSpeed to ship:airspeed.

@@ -7786,6 +7786,7 @@ function Launch {
                 if ShipSubType:contains("Block2") set LaunchRollVector to up:vector.
                 set steeringManager:rolltorquefactor to 5.
                 set Hotstaging to true.
+                sendMessage(processor(Volume("Booster")),"Hotstaging").
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
@@ -8102,6 +8103,7 @@ function Launch {
         }
         ShutDownAllEngines().
         BackGroundUpdate().
+        sendMessage(Vessel("Booster"),"SECO").
         set DistanceToTarget to ((landingzone:lng - ship:geoposition:lng) * Planet1Degree).
         LogToFile("Distance flown from Launch Site to Orbit Complete: " + round(DistanceToTarget, 3) + "km").
         if not (LiftOffTime = 0) {
