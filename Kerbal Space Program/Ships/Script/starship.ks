@@ -1593,22 +1593,24 @@ local IgnSave is ButtonsLayout:addbutton().
 
 
 local FlightSettingsHeader is FlightSettingsLayout:addlabel().
-    set Quest:text to "<b>(Pre-)Flight Settings</b>".
-    set Quest:style:margin:top to 14.
-    set Quest:style:margin:bottom to 16.
-    set Quest:style:margin:left to 12.
-    set Quest:style:margin:right to 8.
-    set Quest:style:fontsize to 16.
+    set FlightSettingsHeader:text to "<b>(Pre-)Flight Settings</b>".
+    set FlightSettingsHeader:style:margin:top to 14.
+    set FlightSettingsHeader:style:margin:bottom to 16.
+    set FlightSettingsHeader:style:margin:left to 24.
+    set FlightSettingsHeader:style:margin:right to 8.
+    set FlightSettingsHeader:style:fontsize to 16.
 
 local HideInterfaceSetting is FlightSettingsLayout:addbutton(" Hide Interface during Flight Operations").
     set HideInterfaceSetting:style:fontsize to 16.
     set HideInterfaceSetting:style:margin:left to 24.
     set HideInterfaceSetting:style:margin:top to 24.
+    set HideInterfaceSetting:style:margin:right to 8.
     set HideInterfaceSetting:style:height to 24.
 local HISettingLabel is FlightSettingsLayout:addlabel().
     set HISettingLabel:style:fontsize to 12.
     set HISettingLabel:style:margin:left to 24.
     set HISettingLabel:style:margin:top to 5.
+    set HISettingLabel:style:margin:right to 8.
     set HISettingLabel:style:height to 18.
     if HideGUI set HISettingLabel:text to "Currently On".
     else set HISettingLabel:text to "Currently Off".
@@ -1623,17 +1625,20 @@ local AutoMode is FlightSettingsLayout:addbutton(" Automatic Mode").
     set AutoMode:style:fontsize to 16.
     set AutoMode:style:margin:left to 24.
     set AutoMode:style:margin:top to 24.
+    set AutoMode:style:margin:right to 8.
     set AutoMode:style:height to 24.
 local AutoModeTooltip is FlightSettingsLayout:addlabel().
     set AutoModeTooltip:style:fontsize to 10.
     set AutoModeTooltip:style:margin:left to 24.
     set AutoModeTooltip:style:margin:top to 5.
+    set AutoModeTooltip:style:margin:right to 8.
     set AutoModeTooltip:style:height to 18.
     set AutoModeTooltip:text to "Removes more UI (Catch Decision with AG9 and AG10)".
 local AutoModeLabel is FlightSettingsLayout:addlabel().
     set AutoModeLabel:style:fontsize to 12.
     set AutoModeLabel:style:margin:left to 24.
     set AutoModeLabel:style:margin:top to 5.
+    set AutoModeLabel:style:margin:right to 8.
     set AutoModeLabel:style:height to 18.
     if fullAuto set AutoModeLabel:text to "Currently On".
     else set AutoModeLabel:text to "Currently Off".
@@ -1650,11 +1655,13 @@ local HSRSetting is FlightSettingsLayout:addbutton(" HSR Question before launch"
     set HSRSetting:style:fontsize to 16.
     set HSRSetting:style:margin:left to 24.
     set HSRSetting:style:margin:top to 24.
+    set HSRSetting:style:margin:right to 8.
     set HSRSetting:style:height to 24.
 local HSRSettingLabel is FlightSettingsLayout:addlabel().
     set HSRSettingLabel:style:fontsize to 12.
     set HSRSettingLabel:style:margin:left to 24.
     set HSRSettingLabel:style:margin:top to 5.
+    set HSRSettingLabel:style:margin:right to 8.
     set HSRSettingLabel:style:height to 18.
     if HSRJetQuest set HSRSettingLabel:text to "Currently On".
     else set HSRSettingLabel:text to "Currently Off".
@@ -1669,19 +1676,22 @@ local MissionNamer is FlightSettingsLayout:addtextfield().
     set MissionNamer:style:fontsize to 16.
     set MissionNamer:style:margin:left to 24.
     set MissionNamer:style:margin:top to 24.
+    set MissionNamer:style:margin:right to 8.
     set MissionNamer:style:height to 24.
     set MissionNamer:tooltip to "Enter Mission Name".
 local MissionNameSetter is FlightSettingsLayout:addhlayout().
 local MissionNameSet is MissionNameSetter:addbutton("Set Name").
     set MissionNameSet:style:fontsize to 16.
     set MissionNameSet:style:margin:left to 24.
-    set MissionNameSet:style:margin:top to 24.
+    set MissionNameSet:style:margin:top to 8.
+    set MissionNameSet:style:margin:right to 8.
     set MissionNameSet:style:height to 24.
     set MissionNameSet:style:align to "Center".
 local MissionNameSave is MissionNameSetter:addbutton("Set & Save Name").
     set MissionNameSave:style:fontsize to 16.
     set MissionNameSave:style:margin:left to 6.
-    set MissionNameSave:style:margin:top to 24.
+    set MissionNameSave:style:margin:top to 8.
+    set MissionNameSave:style:margin:right to 8.
     set MissionNameSave:style:height to 24.
     set MissionNameSave:style:align to "Center".
 set MissionNameSet:onclick to {
@@ -12358,12 +12368,14 @@ function LandingVector {
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,3/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(4*Scale),1)+TgtErrorStrength)/2.
                     set VelCancel to cancelPID:update(time:seconds, GSVec:mag).
-                    if twoSL set _2SL to 0.6.
+                    if twoSL set _2SL to 0.6*(Scale^0.6).
                     else set _2SL to 0.
+                    if oneSL set _1SL to 0.5*(Scale^0.5).
+                    else set _1SL to 0.
 
                     set LndGuidVec to up:vector * ShipHeight/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
-                    set result to LndGuidVec - facing:topvector * _2SL + facing:forevector * LndsteerDamp.
+                    set result to LndGuidVec - facing:topvector * _2SL + facing:starvector * _1SL + facing:forevector * LndsteerDamp.
 
                     //set v2 to vecDraw(HeaderTank:position, -TgtErrorVector:normalized * TgtErrorStrength, blue, "2",2,true,0.05).
                     //set v3 to vecDraw(HeaderTank:position, GSVec:normalized * VelCancel, red, "3",2,true,0.05).

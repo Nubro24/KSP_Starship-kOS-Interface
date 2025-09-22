@@ -2106,7 +2106,7 @@ function Boostback {
         }
     }
 
-    when RadarAlt < 1600 and not (LandSomewhereElse) then {
+    when RadarAlt < 2000 and not (LandSomewhereElse) then {
         set steeringManager:maxstoppingtime to 1.2.
         if not (TargetOLM = "false") and TowerExists {
             //setTowerHeadingVector().
@@ -2126,7 +2126,7 @@ function Boostback {
 
                 when Vessel(TargetOLM):distance < 1000 then {sendMessage(Vessel(TargetOLM), ("RetractSQD")).}
 
-                when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < 124 * Scale and RadarAlt < 7.5 * BoosterHeight then {
+                when vxcl(up:vector, landingzone:position - BoosterCore:position):mag < BoosterHeight*5 and RadarAlt < 8 * BoosterHeight then {
                     if RSS {
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.4,16,75,true")).
                     } else {
