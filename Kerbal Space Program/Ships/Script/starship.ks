@@ -1764,40 +1764,67 @@ local ScaleUI is GUI(300).
     set ScaleUI:skin:label:textcolor to white.
 local ScaleLayout is ScaleUI:addvlayout().
 local ScaleQuest is ScaleLayout:addlabel().
-    set ScaleQuest:text to "Enter your Horizontal-Vertical Resolution (f.e. '1920,1080' for 1080p-16:9):".
+    set ScaleQuest:text to "Enter your Horizontal & Vertical Resolution:".
     set ScaleQuest:style:margin:top to 12.
-    set ScaleQuest:style:margin:bottom to 12.
+    set ScaleQuest:style:margin:bottom to 6.
     set ScaleQuest:style:margin:left to 12.
-local ScaleSelect is ScaleLayout:addtextfield().
-    set ScaleSelect:tooltip to "Horizontal,Vertical Resolution".
-    set ScaleSelect:style:margin:bottom to 12.
-    set ScaleSelect:style:margin:left to 12.
+    set ScaleQuestTT:style:fontsize to 18.
+local ScaleQuestTT is ScaleLayout:addlabel().
+    set ScaleQuestTT:text to "(f.e. '1920' and '1080' for 1080p-16:9)".
+    set ScaleQuestTT:style:margin:top to 6.
+    set ScaleQuestTT:style:margin:bottom to 6.
+    set ScaleQuestTT:style:margin:left to 12.
+    set ScaleQuestTT:style:fontsize to 12.
+local ScaleSelectH is ScaleLayout:addtextfield().
+    set ScaleSelectH:tooltip to "Horizontal Resolution".
+    set ScaleSelectH:style:margin:bottom to 12.
+    set ScaleSelectH:style:margin:left to 12.
+local ScaleSelectV is ScaleLayout:addtextfield().
+    set ScaleSelectV:tooltip to "Vertical Resolution".
+    set ScaleSelectV:style:margin:bottom to 12.
+    set ScaleSelectV:style:margin:left to 12.
 local ScaleConfirm is ScaleLayout:addbutton().
     set ScaleConfirm:text to "<b><color=green>Confirm</color></b>".
     set ScaleConfirm:onclick to {
         sTelemetry:hide().
-        if ScaleSelect:text = "" {}
+        if ScaleSelectH:text = "" or ScaleSelectV:text = "" {
+            set ScaleQuestTT:text to "Please enter both resolutions!".
+            ScaleConfirm:hide().
+            wait 3.
+            ScaleConfirm:show().
+            set ScaleQuestTT:text to "(f.e. '1920' and '1080' for 1080p-16:9)".
+        }
         else {
-            set Resol to ScaleSelect:text:split(",").
-            set ScreenRatio to Resol[0]/Resol[1].
-            if ScreenRatio > 16/9 {
-                set setResol to Resol[1].
-                set ScaleResol to 1080.
+            set Resol[0] to ScaleSelectH:text:tonumber(-99).
+            set Resol[1] to ScaleSelectV:text:tonumber(-99).
+            if Resol[0] = -99 or Resol[1] = -99 {
+                set ScaleQuestTT:text to "Please enter Numbers only for both resolutions!".
+                ScaleConfirm:hide().
+                wait 3.
+                ScaleConfirm:show().
+                set ScaleQuestTT:text to "(f.e. '1920' and '1080' for 1080p-16:9)".
             }
             else {
-                set setResol to Resol[0].
-                set ScaleResol to 1920.
+                set ScreenRatio to Resol[0]/Resol[1].
+                if ScreenRatio > 16/9 {
+                    set setResol to Resol[1].
+                    set ScaleResol to 1080.
+                }
+                else {
+                    set setResol to Resol[0].
+                    set ScaleResol to 1920.
+                }
+                set TScale to round(setResol/ScaleResol,12).
+                set ScreenRatioH to ScreenRatio*(9/16).
+                CreateTelemetry().
+                if Boosterconnected {
+                    sendMessage(processor(Volume("Booster")),"ScaleT,"+TScale:tostring).
+                    set sTelemetry:style:bg to "".
+                }
+                SaveToSettings("TelemetryScale",TScale).
+                wait 0.2.
+                sTelemetry:show().
             }
-            set TScale to round(setResol/ScaleResol,12).
-            set ScreenRatioH to ScreenRatio*(9/16).
-            CreateTelemetry().
-            if Boosterconnected {
-                sendMessage(processor(Volume("Booster")),"ScaleT,"+TScale:tostring).
-                set sTelemetry:style:bg to "".
-            }
-            SaveToSettings("TelemetryScale",TScale).
-            wait 0.2.
-            sTelemetry:show().
         }
         set scalebutton:pressed to false.
         ScaleUI:hide().
