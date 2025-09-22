@@ -1768,7 +1768,7 @@ local ScaleQuest is ScaleLayout:addlabel().
     set ScaleQuest:style:margin:top to 12.
     set ScaleQuest:style:margin:bottom to 6.
     set ScaleQuest:style:margin:left to 12.
-    set ScaleQuestTT:style:fontsize to 18.
+    set ScaleQuest:style:fontsize to 18.
 local ScaleQuestTT is ScaleLayout:addlabel().
     set ScaleQuestTT:text to "(f.e. '1920' and '1080' for 1080p-16:9)".
     set ScaleQuestTT:style:margin:top to 6.
