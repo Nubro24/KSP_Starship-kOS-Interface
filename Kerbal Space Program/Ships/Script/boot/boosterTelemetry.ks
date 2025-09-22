@@ -1,6 +1,6 @@
 wait until ship:unpacked.
 
-set Scriptversion to "Telemetry Only".
+set Scriptversion to "v4".
 
 //<==== Countdown Start (T- ... ) ====>
 set CountdownStart to 240.

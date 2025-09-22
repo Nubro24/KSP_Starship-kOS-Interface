@@ -1,5 +1,5 @@
 wait until ship:unpacked.
-set Scriptversion to "V3.5.2".
+set Scriptversion to "V3.5.2.5".
 
 //<------------Telemtry Scale-------------->
 
@@ -13,10 +13,18 @@ set TScale to 1.
 
 
 set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
+set MissionName to "".
 
 
 
 
+
+if homeconnection:isconnected if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("MissionName") {
+        set MissionName to L["MissionName"].
+    }
+}
 
 if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
@@ -460,10 +468,11 @@ local bCH4Number is bCH4:addlabel("100%").
 local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
 local bAttitude is boosterAttitude:addlabel().
     set bAttitude:style:bg to "starship_img/booster/0".
-local bAttitudeTw is boosterAttitude:addlabel().
-    set bAttitudeTw:style:bg to "starship_img/tower".
 local missionTimeLabel is missionTimeDisplay:addlabel().
 local ClockHeader is missionTimeDisplay:addlabel().
+    set ClockHeader:style:align to "center".
+    set ClockHeader:text to MissionName.
+
 local VersionDisplay is GUI(100).
     local VersionDisplayLabel is VersionDisplay:addlabel().
         set VersionDisplayLabel:style:align to "center".
@@ -608,7 +617,6 @@ function CreateTelemetry {
     set bTelemetry:style:padding:v to 0.
     set bTelemetry:style:padding:h to 0.
     set bTelemetry:x to 0.
-    set bTelemetry:y to 0.
     set bTelemetry:y to -200*TScale.
     
     set GDlamp:style:margin:top to 170*TScale.
@@ -641,7 +649,7 @@ function CreateTelemetry {
     }
 
     set bSpeed:style:margin:left to 10*TScale.
-    set bSpeed:style:margin:top to 18*TScale.
+    set bSpeed:style:margin:top to 14*TScale.
     set bSpeed:style:width to 296*TScale.
     set bSpeed:style:fontsize to 28*TScale.
 
@@ -656,7 +664,7 @@ function CreateTelemetry {
     set bLOXLabel:style:fontsize to 18*TScale.
 
     set bLOXBorder:style:margin:left to 0*TScale.
-    set bLOXBorder:style:margin:top to 19*TScale.
+    set bLOXBorder:style:margin:top to 18*TScale.
     set bLOXBorder:style:width to 190*TScale.
     set bLOXBorder:style:height to 8*TScale.
     set bLOXBorder:style:border:h to 4*TScale.
@@ -666,7 +674,7 @@ function CreateTelemetry {
     set bLOXBorder:style:overflow:bottom to 1*TScale.
 
     set bLOXSlider:style:margin:left to 0*TScale.
-    set bLOXSlider:style:margin:top to 19*TScale.
+    set bLOXSlider:style:margin:top to 18*TScale.
     set bLOXSlider:style:width to 0*TScale.
     set bLOXSlider:style:height to 8*TScale.
     set bLOXSlider:style:border:h to 4*TScale.
@@ -677,7 +685,7 @@ function CreateTelemetry {
 
     set bLOXNumber:style:padding:left to 0*TScale.
     set bLOXNumber:style:margin:left to 10*TScale.
-    set bLOXNumber:style:margin:top to 13*TScale.
+    set bLOXNumber:style:margin:top to 12*TScale.
     set bLOXNumber:style:width to 20*TScale.
     set bLOXNumber:style:fontsize to 12*TScale.
     set bLOXNumber:style:overflow:left to 80*TScale.
@@ -720,7 +728,7 @@ function CreateTelemetry {
 
      set bThrust:style:wordwrap to false.
      set bThrust:style:margin:left to 10*TScale.
-     set bThrust:style:margin:top to 12*TScale.
+     set bThrust:style:margin:top to 10*TScale.
      set bThrust:style:width to 150*TScale.
      set bThrust:style:fontsize to 14*TScale.
 
@@ -728,14 +736,7 @@ function CreateTelemetry {
     set bAttitude:style:margin:right to 20*TScale.
     set bAttitude:style:width to 170*TScale.
     set bAttitude:style:height to 170*TScale.
-    set bAttitude:style:margin:top to 15*TScale.
-
-    set bAttitudeTw:style:margin:left to 20*TScale.
-    set bAttitudeTw:style:margin:right to 20*TScale.
-    set bAttitudeTw:style:width to 170*TScale.
-    set bAttitudeTw:style:height to 205*TScale.
-    set bAttitudeTw:style:overflow:top to -50*TScale.
-    set bAttitudeTw:style:overflow:bottom to 50*TScale.
+    set bAttitude:style:margin:top to 12*TScale.
 
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:margin:left to 140*TScale.
@@ -751,7 +752,6 @@ function CreateTelemetry {
     set ClockHeader:style:margin:top to 10*TScale.
     set ClockHeader:style:width to 160*TScale.
     set ClockHeader:style:fontsize to 24*TScale.
-    set ClockHeader:style:align to "center".
 
     set VersionDisplay:x to 0.
     set VersionDisplay:y to 25*TScale.
@@ -760,7 +760,7 @@ function CreateTelemetry {
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
 
-    set shipBackground:style:width to 726*TScale.
+    set shipBackground:style:width to 944*TScale.
 }
 
 
@@ -1377,10 +1377,10 @@ function Boostback {
             }
             rcs on.
             if FC PollUpdate().
-            set ClockHeader:text to round(time:seconds - flipStartTime,2):tostring.
+            //set ClockHeader:text to round(time:seconds - flipStartTime,2):tostring.
             wait 0.05.
         }
-        set ClockHeader:text to "".
+        //set ClockHeader:text to MissionName.
 
 
         if RSS {
@@ -2424,7 +2424,6 @@ function Boostback {
                             eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
                     }
                 }
-                set bAttitudeTw:style:bg to "starship_img/water".
 
                 lock RadarAlt to alt:radar - BoosterHeight*0.6.
                 
@@ -3469,21 +3468,8 @@ function GUIupdate {
         set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
     } else {
         set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
-
-        if RadarAlt < BoosterHeight * 1.5 and not BoosterLanded {
-            set bAttitudeTw:style:overflow:top to 195*TScale - round((RadarAlt/BoosterHeight)*195*TScale).
-            set bAttitudeTw:style:overflow:bottom to -195*TScale + round((RadarAlt/BoosterHeight)*195*TScale).
-            set bAttitudeTw:style:overflow:left to PositionError:mag*180*TScale/BoosterHeight.
-            set bAttitudeTw:style:overflow:right to -PositionError:mag*180*TScale/BoosterHeight.
-        } 
-        else if not BoosterLanded {
-            set bAttitudeTw:style:overflow:top to -50*TScale.
-            set bAttitudeTw:style:overflow:bottom to 50*TScale.
-        }
     }
 
-    if GfC set bAttitudeTw:style:bg to "starship_img/tower".
-    else if not BoosterLanded set bAttitudeTw:style:bg to "starship_img/water".
 
     if cAbort set GDlamp:style:bg to "starship_img/telemetry_red".
 

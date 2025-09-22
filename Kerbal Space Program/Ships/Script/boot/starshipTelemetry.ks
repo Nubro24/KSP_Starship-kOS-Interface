@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 
 clearscreen.
-set Scriptversion to "Telemetry Only".
+set Scriptversion to "v4".
 
 
 //<------------Telemtry Scale-------------->

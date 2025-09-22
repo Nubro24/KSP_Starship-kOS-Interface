@@ -15,6 +15,16 @@ set TScale to 1.
 // 2160p    -   2
 //_________________________________________
 
+set MissionName to "".
+
+
+if homeconnection:isconnected if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("MissionName") {
+        set MissionName to L["MissionName"].
+    }
+}
+
 if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("TelemetryScale") {
@@ -122,6 +132,7 @@ set RadarAlt to 0.
 set Hotstaging to false.
 set ShipSubType to "None".
 set TargetOLM to false.
+set ScreenRatioH to 1.
 
 set LOIgnCha to 98.5.
 set SLIgnCha to 99.
@@ -171,10 +182,11 @@ local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
+local ClockHeader is sMissionTime:addlabel().
+    set ClockHeader:style:align to "center".
+    set ClockHeader:text to MissionName.
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
-local sAttitudeTw is ShipAttitude:addlabel().
-    set sAttitudeTw:style:bg to "starship_img/tower".
 local sSpeed is ShipStatus:addbutton("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
     set sSpeed:style:bg to "".
@@ -241,7 +253,7 @@ function CreateTelemetry {
     set sTelemetry:x to 0.
     set sTelemetry:y to -200*TScale.
 
-    set bSpace:style:width to 860*TScale.
+    set bSpace:style:width to ScreenRatioH*860*TScale.
 
     set missionTimeLabel:style:margin:left to 0.
     set missionTimeLabel:style:margin:right to 120*TScale.
@@ -249,21 +261,21 @@ function CreateTelemetry {
     set missionTimeLabel:style:width to 160*TScale.
     set missionTimeLabel:style:fontsize to 42*TScale.
 
+    set ClockHeader:style:wordwrap to false.
+    set ClockHeader:style:margin:left to 100*TScale.
+    set ClockHeader:style:margin:right to 160*TScale.
+    set ClockHeader:style:margin:top to 10*TScale.
+    set ClockHeader:style:width to 160*TScale.
+    set ClockHeader:style:fontsize to 24*TScale.
+
     set sAttitude:style:margin:left to 25*TScale.
     set sAttitude:style:margin:right to 25*TScale.
-    set sAttitude:style:margin:top to 15*TScale.
+    set sAttitude:style:margin:top to 12*TScale.
     set sAttitude:style:width to 170*TScale.
     set sAttitude:style:height to 170*TScale.
 
-    set sAttitudeTw:style:margin:left to 20*TScale.
-    set sAttitudeTw:style:margin:right to 20*TScale.
-    set sAttitudeTw:style:width to 170*TScale.
-    set sAttitudeTw:style:height to 205*TScale.
-    set sAttitudeTw:style:overflow:top to -50*TScale.
-    set sAttitudeTw:style:overflow:bottom to 50*TScale.
-
     set sSpeed:style:margin:left to 43*TScale.
-    set sSpeed:style:margin:top to 16*TScale.
+    set sSpeed:style:margin:top to 12*TScale.
     set sSpeed:style:width to 296*TScale.
     set sSpeed:style:fontsize to 28*TScale.
 
@@ -273,12 +285,12 @@ function CreateTelemetry {
     set sAltitude:style:fontsize to 28*TScale.
 
     set sLOXLabel:style:margin:left to 50*TScale.
-    set sLOXLabel:style:margin:top to 10*TScale.
+    set sLOXLabel:style:margin:top to 8*TScale.
     set sLOXLabel:style:width to 60*TScale.
     set sLOXLabel:style:fontsize to 18*TScale.
 
     set sLOXBorder:style:margin:left to 0*TScale.
-    set sLOXBorder:style:margin:top to 19*TScale.
+    set sLOXBorder:style:margin:top to 18*TScale.
     set sLOXBorder:style:width to 190*TScale.
     set sLOXBorder:style:height to 8*TScale.
     set sLOXBorder:style:border:h to 4*TScale.
@@ -288,7 +300,7 @@ function CreateTelemetry {
     set sLOXBorder:style:overflow:bottom to 1*TScale.
 
     set sLOXSlider:style:margin:left to 0*TScale.
-    set sLOXSlider:style:margin:top to 19*TScale.
+    set sLOXSlider:style:margin:top to 18*TScale.
     set sLOXSlider:style:width to 0*TScale.
     set sLOXSlider:style:height to 8*TScale.
     set sLOXSlider:style:border:h to 4*TScale.
@@ -299,7 +311,7 @@ function CreateTelemetry {
 
     set sLOXNumber:style:padding:left to 0*TScale.
     set sLOXNumber:style:margin:left to 10*TScale.
-    set sLOXNumber:style:margin:top to 13*TScale.
+    set sLOXNumber:style:margin:top to 12*TScale.
     set sLOXNumber:style:width to 20*TScale.
     set sLOXNumber:style:fontsize to 12*TScale.
     set sLOXNumber:style:overflow:left to 80*TScale.
@@ -341,13 +353,13 @@ function CreateTelemetry {
     set sCH4Number:style:overflow:bottom to 0*TScale.
 
     set sThrust:style:margin:left to 45*TScale.
-    set sThrust:style:margin:top to 12*TScale.
+    set sThrust:style:margin:top to 10*TScale.
     set sThrust:style:width to 150*TScale.
     set sThrust:style:fontsize to 14*TScale.
 
     set sEngines:style:width to 180*TScale.
     set sEngines:style:height to 180*TScale.
-    set sEngines:style:margin:top to 12*TScale.
+    set sEngines:style:margin:top to 10*TScale.
     set sEngines:style:margin:left to 22*TScale.
     set sEngines:style:margin:right to 10*TScale.
     set sEngines:style:margin:bottom to 20*TScale.
@@ -1607,30 +1619,30 @@ set HideInterfaceSetting:onclick to {
     else set HISettingLabel:text to "Currently Off".
 }.
 
-local IFTMode is FlightSettingsLayout:addbutton(" Automatic Mode").
-    set IFTMode:style:fontsize to 16.
-    set IFTMode:style:margin:left to 24.
-    set IFTMode:style:margin:top to 24.
-    set IFTMode:style:height to 24.
-local IFTModeTooltip is FlightSettingsLayout:addlabel().
-    set IFTModeTooltip:style:fontsize to 10.
-    set IFTModeTooltip:style:margin:left to 24.
-    set IFTModeTooltip:style:margin:top to 5.
-    set IFTModeTooltip:style:height to 18.
-    set IFTModeTooltip:text to "Removes more UI (Catch Decision with AG9 and AG10)".
-local IFTModeLabel is FlightSettingsLayout:addlabel().
-    set IFTModeLabel:style:fontsize to 12.
-    set IFTModeLabel:style:margin:left to 24.
-    set IFTModeLabel:style:margin:top to 5.
-    set IFTModeLabel:style:height to 18.
-    if fullAuto set IFTModeLabel:text to "Currently On".
-    else set IFTModeLabel:text to "Currently Off".
+local AutoMode is FlightSettingsLayout:addbutton(" Automatic Mode").
+    set AutoMode:style:fontsize to 16.
+    set AutoMode:style:margin:left to 24.
+    set AutoMode:style:margin:top to 24.
+    set AutoMode:style:height to 24.
+local AutoModeTooltip is FlightSettingsLayout:addlabel().
+    set AutoModeTooltip:style:fontsize to 10.
+    set AutoModeTooltip:style:margin:left to 24.
+    set AutoModeTooltip:style:margin:top to 5.
+    set AutoModeTooltip:style:height to 18.
+    set AutoModeTooltip:text to "Removes more UI (Catch Decision with AG9 and AG10)".
+local AutoModeLabel is FlightSettingsLayout:addlabel().
+    set AutoModeLabel:style:fontsize to 12.
+    set AutoModeLabel:style:margin:left to 24.
+    set AutoModeLabel:style:margin:top to 5.
+    set AutoModeLabel:style:height to 18.
+    if fullAuto set AutoModeLabel:text to "Currently On".
+    else set AutoModeLabel:text to "Currently Off".
 set lastChangeTimer to time:seconds.
-set IFTMode:onclick to {
+set AutoMode:onclick to {
     set fullAuto to not fullAuto.
     SaveToSettings("fullAuto", fullAuto).
-    if fullAuto set IFTModeLabel:text to "Currently On".
-    else set IFTModeLabel:text to "Currently Off".
+    if fullAuto set AutoModeLabel:text to "Currently On".
+    else set AutoModeLabel:text to "Currently Off".
 }.
 
 
@@ -1651,6 +1663,35 @@ set HSRSetting:onclick to {
     SaveToSettings("HSRJetQuest", HSRJetQuest).
     if HSRJetQuest set HSRSettingLabel:text to "Currently On".
     else set HSRSettingLabel:text to "Currently Off".
+}.
+
+local MissionNamer is FlightSettingsLayout:addtextfield().
+    set MissionNamer:style:fontsize to 16.
+    set MissionNamer:style:margin:left to 24.
+    set MissionNamer:style:margin:top to 24.
+    set MissionNamer:style:height to 24.
+    set MissionNamer:tooltip to "Enter Mission Name".
+local MissionNameSetter is FlightSettingsLayout:addhlayout().
+local MissionNameSet is MissionNameSetter:addbutton("Set Name").
+    set MissionNameSet:style:fontsize to 16.
+    set MissionNameSet:style:margin:left to 24.
+    set MissionNameSet:style:margin:top to 24.
+    set MissionNameSet:style:height to 24.
+    set MissionNameSet:style:align to "Center".
+local MissionNameSave is MissionNameSetter:addbutton("Set & Save Name").
+    set MissionNameSave:style:fontsize to 16.
+    set MissionNameSave:style:margin:left to 6.
+    set MissionNameSave:style:margin:top to 24.
+    set MissionNameSave:style:height to 24.
+    set MissionNameSave:style:align to "Center".
+set MissionNameSet:onclick to {
+    set MissionName to MissionNamer:text.
+    set ClockHeader:text to MissionName.
+}.
+set MissionNameSave:onclick to {
+    set MissionName to MissionNamer:text.
+    set ClockHeader:text to MissionName.
+    SaveToSettings("MissionName", MissionName).
 }.
 
 
@@ -1725,7 +1766,8 @@ local ScaleConfirm is ScaleLayout:addbutton().
         if ScaleSelect:text = "" {}
         else {
             set Resol to ScaleSelect:text:split("-").
-            if Resol[0]/Resol[1] > 16/9 {
+            set ScreenRatio to Resol[0]/Resol[1].
+            if ScreenRatio > 16/9 {
                 set setResol to Resol[1].
                 set ScaleResol to 1080.
             }
@@ -1734,6 +1776,7 @@ local ScaleConfirm is ScaleLayout:addbutton().
                 set ScaleResol to 1920.
             }
             set TScale to round(setResol/ScaleResol,12).
+            set ScreenRatioH to ScreenRatio*(9/16).
             CreateTelemetry().
             if Boosterconnected {
                 sendMessage(processor(Volume("Booster")),"ScaleT,"+TScale:tostring).
@@ -15861,17 +15904,6 @@ function updateTelemetry {
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
-
-            if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
-                set sAttitudeTw:style:overflow:top to 160*TScale - round((RadarAlt/ShipHeight)*160*TScale).
-                set sAttitudeTw:style:overflow:bottom to -160*TScale + round((RadarAlt/ShipHeight)*160*TScale).
-                set sAttitudeTw:style:overflow:left to PositionError:mag*TScale/Scale - 20*TScale.
-                set sAttitudeTw:style:overflow:right to -PositionError:mag*TScale/Scale + 20*TScale.
-            } 
-            else if not ShipLanded {
-                set sAttitudeTw:style:overflow:top to -50*TScale.
-                set sAttitudeTw:style:overflow:bottom to 50*TScale.
-            }
         }
     } 
     else {
@@ -15893,23 +15925,8 @@ function updateTelemetry {
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
-
-            if RadarAlt < ShipHeight * 1.5 and not ShipLanded {
-                set sAttitudeTw:style:overflow:top to 158*TScale - round((RadarAlt/ShipHeight)*158*TScale).
-                set sAttitudeTw:style:overflow:bottom to -158*TScale + round((RadarAlt/ShipHeight)*158*TScale).
-                set sAttitudeTw:style:overflow:left to PositionError:mag*TScale/Scale - 20*TScale.
-                set sAttitudeTw:style:overflow:right to -PositionError:mag*TScale/Scale + 20*TScale.
-            } 
-            else if not ShipLanded {
-                set sAttitudeTw:style:overflow:top to -50*TScale.
-                set sAttitudeTw:style:overflow:bottom to 50*TScale.
-            }
         }
     }
-
-
-    if LandSomewhereElse or TargetOLM = "False" set sAttitudeTw:style:bg to "starship_img/water".
-    else set sAttitudeTw:style:bg to "starship_img/tower".
 
 
     set shipAltitude to RadarAlt.
