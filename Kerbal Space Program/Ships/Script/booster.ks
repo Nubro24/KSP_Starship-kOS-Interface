@@ -747,7 +747,7 @@ function CreateTelemetry {
     set missionTimeLabel:style:align to "center".
 
     set ClockHeader:style:wordwrap to false.
-    set ClockHeader:style:margin:left to 100*TScale.
+    set ClockHeader:style:margin:left to 140*TScale.
     set ClockHeader:style:margin:right to 160*TScale.
     set ClockHeader:style:margin:top to 10*TScale.
     set ClockHeader:style:width to 160*TScale.
