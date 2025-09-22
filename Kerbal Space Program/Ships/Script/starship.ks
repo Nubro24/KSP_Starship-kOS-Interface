@@ -2249,7 +2249,8 @@ set attitudebutton:ontoggle to {
 set scalebutton:ontoggle to {
     parameter toggle.
     if toggle {
-        set ScaleSelect:text to "".
+        set ScaleSelectH:text to "".
+        set ScaleSelectV:text to "".
         ScaleUI:show().
     }
     else ScaleUI:hide().
