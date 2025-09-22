@@ -773,6 +773,8 @@ set speed to 12.
 set lastAngle to angle.
 set oldBooster to false.
 set LngLatOffset to 0.
+set cAbort to false.
+set GfC to true.
 
 
 
@@ -11131,7 +11133,6 @@ function ReEntryAndLand {
         set tt to time:seconds.
         set config:ipu to CPUSPEED.
         set LandSomewhereElse to false.
-        set WobblyTower to false.
         set DistanceToTarget to 5000.
         SetPlanetData().
         set FlipAltitude to 700.
@@ -12025,11 +12026,22 @@ function ReEntryData {
             set message3:text to "".
             set Hover to false.
             set Slow to false.
+            wait 0.
+
+            when cAbort then {
+                set landingzone to ship:body:geoPositionOf(landingzone:position + vxcl(up:vector, velocity:surface)*ShipHeight + ShipHeight * north:vector).
+                ADDONS:TR:SETTARGET(landingzone).
+                lock RadarAlt to alt:radar - ShipHeight.
+            }
+            
+            if SLactive <> 3 set cAbort to true.
+
             if not (TargetOLM = "false") {
                 when vAng(facing:forevector, up:vector) < 3 and Vessel(TargetOLM):distance < 2000 then {
                     HUDTEXT("Distance Check 1", 3, 2, 15, white, false).
                     if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag > 2.4*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Tank:position), LandingForwardDirection) < 90 {
                         set LandSomewhereElse to true.
+                        set cAbort to true.
                         lock RadarAlt to alt:radar - ShipHeight.
                         HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag+"m)", 3, 2, 20, red, false).
                     } else {
@@ -12037,6 +12049,7 @@ function ReEntryData {
                             HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
                             if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.4*ShipHeight {
                                 set LandSomewhereElse to true.
+                                set cAbort to true.
                                 lock RadarAlt to alt:radar - ShipHeight.
                                 HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag+"m)", 3, 2, 20, red, false).
                             }
@@ -12070,7 +12083,7 @@ function ReEntryData {
                 lock throttle to max(min(LandingThrottle(),1),0).
                 
 
-                if TargetOLM {
+                if TargetOLM and not cAbort {
                     when RadarAlt < 24 * ShipHeight then {
                         when RadarAlt < 22 * ShipHeight then {
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,26,80,true")).
@@ -12101,15 +12114,6 @@ function ReEntryData {
                         if LandSomewhereElse {
                             set quickstatus3:pressed to true.
                         }
-                        when WobblyTower then {
-                            HUDTEXT("Wobbly Tower detected..", 3, 2, 20, red, false).
-                            HUDTEXT("Landing at nearest suitable location..", 3, 2, 20, yellow, false).
-                            sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,10,113.5,true").
-                            set landingzone to ship:body:geopositionof(landingzone:position - 15 * Scale * TowerHeadingVector:normalized).
-                            set LandSomewhereElse to true.
-                            SetRadarAltitude().
-                            ADDONS:TR:SETTARGET(landingzone).
-                        }
                     }
                 }
                 else {
@@ -12121,6 +12125,7 @@ function ReEntryData {
                         SLEngines[0]:shutdown.
                         SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                         LogToFile("1st engine shutdown; performing a single engine landing..").
+                        set twoSL to true.
                     }
                 }
                 if ship:body:atm:sealevelpressure < 0.5 {
@@ -12298,6 +12303,10 @@ function LandingVector {
         set LngLatErrorList to LngLatError().
         set LngError to vdot(LandingForwardDirection, ErrorVector).
         set LatError to vdot(LandingLateralDirection, ErrorVector).
+        if twoSL set _2SL to 0.6*(Scale^0.6).
+        else set _2SL to 0.
+        if oneSL set _1SL to 0.5*(Scale^0.5).
+        else set _1SL to 0.
 
         if ship:body:atm:sealevelpressure > 0.5 {
             rcs off.
@@ -12341,11 +12350,12 @@ function LandingVector {
                     }
                 }
                 if verticalspeed < -30 {
-                    set result to up:vector - 0.01 * GSVec.
+                    set result to up:vector - 0.01 * GSVec - 0.02 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
                 }
                 else {
-                    set result to up:vector - 0.025 * GSVec.
+                    set result to up:vector - 0.025 * GSVec - 0.005 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
                 }
+                if RadarAlt < 5 set result to result + 2*up:vector.
                 set message1:text to "<b>Landing Off-Target..</b>".
                 if ErrorVector:MAG < 10000 {
                     set message2:text to "<b>Target Error:</b>                " + round(LngError) + "m " + round(LatError) + "m".
@@ -12369,10 +12379,6 @@ function LandingVector {
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,3/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(4*Scale),1)+TgtErrorStrength)/2.
                     set VelCancel to cancelPID:update(time:seconds, GSVec:mag).
-                    if twoSL set _2SL to 0.6*(Scale^0.6).
-                    else set _2SL to 0.
-                    if oneSL set _1SL to 0.5*(Scale^0.5).
-                    else set _1SL to 0.
 
                     set LndGuidVec to up:vector * ShipHeight/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
@@ -12433,7 +12439,6 @@ function LandingVector {
     }
 
     set ShipRot to GetShipRotation().
-    DetectWobblyTower().
 
     set steeringOffset to vAng(facing:forevector, result).
     set steeringDamp to min((max((steeringOffset - 1) / 20, 0))^1.2, 1.2).
@@ -15886,18 +15891,6 @@ function GetShipRotation {
 }
 
 
-function DetectWobblyTower {
-    if not (TargetOLM = "false") and RadarAlt < 50 and 1=2 {
-        if Vessel(TargetOLM):distance < 2000 {
-            set ErrorPos to vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Rooftop")[0]:position):mag.
-            if ErrorPos > 1 * Scale {
-                set WobblyTower to true.
-            }
-        }
-    }
-}
-
-
 function updateTelemetry {
 
     if ShipSubType:contains("Block2") {
@@ -15995,11 +15988,13 @@ function updateTelemetry {
     set shipCH4 to ch4*100/mch4.
 
     set engCount to 0.
+    set SLactive to 0.
     set engCountVar to 1.
     for eng in SLEngines {
         if eng:hassuffix("activate")
             if eng:thrust > 0 set engCount to engCount + engCountVar.
         set engCountVar to engCountVar*2.
+        set SLactive to SLactive + 1.
     }
     for eng in VACEngines {
         if eng:hassuffix("activate")

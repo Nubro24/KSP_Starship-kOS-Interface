@@ -992,6 +992,7 @@ on ag8 {
 set MaxQ to false.
 set Hotstaging to false.
 set SECO to false.
+set qCheck to 1.
 
 when time:seconds > TelemetryTimer + 0.03 then {
     GUIupdate().
@@ -1109,6 +1110,7 @@ until False {
     }
     else if command = "MissionName" {
         set MissionName to MesParameter.
+        set ClockHeader:text to MissionName.
     }
     else if command = "Hotstaging" {
         set Hotstaging to true.
@@ -2115,11 +2117,6 @@ function Boostback {
             lock DistanceError to Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position.
             if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
             if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
-            //set LZchange to true.
-            //wait 0.
-            //set landingzone to ship:body:geoPositionOf(landingzone:position + 0.4*vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position)).
-            //set LZchange to false.
-            //wait 0.
             set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
         }
         when Vessel(TargetOLM):distance < 1800 then {
