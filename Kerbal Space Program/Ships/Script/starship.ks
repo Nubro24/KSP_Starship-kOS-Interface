@@ -262,8 +262,8 @@ function CreateTelemetry {
     set missionTimeLabel:style:fontsize to 42*TScale.
 
     set ClockHeader:style:wordwrap to false.
-    set ClockHeader:style:margin:left to 100*TScale.
-    set ClockHeader:style:margin:right to 160*TScale.
+    set ClockHeader:style:margin:left to 0.
+    set ClockHeader:style:margin:right to 120*TScale.
     set ClockHeader:style:margin:top to 10*TScale.
     set ClockHeader:style:width to 160*TScale.
     set ClockHeader:style:fontsize to 24*TScale.
@@ -1687,10 +1687,12 @@ local MissionNameSave is MissionNameSetter:addbutton("Set & Save Name").
 set MissionNameSet:onclick to {
     set MissionName to MissionNamer:text.
     set ClockHeader:text to MissionName.
+    if Boosterconnected sendMessage(processor(Volume("Booster")),"MissionName,"+MissionName).
 }.
 set MissionNameSave:onclick to {
     set MissionName to MissionNamer:text.
     set ClockHeader:text to MissionName.
+    if Boosterconnected sendMessage(processor(Volume("Booster")),"MissionName,"+MissionName).
     SaveToSettings("MissionName", MissionName).
 }.
 
@@ -1751,12 +1753,12 @@ local ScaleUI is GUI(300).
     set ScaleUI:skin:label:textcolor to white.
 local ScaleLayout is ScaleUI:addvlayout().
 local ScaleQuest is ScaleLayout:addlabel().
-    set ScaleQuest:text to "Enter your Horizontal-Vertical Resolution (f.e. '1920-1080' for 1080p-16:9):".
+    set ScaleQuest:text to "Enter your Horizontal-Vertical Resolution (f.e. '1920,1080' for 1080p-16:9):".
     set ScaleQuest:style:margin:top to 12.
     set ScaleQuest:style:margin:bottom to 12.
     set ScaleQuest:style:margin:left to 12.
 local ScaleSelect is ScaleLayout:addtextfield().
-    set ScaleSelect:tooltip to "Horizontal-Vertical Resolution".
+    set ScaleSelect:tooltip to "Horizontal,Vertical Resolution".
     set ScaleSelect:style:margin:bottom to 12.
     set ScaleSelect:style:margin:left to 12.
 local ScaleConfirm is ScaleLayout:addbutton().
@@ -1765,7 +1767,7 @@ local ScaleConfirm is ScaleLayout:addbutton().
         sTelemetry:hide().
         if ScaleSelect:text = "" {}
         else {
-            set Resol to ScaleSelect:text:split("-").
+            set Resol to ScaleSelect:text:split(",").
             set ScreenRatio to Resol[0]/Resol[1].
             if ScreenRatio > 16/9 {
                 set setResol to Resol[1].
@@ -16065,12 +16067,15 @@ function updateTelemetry {
     }
     if Boosterconnected or runningprogram = "LAUNCH" {
         set missionTimeLabel:text to "".
+        set ClockHeader to "".
         VersionDisplay:hide().
     } else if TMinus {
         set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
+        set ClockHeader to MissionName.
         VersionDisplay:show().
     } else {
         set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
+        set ClockHeader to MissionName.
         VersionDisplay:show().
     }
     

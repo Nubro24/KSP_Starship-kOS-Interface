@@ -1090,6 +1090,9 @@ until False {
     else if command = "fullAuto" {
         set fullAuto to MesParameter.
     }
+    else if command = "MissionName" {
+        set MissionName to MesParameter.
+    }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
     }
