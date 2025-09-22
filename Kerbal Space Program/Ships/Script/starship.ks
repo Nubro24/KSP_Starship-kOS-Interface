@@ -1399,8 +1399,7 @@ local IgnitionChancesGUI is GUI(320).
 local SettingsMenu is IgnitionChancesGUI:addhlayout().
 local IgnChaLayout is SettingsMenu:addvlayout().
 local FlightSettingsLayout is SettingsMenu:addvlayout().
-local Header is IgnChaLayout:addhlayout().
-local Quest is Header:addlabel().
+local Quest is IgnChaLayout:addlabel().
     set Quest:text to "<b>Ignition Chances</b>".
     set Quest:style:margin:top to 14.
     set Quest:style:margin:bottom to 16.
@@ -1597,14 +1596,14 @@ local FlightSettingsHeader is FlightSettingsLayout:addlabel().
     set FlightSettingsHeader:style:margin:top to 14.
     set FlightSettingsHeader:style:margin:bottom to 16.
     set FlightSettingsHeader:style:margin:left to 24.
-    set FlightSettingsHeader:style:margin:right to 8.
+    set FlightSettingsHeader:style:margin:right to 16.
     set FlightSettingsHeader:style:fontsize to 16.
 
 local HideInterfaceSetting is FlightSettingsLayout:addbutton(" Hide Interface during Flight Operations").
     set HideInterfaceSetting:style:fontsize to 16.
     set HideInterfaceSetting:style:margin:left to 24.
     set HideInterfaceSetting:style:margin:top to 24.
-    set HideInterfaceSetting:style:margin:right to 8.
+    set HideInterfaceSetting:style:margin:right to 16.
     set HideInterfaceSetting:style:height to 24.
 local HISettingLabel is FlightSettingsLayout:addlabel().
     set HISettingLabel:style:fontsize to 12.
@@ -1625,7 +1624,7 @@ local AutoMode is FlightSettingsLayout:addbutton(" Automatic Mode").
     set AutoMode:style:fontsize to 16.
     set AutoMode:style:margin:left to 24.
     set AutoMode:style:margin:top to 24.
-    set AutoMode:style:margin:right to 8.
+    set AutoMode:style:margin:right to 16.
     set AutoMode:style:height to 24.
 local AutoModeTooltip is FlightSettingsLayout:addlabel().
     set AutoModeTooltip:style:fontsize to 10.
@@ -1655,7 +1654,7 @@ local HSRSetting is FlightSettingsLayout:addbutton(" HSR Question before launch"
     set HSRSetting:style:fontsize to 16.
     set HSRSetting:style:margin:left to 24.
     set HSRSetting:style:margin:top to 24.
-    set HSRSetting:style:margin:right to 8.
+    set HSRSetting:style:margin:right to 16.
     set HSRSetting:style:height to 24.
 local HSRSettingLabel is FlightSettingsLayout:addlabel().
     set HSRSettingLabel:style:fontsize to 12.
@@ -1691,7 +1690,7 @@ local MissionNameSave is MissionNameSetter:addbutton("Set & Save Name").
     set MissionNameSave:style:fontsize to 16.
     set MissionNameSave:style:margin:left to 6.
     set MissionNameSave:style:margin:top to 8.
-    set MissionNameSave:style:margin:right to 8.
+    set MissionNameSave:style:margin:right to 16.
     set MissionNameSave:style:height to 24.
     set MissionNameSave:style:align to "Center".
 set MissionNameSet:onclick to {
@@ -16079,15 +16078,15 @@ function updateTelemetry {
     }
     if Boosterconnected or runningprogram = "LAUNCH" {
         set missionTimeLabel:text to "".
-        set ClockHeader to "".
+        set ClockHeader:text to "".
         VersionDisplay:hide().
     } else if TMinus {
         set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
-        set ClockHeader to MissionName.
+        set ClockHeader:text to MissionName.
         VersionDisplay:show().
     } else {
         set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
-        set ClockHeader to MissionName.
+        set ClockHeader:text to MissionName.
         VersionDisplay:show().
     }
     
