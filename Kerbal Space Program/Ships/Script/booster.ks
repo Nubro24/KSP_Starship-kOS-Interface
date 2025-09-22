@@ -1112,10 +1112,10 @@ until False {
         set MissionName to MesParameter.
         set ClockHeader:text to MissionName.
     }
-    else if command = "Hotstaging" {
+    else if RECEIVED:CONTENT = "Hotstaging" {
         set Hotstaging to true.
     }
-    else if command = "SECO" {
+    else if RECEIVED:CONTENT = "SECO" {
         set SECO to true.
     }
     ELSE {
