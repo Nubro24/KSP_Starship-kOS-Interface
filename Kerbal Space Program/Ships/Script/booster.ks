@@ -18,7 +18,7 @@ set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 
 
 
-if exists("0:/settings.json") {
+if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("TelemetryScale") {
         set TScale to L["TelemetryScale"].

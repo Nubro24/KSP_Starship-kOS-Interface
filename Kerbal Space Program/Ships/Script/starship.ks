@@ -15,7 +15,7 @@ set TScale to 1.
 // 2160p    -   2
 //_________________________________________
 
-if exists("0:/settings.json") {
+if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("TelemetryScale") {
         set TScale to L["TelemetryScale"].
@@ -78,49 +78,45 @@ else {
 
 set runningprogram to "None".
 set missionTimer to 0.
+set HSRJetQuest to false.
+set fullAuto to false.
+set HideGUI to false.
+set LSCoords to ("0,0").
 if missionTime > 0  set missionTimer to time:seconds - missionTime.
-else if exists("0:/settings.json") {
+else if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("Launch Time") {
         set missionTimer to L["Launch Time"].
     }
 }
 
-if exists("0:/settings.json") {
+if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("Launch Coordinates") {
         set LSCoords to L["Launch Coordinates"].
     }
-    else set LSCoords to ("0,0").
 } 
-else set LSCoords to ("0,0").
 
-if exists("0:/settings.json") {
+if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("HideGUI") {
         set HideGUI to L["HideGUI"].
     }
-    else set HideGUI to false.
 } 
-else set HideGUI to false.
 
-if exists("0:/settings.json") {
+if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("fullAuto") {
         set fullAuto to L["fullAuto"].
     }
-    else set fullAuto to false.
 } 
-else set fullAuto to false.
 
-if exists("0:/settings.json") {
+if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("HSRJetQuest") {
         set HSRJetQuest to L["HSRJetQuest"].
     }
-    else set HSRJetQuest to false.
 } 
-else set HSRJetQuest to false.
 
 set RadarAlt to 0.
 set Hotstaging to false.
