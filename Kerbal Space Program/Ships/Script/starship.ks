@@ -1795,6 +1795,7 @@ local ScaleConfirm is ScaleLayout:addbutton().
             set ScaleQuestTT:text to "(f.e. '1920' and '1080' for 1080p-16:9)".
         }
         else {
+            set Resol to list(1920,1080).
             set Resol[0] to ScaleSelectH:text:tonumber(-99).
             set Resol[1] to ScaleSelectV:text:tonumber(-99).
             if Resol[0] = -99 or Resol[1] = -99 {
