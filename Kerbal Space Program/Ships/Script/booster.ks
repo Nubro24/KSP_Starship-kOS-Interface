@@ -743,7 +743,7 @@ function CreateTelemetry {
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:margin:left to 140*TScale.
     set missionTimeLabel:style:margin:right to 160*TScale.
-    set missionTimeLabel:style:margin:top to 80*TScale.
+    set missionTimeLabel:style:margin:top to 60*TScale.
     set missionTimeLabel:style:width to 160*TScale.
     set missionTimeLabel:style:fontsize to 42*TScale.
     set missionTimeLabel:style:align to "center".
@@ -1006,7 +1006,7 @@ when time:seconds > TelemetryTimer + 0.03 then {
 when MaxQ then {
     set ClockHeader:text to "Max Q".
     set MaxQTime to time:seconds.
-    when MaxQTime + 3 < time:seconds then set ClockHeader:text to MissionName.
+    when MaxQTime + 4 < time:seconds then set ClockHeader:text to MissionName.
 }
 when Hotstaging then {
     set ClockHeader:text to "Hotstaging".
@@ -1016,7 +1016,7 @@ when Hotstaging then {
 when SECO then {
     set ClockHeader:text to "SECO".
     set SECOTime to time:seconds.
-    when SECOTime + 3 < time:seconds then set ClockHeader:text to MissionName.
+    when SECOTime + 4 < time:seconds then set ClockHeader:text to MissionName.
 } 
 
 wait 0.1.
@@ -1108,7 +1108,8 @@ until False {
         set ifIgn to message[4]:toscalar.
     }
     else if command = "fullAuto" {
-        set fullAuto to MesParameter.
+        if MesParameter = "true" set fullAuto to true.
+        else set fullAuto to false.
     }
     else if command = "MissionName" {
         set MissionName to MesParameter.
@@ -2755,7 +2756,7 @@ function LandingGuidance {
     set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (vAng(up:vector,GuidVec)-5)/30.
 
     // === Final Vector ===
-    set FinalVec to GuidVec:normalized + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp.
+    set FinalVec to GuidVec:normalized * min(1, (RadarRatio^1.2)/0.12) + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp.
 
     // === Debug Draw ===
     if drawVecs {
@@ -2794,6 +2795,7 @@ function AfterLandingTowerOperations {
     Stabalize().
     setTowerHeadingVector().
     setTargetOLM().
+    wait until stable.
     print TowerExists.
     wait 0.2.
 
@@ -2827,21 +2829,17 @@ function AfterLandingTowerOperations {
         set CenterTime to time:seconds.
     }
 
-    if PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and RadarAlt < 30 * Scale and time:seconds < stableTime + 24 {
-        if RollAngle > 4 or PosDiff > 0.14 * Scale {
-            sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + 0.2*maxstabengage).
-            sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",true").
-            HUDTEXT("RollAngle exceeded! Realining..", 7, 2, 20, yellow, false).
-            wait 5.
-            sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",false").
-            wait 3.
-            sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + maxstabengage).
-            wait 1.
+    if PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and (RadarAlt > 20 and not RSS or RadarAlt > 45 and RSS) and time:seconds < stableTime + 24 {
+        if RollAngle > 4 or PosDiff > 0.12 * Scale {
+            StabReset().
+            wait until not stabResetRunning.
         }
         set PreDockPos to true.
         HUDTEXT("Docking Operations starting..", 7, 2, 20, green, false).
         BoosterDocking().
     } else set procceed to true.
+
+    wait 0.
 
     until PreDockPosTime + 10 < time:seconds and procceed {
         clearScreen.
@@ -2877,6 +2875,7 @@ function AfterLandingTowerOperations {
     BoosterDocking().
 
     function StabReset {
+        set stabResetRunning to true.
         sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + 0.2*maxstabengage).
         sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",true").
         HUDTEXT("RollAngle exceeded! re-aligning..", 7, 2, 20, yellow, false).
@@ -2885,6 +2884,7 @@ function AfterLandingTowerOperations {
         wait 3.
         sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + maxstabengage).
         wait 1.
+        set stabResetRunning to false.
     }
 
     function Stabalize {
