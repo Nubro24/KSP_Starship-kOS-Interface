@@ -12536,7 +12536,7 @@ function LandingVector {
     set result to result*1.2 + facing:forevector * steeringDamp.
 
     wait 0.001.
-    if TargetOLM and RadarAlt < 70 * Scale and not (LandSomewhereElse) {
+    if TargetOLM and RadarAlt < 3*ShipHeight and not (LandSomewhereElse) {
         set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Nose:position).
         return lookDirUp(result, RollVector).
     }
