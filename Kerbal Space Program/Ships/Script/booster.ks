@@ -168,33 +168,35 @@ for part in ship:parts {
     }
 }
 
+print GridfinLength.
+
 if GridfinLength = 4 {
     set Gridfins to list("","","","").
     if GridfinsType = "Vista" for fin in ship:partsnamed("Sep.Gridfin") {
-        if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
+        if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
             set Gridfins[0] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
             set Gridfins[1] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
             set Gridfins[2] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
             set Gridfins[3] to fin.
         }
     } 
     else for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {
-        if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
+        if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
             set Gridfins[0] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 90 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
             set Gridfins[1] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
             set Gridfins[2] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) > 90 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
             set Gridfins[3] to fin.
         }
     }
@@ -202,24 +204,24 @@ if GridfinLength = 4 {
 else if GridfinLength = 3 {
     set Gridfins to list("","","").
     if GridfinsType = "Vista" for fin in ship:partsnamed("Sep.Gridfin") {
-        if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), -facing:topvector) < 60 {
+        if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 {
             set Gridfins[0] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 60 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 60 {
             set Gridfins[1] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), -facing:starvector) < 60 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:starvector) < 60 {
             set Gridfins[2] to fin.
         }
     } 
     else for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {
-        if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), -facing:topvector) < 60 {
+        if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 {
             set Gridfins[0] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), facing:starvector) < 60 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 60 {
             set Gridfins[1] to fin.
         }
-        else if vAng(vxcl(facing:forevector, BoosterCore:position - fin:position), -facing:starvector) < 60 {
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:starvector) < 60 {
             set Gridfins[2] to fin.
         }
     }

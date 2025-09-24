@@ -11153,7 +11153,7 @@ function LandwithoutAtmoLabels {
 
 function ReEntryAndLand {
     if addons:tr:hasimpact {
-        if ShipSubType:contains("Block2") {set aoa to 62. set LandingAoA to LandingAoA*1.02.}
+        if ShipSubType:contains("Block2") {set aoa to aoa. set LandingAoA to LandingAoA*0.98.}
         set LandButtonIsRunning to true.
         if fullAuto or HideGUI g:hide().
         IgnitionChancesOpen:hide().
@@ -11325,6 +11325,7 @@ function ReEntryAndLand {
                 }
                 when airspeed < 600 then {
                     set trCompensation to trCompensation/2.
+                    set PlotAoA to (PlotAoA + LandingAoA)/2.
                     if RSS {
                         set PitchPID to PIDLOOP(0.005, 0.0001, 0.001, -25, 26 - TRJCorrection).
                         set YawPID to PIDLOOP(0.002, 0.0001, 0.0008, -50, 50).
@@ -11524,7 +11525,7 @@ function ReEntrySteering {
 
         set LngLatErrorList to LngLatError().
 
-        set aoa_adjust to min(max(-5 ,round(0.005*((LngLatErrorList[0] - trCompensation)/1000)^3 + 0.15*((LngLatErrorList[0] - trCompensation)/1000),1)/2), 5).
+        set aoa_adjust to min(max(-3 ,round(0.005*((LngLatErrorList[0] - trCompensation)/1000)^3 + 0.05*((LngLatErrorList[0] - trCompensation)/1000),1)/2), 3).
         if airspeed > 300 set aoa to min(max(PlotAoA - 5 ,aoa + aoa_adjust), PlotAoA + 5).
         else set aoa to PlotAoA.
         if airspeed < 300 and currentAoA > 74 set Bellyflop to true.
@@ -11930,8 +11931,8 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6*(Scale^0.6).
 
-            set closingPID to pidLoop(0.045*(Scale^0.7), 0.006*(Scale^0.7), 0.04*(Scale^0.7),-2,2).
-            set cancelPID to pidLoop(0.08, 0.004, 0.07,-2,2).
+            set closingPID to pidLoop(0.048*(Scale^0.7), 0.008*(Scale^0.7), 0.044*(Scale^0.7),-3,3).
+            set cancelPID to pidLoop(0.08, 0.003, 0.08,-2,2).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
@@ -12709,7 +12710,7 @@ function LngLatError {
                 else {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 6000 set LngLatOffset to -120.
-                        else set LngLatOffset to -70 - vxcl(up:vector, velocity:surface):mag*0.85.
+                        else set LngLatOffset to -60 - vxcl(up:vector, velocity:surface):mag*0.85.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 6000 set LngLatOffset to -110.
                         else set LngLatOffset to -65 - vxcl(up:vector, velocity:surface):mag*0.83.
@@ -13942,7 +13943,9 @@ function LandAtOLM {
             }
         }
         else {
-            if ShipType:contains("Block1") {
+            if ShipSubType:contains("Block2") {
+                set FlipAltitude to 660.
+            } else if ShipType:contains("Block1") {
                 set FlipAltitude to 700.
             } else {
                 set FlipAltitude to 700.
