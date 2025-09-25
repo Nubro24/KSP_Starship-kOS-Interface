@@ -12394,7 +12394,7 @@ function LandingThrottle {
         return minDecel.
     }
     set maxDecel to max(ship:availablethrust, 0.000001) / ship:mass - Planet1G.
-    set DesiredDecel to 0.6 * maxDecel.
+    set DesiredDecel to 0.65/Scale * maxDecel.
     set stopTime to airspeed / DesiredDecel.
     set stopDist to 0.5 * airspeed * stopTime.
     
