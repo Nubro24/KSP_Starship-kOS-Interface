@@ -7968,10 +7968,6 @@ function Launch {
                 }
                 set quickengine3:pressed to true.
                 updateTelemetry().
-                for eng in SLEngines {
-                    eng:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
-                    eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                }
                 if ShipType:contains("Block1") {
                     print "Block 1".
                     if defined HSR {
@@ -7995,6 +7991,10 @@ function Launch {
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
+                }
+                for eng in SLEngines {
+                    eng:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+                    eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                 }
                 updateTelemetry().
 
