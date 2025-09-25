@@ -15,7 +15,12 @@ set TScale to 1.
 set drawVecs to false. //Enables Visible Vectors on Screen for Debugging
 set MissionName to "".
 
-
+set TFinstalled to false.
+for engines in ship:engines {
+    if engines:hasmodule("TestFlightCore") {set TFinstalled to true. break.}
+}
+print "TestFlight installed: "+TFinstalled.
+wait 0.2.
 
 
 
@@ -378,11 +383,18 @@ set AllOnce to false.
 set fullAuto to false.
 set LZchange to false.
 
-set BBIgn to 98.
-set LBIgnC to 98.
-set LBIgnM to 98.
-set ifIgn to 0.3.
-
+if TFinstalled {
+    set BBIgn to 100.
+    set LBIgnC to 100.
+    set LBIgnM to 100.
+    set ifIgn to 0.
+}
+else {
+    set BBIgn to 98.
+    set LBIgnC to 98.
+    set LBIgnM to 98.
+    set ifIgn to 0.3.
+}
 local bTelemetry is GUI(150).
     set bTelemetry:style:bg to "starship_img/telemetry_bg".
     set bTelemetry:skin:label:textcolor to white.
@@ -1746,7 +1758,6 @@ function Boostback {
         }
 
         HUDTEXT("Starship will continue its orbit insertion..", 10, 2, 20, green, false).
-        ActivateGridFins().
 
         until time:seconds > switchTime + 2 {
             SteeringCorrections().
@@ -1844,6 +1855,8 @@ function Boostback {
             NoGo:hide().
         }
     }
+
+    when altitude < 42000 * Scale then ActivateGridFins().
 
     until altitude < 37000 and not (RSS or KSRSS) or altitude < 73000 and RSS or altitude < 56000 and KSRSS {
         SteeringCorrections().
@@ -2837,6 +2850,7 @@ function AfterLandingTowerOperations {
         set PreDockPos to true.
         HUDTEXT("Docking Operations starting..", 7, 2, 20, green, false).
         BoosterDocking().
+        return.
     } else set procceed to true.
 
     wait 0.
@@ -2907,6 +2921,7 @@ function AfterLandingTowerOperations {
             wait 0.5.
         }
     }
+    return.
 }
 
 

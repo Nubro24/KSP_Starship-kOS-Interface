@@ -135,14 +135,33 @@ set AFTONLY to false.
 set TargetOLM to false.
 set ScreenRatioH to 1.
 
-set LOIgnCha to 98.5.
-set SLIgnCha to 99.
-set VCIgnCha to 99.
-set BBIgnCha to 98.
-set LB1IgnCha to 98.
-set LB2IgnCha to 98.
-set ifIgnCha to 0.02.
-set ifIgnCha2 to 0.1.
+
+set TFinstalled to false.
+for engines in ship:engines {
+    if engines:hasmodule("TestFlightCore") {set TFinstalled to true. break.}
+}
+print "TestFlight installed: "+TFinstalled.
+wait 0.2.
+if TFinstalled {
+    set LOIgnCha to 100.
+    set SLIgnCha to 100.
+    set VCIgnCha to 100.
+    set BBIgnCha to 100.
+    set LB1IgnCha to 100.
+    set LB2IgnCha to 100.
+    set ifIgnCha to 0.
+    set ifIgnCha2 to 0.
+}
+else {
+    set LOIgnCha to 98.5.
+    set SLIgnCha to 99.
+    set VCIgnCha to 99.
+    set BBIgnCha to 98.
+    set LB1IgnCha to 98.
+    set LB2IgnCha to 98.
+    set ifIgnCha to 0.02.
+    set ifIgnCha2 to 0.1.
+}
 
 
 local VersionDisplay is GUI(100).
@@ -1540,8 +1559,13 @@ local IgnConfirm is ButtonsLayout:addbutton().
         if BBSelect:text = "" set BBSelect:text to "100".
         if LBSelect1:text = "" set LBSelect1:text to "100".
         if LBSelect2:text = "" set LBSelect2:text to "100".
-        if IFSelect1:text = "" set IFSelect1:text to "0.02".
-        if IFSelect2:text = "" set IFSelect2:text to "0.2".
+        if TFinstalled {
+            if IFSelect1:text = "" set IFSelect1:text to "0".
+            if IFSelect2:text = "" set IFSelect2:text to "0".
+        } else {
+            if IFSelect1:text = "" set IFSelect1:text to "0.02".
+            if IFSelect2:text = "" set IFSelect2:text to "0.2".
+        }
         set LOIgnCha to LOSelect:text:toscalar.
         set SLIgnCha to HSSelect1:text:toscalar.
         set VCIgnCha to HSSelect2:text:toscalar.
@@ -1569,8 +1593,13 @@ local IgnSave is ButtonsLayout:addbutton().
         if BBSelect:text = "" set BBSelect:text to "100".
         if LBSelect1:text = "" set LBSelect1:text to "100".
         if LBSelect2:text = "" set LBSelect2:text to "100".
-        if IFSelect1:text = "" set IFSelect1:text to "0.02".
-        if IFSelect2:text = "" set IFSelect2:text to "0.2".
+        if TFinstalled {
+            if IFSelect1:text = "" set IFSelect1:text to "0".
+            if IFSelect2:text = "" set IFSelect2:text to "0".
+        } else {
+            if IFSelect1:text = "" set IFSelect1:text to "0.02".
+            if IFSelect2:text = "" set IFSelect2:text to "0.2".
+        }
         set LOIgnCha to LOSelect:text:toscalar.
         set SLIgnCha to HSSelect1:text:toscalar.
         set VCIgnCha to HSSelect2:text:toscalar.
@@ -8344,7 +8373,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
             else {
-                set targetpitch to 90 - (8.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/950)).
+                set targetpitch to 90 - (8.9 * SQRT(max((altitude - 250 - LaunchElev), 0)/950)).
             }
         }
         else if KSRSS {
@@ -8381,7 +8410,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (7.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (8.6 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (8.7 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
             }
         }
         else if KSRSS {
@@ -8418,7 +8447,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (7.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.6 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -8478,7 +8507,7 @@ Function LaunchSteering {
         print " ".
         print "Pitch: " + round(ship:facing:pitch).
 
-        rcs on.
+        if not Boosterconnected rcs on.
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, ProgradeAngle + OrbitBurnPitchCorrection):vector, LaunchRollVector).
     }
     return result.
