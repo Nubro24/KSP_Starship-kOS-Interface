@@ -623,6 +623,8 @@ else {       // Stock Kerbin
     }
     set trCompensation to 2000.
 }
+
+set DeOrbitEngNr to 1. // Engine used for Single Engine DeOrbit Burn
 set MZHeight to 60*Scale.
 set SNStart to 30.  // Defines the first Serial Number when multiple ships are found and renaming is necessary.
 set MaxTilt to 3.5.  // Defines maximum allowed slope for the Landing Zone Search Function
@@ -8167,7 +8169,7 @@ function Launch {
         }
         ShutDownAllEngines().
         BackGroundUpdate().
-        sendMessage(Vessel("Booster"),"SECO").
+        if Booster:connection:isconnected sendMessage(Booster,"SECO").
         set DistanceToTarget to ((landingzone:lng - ship:geoposition:lng) * Planet1Degree).
         LogToFile("Distance flown from Launch Site to Orbit Complete: " + round(DistanceToTarget, 3) + "km").
         if not (LiftOffTime = 0) {
@@ -11177,7 +11179,7 @@ function LandwithoutAtmoLabels {
 
 function ReEntryAndLand {
     if addons:tr:hasimpact {
-        if ShipSubType:contains("Block2") {set aoa to aoa. set LandingAoA to LandingAoA*0.98.}
+        if ShipSubType:contains("Block2") {set aoa to aoa. set LandingAoA to LandingAoA*0.99.}
         set LandButtonIsRunning to true.
         if fullAuto or HideGUI g:hide().
         IgnitionChancesOpen:hide().
@@ -11192,7 +11194,8 @@ function ReEntryAndLand {
         set PitchInputOld to 0.
         set lastFuelBalanc to time:seconds.
         set Bellyflop to false.
-
+        set maxPitchPID to 38.
+        when airspeed < 310 then set maxPitchPID to 24.
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
@@ -11228,7 +11231,8 @@ function ReEntryAndLand {
         else set Bellyflop to false.
         when Bellyflop then {
             set FWDFlapDefault to 56.
-            set AFTFlapDefault to 65.
+            set AFTFlapDefault to 60.
+            setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
         }
         if AFTONLY set AFTFlapDefault to 65.
         if altitude > 30000 and not RSS {
@@ -11368,7 +11372,7 @@ function ReEntryAndLand {
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
                     if RSS {
                         set PitchPID to PIDLOOP(0.005, 0.0001, 0.001, -25, 26 - TRJCorrection).
-                        set YawPID to PIDLOOP(0.002, 0.0001, 0.0008, -50, 50).
+                        set YawPID to PIDLOOP(0.002, 0.00014, 0.0008, -50, 50).
                     }
                     else if KSRSS {
                         set PitchPID to PIDLOOP(0.005, 0, 0, -25, 26 + TRJCorrection).
@@ -11397,12 +11401,12 @@ function ReEntryAndLand {
                         set aoa to LandingAoA.
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
-                            set PitchPID:kp to 0.1.
-                            set PitchPID:ki to 0.08.
-                            set PitchPID:kd to 0.15.
+                            set PitchPID:kp to 0.08.
+                            set PitchPID:ki to 0.05.
+                            set PitchPID:kd to 0.12.
                             set YawPID:kp to 0.03.
                             set YawPID:ki to 0.018.
-                            set YawPID:kd to 0.01.
+                            set YawPID:kd to 0.012.
                             set maxDeltaV to 480.
                         }
                         else if KSRSS {
@@ -11584,15 +11588,15 @@ function ReEntrySteering {
 
         set LngLatErrorList to LngLatError().
 
-        set aoa_adjust to min(max(-3 ,round(0.005*((LngLatErrorList[0] - trCompensation)/1000)^3 + 0.05*((LngLatErrorList[0] - trCompensation)/1000),1)/2), 3).
+        set aoa_adjust to min(max(-2 ,round(0.005*((LngLatErrorList[0] - trCompensation)/1000)^3 + 0.05*((LngLatErrorList[0] - trCompensation)/1000),1)/2), 2).
         if airspeed > 300 set aoa to min(max(PlotAoA - 5 ,aoa + aoa_adjust), PlotAoA + 5).
         else set aoa to PlotAoA.
         if airspeed < 300 and currentAoA > 74 set Bellyflop to true.
         else set Bellyflop to false.
 
-        set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (12 * Scale) + 2), 38).
+        set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (100 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
-        set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 8 + 1), 50).
+        set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 50).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to -PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]).
@@ -11611,13 +11615,14 @@ function ReEntrySteering {
 
         //SteeringCompensation
         set steeringOffset to vAng(GuidVec:vector,facing:forevector).
-        set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0))^1.2, 1).
+        set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.2, 1).
+        set stabalizeDamp to min((max((0.2/steeringOffset), 0))^1.2, 10).
 
         if currentAoA > 100 set stableDamp to -(currentAoA-100)/40.
         else if currentAoA < 50 set stableDamp to (50-currentAoA)/40.
         else set stableDamp to 0.
 
-        set resultVec to GuidVec:vector:normalized + facing:forevector:normalized * steeringDamp + facing:topvector * stableDamp.
+        set resultVec to GuidVec:vector:normalized + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
 
         //set GuidVec to vecDraw(HeaderTank:position, 0.5 * GuidVec:vector, red, "Guid Vector", 25, true, 0.005, true, true).
         //set ReentryVec to vecDraw(HeaderTank:position, 1 * resultVec, green, "Re-Entry Vector", 25, true, 0.005, true, true).
@@ -11761,7 +11766,7 @@ function ReEntryData {
         }
     }
 
-    if DynamicPitch and altitude < 0.75 * ship:body:atm:height {
+    if DynamicPitch and altitude < 0.75 * ship:body:atm:height and not Bellyflop {
         if time:seconds > t + 1 and time:seconds < t + 1.2 set PitchInputOld to SLEngines[0]:gimbal:pitchangle.
         if time:seconds > t + 2 {
             set PitchInput to SLEngines[0]:gimbal:pitchangle.
@@ -12009,13 +12014,12 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
-            set closingPID to pidLoop(0.048*(Scale^0.7), 0.008*(Scale^0.7), 0.048*(Scale^0.7),-3,3).
-            set cancelPID to pidLoop(0.08, 0.003, 0.08,-2,2).
+            set closingPID to pidLoop(0.048*(Scale^0.7), 0.008*(Scale^0.7), 0.042*(Scale^0.7),-3,3).
+            set cancelPID to pidLoop(0.2, 0.012, 0.14,-2,2).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
 
-            set LandingFlipStart to time:seconds.
             set LandingBurnDirection to vxcl(up:vector, velocity:surface).
             set ship:control:pitch to 1.
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
@@ -12049,7 +12053,7 @@ function ReEntryData {
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if abs(LngLatErrorList[0]) > 20 or abs(LngLatErrorList[1]) > 15 {
+                if abs(LngLatErrorList[0]) > 20*Scale or abs(LngLatErrorList[1]) > 30*Scale {
                     set LandSomewhereElse to true.
                     lock throttle to 0.55.
                     if RSS {lock throttle to 0.33.}
@@ -12059,10 +12063,11 @@ function ReEntryData {
                 wait 0.001.
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                 if random() < SLIgnCha/70 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
-                when time:seconds > LandingFlipStart + 0.7 then {
+                set LandingFlipStart to time:seconds.
+                when time:seconds > LandingFlipStart + 0.6 then {
                     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                     if random() < SLIgnCha/70 if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
-                    when time:seconds > LandingFlipStart + 1.0 then {
+                    when time:seconds > LandingFlipStart + 0.9 then {
                         if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                         if random() < SLIgnCha/70 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         setflaps(0, 87, 1, 0).
@@ -12082,7 +12087,7 @@ function ReEntryData {
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if abs(LngLatErrorList[0]) > 20 or abs(LngLatErrorList[1]) > 15 {
+                if abs(LngLatErrorList[0]) > 20*Scale or abs(LngLatErrorList[1]) > 30*Scale {
                     set LandSomewhereElse to true.
                     lock throttle to 1.
                     if RSS {lock throttle to 1.}
@@ -12092,6 +12097,7 @@ function ReEntryData {
                 wait 0.001.
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                 if random() < SLIgnCha/100 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
+                set LandingFlipStart to time:seconds.
                 when time:seconds > LandingFlipStart + 0.2 then {
                     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                     if random() < SLIgnCha/100 if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
@@ -12140,17 +12146,17 @@ function ReEntryData {
 
             when cAbort then {
                 set LandSomewhereElse to true.
-                if addons:tr:hasimpact if addons:tr:impactpos:position - landingzone:position < 2* ShipHeight 
-                    set landingzone to ship:body:geoPositionOf(landingzone:position + vxcl(up:vector, velocity:surface)*ShipHeight + ShipHeight * north:vector).
+                if addons:tr:hasimpact if (addons:tr:impactpos:position - landingzone:position):mag < 2* ShipHeight 
+                    set landingzone to ship:body:geoPositionOf(landingzone:position + vxcl(up:vector, velocity:surface)*10*Scale + vxcl(up:vector, ship:posiiton - landingzone:position)).
                 ADDONS:TR:SETTARGET(landingzone).
                 lock RadarAlt to alt:radar - ShipHeight.
             }
 
-            when RadarAlt < ShipHeight then if TgtErrorVector:mag > 0.7*ShipHeight set cAbort to true.
+            when RadarAlt < ShipHeight then if not LandSomewhereElse if TgtErrorVector:mag > 0.7*ShipHeight set cAbort to true.
 
             if not (TargetOLM = "false") and GfC and TargetOLM when LandSomewhereElse then set cAbort to true.
             
-            if (SLactive < 3 and not RSS) or (SLactive < 2 and SL0Off) set cAbort to true.
+            when time:seconds > LandingFlipStart + 1.2 then if (SLactive < 3 and not RSS) or (SLactive < 2) set cAbort to true.
 
             if not (TargetOLM = "false") {
                 when vAng(facing:forevector, up:vector) < 3 and Vessel(TargetOLM):distance < 2000 then {
@@ -12161,6 +12167,8 @@ function ReEntryData {
                         lock RadarAlt to alt:radar - ShipHeight.
                         HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag+"m)", 3, 2, 20, red, false).
                     } else {
+                        set landingzone to ship:body:geoPositionOf(landingzone:position + (Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position)*0.2).
+                        ADDONS:TR:SETTARGET(landingzone).
                         when groundspeed < 2 then {
                             HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
                             if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.4*ShipHeight {
@@ -12261,17 +12269,20 @@ function ReEntryData {
 
             
             when (verticalspeed > -42 and throttle < ThrottleMin + 0.05 and ship:groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and RadarAlt < 2*ShipHeight) or (verticalSpeed > -30 and throttle < 0.58) then {
-                SLEngines[0]:shutdown.
-                SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                if SLActive > 2 and SLEngines[0]:hassuffix("activate") SLEngines[0]:shutdown.
+                if SLActive > 2 and SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                 LogToFile("1st engine shutdown; performing a 2-engine landing..").
                 set twoSL to true.
                 set ThrottleMin to 0.33.
-                if RSS set ThrottleMin to 0.24.
+                if RSS set ThrottleMin to 0.22.
+                wait 0.
+                if SLEngines[0]:hassuffix("activate") if SLEngines[0]:thrust > 50 set twoSL to false.
                 when ThrottleMin * 2 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and throttle < ThrottleMin + 0.003 and ship:groundspeed < 1 * Scale and verticalspeed > -8 * Scale and RadarAlt > 5 or verticalSpeed > CatchVS * 0.8 and RadarAlt > 4 then {
                     SLEngines[2]:shutdown.
                     SLEngines[2]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                     LogToFile("2nd engine shutdown; performing a single engine landing..").
                     set oneSL to true.
+                    set twoSL to true.
                     set Slow to false.
                     set Hover to false.
                 }
@@ -12364,7 +12375,7 @@ function ClosingAngle {
 }
 
 function ClosingSpeed {
-    set speed to min(max(4,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 12), 25).
+    set speed to min(max(10,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 12), 25).
 
     return round(speed,1).
 }
@@ -12470,11 +12481,12 @@ function LandingVector {
                     }
                 }
                 if verticalspeed < -30 {
-                    set result to up:vector - 0.01 * GSVec - 0.02 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
+                    set result to up:vector - 0.008 * GSVec - 0.02 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
                 }
-                else {
-                    set result to up:vector - 0.025 * GSVec - 0.005 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
+                else if RadarAlt > 10 {
+                    set result to up:vector - 0.015 * GSVec - 0.005 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
                 }
+                else set result to up:vector - 0.02 * GSVec.
                 if RadarAlt < 5 set result to result + 2*up:vector.
                 set message1:text to "<b>Landing Off-Target..</b>".
                 if ErrorVector:MAG < 10000 {
@@ -12500,7 +12512,7 @@ function LandingVector {
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(4*Scale),1)+TgtErrorStrength)/2.
                     set VelCancel to cancelPID:update(time:seconds, GSVec:mag).
 
-                    set LndGuidVec to up:vector * ShipHeight*0.7/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel - PositionError * 0.3.
+                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.1.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to LndGuidVec - facing:topvector * _2SL + facing:starvector * _1SL + facing:forevector * LndsteerDamp.
 
@@ -12772,50 +12784,50 @@ function LngLatError {
             if TargetOLM {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
-                        if RadarAlt > 4000 set LngLatOffset to -30.
+                        if RadarAlt > 4000 set LngLatOffset to -15.
                         else set LngLatOffset to -2 - vxcl(up:vector, velocity:surface):mag*0.6.
                     } else if ShipType:contains("Block1"){
-                        if RadarAlt > 4000 set LngLatOffset to -18.
+                        if RadarAlt > 4000 set LngLatOffset to -15.
                         else set LngLatOffset to 2 - vxcl(up:vector, velocity:surface):mag*0.5.
                     } else {
-                        if RadarAlt > 4000 set LngLatOffset to -20.
+                        if RadarAlt > 4000 set LngLatOffset to -15.
                         else set LngLatOffset to 2 - vxcl(up:vector, velocity:surface):mag*0.55.
                     }
                 }
                 else if KSRSS {
                     if ShipSubType:contains("Block2") {
-                        if RadarAlt > 5000 set LngLatOffset to -42.
+                        if RadarAlt > 5000 set LngLatOffset to -36.
                         else set LngLatOffset to -26 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else if ShipType:contains("Block1"){
-                        if RadarAlt > 5000 set LngLatOffset to -32.
+                        if RadarAlt > 5000 set LngLatOffset to -24.
                         else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else {
-                        if RadarAlt > 5000 set LngLatOffset to -36.
+                        if RadarAlt > 5000 set LngLatOffset to -24.
                         else set LngLatOffset to -15 - vxcl(up:vector, velocity:surface):mag*0.7.
                     }
                 }
                 else {
                     if ShipSubType:contains("Block2") {
-                        if RadarAlt > 6000 set LngLatOffset to -120.
-                        else set LngLatOffset to -55 - vxcl(up:vector, velocity:surface):mag*0.85.
+                        if RadarAlt > 6000 set LngLatOffset to -65.
+                        else set LngLatOffset to -52 - vxcl(up:vector, velocity:surface):mag*0.85.
                     } else if ShipType:contains("Block1"){
-                        if RadarAlt > 6000 set LngLatOffset to -110.
-                        else set LngLatOffset to -42 - vxcl(up:vector, velocity:surface):mag*0.83.
+                        if RadarAlt > 6000 set LngLatOffset to -64.
+                        else set LngLatOffset to -54 - vxcl(up:vector, velocity:surface):mag*0.83.
                     } else {
-                        if RadarAlt > 6000 set LngLatOffset to -100.
-                        else set LngLatOffset to -44 - vxcl(up:vector, velocity:surface):mag*0.8.
+                        if RadarAlt > 6000 set LngLatOffset to -66.
+                        else set LngLatOffset to -50 - vxcl(up:vector, velocity:surface):mag*0.8.
                     }
                 }
             }
             else {
                 if STOCK {
-                    set LngLatOffset to -24.
+                    set LngLatOffset to -18.
                 }
                 else if KSRSS {
-                    set LngLatOffset to -44.
+                    set LngLatOffset to -38.
                 }
                 else {
-                    set LngLatOffset to -130.
+                    set LngLatOffset to -70.
                     
                     
                 }
@@ -14033,7 +14045,7 @@ function LandAtOLM {
             if ShipSubType:contains("Block2") {
                 set FlipAltitude to 660.
             } else if ShipType:contains("Block1") {
-                set FlipAltitude to 700.
+                set FlipAltitude to 710.
             } else {
                 set FlipAltitude to 700.
             }
@@ -14355,7 +14367,7 @@ function PerformBurn {
     if BurnType = "DeOrbit" {
         set SingleEngineDeOrbitBurn to true.
         set UseRCSforBurn to false.
-        lock MaxAccel to SLEngines[1]:possiblethrust / ship:mass.
+        lock MaxAccel to SLEngines[DeOrbitEngNr]:possiblethrust / ship:mass.
     }
     lock BurnAccel to min(19.62, MaxAccel).
     lock BurnDuration to deltaV / BurnAccel.
@@ -14453,24 +14465,35 @@ function PerformBurn {
         sas off.
         rcs off.
         if SingleEngineDeOrbitBurn {
-            set OffsetAngle to vang(ship:position - SLEngines[1]:position, facing:forevector).
+            set OffsetAngle to vang(ship:position - SLEngines[DeOrbitEngNr]:position, facing:forevector).
             lock BVec to nextnode:burnvector * AngleAxis(OffsetAngle, up:vector).
-            if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
-            if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleSEPRaptor"):setfield("actuate limit", 100 * OffsetAngle / 11).
+            if SLEngines[DeOrbitEngNr]:hassuffix("activate") SLEngines[DeOrbitEngNr]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+            if SLEngines[DeOrbitEngNr]:hassuffix("activate") SLEngines[DeOrbitEngNr]:getmodule("ModuleSEPRaptor"):setfield("actuate limit", 100 * OffsetAngle / 11).
+            if DeOrbitEngNr = 0 set DeOrbitRoll to 0.
+            else if DeOrbitEngNr = 1 set DeOrbitRoll to -120.
+            else if DeOrbitEngNr = 2 set DeOrbitRoll to 120.
         }
         else {
             lock BVec to nextnode:burnvector.
         }
         if BurnType = "DeOrbit" {
-            lock steering to lookdirup(BVec, AngleAxis(-120, BVec)*north:vector).
+            lock steering to lookdirup(BVec, AngleAxis(DeOrbitRoll, BVec)*north:vector).
         }
         else {
             lock steering to lookdirup(BVec, facing:topvector).
         }
         set bTime to time:seconds + 9999.
         when time:seconds > bTime - 1 then {
-            if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
-            if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+            if DeOrbitEngNr = 1 {
+                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+            } else if DeOrbitEngNr = 2 {
+                if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+                if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+            } else if DeOrbitEngNr = 0 {
+                if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+                if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+            }
         }
         until time:seconds > bTime or cancelconfirmed and not ClosingIsRunning {
             if hasnode {
@@ -14491,9 +14514,10 @@ function PerformBurn {
             if vang(BVec, ship:facing:forevector) < 15 and cancelconfirmed = false or vang(-BVec, ship:facing:forevector) < 15 and cancelconfirmed = false and BurnType = "DeOrbit" and UseRCSforBurn {
                 LogToFile("Starting Burn").
                 set runningprogram to "Performing Burn".
+                set EngineFail to false.
                 if UseRCSforBurn {}
                 else if SingleEngineDeOrbitBurn {
-                    if SLEngines[1]:hassuffix("activate") SLEngines[1]:activate.
+                    if SLEngines[DeOrbitEngNr]:hassuffix("activate") SLEngines[DeOrbitEngNr]:activate.
                 }
                 else {
                     set quickengine3:pressed to true.
@@ -14510,6 +14534,10 @@ function PerformBurn {
                             lock throttle to min(nextnode:deltav:mag / MaxAccel, BurnAccel / MaxAccel).
                             //lock throttle to max(min(nextnode:deltav:mag / MaxAccel, BurnAccel / MaxAccel), 0.33).
                         }
+                    }
+                    if shipThrust < 20 and throttle > 0.5 and time:seconds > bTime + 0.8 {
+                        set EngineFail to true.
+                        set cancelconfirmed to true.
                     }
                     if nextnode:deltav:mag > 5 {
                         lock steering to lookdirup(BVec, ship:facing:topvector).
@@ -14529,10 +14557,16 @@ function PerformBurn {
                     set ship:control:rotation to v(0, 0, 0).
                 }
                 else if SingleEngineDeOrbitBurn {
-                    if SLEngines[1]:hassuffix("activate") SLEngines[1]:shutdown.
+                    if SLEngines[DeOrbitEngNr]:hassuffix("activate") SLEngines[DeOrbitEngNr]:shutdown.
                 }
                 else {
                     set quickengine3:pressed to false.
+                }
+                if cancelconfirmed and EngineFail {
+                    set message1:text to "<b><color=red>Engine ("+DeOrbitEngNr+") Failed, try again!</color></b>".
+                    set message2:text to "<b>Different Engine will be used</b>".
+                    set message3:text to "".
+                    wait 4.
                 }
                 remove nextnode.
                 sas on.
@@ -14584,10 +14618,22 @@ function PerformBurn {
         LogToFile("User cancelled Burn").
         ClearInterfaceAndSteering().
     }
-    if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
-    if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleSEPRaptor"):setfield("actuate limit", 100).
-    if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
-    if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+    if SLEngines[DeOrbitEngNr]:hassuffix("activate") SLEngines[DeOrbitEngNr]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+    if SLEngines[DeOrbitEngNr]:hassuffix("activate") SLEngines[DeOrbitEngNr]:getmodule("ModuleSEPRaptor"):setfield("actuate limit", 100).
+    if DeOrbitEngNr = 1 {
+        if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+        if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+    } else if DeOrbitEngNr = 2 {
+        if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+        if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+    } else if DeOrbitEngNr = 0 {
+        if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+        if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+    }
+    if SingleEngineDeOrbitBurn {
+        if SingleEngineDeOrbitBurn and DeOrbitEngNr = 1 set DeOrbitEngNr to 2.
+        else if SingleEngineDeOrbitBurn and DeOrbitEngNr = 2 set DeOrbitEngNr to 0.
+    }
     unlock BVec.
     if ShipType:contains("Block1") {
         set steeringManager:maxstoppingtime to mST.
@@ -16003,6 +16049,7 @@ function GetShipRotation {
 
         if Vessel(TargetOLM):distance < 2000 {
             set varVec to vxcl(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
+            if defined myFuturePos set varVec to vxcl(up:vector, myFuturePos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
             set varR to vang(varVec, TowerHeadingVector).
             if vAng(vCrs(TowerHeadingVector,up:vector),varVec) < 90 set varR to -varR.
         }
@@ -16119,9 +16166,11 @@ function updateTelemetry {
     set engCountVar to 1.
     for eng in SLEngines {
         if eng:hassuffix("activate")
-            if eng:thrust > 10 set engCount to engCount + engCountVar.
+            if eng:thrust > 10 {
+                set engCount to engCount + engCountVar.
+                set SLactive to SLactive + 1.
+            }
         set engCountVar to engCountVar*2.
-        set SLactive to SLactive + 1.
     }
     for eng in VACEngines {
         if eng:hassuffix("activate")

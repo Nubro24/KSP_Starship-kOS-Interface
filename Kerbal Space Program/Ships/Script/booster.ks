@@ -1360,7 +1360,7 @@ function Boostback {
         }
         when time:seconds > flipStartTime + FlipTime*0.75 then {
             set ship:control:neutralize to true.
-            set steeringmanager:maxstoppingtime to 1.2*Scale + FlipAngle/(180*Scale).
+            set steeringmanager:maxstoppingtime to 1.2*Scale + FlipAngle/(200*Scale).
         }
 
         //show Poll HUD
@@ -1368,7 +1368,7 @@ function Boostback {
         when time:seconds > flipStartTime + FlipTime or vAng(facing:forevector, -vxcl(up:vector,velocity:surface)) < 60 
                 or vAng(vxcl(up:vector, -ErrorVector),facing:forevector) < 70 and vAng(up:vector,facing:forevector) > 90 then {
             set steeringmanager:yawtorquefactor to 0.9.
-            set steeringmanager:maxstoppingtime to 1*Scale + FlipAngle/(240*Scale).
+            set steeringmanager:maxstoppingtime to 1*Scale + FlipAngle/(260*Scale).
             set steeringManager:rollcontrolanglerange to 70.
             set steeringManager:rolltorquefactor to 6.
             lock throttle to 0.75.
@@ -1376,7 +1376,7 @@ function Boostback {
             if not fullAuto bGUI:show().
         }
         when time:seconds > flipStartTime + FlipTime * 1.24 then {
-            set steeringmanager:maxstoppingtime to 0.8 + FlipAngle/(180*Scale).
+            set steeringmanager:maxstoppingtime to 0.8 + FlipAngle/(220*Scale).
             unlock FlipAngle.
         }
 
