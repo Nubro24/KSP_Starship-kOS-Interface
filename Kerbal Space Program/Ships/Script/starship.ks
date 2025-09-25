@@ -12025,7 +12025,7 @@ function ReEntryData {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
             else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-            set ThrottleMin to 0.42.
+            set ThrottleMin to 0.38.
             if STOCK {
                 set FlipAngleFactor to 0.5.
                 set CatchVS to -0.3.
