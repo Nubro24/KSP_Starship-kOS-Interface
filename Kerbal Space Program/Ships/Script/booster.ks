@@ -1063,6 +1063,13 @@ on ag8 {
     return true.
 } 
 
+on ag5 {
+    if not ShipConnectedToBooster and ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
+        set ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+        BoosterStaticFire().
+    }
+}
+
 
 for gimbalEng in BoosterSingleEnginesRC {
     if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 24).
@@ -1204,6 +1211,88 @@ until False {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
     }
     wait 0.01.
+}
+
+
+function BoosterStaticFire {
+    if (BoosterSingleEngines or defined BoosterEngines) and defined bLOXTank and defined bCH4Tank {
+        set BoosterStaticFireRunning to true.
+        hudtext("Initiating Static Fire",3,5,24,yellow,true).
+        CheckFuel().
+        if LFBooster > LFBoosterFuelCutOff {
+            for res in bCH4Tank:resources {
+                if res:name:contains("Methane") or res:name = "LiquidFuel" set res:enabled to false.
+            }
+        }
+        if OxBooster/OxBoosterCap < 0.9 or LFBooster < LFBoosterFuelCutOff {
+            RefuelBooster().
+            wait until BoosterFueled.
+        }
+        set BoosterFueledTime to time:seconds.
+        set missionTimer to time:seconds + 15.
+        wait until missionTimerNow > -10.
+        sendMessage(processor(volume("OrbitalLaunchMount")), "StaticFire,"+missionTimer).
+        wait until missionTimerNow > -2.
+        if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+        wait 0.
+        if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
+        else {
+            for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
+        }
+        wait 1.
+        if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
+        else {
+            set x to 0.
+            for eng in BoosterSingleEnginesRB {
+                if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
+                else if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
+                set x to x + 1.
+            }
+            set inactiveEng to List(7,11,15,19,24).
+        }
+        wait 0.7.
+        if BoosterSingleEngines {
+            set x to 0.
+            for eng in BoosterSingleEnginesRB {
+                if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < LOIgnCha/100 eng:activate.
+                set x to x + 1.
+            }
+        }
+        wait 8.
+        set x to 0.
+        until x > 3 {
+            if BoosterSingleEnginesRB[x]:hassuffix("activate") BoosterSingleEnginesRB[x]:shutdown.
+            if BoosterSingleEnginesRB[x+4]:hassuffix("activate") BoosterSingleEnginesRB[x+4]:shutdown.
+            if BoosterSingleEnginesRB[x+8]:hassuffix("activate") BoosterSingleEnginesRB[x+8]:shutdown.
+            if BoosterSingleEnginesRB[x+12]:hassuffix("activate") BoosterSingleEnginesRB[x+12]:shutdown.
+            if BoosterSingleEnginesRB[x+16]:hassuffix("activate") BoosterSingleEnginesRB[x+16]:shutdown.
+            set x to x + 1.
+            wait 0.05.
+        }
+        set x to 0.
+        until x > 1 {
+            if BoosterSingleEnginesRC[x+3]:hassuffix("activate") BoosterSingleEnginesRC[x+3]:shutdown.
+            if BoosterSingleEnginesRC[x+5]:hassuffix("activate") BoosterSingleEnginesRC[x+5]:shutdown.
+            if BoosterSingleEnginesRC[x+7]:hassuffix("activate") BoosterSingleEnginesRC[x+7]:shutdown.
+            if BoosterSingleEnginesRC[x+9]:hassuffix("activate") BoosterSingleEnginesRC[x+9]:shutdown.
+            if BoosterSingleEnginesRC[x+11]:hassuffix("activate") BoosterSingleEnginesRC[x+11]:shutdown.
+            set x to x + 1.
+            wait 0.05.
+        }
+        if BoosterSingleEnginesRC[0]:hassuffix("activate") BoosterSingleEnginesRC[0]:shutdown.
+        if BoosterSingleEnginesRC[1]:hassuffix("activate") BoosterSingleEnginesRC[1]:shutdown.
+        if BoosterSingleEnginesRC[2]:hassuffix("activate") BoosterSingleEnginesRC[2]:shutdown.
+        wait 2.
+        hudtext("Static Fire Complete",3,5,24,green,true).
+    }
+}
+function RefuelBooster {
+    sendMessage(Processor(volume("OrbitalLaunchMount")), "ToggleReFueling,true").
+    until BoosterFueled {
+        CheckFuel().
+        if OxBooster/OxBoosterCap > 0.9 and LFBooster > LFBoosterFuelCutOff set BoosterFueled to true.
+    }
+    sendMessage(Processor(volume("OrbitalLaunchMount")), "ToggleReFueling,false").
 }
 
 
@@ -3313,12 +3402,16 @@ function CheckFuel {
                 BoosterCore:shutdown.
             }
         }
-        if res:name = "LqdMethane" {
+        if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3")  {
                 BoosterCore:shutdown.
             }
+        }
+        if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
+            set OxBooster to res:amount.
+            set OxBoosterCap to res:capacity.
         }
     }
     if BoosterType:contains("Block3") {

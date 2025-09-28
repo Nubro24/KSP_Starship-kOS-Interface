@@ -317,6 +317,9 @@ until False {
         else if command = "Countdown" {
             set LiftOffTime to time:seconds + 17.
         }
+        else if command = "StaticFire" {
+            StaticFireDeluge(parameter1).
+        }
         else {
             PRINT "Unexpected message: " + RECEIVED:CONTENT.
         }
@@ -359,6 +362,54 @@ function LiftOff {
         }
     }
     set AfterLaunch to true.
+}
+
+function StaticFireDeluge {
+    parameter T0.
+    wait until time:seconds - T0 > -9.
+        if OLM:hasmodule("ModuleEnginesFX") {
+            if OLM:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
+                OLM:getmodule("ModuleEnginesFX"):doevent("activate engine").
+            }
+        }
+        if OLM:hasmodule("ModuleEnginesRF") {
+            if OLM:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
+                OLM:getmodule("ModuleEnginesRF"):doevent("activate engine").
+            }
+        }
+    wait until time:seconds - T0 > -3.
+        if SteelPlate:hasmodule("ModuleEnginesFX") {
+            if SteelPlate:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
+                SteelPlate:getmodule("ModuleEnginesFX"):doevent("activate engine").
+            }
+        }
+        if SteelPlate:hasmodule("ModuleEnginesRF") {
+            if SteelPlate:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
+                SteelPlate:getmodule("ModuleEnginesRF"):doevent("activate engine").
+            }
+        }
+    wait until time:seconds - T0 > 2.
+        if OLM:hasmodule("ModuleEnginesFX") {
+            if OLM:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                OLM:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+            }
+        }
+        if OLM:hasmodule("ModuleEnginesRF") {
+            if OLM:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                OLM:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+            }
+        }
+    wait until time:seconds - T0 > 9.
+        if SteelPlate:hasmodule("ModuleEnginesFX") {
+            if SteelPlate:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                SteelPlate:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+            }
+        }
+        if SteelPlate:hasmodule("ModuleEnginesRF") {
+            if SteelPlate:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                SteelPlate:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+            }
+        }
 }
 
 function LandingDeluge {
