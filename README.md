@@ -103,6 +103,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Landings with sub-meter precision
 - better Ship Catch Abort
 - IFT - Flight profile option
+- Ship High Altitude Flight Tests
 - Implement unused Heat Pictograms
 - Rendezvous Maneuver
 
