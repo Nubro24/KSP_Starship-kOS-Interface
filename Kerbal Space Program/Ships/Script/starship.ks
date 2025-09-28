@@ -457,6 +457,7 @@ if ship:name:contains(" Real Size") and (RSS) {
 }
 
 set ShipType to "".
+set BoosterType to "".
 set bEngSet to false.
 set sEngSetVac to false.
 set sEngSet to false.
@@ -861,10 +862,15 @@ function FindParts {
         for x in StartPart:children {
             if x:name:contains("SEP.23.BOOSTER.INTEGRATED") {}
             else if x:name:contains("SEP.25.BOOSTER.CORE") {}
+            else if x:name:contains("Block.3.AFT") {}
+            else if x:name:contains("Block.3.CH4") {}
+            else if x:name:contains("Block.3.CMN") {}
+            else if x:name:contains("Block.3.LOX") {}
             else if x:name:contains("SEP.23.SHIP.BODY") {}
 			else if x:name:contains("SEP.24.SHIP.CORE") {}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
+            else if x:name:contains("Block.3.FWD") {}
             else {
                 if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C")) and x:parent:name:contains("SHIP") {
                     set SL to true.
@@ -1186,6 +1192,7 @@ function FindParts {
     if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
         set oldBooster to true.
         set Boosterconnected to true.
+        set BoosterType to "Block0".
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
         set sLOXLabel:style:textcolor to grey.
@@ -1197,6 +1204,9 @@ function FindParts {
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+        set bLOXTank to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+        set bCH4Tank to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+        set bCMNDome to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             print(round(BoosterCore[0]:drymass)).
@@ -1215,6 +1225,7 @@ function FindParts {
         set missionTimeLabel:text to "".
     } else if ship:partsnamed("SEP.25.BOOSTER.CORE"):length > 0 {
         set Boosterconnected to true.
+        set BoosterType to "Block2".
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
         set sLOXLabel:style:textcolor to grey.
@@ -1227,6 +1238,43 @@ function FindParts {
         if ship:partsnamed("SEP.25.BOOSTER.HSR"):length > 0 set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
         else if ship:partsnamed("VS.25.HSR.BL3"):length > 0 set HSR to SHIP:PARTSNAMED("VS.25.HSR.BL3").
         set BoosterCore to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        set bLOXTank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        set bCH4Tank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        set bCMNDome to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("Block.3.AFT"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block3".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        set BoosterEngines to SHIP:PARTSNAMED("Block.3.AFT").
+        set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
+        set HSR to SHIP:PARTSNAMED("Block.3.FWD").
+        set BoosterCore to SHIP:PARTSNAMED("Block.3.AFT").
+        set bLOXTank to SHIP:PARTSNAMED("Block.3.LOX").
+        set bCH4Tank to SHIP:PARTSNAMED("Block.3.CH4").
+        set bCMNDome to SHIP:PARTSNAMED("Block.3.CMN").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             //print(round(BoosterCore[0]:drymass)).
@@ -7512,9 +7560,26 @@ function Launch {
         }
 
         if RadarAlt < 100 {
-            for resBooster in BoosterCore[0]:resources {
+            for resBooster in bCH4Tank[0]:resources {
                 if resBooster:name = "Oxidizer" or resBooster:name = "LqdMethane" or resBooster:name = "LiquidFuel" {
                     set resBooster:enabled to true.
+                }
+            }
+            if BoosterType:contains("Block3") {
+                for resBooster in bLOXTank[0]:resources {
+                    if resBooster:name = "Oxidizer" {
+                        set resBooster:enabled to true.
+                    }
+                }
+                for resBooster in HSR[0]:resources {
+                    if resBooster:name = "LqdMethane" or resBooster:name = "LiquidFuel" {
+                        set resBooster:enabled to true.
+                    }
+                }
+                for resBooster in BoosterCore[0]:resources {
+                    if resBooster:name = "Oxidizer" {
+                        set resBooster:enabled to true.
+                    }
                 }
             }
             for resShip in Tank:resources {
@@ -7583,7 +7648,7 @@ function Launch {
             if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
                 SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
             }
-            BoosterCore[0]:activate.
+            if not BoosterType:contains("Block3") BoosterCore[0]:activate.
             wait 1.
 
             until time:seconds - EngineStartTime > 3.8 or cancelconfirmed {
@@ -7605,7 +7670,7 @@ function Launch {
                     for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:shutdown.
                 }
-                BoosterCore[0]:shutdown.
+                if not BoosterType:contains("Block3") BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
                     until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -7688,7 +7753,7 @@ function Launch {
                     for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:shutdown.
                 }
-                BoosterCore[0]:shutdown.
+                if not BoosterType:contains("Block3") BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
                     until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -7724,7 +7789,7 @@ function Launch {
             }
             if bLiftOffThrust/(StackMass * Planet1G) < 1.3 set lowTWR to true.
             unlock bLiftOffThrust.
-            BoosterCore[0]:shutdown.
+            if not BoosterType:contains("Block3") BoosterCore[0]:shutdown.
             wait 0.01.
             set SteeringManager:rollts to 5.
             set steeringManager:rolltorquefactor to 2.
@@ -7826,7 +7891,7 @@ function Launch {
         }
 
         if Boosterconnected {
-            set steeringManager:maxstoppingtime to 0.7*Scale.
+            set steeringManager:maxstoppingtime to 1.2*Scale.
             when apoapsis > BoosterAp - 22000 * Scale then {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
@@ -7968,10 +8033,9 @@ function Launch {
                 }
                 set quickengine3:pressed to true.
                 updateTelemetry().
-                if ShipType:contains("Block1") {
-                    print "Block 1".
+                if BoosterType:contains("Block3") {
+                    print "Block 3".
                     if defined HSR {
-                        HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
                         HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
@@ -7979,7 +8043,23 @@ function Launch {
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
-                } else {
+                } 
+                else if ShipType:contains("Block1") {
+                    print "Block 1".
+                    if defined HSR {
+                        HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                        HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
+                    }
+                    else {
+                        BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                    }
+                    Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                    wait 0.1.
+                    if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
+                        Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                    }
+                } 
+                else {
                     if defined HSR {
                         HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
@@ -9433,7 +9513,8 @@ function updateEnginePage {
             set engine1label4:tooltip to "".
             set engine2label1:tooltip to "Thrust in kN of the Super Heavy Raptor Engines".
             set engine2label5:tooltip to "% of Fuel Remaining in the Booster CH4 & LOX tanks".
-            set boosterfuel to 100 * (BoosterCore[0]:resources[2]:amount / BoosterCore[0]:resources[2]:capacity).
+            if not BoosterType:contains("Block3") set boosterfuel to 100 * (bCH4Tank[0]:resources[2]:amount / bCH4Tank[0]:resources[2]:capacity).
+            else set boosterfuel to 100 * (bCH4Tank[0]:resources[0]:amount / bCH4Tank[0]:resources[0]:capacity).
             if boosterfuel < 20 {
                 set engine2label4:style:border:h to (boosterfuel / 20) * 10.
                 set engine2label4:style:border:h to (boosterfuel / 20) * 10.
@@ -15837,13 +15918,30 @@ function CheckFullTanks {
                         set res2:enabled to true.
                     }
                 }
+                if BoosterType:contains("Block3") {
+                    for res2 in bLOXTank[0]:resources {
+                        if res2:name = "Oxidizer" {
+                            set res2:enabled to true.
+                        }
+                    }
+                    for res2 in bCH4Tank[0]:resources {
+                        if res2:name = "LqdMethane" {
+                            set res2:enabled to true.
+                        }
+                    }
+                    for res2 in HSR[0]:resources {
+                        if res2:name = "LqdMethane" {
+                            set res2:enabled to true.
+                        }
+                    }
+                }
             }
         }
 
         
 
         if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 and FullTanks {
-            for res in BoosterCore[0]:resources {
+            for res in list(BoosterCore[0]:resources) {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass > 24000 {
                     set FullTanks to false.
                     set missingStuffWhere to missingStuffWhere + "bOldHigh|".
@@ -15940,6 +16038,70 @@ function CheckFullTanks {
             }
         }
 
+        if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 and FullTanks {
+            set BoosterResourcesSTEP to BoosterCore[0]:resources.
+            BoosterResourcesSTEP:add(bLOXTank[0]:resources). 
+            BoosterResourcesSTEP:add(bCH4Tank[0]:resources).
+            BoosterResourcesSTEP:add(HSR[0]:resources).
+            BoosterResourcesSTEP:add(bCMNDome[0]:resources).
+            set BoosterResources to list().
+            for StepRes in BoosterResourcesSTEP {
+                if StepRes:istype("List") {
+                    for resStep in StepRes {
+                        BoosterResources:add(resStep).
+                    }
+                }
+                else BoosterResources:add(StepRes).
+            }
+            for res in BoosterResources {
+                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass > 24000 {
+                    set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "bNewHigh|".
+                    set amount to amount + res:amount.
+                    set cap to cap + res:capacity.
+                } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass <= 24000 {
+                    set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "bNewLow|".
+                    set LowCargoMass to true.
+                    set amount to amount + res:amount.
+                    set cap to cap + res:capacity.
+                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
+                    for res2 in Tank:resources {
+                        if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and not (res2:name = "SpareParts") and CargoMass > 16000 {
+                            for res3 in BoosterResources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to false.
+                                }
+                            }
+                            set FullTanks to false.
+                            set missingStuffWhere to missingStuffWhere + "V1MainHigh|".
+                            set missingStuffWhat to missingStuffWhat + res2:name.
+                            set amount to amount + res2:amount.
+                            set cap to cap + res2:capacity.
+                        } else if res2:amount < res2:capacity * 0.9 - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and not (res2:name = "SpareParts") and CargoMass <= 16000 {
+                            for res3 in BoosterResources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to false.
+                                }
+                            }
+                            set FullTanks to false.
+                            set missingStuffWhere to missingStuffWhere + "V1MainLow|".
+                            set missingStuffWhat to missingStuffWhat + res2:name.
+                            set LowCargoMass to true.
+                            set amount to amount + res2:amount.
+                            set cap to cap + res2:capacity.
+                        } else {
+                            for res3 in BoosterResources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to true.
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         set totalfuel to amount.
         set totalcap to cap.
         //print round(totalfuel) + "/" + round(totalcap).
@@ -15955,7 +16117,7 @@ function Refuel {
             Droppriority().
             sendMessage(Processor(volume("OrbitalLaunchMount")), "ToggleReFueling,true").
             set tower11button4:text to "<b><color=cyan>FUEL</color></b>".
-            if BoosterCore:length > 0 {
+            if BoosterCore:length > 0 and not BoosterType:contains("Block3") {
                 BoosterCore[0]:getmodule("ModuleToggleCrossfeed"):DoAction("enable crossfeed", true).
                 HSR[0]:getmodule("ModuleToggleCrossfeed"):DoAction("enable crossfeed", true).
             }
@@ -15973,7 +16135,7 @@ function Refuel {
             set message1:text to "".
             set message2:text to "".
             set tower11button4:text to "<b>FUEL</b>".
-            if BoosterCore:length > 0 {
+            if BoosterCore:length > 0 and not BoosterType:contains("Block3") {
                 BoosterCore[0]:getmodule("ModuleToggleCrossfeed"):DoAction("disable crossfeed", true).
                 HSR[0]:getmodule("ModuleToggleCrossfeed"):DoAction("disable crossfeed", true).
             }
@@ -15985,7 +16147,7 @@ function Refuel {
             set message2:text to "".
             set Refueling to false.
             set tower11button4:text to "<b>FUEL</b>".
-            if BoosterCore:length > 0 {
+            if BoosterCore:length > 0 and not BoosterType:contains("Block3") {
                 BoosterCore[0]:getmodule("ModuleToggleCrossfeed"):DoAction("disable crossfeed", true).
                 HSR[0]:getmodule("ModuleToggleCrossfeed"):DoAction("disable crossfeed", true).
             }
