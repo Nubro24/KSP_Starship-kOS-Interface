@@ -1259,6 +1259,7 @@ function BoosterStaticFire {
             }
         }
         wait 8.
+        if BoosterSingleEngines {
         set x to 0.
         until x > 3 {
             if BoosterSingleEnginesRB[x]:hassuffix("activate") BoosterSingleEnginesRB[x]:shutdown.
@@ -1282,6 +1283,12 @@ function BoosterStaticFire {
         if BoosterSingleEnginesRC[0]:hassuffix("activate") BoosterSingleEnginesRC[0]:shutdown.
         if BoosterSingleEnginesRC[1]:hassuffix("activate") BoosterSingleEnginesRC[1]:shutdown.
         if BoosterSingleEnginesRC[2]:hassuffix("activate") BoosterSingleEnginesRC[2]:shutdown.
+        }
+        else {
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+            wait 0.2.
+            BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("shutdown engine", true).
+        }
         wait 2.
         hudtext("Static Fire Complete",3,5,24,green,true).
     }
