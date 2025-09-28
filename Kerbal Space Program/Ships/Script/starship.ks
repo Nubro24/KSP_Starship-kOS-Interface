@@ -12228,7 +12228,7 @@ function ReEntryData {
             when cAbort then {
                 set LandSomewhereElse to true.
                 if addons:tr:hasimpact if (addons:tr:impactpos:position - landingzone:position):mag < 2* ShipHeight 
-                    set landingzone to ship:body:geoPositionOf(landingzone:position + vxcl(up:vector, velocity:surface)*10*Scale + vxcl(up:vector, ship:posiiton - landingzone:position)).
+                    set landingzone to ship:body:geoPositionOf(landingzone:position + vxcl(up:vector, velocity:surface)*10*Scale + vxcl(up:vector, ship:position - landingzone:position)).
                 ADDONS:TR:SETTARGET(landingzone).
                 lock RadarAlt to alt:radar - ShipHeight.
             }
