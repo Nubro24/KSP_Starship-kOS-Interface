@@ -2102,7 +2102,7 @@ function Boostback {
         set LandSomewhereElse to true.
     } 
 
-    set tgtErrorPID to pidLoop(0.03, 0.0001, 0.08, -10, 10).
+    set tgtErrorPID to pidLoop(0.03, 0.0001, 0.07, -10, 10).
 
     set LandingBurnTime to time:seconds.
     if not BoosterSingleEngines MidGimbMod:doaction("free gimbal", true).
@@ -2865,14 +2865,14 @@ function LandingGuidance {
     if landDistance > BoosterHeight set PrVec to (CatchPins - CatchPos):normalized * landDistance/3.
     else set PrVec to 10*up:vector - velocity:surface:normalized.
     set GuidVec to PrVec - TgtErrorVector * 20/max(airspeed-280,20) + TgtErrorVector * max(0,airspeed-300)/70 
-            + up:vector * speedRatio * (vAng(up:vector,-velocity:surface)-5)/30 + GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.2/2, 0)).
+            + GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.2/2, 0)).
     
     // === TVC compensation ===
     set steeringOffset to vAng(GuidVec,facing:forevector).
     set streamOffset to vAng(GuidVec,-velocity:surface).
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((steeringOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-150)/50, 1).
-    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (vAng(up:vector,GuidVec)-5)/30.
+    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (vAng(up:vector,GuidVec)-5)/24.
 
     // === Final Vector ===
     set FinalVec to GuidVec:normalized * min(1, (RadarRatio^1.2)/0.12) + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp.
