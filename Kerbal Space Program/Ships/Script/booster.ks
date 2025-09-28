@@ -85,6 +85,7 @@ set LngError to 0.
 set LatError to 0.
 set ErrorVector to V(0, 0, 0).
 set oldBooster to false.
+set BoosterFueled to false.
 set Frost to false.
 set RandomFlip to false.
 set GoForCatch to false.
