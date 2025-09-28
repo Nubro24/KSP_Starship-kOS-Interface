@@ -204,6 +204,7 @@ for part in ship:parts {
     if part:name:contains("Block.3.FWD") and not HSset {
         set HSRType to "Block3".
         set HSR to part.
+        set CrossFeed to part:getmodule("ModuleToggleCrossfeed").
         set HSset to true.
     }
     if part:name:contains("frostbooster") {
@@ -1079,6 +1080,7 @@ when time:seconds > TelemetryTimer + 0.03 then {
     return true.
 }
 
+if BoosterType:contains("Block3") CrossFeed:doaction("Disable Crossfeed", true).
 
 when MaxQ then {
     set ClockHeader:text to "Max Q".
@@ -1233,6 +1235,7 @@ function Boostback {
     SteeringCorrections().
 
     if not BoosterType:contains("Block3") BoosterCore:controlfrom().
+    if BoosterType:contains("Block3") CrossFeed:doaction("Enable Crossfeed", true).
 
     if verticalspeed > 0 {
         set rebooted to false.
