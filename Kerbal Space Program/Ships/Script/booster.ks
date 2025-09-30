@@ -1238,7 +1238,7 @@ function BoosterStaticFire {
         wait 0.
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
         else {
-            for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
+            for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if eng:activate.
         }
         wait 1.
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
@@ -1246,7 +1246,7 @@ function BoosterStaticFire {
             set x to 0.
             for eng in BoosterSingleEnginesRB {
                 if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
-                else if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
+                else if eng:hassuffix("activate") if eng:activate.
                 set x to x + 1.
             }
             set inactiveEng to List(7,11,15,19,24).
@@ -1255,7 +1255,7 @@ function BoosterStaticFire {
         if BoosterSingleEngines {
             set x to 0.
             for eng in BoosterSingleEnginesRB {
-                if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < LOIgnCha/100 eng:activate.
+                if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if eng:activate.
                 set x to x + 1.
             }
         }
