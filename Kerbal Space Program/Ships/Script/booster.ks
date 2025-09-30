@@ -439,6 +439,7 @@ set AllSet to false.
 set AllOnce to false.
 set fullAuto to false.
 set LZchange to false.
+set BoosterStaticFireRunning to false.
 
 if TFinstalled {
     set BBIgn to 100.
@@ -1065,10 +1066,12 @@ on ag8 {
 } 
 
 on ag5 {
-    if not ShipConnectedToBooster and ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
+    if not BoosterStaticFireRunning and not ShipConnectedToBooster and ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
         set ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
         BoosterStaticFire().
     }
+    wait 0.
+    return true.
 }
 
 
@@ -1227,20 +1230,32 @@ function BoosterStaticFire {
         }
         if OxBooster/OxBoosterCap < 0.9 or LFBooster < LFBoosterFuelCutOff {
             RefuelBooster().
-            wait until BoosterFueled.
+            until BoosterFueled {wait 0.02.}
+        }
+        for res in bCH4Tank:resources {
+            if res:name:contains("Methane") or res:name = "LiquidFuel" set res:enabled to true.
         }
         set BoosterFueledTime to time:seconds.
         set missionTimer to time:seconds + 15.
-        wait until missionTimerNow > -10.
+        until time:seconds - missionTimer > -10 {
+            GUIupdate().wait 0.02.
+        }
+        GUIupdate().
         sendMessage(processor(volume("OrbitalLaunchMount")), "StaticFire,"+missionTimer).
-        wait until missionTimerNow > -2.
+        until time:seconds - missionTimer > -2 {
+            GUIupdate().wait 0.02.
+        }
+        lock throttle to 1.
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
         wait 0.
+        GUIupdate().
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
         else {
             for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if eng:activate.
         }
+        GUIupdate().
         wait 1.
+        GUIupdate().
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
         else {
             set x to 0.
@@ -1251,7 +1266,9 @@ function BoosterStaticFire {
             }
             set inactiveEng to List(7,11,15,19,24).
         }
+        GUIupdate().
         wait 0.7.
+        GUIupdate().
         if BoosterSingleEngines {
             set x to 0.
             for eng in BoosterSingleEnginesRB {
@@ -1259,7 +1276,9 @@ function BoosterStaticFire {
                 set x to x + 1.
             }
         }
-        wait 8.
+        until time:seconds - missionTimer > 6 {
+            GUIupdate().wait 0.02.
+        }
         if BoosterSingleEngines {
         set x to 0.
         until x > 3 {
@@ -1269,8 +1288,10 @@ function BoosterStaticFire {
             if BoosterSingleEnginesRB[x+12]:hassuffix("activate") BoosterSingleEnginesRB[x+12]:shutdown.
             if BoosterSingleEnginesRB[x+16]:hassuffix("activate") BoosterSingleEnginesRB[x+16]:shutdown.
             set x to x + 1.
+            GUIupdate().
             wait 0.05.
         }
+        GUIupdate().
         set x to 0.
         until x > 1 {
             if BoosterSingleEnginesRC[x+3]:hassuffix("activate") BoosterSingleEnginesRC[x+3]:shutdown.
@@ -1279,8 +1300,10 @@ function BoosterStaticFire {
             if BoosterSingleEnginesRC[x+9]:hassuffix("activate") BoosterSingleEnginesRC[x+9]:shutdown.
             if BoosterSingleEnginesRC[x+11]:hassuffix("activate") BoosterSingleEnginesRC[x+11]:shutdown.
             set x to x + 1.
+            GUIupdate().
             wait 0.05.
         }
+        GUIupdate().
         if BoosterSingleEnginesRC[0]:hassuffix("activate") BoosterSingleEnginesRC[0]:shutdown.
         if BoosterSingleEnginesRC[1]:hassuffix("activate") BoosterSingleEnginesRC[1]:shutdown.
         if BoosterSingleEnginesRC[2]:hassuffix("activate") BoosterSingleEnginesRC[2]:shutdown.
@@ -1290,10 +1313,15 @@ function BoosterStaticFire {
             wait 0.2.
             BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("shutdown engine", true).
         }
+        lock throttle to 0.
+        unlock throttle.
+        GUIupdate().
         wait 2.
         hudtext("Static Fire Complete",3,5,24,green,true).
     }
+    set BoosterStaticFireRunning to false.
 }
+
 function RefuelBooster {
     sendMessage(Processor(volume("OrbitalLaunchMount")), "ToggleReFueling,true").
     until BoosterFueled {
@@ -3434,7 +3462,15 @@ function CheckFuel {
                 set LFBooster to LFBooster+res:amount.
                 set LFBoosterCap to LFBoosterCap+res:capacity.
             }
-            if res:name = "Oxidizer" {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
+                set OxBooster to res:amount.
+                set OxBoosterCap to res:capacity.
+                if LFBooster/LFBoosterCap > OxBooster/OxBoosterCap DumpVents[0]:doaction("shutdown engine", true).
+            }
+        }
+        for res in BoosterCore:resources {
+            
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set OxBooster to res:amount.
                 set OxBoosterCap to res:capacity.
                 if LFBooster/LFBoosterCap > OxBooster/OxBoosterCap DumpVents[0]:doaction("shutdown engine", true).
@@ -3785,47 +3821,55 @@ function GUIupdate {
 
     for res in bLOXTank:resources {
         if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
-            set boosterLOX to res:amount*100/res:capacity.
+            set boosterLOX to res:amount.
+            set boosterLOXCap to res:capacity.
+        }
+    }
+    for res in bCH4Tank:resources {
+        if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+            set boosterCH4 to res:amount.
+            set boosterCH4Cap to res:capacity.
+            set methane to true.
+        }
+        if res:name = "LiquidFuel" {
+            set boosterCH4 to res:amount.
+            set boosterCH4Cap to res:capacity.
+            set methane to false.
         }
     }
     if BoosterType:contains("Block3") {
         for res in BoosterCore:resources {
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
-                set boosterLOX to (boosterLOX + res:amount*100/res:capacity)/2.
+                set boosterLOX to boosterLOX + res:amount.
+                set boosterLOXCap to boosterLOXCap + res:capacity.
             }
         }
         for res in HSR:resources {
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-                set boosterCH4 to res:amount*100/res:capacity.
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
                 set methane to true.
             }
             if res:name = "LiquidFuel" {
-                set boosterCH4 to res:amount*100/res:capacity.
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
                 set methane to false.
             }
         }
         for res in bCMNDome:resources {
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
-                set boosterLOX to (boosterLOX + res:amount*100/res:capacity)/2.
+                set boosterLOX to boosterLOX + res:amount.
             }
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-                set boosterCH4 to res:amount*100/res:capacity.
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
                 set methane to true.
             }
             if res:name = "LiquidFuel" {
-                set boosterCH4 to res:amount*100/res:capacity.
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
                 set methane to false.
             }
-        }
-    }
-    for res in bCH4Tank:resources {
-        if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-            set boosterCH4 to res:amount*100/res:capacity.
-            set methane to true.
-        }
-        if res:name = "LiquidFuel" {
-            set boosterCH4 to res:amount*100/res:capacity.
-            set methane to false.
         }
     }
 
@@ -3909,6 +3953,8 @@ function GUIupdate {
     }
     set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
 
+    set boosterLOX to boosterLOX*100/boosterLOXCap.
+    set boosterCH4 to boosterCH4*100/boosterCH4Cap.
 
     set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
     set bLOXSlider:style:overflow:right to -196*TScale + 2*round(boosterLOX,1)*TScale.
