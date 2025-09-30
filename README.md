@@ -41,6 +41,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - When launching empty Starships it is recommended to reduce Booster Fuel load by one stop in the VAB
 ### Supported:
 - Vista's SEP Addon (VSEPM) - [github](https://github.com/vistastudios1/VistasKSPMods/releases)
+- Questin's Block 3 Booster - [github](https://github.com/Quest-in/Questins-Block-3/releases/tag/Current)
 
 ### Incompatible:
 - TweakableEverything
