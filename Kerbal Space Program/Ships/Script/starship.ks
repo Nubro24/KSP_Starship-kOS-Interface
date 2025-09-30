@@ -7896,7 +7896,7 @@ function Launch {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
                 set steeringManager:yawtorquefactor to 0.15*Scale.
-                set steeringManager:rolltorquefactor to 3.3*Scale.
+                set steeringManager:rolltorquefactor to 3.5*Scale.
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") {

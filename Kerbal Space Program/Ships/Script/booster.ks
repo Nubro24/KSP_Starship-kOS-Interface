@@ -1763,19 +1763,19 @@ function Boostback {
         else if defined HSR set BoosterReturnMass to BoosterReturnMass + HSR:mass.
         if not HSRJet set turnTime to turnTime - 10.
         HUDTEXT("Booster Coast Phase - Timewarp available", 15, 2, 20, green, false).
+        set CurrentVec to ship:facing:forevector.
         
         when time:seconds - turnTime > 0.5 then {
             
             rcs off.
 
             set SteeringManager:maxstoppingtime to 6.
-            if BoosterType:contains("Block3") lock steering to lookDirUp(5*CurrentVec * angleAxis((time:seconds - turnTime), facing:starvector), -ApproachVector * angleAxis((time:seconds - turnTime), facing:starvector)).
-            else lock steering to lookDirUp(5*CurrentVec * angleAxis((time:seconds - turnTime), facing:starvector), ApproachVector * angleAxis((time:seconds - turnTime), facing:starvector)).
+            if BoosterType:contains("Block3") lock steering to lookDirUp(CurrentVec + up:vector, -ApproachVector).
+            else lock steering to lookDirUp(5*CurrentVec * angleAxis((time:seconds - turnTime)*4, -facing:starvector), ApproachVector * angleAxis((time:seconds - turnTime)*4, -facing:starvector)).
             lock steering to SteeringVector.
             unlock SteeringVectorBoostback.
         }
 
-        set CurrentVec to ship:facing:forevector.
 
         until vang(facing:forevector, up:vector) < 45 or not HSRJet {
             SteeringCorrections().
@@ -1790,6 +1790,8 @@ function Boostback {
             wait 0.067.
         }
         set config:ipu to 1400.
+
+        lock steering to lookDirUp(up:vector, -ApproachVector).
         
         set SteeringManager:yawtorquefactor to 0.1.
         set steeringManager:rollcontrolanglerange to 42.
@@ -1999,7 +2001,7 @@ function Boostback {
     if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     if BoosterType:contains("Block3") {
         if not cAbort {
-            lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-Scale*1.1*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), -ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+            lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-Scale*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), -ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         } else {
             lock SteeringVector to lookdirup((ErrorVector:normalized + 1.2*up:vector:normalized), -ApproachVector * AngleAxis(2 * LatCtrl, -up:vector)).
         }
@@ -2030,7 +2032,7 @@ function Boostback {
 
 
     if BoosterType:contains("Block3") {
-        set BoosterGlideFactor to BoosterGlideFactor * 1.5.
+        set BoosterGlideFactor to BoosterGlideFactor * 1.3.
         lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*1.5*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), -ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when alt:radar < 16000 and RSS or 14000 then lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), -ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError > -BoosterGlideDistance*0.18 then { 
