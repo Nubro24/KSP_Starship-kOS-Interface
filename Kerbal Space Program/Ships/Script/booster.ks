@@ -85,6 +85,7 @@ set LngError to 0.
 set LatError to 0.
 set ErrorVector to V(0, 0, 0).
 set oldBooster to false.
+set BoosterFueled to false.
 set Frost to false.
 set RandomFlip to false.
 set GoForCatch to false.
@@ -204,6 +205,7 @@ for part in ship:parts {
     if part:name:contains("Block.3.FWD") and not HSset {
         set HSRType to "Block3".
         set HSR to part.
+        set CrossFeed to part:getmodule("ModuleToggleCrossfeed").
         set HSset to true.
     }
     if part:name:contains("frostbooster") {
@@ -1062,6 +1064,13 @@ on ag8 {
     return true.
 } 
 
+on ag5 {
+    if not ShipConnectedToBooster and ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
+        set ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+        BoosterStaticFire().
+    }
+}
+
 
 for gimbalEng in BoosterSingleEnginesRC {
     if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 24).
@@ -1079,6 +1088,7 @@ when time:seconds > TelemetryTimer + 0.03 then {
     return true.
 }
 
+if BoosterType:contains("Block3") CrossFeed:doaction("Disable Crossfeed", true).
 
 when MaxQ then {
     set ClockHeader:text to "Max Q".
@@ -1205,6 +1215,95 @@ until False {
 }
 
 
+function BoosterStaticFire {
+    if (BoosterSingleEngines or defined BoosterEngines) and defined bLOXTank and defined bCH4Tank {
+        set BoosterStaticFireRunning to true.
+        hudtext("Initiating Static Fire",3,5,24,yellow,true).
+        CheckFuel().
+        if LFBooster > LFBoosterFuelCutOff {
+            for res in bCH4Tank:resources {
+                if res:name:contains("Methane") or res:name = "LiquidFuel" set res:enabled to false.
+            }
+        }
+        if OxBooster/OxBoosterCap < 0.9 or LFBooster < LFBoosterFuelCutOff {
+            RefuelBooster().
+            wait until BoosterFueled.
+        }
+        set BoosterFueledTime to time:seconds.
+        set missionTimer to time:seconds + 15.
+        wait until missionTimerNow > -10.
+        sendMessage(processor(volume("OrbitalLaunchMount")), "StaticFire,"+missionTimer).
+        wait until missionTimerNow > -2.
+        if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+        wait 0.
+        if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
+        else {
+            for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
+        }
+        wait 1.
+        if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
+        else {
+            set x to 0.
+            for eng in BoosterSingleEnginesRB {
+                if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
+                else if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
+                set x to x + 1.
+            }
+            set inactiveEng to List(7,11,15,19,24).
+        }
+        wait 0.7.
+        if BoosterSingleEngines {
+            set x to 0.
+            for eng in BoosterSingleEnginesRB {
+                if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < LOIgnCha/100 eng:activate.
+                set x to x + 1.
+            }
+        }
+        wait 8.
+        if BoosterSingleEngines {
+        set x to 0.
+        until x > 3 {
+            if BoosterSingleEnginesRB[x]:hassuffix("activate") BoosterSingleEnginesRB[x]:shutdown.
+            if BoosterSingleEnginesRB[x+4]:hassuffix("activate") BoosterSingleEnginesRB[x+4]:shutdown.
+            if BoosterSingleEnginesRB[x+8]:hassuffix("activate") BoosterSingleEnginesRB[x+8]:shutdown.
+            if BoosterSingleEnginesRB[x+12]:hassuffix("activate") BoosterSingleEnginesRB[x+12]:shutdown.
+            if BoosterSingleEnginesRB[x+16]:hassuffix("activate") BoosterSingleEnginesRB[x+16]:shutdown.
+            set x to x + 1.
+            wait 0.05.
+        }
+        set x to 0.
+        until x > 1 {
+            if BoosterSingleEnginesRC[x+3]:hassuffix("activate") BoosterSingleEnginesRC[x+3]:shutdown.
+            if BoosterSingleEnginesRC[x+5]:hassuffix("activate") BoosterSingleEnginesRC[x+5]:shutdown.
+            if BoosterSingleEnginesRC[x+7]:hassuffix("activate") BoosterSingleEnginesRC[x+7]:shutdown.
+            if BoosterSingleEnginesRC[x+9]:hassuffix("activate") BoosterSingleEnginesRC[x+9]:shutdown.
+            if BoosterSingleEnginesRC[x+11]:hassuffix("activate") BoosterSingleEnginesRC[x+11]:shutdown.
+            set x to x + 1.
+            wait 0.05.
+        }
+        if BoosterSingleEnginesRC[0]:hassuffix("activate") BoosterSingleEnginesRC[0]:shutdown.
+        if BoosterSingleEnginesRC[1]:hassuffix("activate") BoosterSingleEnginesRC[1]:shutdown.
+        if BoosterSingleEnginesRC[2]:hassuffix("activate") BoosterSingleEnginesRC[2]:shutdown.
+        }
+        else {
+            BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+            wait 0.2.
+            BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("shutdown engine", true).
+        }
+        wait 2.
+        hudtext("Static Fire Complete",3,5,24,green,true).
+    }
+}
+function RefuelBooster {
+    sendMessage(Processor(volume("OrbitalLaunchMount")), "ToggleReFueling,true").
+    until BoosterFueled {
+        CheckFuel().
+        if OxBooster/OxBoosterCap > 0.9 and LFBooster > LFBoosterFuelCutOff set BoosterFueled to true.
+    }
+    sendMessage(Processor(volume("OrbitalLaunchMount")), "ToggleReFueling,false").
+}
+
+
 function Boostback {
     set Idle to false.
     set RollVector to -vxcl(up:vector,facing:forevector).
@@ -1233,6 +1332,7 @@ function Boostback {
     SteeringCorrections().
 
     if not BoosterType:contains("Block3") BoosterCore:controlfrom().
+    if BoosterType:contains("Block3") CrossFeed:doaction("Enable Crossfeed", true).
 
     if verticalspeed > 0 {
         set rebooted to false.
@@ -2101,7 +2201,7 @@ function Boostback {
         set LandSomewhereElse to true.
     } 
 
-    set tgtErrorPID to pidLoop(0.03, 0.0001, 0.08, -10, 10).
+    set tgtErrorPID to pidLoop(0.03, 0.0001, 0.07, -10, 10).
 
     set LandingBurnTime to time:seconds.
     if not BoosterSingleEngines MidGimbMod:doaction("free gimbal", true).
@@ -2864,14 +2964,14 @@ function LandingGuidance {
     if landDistance > BoosterHeight set PrVec to (CatchPins - CatchPos):normalized * landDistance/3.
     else set PrVec to 10*up:vector - velocity:surface:normalized.
     set GuidVec to PrVec - TgtErrorVector * 20/max(airspeed-280,20) + TgtErrorVector * max(0,airspeed-300)/70 
-            + up:vector * speedRatio * (vAng(up:vector,-velocity:surface)-5)/30 + GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.2/2, 0)).
+            + GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.2/2, 0)).
     
     // === TVC compensation ===
     set steeringOffset to vAng(GuidVec,facing:forevector).
     set streamOffset to vAng(GuidVec,-velocity:surface).
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((steeringOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-150)/50, 1).
-    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (vAng(up:vector,GuidVec)-5)/30.
+    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (vAng(up:vector,GuidVec)-5)/24.
 
     // === Final Vector ===
     set FinalVec to GuidVec:normalized * min(1, (RadarRatio^1.2)/0.12) + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp.
@@ -3312,12 +3412,16 @@ function CheckFuel {
                 BoosterCore:shutdown.
             }
         }
-        if res:name = "LqdMethane" {
+        if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3")  {
                 BoosterCore:shutdown.
             }
+        }
+        if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
+            set OxBooster to res:amount.
+            set OxBoosterCap to res:capacity.
         }
     }
     if BoosterType:contains("Block3") {
