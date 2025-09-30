@@ -3537,8 +3537,6 @@ function setTargetOLM {
 }
 
 
-
-
 function ActivateGridFins {
     if GG {
     for fin in GridFins {
@@ -3746,13 +3744,9 @@ function GUIupdate {
     else set currentPitch to vAng(facing:forevector,up:vector).
     if round(currentPitch) = 360 set currentPitch to 0.
 
-    if ShipConnectedToBooster and ShipType:contains("Block2") {
-        set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
-    } else if ShipConnectedToBooster {
-        set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
-    } else {
-        set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
-    }
+    if ShipConnectedToBooster and ShipType:contains("Block2") set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
+    else if ShipConnectedToBooster set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
+    else set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
 
     if cAbort set GDlamp:style:bg to "starship_img/telemetry_red".
 
@@ -3946,86 +3940,48 @@ function GUIupdate {
 
     set hoursV to missionTimerNow/60/60.
     set Thours to round(hoursV).
-    if hoursV < Thours {
-        set Thours to Thours - 1.
-    }
+    if hoursV < Thours set Thours to Thours - 1.
 
     set minV to missionTimerNow/60 - Thours*60.
     set Tminutes to round(minV).
-    if minV < Tminutes {
-        set Tminutes to Tminutes - 1.
-    }
+    if minV < Tminutes set Tminutes to Tminutes - 1.
     
     set Tseconds to missionTimerNow - Thours*60*60 - Tminutes*60.
     set Tseconds to floor(Tseconds).
 
-    if Thours < 9.1 {
-        set Thours to "0"+Thours.
-    }
-    if Tminutes < 9.1 {
-        set Tminutes to "0"+Tminutes.
-    }
-    if Tseconds < 9.1 {
-        set Tseconds to "0"+Tseconds.
-    }
-    if TMinus {
-        set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
-    } else {
-        set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
-    }
+    if Thours < 9.1 set Thours to "0"+Thours.
+    if Tminutes < 9.1 set Tminutes to "0"+Tminutes.
+    if Tseconds < 9.1 set Tseconds to "0"+Tseconds.
+
+    if TMinus set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
+    else set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
     
 
-
     if flipStartTime > 0 {
-        if RSS {
-            set PollTimer to flipStartTime+45-time:seconds.    
-        } else if KSRSS {
-            set PollTimer to flipStartTime+55-time:seconds.    
-        } else {
-            set PollTimer to flipStartTime+50-time:seconds.
-        }
+        if RSS set PollTimer to flipStartTime+45-time:seconds.    
+        else if KSRSS set PollTimer to flipStartTime+55-time:seconds.    
+        else set PollTimer to flipStartTime+50-time:seconds.
     } 
-    if GfC {
-        set message4:text to "Current decision: <b><color=green>GO</color></b>".
-    } else {
-        set message4:text to "Current decision: <b><color=red>NOGo</color></b>".
-    }
+    if GfC set message4:text to "Current decision: <b><color=green>GO</color></b>".
+    else set message4:text to "Current decision: <b><color=red>NOGo</color></b>".
 
-    if GT {
-        set data1:text to "Tower: <b><color=green>GO</color></b>".
-    } else {
-        set data1:text to "Tower: <b><color=red>NOGo</color></b>".
-    }
+    if GT set data1:text to "Tower: <b><color=green>GO</color></b>".
+    else set data1:text to "Tower: <b><color=red>NOGo</color></b>".
 
-    if GE {
-        set data2:text to "Engines: <b><color=green>GO</color></b>".
-    } else {
-        set data2:text to "Engines: <b><color=red>NOGo</color></b>".
-    }
+    if GE set data2:text to "Engines: <b><color=green>GO</color></b>".
+    else set data2:text to "Engines: <b><color=red>NOGo</color></b>".
 
-    if GF {
-        set data25:text to "Fuel: <b><color=green>GO</color></b>".
-    } else {
-        set data25:text to "Fuel: <b><color=red>NOGo</color></b>".
-    }
+    if GF set data25:text to "Fuel: <b><color=green>GO</color></b>".
+    else set data25:text to "Fuel: <b><color=red>NOGo</color></b>".
 
-    if GG {
-        set data3:text to "Gridfins: <b><color=green>GO</color></b>".
-    } else {
-        set data3:text to "Gridfins: <b><color=red>NOGo</color></b>".
-    }
+    if GG set data3:text to "Gridfins: <b><color=green>GO</color></b>".
+    else set data3:text to "Gridfins: <b><color=red>NOGo</color></b>".
 
-    if GTn {
-        set data35:text to "Tanks: <b><color=green>GO</color></b>".
-    } else {
-        set data35:text to "Tanks: <b><color=red>NOGo</color></b>".
-    }
+    if GTn set data35:text to "Tanks: <b><color=green>GO</color></b>".
+    else set data35:text to "Tanks: <b><color=red>NOGo</color></b>".
 
-    if GD {
-        set data4:text to "Flight Director: <b><color=green>GO</color></b>".
-    } else {
-        set data4:text to "Flight Director: <b><color=red>NOGo</color></b>".
-    }
+    if GD set data4:text to "Flight Director: <b><color=green>GO</color></b>".
+    else set data4:text to "Flight Director: <b><color=red>NOGo</color></b>".
 
     if PollTimer < 0 {
         if HSRJet {
@@ -4053,31 +4009,3 @@ function GUIupdate {
         set message1:text to "<b><color=red>ABORT</color></b>".
     }
 }
-
-
-
-
-
-
-
-
-
-
-        // set bErrorPos to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        // if not wobbleCheckrunning {
-        //     set wobbleCheckrunning to true.
-        //     set wobbleCheck to time:seconds.
-        //     when time:seconds > wobbleCheck + 0.05 then {
-        //         set bErrorPos2 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        //         when time:seconds > wobbleCheck + 0.15 then {
-        //             set bErrorPos3 to (Gridfins[0]:position - Gridfins[1]:position):mag.
-        //             when time:seconds > wobbleCheck + 1 then {
-        //                 if bErrorPos - bErrorPos2 > 0.001 * Scale or bErrorPos - bErrorPos2 < -0.001 * Scale or bErrorPos3 - bErrorPos2 > 0.001 * Scale or bErrorPos3 - bErrorPos2 < -0.001 * Scale or bErrorPos - bErrorPos3 > 0.001 * Scale or bErrorPos - bErrorPos3 < -0.001 * Scale {
-        //                     set WobblyBooster to true.
-        //                 }
-        //                 set wobbleCheckrunning to false.
-        //                 //HUDTEXT(round(bErrorPos, 4) + "; " + round(bErrorPos2, 4) + "; " + round(bErrorPos3, 4), 4, 2, 16, white, false).
-        //             }
-        //         }
-        //     }
-        // }
