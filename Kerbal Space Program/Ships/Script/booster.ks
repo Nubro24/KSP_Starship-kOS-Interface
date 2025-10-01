@@ -1075,7 +1075,7 @@ on ag5 {
 }
 
 
-for gimbalEng in BoosterSingleEnginesRC {
+if BoosterSingleEngines for gimbalEng in BoosterSingleEnginesRC {
     if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 24).
 }
 
@@ -1221,7 +1221,7 @@ until False {
 function BoosterStaticFire {
     if (BoosterSingleEngines or defined BoosterEngines) and defined bLOXTank and defined bCH4Tank {
         set BoosterStaticFireRunning to true.
-        hudtext("Initiating Static Fire",3,5,24,yellow,true).
+        HUDTEXT("Initiating Static Fire..", 10, 2, 24, yellow, false).
         CheckFuel().
         if LFBooster > LFBoosterFuelCutOff {
             for res in bCH4Tank:resources {
@@ -1230,7 +1230,7 @@ function BoosterStaticFire {
         }
         if OxBooster/OxBoosterCap < 0.9 or LFBooster < LFBoosterFuelCutOff {
             RefuelBooster().
-            until BoosterFueled {wait 0.02.}
+            until BoosterFueled {wait 0.03.}
         }
         for res in bCH4Tank:resources {
             if res:name:contains("Methane") or res:name = "LiquidFuel" set res:enabled to true.
@@ -1238,12 +1238,12 @@ function BoosterStaticFire {
         set BoosterFueledTime to time:seconds.
         set missionTimer to time:seconds + 15.
         until time:seconds - missionTimer > -10 {
-            GUIupdate().wait 0.02.
+            GUIupdate().wait 0.03.
         }
         GUIupdate().
         sendMessage(processor(volume("OrbitalLaunchMount")), "StaticFire,"+missionTimer).
         until time:seconds - missionTimer > -2 {
-            GUIupdate().wait 0.02.
+            GUIupdate().wait 0.03.
         }
         lock throttle to 1.
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -1277,7 +1277,7 @@ function BoosterStaticFire {
             }
         }
         until time:seconds - missionTimer > 6 {
-            GUIupdate().wait 0.02.
+            GUIupdate().wait 0.03.
         }
         if BoosterSingleEngines {
         set x to 0.
@@ -1317,7 +1317,7 @@ function BoosterStaticFire {
         unlock throttle.
         GUIupdate().
         wait 2.
-        hudtext("Static Fire Complete",3,5,24,green,true).
+        hudtext("Static Fire Complete", 10, 2, 24, green, true).
     }
     set BoosterStaticFireRunning to false.
 }
@@ -2313,7 +2313,7 @@ function Boostback {
             HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
             set abortTime to time:seconds.
             set LandSomewhereElse to true.
-            lock RadarAlt to alt:radar - BoosterHeight*0.6.
+            lock RadarAlt to alt:radar - BoosterHeight*0.8.
             set LZchange to true.
             wait 0.
             set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng+0.002).
@@ -2349,7 +2349,7 @@ function Boostback {
     if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not GfC and not cAbort {
         set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng+0.002).
         set LandSomewhereElse to true.
-        lock RadarAlt to alt:radar - BoosterHeight*0.6 - 50*Scale.
+        lock RadarAlt to alt:radar - BoosterHeight*0.6 - MZHeight.
         if BoosterType:contains("Block3") lock SteeringVector to lookdirup(-velocity:surface, -ApproachVector).
         else lock SteeringVector to lookdirup(-velocity:surface, ApproachVector).
         lock steering to SteeringVector.

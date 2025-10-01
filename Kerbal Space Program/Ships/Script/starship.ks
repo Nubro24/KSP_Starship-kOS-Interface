@@ -7892,6 +7892,7 @@ function Launch {
 
         if Boosterconnected {
             set steeringManager:maxstoppingtime to 1.2*Scale.
+            set steeringManager:rollts to 7*Scale.
             when apoapsis > BoosterAp - 22000 * Scale then {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
