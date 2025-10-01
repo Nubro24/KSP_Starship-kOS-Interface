@@ -4,11 +4,16 @@
   - PID based (better adjustments in different situations + easier fine tuning)
 - **Improved Reentry Guidance for Ship**
 - Added Support for a Booster with 3 Gridfins (V3 Layout)
+- Added Support for Qeustin's Block 3 Booster
+- Added Booster Static Fire (Action Group 5, with ship-less Booster on OLM)
+- Improved Engine Checks for Booster
 - **UI Changes**
   - Added Flight Settings:
     - Hide Inteface during Flight Operations
     - Automatic Mode (further reduced UI + higher V2 Ship Failure)
     - Question for HSR Jettison after Boostback
+    - Mission Name below T-Minus-Clock
+    - Option to customize Countdown length
   - Reduced the Telemetry Height to match SpaceXs old Telemetry
   - Telemetry Rescaling now requires Input of Horizontal and Vertical Resolution
     - Uses Ratio to determine the best Scaling

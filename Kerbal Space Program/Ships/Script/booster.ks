@@ -1,5 +1,5 @@
 wait until ship:unpacked.
-set Scriptversion to "V3.5.2.5".
+set Scriptversion to "V3.6.0".
 
 //<------------Telemtry Scale-------------->
 
@@ -440,6 +440,9 @@ set AllOnce to false.
 set fullAuto to false.
 set LZchange to false.
 set BoosterStaticFireRunning to false.
+set TMinusCountdown to 17.
+set rebooted to false.
+set HighLandingBurn to false.
 
 if TFinstalled {
     set BBIgn to 100.
@@ -1075,10 +1078,11 @@ on ag5 {
 }
 
 
-if BoosterSingleEngines for gimbalEng in BoosterSingleEnginesRC {
-    if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 24).
+if BoosterSingleEngines {
+    for gimbalEng in BoosterSingleEnginesRC {
+        if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 42).
+    }
 }
-
 
 set MaxQ to false.
 set Hotstaging to false.
@@ -1090,6 +1094,9 @@ when time:seconds > TelemetryTimer + 0.03 then {
     set TelemetryTimer to time:seconds.
     return true.
 }
+    
+
+
 
 if BoosterType:contains("Block3") CrossFeed:doaction("Disable Crossfeed", true).
 
@@ -1182,7 +1189,7 @@ until False {
     }
     else if RECEIVED:CONTENT = "Countdown" {
         set missionTimer to time:seconds.
-        set missionTimer to missionTimer + 17.
+        set missionTimer to missionTimer + TMinusCountdown.
     }
     else if command = "ScaleT" {
         bTelemetry:hide().
@@ -1210,6 +1217,9 @@ until False {
     }
     else if RECEIVED:CONTENT = "SECO" {
         set SECO to true.
+    }
+    else if command = "TMinusCountdown" {
+        set TMinusCountdown to MesParameter:toscalar.
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -1892,16 +1902,24 @@ function Boostback {
         if not HSRJet set turnTime to turnTime - 10.
         HUDTEXT("Booster Coast Phase - Timewarp available", 15, 2, 20, green, false).
         set CurrentVec to ship:facing:forevector.
+        if BoosterType:contains("Block3") set LeftVector to -ship:facing:starvector.
+        else set LeftVector to ship:facing:starvector.
         
         when time:seconds - turnTime > 0.5 then {
             
-            rcs off.
+            if HSRJet rcs off.
 
-            set SteeringManager:maxstoppingtime to 6.
-            if BoosterType:contains("Block3") lock steering to lookDirUp(CurrentVec + up:vector, -ApproachVector).
-            else lock steering to lookDirUp(5*CurrentVec * angleAxis((time:seconds - turnTime)*4, -facing:starvector), ApproachVector * angleAxis((time:seconds - turnTime)*4, -facing:starvector)).
+            set SteeringManager:maxstoppingtime to 4.
+            if BoosterType:contains("Block3") lock SteeringVector to lookDirUp(CurrentVec * angleAxis((time:seconds - turnTime)*2, LeftVector), -ApproachVector * angleAxis((time:seconds - turnTime)*2, LeftVector)).
+            else lock SteeringVector to lookDirUp(CurrentVec * angleAxis((time:seconds - turnTime)*2, LeftVector), ApproachVector * angleAxis((time:seconds - turnTime)*2, LeftVector)).
             lock steering to SteeringVector.
             unlock SteeringVectorBoostback.
+        }
+        when vAng(facing:forevector, BoosterCore:position - landingzone:position) < 15 then {
+            if RadarAlt > 32000 {
+                if BoosterType:contains("Block3") lock SteeringVector to lookDirUp(BoosterCore:position - landingzone:position, -ApproachVector).
+                else lock SteeringVector to lookDirUp(BoosterCore:position - landingzone:position, ApproachVector).
+            }
         }
 
 
@@ -1909,7 +1927,6 @@ function Boostback {
             SteeringCorrections().
             PollUpdate().
             SetBoosterActive().
-            set fowardVec to vecDraw(HSR:position,SteeringVector:forevector, red, "",5,true,0.1).
             if time:seconds - turnTime > 5 rcs on.
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             if LFBooster < LFBoosterFuelCutOff {
@@ -1919,7 +1936,6 @@ function Boostback {
         }
         set config:ipu to 1400.
 
-        lock steering to lookDirUp(up:vector, -ApproachVector).
         
         set SteeringManager:yawtorquefactor to 0.1.
         set steeringManager:rollcontrolanglerange to 42.
@@ -1935,7 +1951,6 @@ function Boostback {
             SteeringCorrections().
             PollUpdate().
             SetBoosterActive().
-            set fowardVec to vecDraw(HSR:position,SteeringVector:forevector, red, "",5,true,0.1).
             rcs on.
             if kuniverse:timewarp:warp > 1 {set kuniverse:timewarp:warp to 1.}
             CheckFuel().
@@ -2065,7 +2080,6 @@ function Boostback {
         SteeringCorrections().
         rcs on.
         PollUpdate().
-        set fowardVec to vecDraw(HSR:position,SteeringVector:forevector, red, "",5,true,0.1).
         
         if abs(steeringmanager:angleerror) > 10 {
             SetBoosterActive().
@@ -2347,7 +2361,11 @@ function Boostback {
     }
 
     if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not GfC and not cAbort {
+        set LZchange to true.
+        wait 0.
         set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng+0.002).
+        set LZchange to false.
+        wait 0.
         set LandSomewhereElse to true.
         lock RadarAlt to alt:radar - BoosterHeight*0.6 - MZHeight.
         if BoosterType:contains("Block3") lock SteeringVector to lookdirup(-velocity:surface, -ApproachVector).
@@ -2364,12 +2382,12 @@ function Boostback {
             lock DistanceError to Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position.
             if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
             if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
-            set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+            if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
         }
         when Vessel(TargetOLM):distance < 1800 then {
             set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
             set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
-            set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+            if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
         }
     }
 
@@ -2654,6 +2672,7 @@ function Boostback {
         else for eng in BoosterSingleEnginesRC eng:shutdown.
     }
     set config:ipu to 1000.
+    bGUI:hide().
     
     set LandingTime to time:seconds.
     
@@ -2869,7 +2888,7 @@ FUNCTION SteeringCorrections {
                 set LandingBurnAlt to LandingBurnAlt * 1.05.
                 if RSS set LandingBurnAlt to LandingBurnAlt * 1.04.
             }
-            if HighLandingBurn set LandingBurnAlt to LandingBurnAlt * 1.1.
+            if HighLandingBurn set LandingBurnAlt to LandingBurnAlt * 1.2.
         }
         
 
@@ -2877,7 +2896,8 @@ FUNCTION SteeringCorrections {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
             print "LatCtrl: " + round(LatCtrl, 2) + " / " + round(LatCtrlPID:maxoutput, 1).
             print " ".
-            print "Landing Burn Alt: " + round(LandingBurnAlt, 1).
+            print "Landing Burn Alt: " + round(LandingBurnAlt, 1) + "   - high: "+HighLandingBurn.
+            if EC print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
             print " ".
             print "Max Decel: " + round(maxDecel, 2).
             print "Radar Alt: " + round(RadarAlt, 1).
@@ -3683,9 +3703,16 @@ function PollUpdate {
         if BoosterSingleEngines and EC {
             set missingCount to 0.
             set inactiveCount to 0.
+            //for eng in BoosterSingleEnginesRC {
+            //    if eng:hassuffix("activate") {if eng:thrust < 60*Scale set inactiveCount to inactiveCount + 1.}
+            //    else set missingCount to missingCount + 1.
+            //}
             for eng in BoosterSingleEnginesRC {
-                if eng:hassuffix("activate") {if eng:thrust < 60*Scale set inactiveCount to inactiveCount + 1.}
-                else set missingCount to missingCount + 1.
+                if not eng:hassuffix("activate") set missingCount to missingCount + 1.
+                else if eng:getmodule("ModuleEnginesFX"):getfield("Status"):contains("Off") {}
+                else if eng:getmodule("ModuleEnginesFX"):getfield("Status"):contains("Nominal") {}
+                else if eng:getmodule("ModuleEnginesFX"):getfield("Status"):contains("Failed") set missingCount to missingCount + 1.
+                else set inactiveCount to inactiveCount + 1.
             }
             if not BoostBackComplete and ErrorVector:mag > BoosterGlideDistance + 5450 * Scale {
                 if (missingCount > 2 and not RSS) or missingCount > 3 set GE to false.
@@ -3859,6 +3886,7 @@ function GUIupdate {
         for res in bCMNDome:resources {
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set boosterLOX to boosterLOX + res:amount.
+                set boosterLOXCap to boosterLOXCap + res:capacity.
             }
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
                 set boosterCH4 to boosterCH4 + res:amount.
