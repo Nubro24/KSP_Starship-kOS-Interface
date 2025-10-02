@@ -2839,6 +2839,10 @@ FUNCTION SteeringCorrections {
                 set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
                 set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
             }
+            else if BoosterSingleEngines {
+                set maxDecel to max(((13-missingCount) * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
+                set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
+            }
             else {
                 set maxDecel to max((13 * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
                 set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
@@ -2882,7 +2886,7 @@ FUNCTION SteeringCorrections {
                 else set dragFactor to 1 - 0.059 * (1 + 0.55*((airspeed/320)^2 - 1)).
             }
             
-            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3650),1000).
+            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3950),1000).
 
             if BoosterSingleEngines { 
                 set LandingBurnAlt to LandingBurnAlt * 1.05.
