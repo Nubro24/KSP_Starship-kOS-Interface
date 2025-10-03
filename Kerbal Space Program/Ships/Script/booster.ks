@@ -931,7 +931,7 @@ if bodyexists("Earth") {
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
-        set LngCtrlPID:setpoint to 24. //75
+        set LngCtrlPID:setpoint to 32. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 125.
@@ -971,7 +971,7 @@ else {
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
-        set LngCtrlPID:setpoint to 10. //75
+        set LngCtrlPID:setpoint to 32. //75
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.1, -5, 5).
         set RollVector to heading(242,0):vector.
         set BoosterReturnMass to 125.
@@ -1023,9 +1023,10 @@ else {
 
 if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.06.
 if BoosterType:contains("Block3") {
-    set BoosterGlideDistance to BoosterGlideDistance * 1.5.
+    set BoosterGlideDistance to BoosterGlideDistance * 0.8.
     set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
     set BoosterHeight to 45.4*Scale.
+    set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.7.
 }
 
 lock RadarAlt to alt:radar - BoosterHeight*0.6.
@@ -1208,11 +1209,9 @@ until False {
         Boostback().
     } else if RECEIVED:CONTENT = "HSRJet"{
         set HSRJet to true.
-        set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 5*Scale.
     } 
     else if RECEIVED:CONTENT = "NoHSRJet" {
         set HSRJet to false.
-        set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 5*Scale.
     }
     else if command = "Arms" {
         set oldArms to MesParameter.
@@ -1482,7 +1481,7 @@ function Boostback {
         if BoosterType:contains("Block3") HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         if not BoosterSingleEngines MidGimbMod:doaction("lock gimbal", true).
-        CtrGimbMod:SetField("gimbal limit", 100).
+        if not BoosterSingleEngines CtrGimbMod:SetField("gimbal limit", 100).
         if not BoosterSingleEngines and Block3Cluster Mid2GimbMod:doaction("lock gimbal", true).
         if BoosterSingleEngines {
             set x to 1.
@@ -1988,6 +1987,8 @@ function Boostback {
             wait 0.067.
         }
         set config:ipu to 1600.
+        if BoosterType:contains("Block3") HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
 
         
         set SteeringManager:yawtorquefactor to 0.1.
@@ -2011,8 +2012,6 @@ function Boostback {
         }
         set SteeringManager:yawtorquefactor to 0.6.
         bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-        if BoosterType:contains("Block3") HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-        if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         set SteeringManager:maxstoppingtime to 2.
         if RSS 
             set SteeringManager:maxstoppingtime to 3.2.
@@ -2253,10 +2252,10 @@ function Boostback {
     lock steering to SteeringVector.
 
     when RadarAlt < 24000 then {
-        set LngCtrlPID:setpoint to -LngCtrlPID:setpoint - 10*Scale.
+        set LngCtrlPID:setpoint to -LngCtrlPID:setpoint - 15*Scale.
         set steeringManager:rolltorquefactor to 1.
         when RadarAlt < 7200 then 
-            set LngCtrlPID:setpoint to -LngCtrlPID:setpoint + 15*Scale.
+            set LngCtrlPID:setpoint to -LngCtrlPID:setpoint + 12*Scale.
     }
 
     when RadarAlt < LandingBurnAlt * 1.15 then {
@@ -2582,24 +2581,49 @@ function Boostback {
                 when airspeed < 6 then {
                     BoosterSingleEnginesRC[NrCounterEngine[0]-1]:shutdown.
                     set BoosterSingleEnginesRC[NrCounterEngine[0]-1]:gimbal:lock to true.
-                    BoosterSingleEnginesRC[NrCounterEngine[0]-1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                    if not BoosterType:contains("Block3") BoosterSingleEnginesRC[NrCounterEngine[0]-1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                 } 
             }
             wait 0.
-            set x to 1.
-            for eng in BoosterSingleEnginesRC {
-                if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
-                else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
-                    eng:shutdown.
-                    set eng:gimbal:lock to true.
-                    eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                }
-                set x to x + 1.
-            }
-            set x to 1.
-            when time:seconds > ShutdownTime + 0.08 then 
+            if BoosterType:contains("Block3") {
+                set x to 1.
                 for eng in BoosterSingleEnginesRC {
-                    if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
+                    if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 11 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
+                    else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
+                        eng:shutdown.
+                        set eng:gimbal:lock to true.
+                        //eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                    }
+                    set x to x + 1.
+                }
+                set x to 1.
+                when time:seconds > ShutdownTime + 0.08 then 
+                    for eng in BoosterSingleEnginesRC {
+                        if x = 1 or x = 2 or x = 3 or x = 5 or x = 6 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
+                        else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
+                            eng:shutdown.
+                            set eng:gimbal:lock to true.
+                            //eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                        }
+                        set x to x + 1.
+                    }
+                when time:seconds > ShutdownTime + 2.08 then {
+                    if BoosterSingleEnginesRC[5]:hassuffix("activate") and not NrCounterEngine:contains(6) {
+                        BoosterSingleEnginesRC[5]:shutdown.
+                        set BoosterSingleEnginesRC[5]:gimbal:lock to true.
+                        //BoosterSingleEnginesRC[5]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                    }
+                    if BoosterSingleEnginesRC[10]:hassuffix("activate") and not NrCounterEngine:contains(11) {
+                        BoosterSingleEnginesRC[10]:shutdown.
+                        set BoosterSingleEnginesRC[10]:gimbal:lock to true.
+                        //BoosterSingleEnginesRC[10]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                    }
+                }
+            }
+            else {
+                set x to 1.
+                for eng in BoosterSingleEnginesRC {
+                    if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
                     else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
                         eng:shutdown.
                         set eng:gimbal:lock to true.
@@ -2607,6 +2631,18 @@ function Boostback {
                     }
                     set x to x + 1.
                 }
+                set x to 1.
+                when time:seconds > ShutdownTime + 0.08 then 
+                    for eng in BoosterSingleEnginesRC {
+                        if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
+                        else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
+                            eng:shutdown.
+                            set eng:gimbal:lock to true.
+                            eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                        }
+                        set x to x + 1.
+                    }
+            }
         }
         else {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -2643,21 +2679,21 @@ function Boostback {
                     if BoosterSingleEnginesRC[3]:hassuffix("activate") {
                             BoosterSingleEnginesRC[3]:activate.
                             set BoosterSingleEnginesRC[3]:gimbal:lock to false.
-                            BoosterSingleEnginesRC[3]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                            if not BoosterType:contains("Block3") BoosterSingleEnginesRC[3]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                         }
                     }
                 else if failedEngNr = 2 {
                     if BoosterSingleEnginesRC[6]:hassuffix("activate") {
                             BoosterSingleEnginesRC[6]:activate.
                             set BoosterSingleEnginesRC[6]:gimbal:lock to false.
-                            BoosterSingleEnginesRC[6]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                            if not BoosterType:contains("Block3") BoosterSingleEnginesRC[6]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                         }
                     }
                 else if failedEngNr = 3 {
                     if BoosterSingleEnginesRC[10]:hassuffix("activate") {
                             BoosterSingleEnginesRC[10]:activate.
                             set BoosterSingleEnginesRC[10]:gimbal:lock to false.
-                            BoosterSingleEnginesRC[10]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                            if not BoosterType:contains("Block3") BoosterSingleEnginesRC[10]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                         }
                     }
         } 
@@ -2777,7 +2813,7 @@ function Boostback {
                         eng:shutdown.
                         set eng:gimbal:lock to true.
                         eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 50).
-                        if eng:getmodule("ModuleSEPRaptor"):GetField("actuate out") = true
+                        if not BoosterType:contains("Block3") if eng:getmodule("ModuleSEPRaptor"):GetField("actuate out") = true
                             eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
                     }
                 }
@@ -2845,7 +2881,7 @@ function Boostback {
 
     function MiddleRingShutdown {
         parameter vel, h.
-        if BoosterType:contains("Block3") set vel to vel - 24.
+        if BoosterType:contains("Block3") set vel to vel - 32.
         if not MiddleEnginesShutdown {
             if stopDist3 < DistanceError:mag and throttle < 0.6 or throttle < 0.33
                 return true.
@@ -2968,7 +3004,7 @@ FUNCTION SteeringCorrections {
             print "LatCtrl: " + round(LatCtrl, 2) + " / " + round(LatCtrlPID:maxoutput, 1).
             print " ".
             print "Landing Burn Alt: " + round(LandingBurnAlt, 1) + "   - high: "+HighLandingBurn.
-            if EC print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
+            if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
             print " ".
             print "Max Decel: " + round(maxDecel, 2).
             print "Radar Alt: " + round(RadarAlt, 1).

@@ -1302,12 +1302,35 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not Hotstaging and not bEngSet {
+    if Boosterconnected and not Hotstaging and not bEngSet and not BoosterType:contains("Block3") {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
                 or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-                or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
-                or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
-                or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB") ) {
+                or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+            set BoosterSingleEngines to true.
+            set BoosterSingleEnginesRB to list().
+            set BoosterSingleEnginesRC to list().
+            set x to 1.
+            until x > 33 or not Boosterconnected {
+                if ship:partstagged(x:tostring):length > 0 {
+                    if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
+                    else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+                }
+                else {
+                    if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
+                    else BoosterSingleEnginesRB:insert(x-14, False).
+                }
+                set x to x + 1.
+            }
+        } 
+        else {
+            set BoosterSingleEngines to false.
+        }
+        set bEngSet to true.
+        print "bEngines set.. SingleEng.:" + BoosterSingleEngines.
+    }
+    else if Boosterconnected and not Hotstaging and not bEngSet and BoosterType:contains("Block3") {
+        if BoosterCore[0]:children:length > 1 and ( BoosterCore[0]:children[0]:name:contains("Raptor.3RC") or BoosterCore[0]:children[0]:name:contains("Raptor.3RB") 
+                or BoosterCore[0]:children[1]:name:contains("Raptor.3RC") or BoosterCore[0]:children[1]:name:contains("Raptor.3RB") ) {
             set BoosterSingleEngines to true.
             set BoosterSingleEnginesRB to list().
             set BoosterSingleEnginesRC to list().
