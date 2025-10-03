@@ -4,7 +4,7 @@
   - PID based (better adjustments in different situations + easier fine tuning)
 - **Improved Reentry Guidance for Ship**
 - Added Support for a Booster with 3 Gridfins (V3 Layout)
-- Added Support for Questin's Block 3 Booster
+- Added Support for Questin's Block 3 Booster & Raptor 3 Engines
 - Added Support for Testflight
 - Added Booster Static Fire (Action Group 5, with ship-less Booster on OLM)
 - Improved Engine Checks for Booster
