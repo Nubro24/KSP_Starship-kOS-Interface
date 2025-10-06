@@ -2952,22 +2952,22 @@ FUNCTION SteeringCorrections {
                 set LatCtrl to -LatCtrl.
             }
 
-            if LandingBurnStarted and BoosterSingleEngines {
-                set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
-                set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
-            }
-            else if LandingBurnStarted and BoosterSingleEngines and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3"))) {
+            if LandingBurnStarted and BoosterSingleEngines and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3"))) {
                 set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
                 set maxDecel5 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 8 * Scale)) - 9.805, 0.00001).
                 set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
             }
-            else if BoosterSingleEngines {
-                set maxDecel to max(((13-missingCount) * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
-                set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
+            else if LandingBurnStarted and BoosterSingleEngines {
+                set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
+                set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
             }
             else if BoosterSingleEngines and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3"))) {
                 set maxDecel to max(((13-missingCount) * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
                 set maxDecel5 to (5 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 8 * Scale)) - 9.805.
+                set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
+            }
+            else if BoosterSingleEngines {
+                set maxDecel to max(((13-missingCount) * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
                 set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
             }
             else if BoosterType:contains("Block3") {

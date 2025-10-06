@@ -7677,7 +7677,6 @@ function Launch {
             else {
                 for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") {
                     if random() < LOIgnCha/100 eng:activate.
-                    wait 0.01.
                 }
             }
 
@@ -7694,7 +7693,6 @@ function Launch {
                     if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
                     else if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
                     set x to x + 1.
-                    wait 0.01.
                 }
                 set inactiveEng to List(7,11,15,19,24).
             }
