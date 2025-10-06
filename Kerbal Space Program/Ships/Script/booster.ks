@@ -3863,6 +3863,7 @@ function PollUpdate {
                 else if eng:getmodule("ModuleEnginesFX"):getfield("Status"):contains("Nominal") {}
                 else if eng:getmodule("ModuleEnginesFX"):getfield("Status"):contains("Failed") set missingCount to missingCount + 1.
                 else set inactiveCount to inactiveCount + 1.
+                if MiddleEnginesShutdown set inactiveCount to max(0,inactiveCount-10).
             }
             if not BoostBackComplete and ErrorVector:mag > BoosterGlideDistance + 5450 * Scale {
                 if (missingCount > 2 and not RSS) or missingCount > 3 set GE to false.
@@ -3880,12 +3881,7 @@ function PollUpdate {
                 }
                 else set CounterEngine to true.
             } else if MiddleEnginesShutdown {
-                set inactiveCount to 0.
-                if BoosterSingleEnginesRC[0]:hassuffix("activate") if BoosterSingleEnginesRC[0]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
-                if BoosterSingleEnginesRC[1]:hassuffix("activate") if BoosterSingleEnginesRC[1]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
-                if BoosterSingleEnginesRC[2]:hassuffix("activate") if BoosterSingleEnginesRC[2]:thrust < 60*Scale set inactiveCount to inactiveCount + 1.
-                if missingCount > 1 set GE to false.
-                else if inactiveCount > 1 or (ActiveRC < 3 and not RSS) set GE to false.
+                if inactiveCount > 0 set GE to false.
                 else set GE to true.
             }
         }
