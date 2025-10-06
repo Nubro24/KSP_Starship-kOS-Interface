@@ -2254,8 +2254,25 @@ function Boostback {
     when RadarAlt < 24000 then {
         set LngCtrlPID:setpoint to -LngCtrlPID:setpoint - 15*Scale.
         set steeringManager:rolltorquefactor to 1.
-        when RadarAlt < 7200 then 
+        when RadarAlt < 7200 then {
             set LngCtrlPID:setpoint to -LngCtrlPID:setpoint + 12*Scale.
+            
+            if not (TargetOLM = "false") {
+                when Vessel(TargetOLM):distance < 2000 then {
+                    set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Integration Tower Base")[0]:position).
+                    lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
+                    lock DistanceError to Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position.
+                    if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
+                    if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
+                    if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+                }
+                when Vessel(TargetOLM):distance < 1800 then {
+                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
+                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
+                    if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+                }
+            }
+        }
     }
 
     when RadarAlt < LandingBurnAlt * 1.15 then {
@@ -2265,6 +2282,7 @@ function Boostback {
         if BoosterType:contains("Block3") lock SteeringVector to lookdirup(-0.44 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, -ApproachVector).
         else lock SteeringVector to lookdirup(-0.44 * velocity:surface + up:vector - s0ev*ErrorVector + adev*ErrorVector, ApproachVector).
         lock steering to SteeringVector.
+
     }
     
     set once to false.
@@ -2437,21 +2455,6 @@ function Boostback {
     }
 
     set LngCtrlPID:setpoint to 0.
-    if not (TargetOLM = "false") {
-        when Vessel(TargetOLM):distance < 2000 then {
-            set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Integration Tower Base")[0]:position).
-            lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
-            lock DistanceError to Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position.
-            if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
-            if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
-            if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
-        }
-        when Vessel(TargetOLM):distance < 1800 then {
-            set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
-            set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
-            if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
-        }
-    }
 
     when RadarAlt < 2000 and not (LandSomewhereElse) then {
         set steeringManager:maxstoppingtime to 1.2.
@@ -2585,29 +2588,36 @@ function Boostback {
                 } 
             }
             wait 0.
-            if BoosterType:contains("Block3") {
+            if BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3")) {
+                if BoosterSingleEnginesRC[4]:hassuffix("activate") and not NrCounterEngine:contains(5) BoosterSingleEnginesRC[4]:shutdown. wait 0.
+                if BoosterSingleEnginesRC[9]:hassuffix("activate") and not NrCounterEngine:contains(10) BoosterSingleEnginesRC[9]:shutdown. wait 0.
+                if BoosterSingleEnginesRC[11]:hassuffix("activate") and not NrCounterEngine:contains(12) BoosterSingleEnginesRC[11]:shutdown. wait 0.
+                if BoosterSingleEnginesRC[6]:hassuffix("activate") and not NrCounterEngine:contains(7) BoosterSingleEnginesRC[6]:shutdown.
                 set x to 1.
                 for eng in BoosterSingleEnginesRC {
                     if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 11 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
                     else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
-                        eng:shutdown.
                         set eng:gimbal:lock to true.
                         //eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                     }
                     set x to x + 1.
                 }
                 set x to 1.
-                when time:seconds > ShutdownTime + 0.08 then 
+                when time:seconds > ShutdownTime + 0.08 then {
+                    if BoosterSingleEnginesRC[3]:hassuffix("activate") and not NrCounterEngine:contains(4) BoosterSingleEnginesRC[3]:shutdown. wait 0.
+                    if BoosterSingleEnginesRC[8]:hassuffix("activate") and not NrCounterEngine:contains(9) BoosterSingleEnginesRC[8]:shutdown. wait 0.
+                    if BoosterSingleEnginesRC[12]:hassuffix("activate") and not NrCounterEngine:contains(13) BoosterSingleEnginesRC[12]:shutdown. wait 0.
+                    if BoosterSingleEnginesRC[7]:hassuffix("activate") and not NrCounterEngine:contains(8) BoosterSingleEnginesRC[7]:shutdown.
                     for eng in BoosterSingleEnginesRC {
                         if x = 1 or x = 2 or x = 3 or x = 5 or x = 6 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
                         else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
-                            eng:shutdown.
                             set eng:gimbal:lock to true.
                             //eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                         }
                         set x to x + 1.
                     }
-                when time:seconds > ShutdownTime + 2.08 then {
+                }
+                when time:seconds > ShutdownTime + 2.08 and airspeed < 55 or airspeed < 40 then {
                     if BoosterSingleEnginesRC[5]:hassuffix("activate") and not NrCounterEngine:contains(6) {
                         BoosterSingleEnginesRC[5]:shutdown.
                         set BoosterSingleEnginesRC[5]:gimbal:lock to true.
@@ -2883,8 +2893,12 @@ function Boostback {
         parameter vel, h.
         if BoosterType:contains("Block3") set vel to vel - 32.
         if not MiddleEnginesShutdown {
-            if stopDist3 < DistanceError:mag and throttle < 0.6 or throttle < 0.33
-                return true.
+            if BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3") and BoosterSingleEngines) 
+                if stopDist3 + stopDist5 < DistanceError:mag and throttle < 0.55 or throttle < 0.33 
+                    return true.
+            if not BoosterType:contains("Block3") and not (BoosterType:contains("Block2") and HSRType:contains("Block3") and BoosterSingleEngines) 
+                if stopDist3 < DistanceError:mag and throttle < 0.6 or throttle < 0.33 
+                    return true.
             if (vel < 69 and h > 540) or (vel < 52 and h > 460) or vel < 12
                 return true.
             if STOCK 
@@ -2942,8 +2956,23 @@ FUNCTION SteeringCorrections {
                 set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
                 set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
             }
+            else if LandingBurnStarted and BoosterSingleEngines and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3"))) {
+                set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
+                set maxDecel5 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 8 * Scale)) - 9.805, 0.00001).
+                set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
+            }
             else if BoosterSingleEngines {
                 set maxDecel to max(((13-missingCount) * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
+                set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
+            }
+            else if BoosterSingleEngines and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3"))) {
+                set maxDecel to max(((13-missingCount) * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
+                set maxDecel5 to (5 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 8 * Scale)) - 9.805.
+                set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
+            }
+            else if BoosterType:contains("Block3") {
+                set maxDecel to max((13 * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
+                set maxDecel5 to (5 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 8 * Scale)) - 9.805.
                 set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
             }
             else {
@@ -2951,7 +2980,18 @@ FUNCTION SteeringCorrections {
                 set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
             }
 
-            if not (MiddleEnginesShutdown) {
+            if not (MiddleEnginesShutdown) and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3") and BoosterSingleEngines)) {
+                set stopTime9 to (airspeed - 75) / min(maxDecel, 50*Scale).
+                set stopDist9 to ((airspeed + 75) / 2) * stopTime9.
+                set stopTime5 to min(35, airspeed - 40) / min(maxDecel5, 19*Scale ).
+                set stopDist5 to (min(35, airspeed - 40) / 2) * stopTime5.
+                set stopTime3 to min(40, airspeed) / min(maxDecel3, FinalDeceleration).
+                set stopDist3 to (min(40, airspeed) / 2) * stopTime3.
+                set TotalstopTime to stopTime9 + stopTime5 + stopTime3.
+                set TotalstopDist to (stopDist9 + stopDist5 + stopDist3) * cos(vang(-velocity:surface, up:vector)).
+                set landingRatio to max(0, TotalstopDist / (RadarAlt)).
+            }
+            else if not (MiddleEnginesShutdown) {
                 set stopTime9 to (airspeed - 69) / min(maxDecel, 50*Scale).
                 set stopDist9 to ((airspeed + 69) / 2) * stopTime9.
                 set stopTime3 to min(69, airspeed) / min(maxDecel3, FinalDeceleration).
