@@ -1923,17 +1923,8 @@ function Boostback {
 
         set FuelDump to false.
         if HSRJet and defined HSR {
-            when time:seconds - turnTime > 1.8 then {
-                if BoosterCore:thrust > 0 {
-                    BoosterCore:shutdown.
-                    set FuelDump to true.
-                }
-                wait 0.2.
+            when time:seconds - turnTime > 2 then {
                 BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
-                wait 0.01.
-                if FuelDump when vAng(facing:forevector, up:vector) < 64 and RSS or vAng(facing:forevector, up:vector) < 50 then {
-                    BoosterCore:activate.
-                }
                 set RenameHSR to false.
                 if not Block1HSR and kuniverse:activevessel:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and kuniverse:activevessel:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 {
                     set RenameHSR to true.
@@ -1951,11 +1942,23 @@ function Boostback {
             }
         }
         else if defined HSR set BoosterReturnMass to BoosterReturnMass + HSR:mass.
+
         if not HSRJet set turnTime to turnTime - 10.
         HUDTEXT("Booster Coast Phase - Timewarp available", 15, 2, 20, green, false).
         set CurrentVec to ship:facing:forevector.
         if BoosterType:contains("Block3") set LeftVector to -ship:facing:starvector.
         else set LeftVector to ship:facing:starvector.
+
+        when time:seconds - turnTime > 1.8 then {
+            if BoosterCore:thrust > 0 {
+                BoosterCore:shutdown.
+                set FuelDump to true.
+            }
+            wait 0.01.
+            if FuelDump when vAng(facing:forevector, up:vector) < 64 and RSS or vAng(facing:forevector, up:vector) < 50 then {
+                BoosterCore:activate.
+            }
+        }
         
         when time:seconds - turnTime > 0.5 then {
             
