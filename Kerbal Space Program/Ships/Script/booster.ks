@@ -2589,13 +2589,15 @@ function Boostback {
             }
             wait 0.
             if BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3")) {
+                if (BoosterType:contains("Block2") and HSRType:contains("Block3")) set Block2Offset to 1.
+                else set Block2Offset to 0.
                 if BoosterSingleEnginesRC[4]:hassuffix("activate") and not NrCounterEngine:contains(5) BoosterSingleEnginesRC[4]:shutdown. wait 0.
                 if BoosterSingleEnginesRC[9]:hassuffix("activate") and not NrCounterEngine:contains(10) BoosterSingleEnginesRC[9]:shutdown. wait 0.
                 if BoosterSingleEnginesRC[11]:hassuffix("activate") and not NrCounterEngine:contains(12) BoosterSingleEnginesRC[11]:shutdown. wait 0.
-                if BoosterSingleEnginesRC[6]:hassuffix("activate") and not NrCounterEngine:contains(7) BoosterSingleEnginesRC[6]:shutdown.
+                if BoosterSingleEnginesRC[6-Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(7-Block2Offset) BoosterSingleEnginesRC[6-Block2Offset]:shutdown.
                 set x to 1.
                 for eng in BoosterSingleEnginesRC {
-                    if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 11 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
+                    if x = 1 or x = 2 or x = 3 or x = 4 or x = 6+Block2Offset or x = 8 or x = 10 or x = 11 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
                     else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
                         set eng:gimbal:lock to true.
                         //eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
@@ -2618,10 +2620,10 @@ function Boostback {
                     }
                 }
                 when time:seconds > ShutdownTime + 2.08 and airspeed < 55 or airspeed < 40 then {
-                    if BoosterSingleEnginesRC[5]:hassuffix("activate") and not NrCounterEngine:contains(6) {
-                        BoosterSingleEnginesRC[5]:shutdown.
-                        set BoosterSingleEnginesRC[5]:gimbal:lock to true.
-                        //BoosterSingleEnginesRC[5]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                    if BoosterSingleEnginesRC[5+Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(6+Block2Offset) {
+                        BoosterSingleEnginesRC[5+Block2Offset]:shutdown.
+                        set BoosterSingleEnginesRC[5+Block2Offset]:gimbal:lock to true.
+                        //BoosterSingleEnginesRC[5+Block2Offset]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                     }
                     if BoosterSingleEnginesRC[10]:hassuffix("activate") and not NrCounterEngine:contains(11) {
                         BoosterSingleEnginesRC[10]:shutdown.
