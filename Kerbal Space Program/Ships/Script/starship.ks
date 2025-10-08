@@ -476,7 +476,8 @@ else {
     set FAR to false.
     set FARValue to 0.
 }
-set aoa to 60.
+
+set aoa to 61.
 if RSS set aoa to 65.7.
 set currentAoA to aoa.
 
@@ -11330,6 +11331,7 @@ function LandwithoutAtmoLabels {
 function ReEntryAndLand {
     if addons:tr:hasimpact {
         if ShipSubType:contains("Block2") {set aoa to aoa. set LandingAoA to LandingAoA*0.99.}
+        if not ShipType:contains("Block1") set aoa to 62.
         set LandButtonIsRunning to true.
         if fullAuto or HideGUI g:hide().
         IgnitionChancesOpen:hide().
@@ -12165,7 +12167,7 @@ function ReEntryData {
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
             set closingPID to pidLoop(0.048*(Scale^0.7), 0.008*(Scale^0.7), 0.042*(Scale^0.7),-3,3).
-            set cancelPID to pidLoop(0.2, 0.012, 0.14,-2,2).
+            set cancelPID to pidLoop(0.14, 0.012, 0.1,-3,3).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
@@ -12659,6 +12661,7 @@ function LandingVector {
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
                     set TgtErrorVector to (landingzone:position + MZHeight*up:vector) - (myFuturePos).
                     set closingPID:kd to 0.042*(Scale^0.7) * TgtErrorVector:mag/(5*Scale).
+                    set cancelPID:kp to 0.14 * max(1,2/max(1,RadarRatio)).
                     
                     if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.

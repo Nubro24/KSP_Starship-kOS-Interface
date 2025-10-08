@@ -91,6 +91,8 @@ set Frost to false.
 set RandomFlip to false.
 set GoForCatch to false.
 set NrCounterEngine to list().
+set missingCount to 0.
+set inactiveCount to 0.
 
 set GFset to false.
 set ECset to false.
@@ -2662,7 +2664,7 @@ function Boostback {
         else {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             MidGimbMod:doaction("lock gimbal", true).
-            if Block3Cluster when time:seconds > ShutdownTime + 2 then {
+            if Block3Cluster when time:seconds > ShutdownTime + 2 and airspeed < 55 or airspeed < 40 then {
                 BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 Mid2GimbMod:doaction("lock gimbal", true).
             }
@@ -3034,13 +3036,14 @@ FUNCTION SteeringCorrections {
                 else set dragFactor to 1 - 0.059 * (1 + 0.55*((airspeed/320)^2 - 1)).
             }
             
-            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3950),1000).
+            set LandingBurnAlt to max(min(TotalstopDist*dragFactor, 3750),1000).
 
             if BoosterSingleEngines { 
                 set LandingBurnAlt to LandingBurnAlt * 1.05.
                 if RSS set LandingBurnAlt to LandingBurnAlt * 1.04.
             }
-            if HighLandingBurn set LandingBurnAlt to LandingBurnAlt * 1.2.
+            //if HighLandingBurn 
+            set LandingBurnAlt to LandingBurnAlt * (1 + missingCount/10).
         }
         
 
