@@ -2624,7 +2624,7 @@ function Boostback {
                         set x to x + 1.
                     }
                 }
-                when time:seconds > ShutdownTime + 2.08 and airspeed < 55 or airspeed < 40 then {
+                when time:seconds > ShutdownTime + 3.08 and airspeed < 30 or airspeed < 24 then {
                     if BoosterSingleEnginesRC[5+Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(6+Block2Offset) {
                         BoosterSingleEnginesRC[5+Block2Offset]:shutdown.
                         set BoosterSingleEnginesRC[5+Block2Offset]:gimbal:lock to true.
@@ -2664,7 +2664,7 @@ function Boostback {
         else {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             MidGimbMod:doaction("lock gimbal", true).
-            if Block3Cluster when time:seconds > ShutdownTime + 2 and airspeed < 55 or airspeed < 40 then {
+            if Block3Cluster when time:seconds > ShutdownTime + 3 and airspeed < 30 or airspeed < 24 then {
                 BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 Mid2GimbMod:doaction("lock gimbal", true).
             }
@@ -2990,10 +2990,10 @@ FUNCTION SteeringCorrections {
             if not (MiddleEnginesShutdown) and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3") and BoosterSingleEngines)) {
                 set stopTime9 to (airspeed - 75) / min(maxDecel, 50*Scale).
                 set stopDist9 to ((airspeed + 75) / 2) * stopTime9.
-                set stopTime5 to min(35, airspeed - 40) / min(maxDecel5, 19*Scale ).
-                set stopDist5 to (min(35, airspeed - 40) / 2) * stopTime5.
-                set stopTime3 to min(40, airspeed) / min(maxDecel3, FinalDeceleration).
-                set stopDist3 to (min(40, airspeed) / 2) * stopTime3.
+                set stopTime5 to min(45, airspeed - 30) / min(maxDecel5, 19*Scale ).
+                set stopDist5 to (min(45, airspeed - 30) / 2) * stopTime5.
+                set stopTime3 to min(30, airspeed) / min(maxDecel3, FinalDeceleration).
+                set stopDist3 to (min(30, airspeed) / 2) * stopTime3.
                 set TotalstopTime to stopTime9 + stopTime5 + stopTime3.
                 set TotalstopDist to (stopDist9 + stopDist5 + stopDist3) * cos(vang(-velocity:surface, up:vector)).
                 set landingRatio to max(0, TotalstopDist / (RadarAlt)).
