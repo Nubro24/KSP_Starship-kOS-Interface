@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
-set Scriptversion to "V3.5.2".
+set Scriptversion to "V3.6.0".
 
 
 //<------------Telemtry Scale-------------->
@@ -476,7 +476,8 @@ else {
     set FAR to false.
     set FARValue to 0.
 }
-set aoa to 60.
+
+set aoa to 61.
 if RSS set aoa to 65.7.
 set currentAoA to aoa.
 
@@ -798,6 +799,7 @@ set oldBooster to false.
 set LngLatOffset to 0.
 set cAbort to false.
 set GfC to true.
+set TMinusCountdown to 17.
 
 
 
@@ -1268,7 +1270,7 @@ function FindParts {
         set sCH4Label:style:textcolor to grey.
         set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
-        set BoosterEngines to SHIP:PARTSNAMED("Block.3.AFT").
+        if SHIP:PARTSNAMED("Raptor.3Cluster"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("Raptor.3Cluster").
         set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("Block.3.FWD").
         set BoosterCore to SHIP:PARTSNAMED("Block.3.AFT").
@@ -1301,9 +1303,35 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not Hotstaging and not bEngSet {
-        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-                or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+    if Boosterconnected and not Hotstaging and not bEngSet and not BoosterType:contains("Block3") {
+        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
+                or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+                or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+            set BoosterSingleEngines to true.
+            set BoosterSingleEnginesRB to list().
+            set BoosterSingleEnginesRC to list().
+            set x to 1.
+            until x > 33 or not Boosterconnected {
+                if ship:partstagged(x:tostring):length > 0 {
+                    if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
+                    else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
+                }
+                else {
+                    if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
+                    else BoosterSingleEnginesRB:insert(x-14, False).
+                }
+                set x to x + 1.
+            }
+        } 
+        else {
+            set BoosterSingleEngines to false.
+        }
+        set bEngSet to true.
+        print "bEngines set.. SingleEng.:" + BoosterSingleEngines.
+    }
+    else if Boosterconnected and not Hotstaging and not bEngSet and BoosterType:contains("Block3") {
+        if BoosterCore[0]:children:length > 1 and ( BoosterCore[0]:children[0]:name:contains("Raptor.3RC") or BoosterCore[0]:children[0]:name:contains("Raptor.3RB") 
+                or BoosterCore[0]:children[1]:name:contains("Raptor.3RC") or BoosterCore[0]:children[1]:name:contains("Raptor.3RB") ) {
             set BoosterSingleEngines to true.
             set BoosterSingleEnginesRB to list().
             set BoosterSingleEnginesRC to list().
@@ -1790,6 +1818,43 @@ set MissionNameSave:onclick to {
     SaveToSettings("MissionName", MissionName).
 }.
 
+local MissionCountdown is FlightSettingsLayout:addtextfield().
+    set MissionCountdown:style:fontsize to 16.
+    set MissionCountdown:style:margin:left to 24.
+    set MissionCountdown:style:margin:top to 24.
+    set MissionCountdown:style:margin:right to 8.
+    set MissionCountdown:style:height to 24.
+    set MissionCountdown:tooltip to "Enter Countdown Start (default: '17')".
+local MissionCountdownSetter is FlightSettingsLayout:addhlayout().
+local MissionCountdownSet is MissionCountdownSetter:addbutton("Set").
+    set MissionCountdownSet:style:fontsize to 16.
+    set MissionCountdownSet:style:margin:left to 24.
+    set MissionCountdownSet:style:margin:top to 8.
+    set MissionCountdownSet:style:margin:right to 8.
+    set MissionCountdownSet:style:height to 24.
+    set MissionCountdownSet:style:align to "Center".
+local MissionCountdownSave is MissionCountdownSetter:addbutton("Set & Save").
+    set MissionCountdownSave:style:fontsize to 16.
+    set MissionCountdownSave:style:margin:left to 6.
+    set MissionCountdownSave:style:margin:top to 8.
+    set MissionCountdownSave:style:margin:right to 16.
+    set MissionCountdownSave:style:height to 24.
+    set MissionCountdownSave:style:align to "Center".
+set MissionCountdownSet:onclick to {
+    if MissionCountdown:text = "" set MissionCountdown:text to "17".
+    set TMinusCountdown to MissionCountdown:text:toscalar.
+    if TMinusCountdown < 17 set TMinusCountdown to 17.
+    if Boosterconnected sendMessage(processor(Volume("Booster")),"TMinusCountdown,"+TMinusCountdown).
+    if OnOrbitalMount sendMessage(processor(Volume("OrbitalLaunchMount")),"TMinusCountdown,"+TMinusCountdown).
+}.
+set MissionCountdownSave:onclick to {
+    if MissionCountdown:text = "" set MissionCountdown:text to "17".
+    set TMinusCountdown to MissionCountdown:text:toscalar.
+    if TMinusCountdown < 17 set TMinusCountdown to 17.
+    if Boosterconnected sendMessage(processor(Volume("Booster")),"TMinusCountdown,"+TMinusCountdown).
+    if OnOrbitalMount sendMessage(processor(Volume("OrbitalLaunchMount")),"TMinusCountdown,"+TMinusCountdown).
+    SaveToSettings("TMinusCountdown", TMinusCountdown).
+}.
 
 set IgnitionChances:ontoggle to {
     parameter toggle.
@@ -5819,8 +5884,8 @@ set launchbutton:ontoggle to {
                             LogToFile("Starting Launch Function").
                             sendMessage(processor(volume("Booster")),"Countdown").
                             sendMessage(processor(volume("OrbitalLaunchMount")),"Countdown").
-                            set MissionTimer to time:seconds-17.
-                            SaveToSettings("Launch Time", time:seconds+17).
+                            set MissionTimer to time:seconds-TMinusCountdown.
+                            SaveToSettings("Launch Time", time:seconds+TMinusCountdown).
                             if TargetShip = 0 and not hastarget {}
                             else if not (TargetShip = 0) {
                                 if RSS {
@@ -5854,7 +5919,7 @@ set launchbutton:ontoggle to {
                                     set LaunchToRendezvousTime to (LaunchToRendezvousLng / 360) * TargetShip:orbit:period.
                                     set LaunchToRendezvousTime to LaunchToRendezvousTime + (LaunchToRendezvousTime + LaunchTimeSpanInSeconds) / body:rotationperiod * TargetShip:orbit:period.
 
-                                    set LaunchTime to time:seconds + LaunchToRendezvousTime - 19.
+                                    set LaunchTime to time:seconds + LaunchToRendezvousTime - TMinusCountdown - 2.
                                 }
                                 else {
                                     launchWindow(TargetShip, 0).
@@ -5879,7 +5944,7 @@ set launchbutton:ontoggle to {
                                         set setting3:text to SavedInclination.
                                         return.
                                     }
-                                    set LaunchTime to time:seconds + launchWindowList[0] - 19.
+                                    set LaunchTime to time:seconds + launchWindowList[0] - TMinusCountdown - 2.
                                     set targetincl to launchWindowList[1].
                                     set setting3:text to (round(targetincl, 2) + "°").
                                     print "Launch Time: " + LaunchTime.
@@ -5893,7 +5958,7 @@ set launchbutton:ontoggle to {
                                     TimeWarp(LaunchTime, 0).
                                     set message1:text to "<b>All Systems:              <color=green>GO</color></b>".
                                     set message2:text to "<b>Launch to:                 <size=17><color=green>" + TargetShip:name + "</color></size></b>".
-                                    set message3:text to "<b>Time to Ignition:</b>    " + timeSpanCalculator(LaunchTime - time:seconds + 16).
+                                    set message3:text to "<b>Time to Ignition:</b>    " + timeSpanCalculator(LaunchTime - time:seconds + TMinusCountdown - 1).
                                     BackGroundUpdate().
                                 }
                                 if cancelconfirmed or time:seconds > LaunchTime + 5 {
@@ -5926,7 +5991,7 @@ set launchbutton:ontoggle to {
                                     set setting3:text to SavedInclination.
                                     return.
                                 }
-                                set LaunchTime to time:seconds + launchWindowList[0] - 19.
+                                set LaunchTime to time:seconds + launchWindowList[0] - TMinusCountdown - 2.
                                 set targetincl to launchWindowList[1].
                                 set setting3:text to (round(targetincl, 2) + "°").
                                 print "Launch Time: " + LaunchTime.
@@ -5939,7 +6004,7 @@ set launchbutton:ontoggle to {
                                     TimeWarp(LaunchTime, 0).
                                     set message1:text to "<b>All Systems:              <color=green>GO</color></b>".
                                     set message2:text to "<b>Launch to:                 <color=green>" + target:name + "</color></b>".
-                                    set message3:text to "<b>Time to Ignition:</b>    " + timeSpanCalculator(LaunchTime - time:seconds + 16).
+                                    set message3:text to "<b>Time to Ignition:</b>    " + timeSpanCalculator(LaunchTime - time:seconds + TMinusCountdown - 1).
                                     BackGroundUpdate().
                                 }
                                 if cancelconfirmed or time:seconds > LaunchTime + 5 {
@@ -7423,12 +7488,12 @@ function Launch {
                 set PitchIncrement to 5.
             }
             else if CargoMass > 32000 {
-                set BoosterAp to 48500 + (cos(targetincl) * 1000).
+                set BoosterAp to 50000 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 10.
                 set PitchIncrement to 0.
             }
             else {
-                set BoosterAp to 46500 + (cos(targetincl) * 1000).
+                set BoosterAp to 48000 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 10.
                 set PitchIncrement to 0.
             }
@@ -7446,7 +7511,7 @@ function Launch {
 
         if OnOrbitalMount {
             if not BoosterSingleEngines {
-                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" {
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     wait 0.01.
                 }
@@ -7468,7 +7533,7 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,1.8,0.5").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
-            set x to time:seconds + 14.
+            set x to time:seconds + TMinusCountdown - 3.
             when x - time:seconds < 2 then {
                 wait 0.01.
                 lock throttle to 0.5.
@@ -7549,7 +7614,7 @@ function Launch {
                 }
                 ClearInterfaceAndSteering().
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -7611,7 +7676,9 @@ function Launch {
             
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
             else {
-                for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
+                for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") {
+                    if random() < LOIgnCha/100 eng:activate.
+                }
             }
 
             set EngineStartTime to time:seconds.
@@ -7672,7 +7739,7 @@ function Launch {
                 }
                 if not BoosterType:contains("Block3") BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -7755,7 +7822,7 @@ function Launch {
                 }
                 if not BoosterType:contains("Block3") BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -7892,11 +7959,12 @@ function Launch {
 
         if Boosterconnected {
             set steeringManager:maxstoppingtime to 1.2*Scale.
+            set steeringManager:rollts to 4*Scale.
             when apoapsis > BoosterAp - 22000 * Scale then {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
                 set steeringManager:yawtorquefactor to 0.15*Scale.
-                set steeringManager:rolltorquefactor to 3.3*Scale.
+                set steeringManager:rolltorquefactor to 3.5*Scale.
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") {
@@ -7947,12 +8015,12 @@ function Launch {
                         set x to x + 1.
                     }
                 }
+                else BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
                 wait 0.08.
                 //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
-                if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                else {
+                if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
                         if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
@@ -7980,6 +8048,8 @@ function Launch {
                 //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
                 //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
                 //}
+                if not BoosterSingleEngines and BoosterType:contains("Block3") BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                wait 0.
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 else {
                     set x to 1.
@@ -11261,6 +11331,7 @@ function LandwithoutAtmoLabels {
 function ReEntryAndLand {
     if addons:tr:hasimpact {
         if ShipSubType:contains("Block2") {set aoa to aoa. set LandingAoA to LandingAoA*0.99.}
+        if not ShipType:contains("Block1") set aoa to 62.
         set LandButtonIsRunning to true.
         if fullAuto or HideGUI g:hide().
         IgnitionChancesOpen:hide().
@@ -12096,7 +12167,7 @@ function ReEntryData {
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
             set closingPID to pidLoop(0.048*(Scale^0.7), 0.008*(Scale^0.7), 0.042*(Scale^0.7),-3,3).
-            set cancelPID to pidLoop(0.2, 0.012, 0.14,-2,2).
+            set cancelPID to pidLoop(0.14, 0.012, 0.1,-3,3).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
@@ -12368,8 +12439,10 @@ function ReEntryData {
                     set Hover to false.
                 }
             }
+            set AngleAbort to false.
+            when verticalspeed > CatchVS * 2 and RadarAlt < 10 * Scale and vAng(facing:forevector, up:vector) > 24 then set AngleAbort to true.
 
-            until verticalspeed > CatchVS and RadarAlt < 15 * Scale and ship:groundspeed < 3.75*Scale {
+            until verticalspeed > CatchVS and RadarAlt < 15 * Scale and ship:groundspeed < 3.75*Scale or AngleAbort {
                 SendPing().
                 if config:ipu < 1300 set config:ipu to 1400.
                 if ship:body:atm:sealevelpressure > 0.5 {
@@ -12587,6 +12660,8 @@ function LandingVector {
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
                     set TgtErrorVector to (landingzone:position + MZHeight*up:vector) - (myFuturePos).
+                    set closingPID:kd to 0.042*(Scale^0.7) * TgtErrorVector:mag/(5*Scale).
+                    set cancelPID:kp to 0.14 * max(1,2/max(1,RadarRatio)).
                     
                     if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.
@@ -12866,13 +12941,13 @@ function LngLatError {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 4000 set LngLatOffset to -15.
-                        else set LngLatOffset to -2 - vxcl(up:vector, velocity:surface):mag*0.6.
+                        else set LngLatOffset to -8 - vxcl(up:vector, velocity:surface):mag*0.6.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 4000 set LngLatOffset to -15.
-                        else set LngLatOffset to 2 - vxcl(up:vector, velocity:surface):mag*0.5.
+                        else set LngLatOffset to -2 - vxcl(up:vector, velocity:surface):mag*0.5.
                     } else {
                         if RadarAlt > 4000 set LngLatOffset to -15.
-                        else set LngLatOffset to 2 - vxcl(up:vector, velocity:surface):mag*0.55.
+                        else set LngLatOffset to -2 - vxcl(up:vector, velocity:surface):mag*0.55.
                     }
                 }
                 else if KSRSS {
@@ -12902,7 +12977,7 @@ function LngLatError {
             }
             else {
                 if STOCK {
-                    set LngLatOffset to -18.
+                    set LngLatOffset to -24.
                 }
                 else if KSRSS {
                     set LngLatOffset to -38.

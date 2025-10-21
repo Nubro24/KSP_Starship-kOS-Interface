@@ -1,14 +1,20 @@
-# V3.5.2.5 (2025-09-22)
+# V3.6.0 (2025-09-22)
 - **Reworked Catch Guidance for Booster and Ship** 
   - uses Catch position instead ground impact position
   - PID based (better adjustments in different situations + easier fine tuning)
 - **Improved Reentry Guidance for Ship**
 - Added Support for a Booster with 3 Gridfins (V3 Layout)
+- Added Support for Questin's Block 3 Booster & Raptor 3 Engines
+- Added Support for Testflight
+- Added Booster Static Fire (Action Group 5, with ship-less Booster on OLM)
+- Improved Engine Checks for Booster
 - **UI Changes**
   - Added Flight Settings:
     - Hide Inteface during Flight Operations
     - Automatic Mode (further reduced UI + higher V2 Ship Failure)
     - Question for HSR Jettison after Boostback
+    - Mission Name below T-Minus-Clock
+    - Option to customize Countdown length
   - Reduced the Telemetry Height to match SpaceXs old Telemetry
   - Telemetry Rescaling now requires Input of Horizontal and Vertical Resolution
     - Uses Ratio to determine the best Scaling
@@ -50,7 +56,7 @@
   - Added fully automatic Option, which shows Telemetry Only during operations 
     - action groups 9 (NoGo) and 10 (Go) are Hotkeys for Flight Directors Return Decision 
     - *to only see the Telemetry you also need to press F2*
-    - to activate it open the IgnitionChancesMenu
+    - to activate it open the Flight Settings
   - Optimized CoG/Fuel Shift during Reentry
 - Bug/Error Fixes:
   - Added Function to Speed Label on Ship Telemetry: 

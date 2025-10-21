@@ -39,6 +39,7 @@ set oldArms to true.
 set onOLM to false.
 set shipOnOLM to false.
 set LiftOffTime to -999.
+set TMinusCountdown to 17.
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
@@ -315,10 +316,13 @@ until False {
             SetDockingForce(parameter1).
         }
         else if command = "Countdown" {
-            set LiftOffTime to time:seconds + 17.
+            set LiftOffTime to time:seconds + TMinusCountdown.
         }
         else if command = "StaticFire" {
             StaticFireDeluge(parameter1).
+        }
+        else if command = "TMinusCountdown" {
+            set TMinusCountdown to parameter1.
         }
         else {
             PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -366,7 +370,8 @@ function LiftOff {
 
 function StaticFireDeluge {
     parameter T0.
-    wait until time:seconds - T0 > -9.
+    set T0 to T0:toscalar.
+    wait until time:seconds - T0 > -8.
         if OLM:hasmodule("ModuleEnginesFX") {
             if OLM:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
                 OLM:getmodule("ModuleEnginesFX"):doevent("activate engine").
