@@ -1229,7 +1229,6 @@ function BoosterStaticFire {
             RefuelBooster().
             wait until BoosterFueled.
         }
-        set BoosterFueledTime to time:seconds.
         set missionTimer to time:seconds + 15.
         wait until missionTimerNow > -10.
         sendMessage(processor(volume("OrbitalLaunchMount")), "StaticFire,"+missionTimer).
@@ -1292,6 +1291,7 @@ function BoosterStaticFire {
         }
         wait 2.
         hudtext("Static Fire Complete",3,5,24,green,true).
+        set BoosterStaticFireRunning to false.
     }
 }
 function RefuelBooster {
