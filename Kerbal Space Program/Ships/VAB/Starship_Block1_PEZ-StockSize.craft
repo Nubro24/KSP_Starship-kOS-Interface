@@ -1576,8 +1576,8 @@ PART
 		name = kOSProcessor
 		isEnabled = True
 		bootFile = /boot/starship.ks
-		diskSpace = 2550000
-		baseDiskSpace = 2550000
+		diskSpace = 1550000
+		baseDiskSpace = 855000
 		baseModuleMass = 0
 		additionalCost = 18677
 		diskSpaceCostFactor = 0.0244140625
@@ -2129,8 +2129,8 @@ PART
 		name = kOSProcessor
 		isEnabled = True
 		bootFile = /boot/watchdog.ks
-		diskSpace = 2550000
-		baseDiskSpace = 2550000
+		diskSpace = 855000
+		baseDiskSpace = 855000
 		baseModuleMass = 0
 		additionalCost = 0
 		diskSpaceCostFactor = 0.0244140625
@@ -7518,8 +7518,8 @@ PART
 		name = kOSProcessor
 		isEnabled = True
 		bootFile = /boot/booster.ks
-		diskSpace = 2550000
-		baseDiskSpace = 2550000
+		diskSpace = 855000
+		baseDiskSpace = 855000
 		baseModuleMass = 0
 		additionalCost = 0
 		diskSpaceCostFactor = 0.0244140625
@@ -10270,8 +10270,8 @@ PART
 		name = kOSProcessor
 		isEnabled = True
 		bootFile = /boot/tower.ks
-		diskSpace = 2550000
-		baseDiskSpace = 2550000
+		diskSpace = 855000
+		baseDiskSpace = 855000
 		baseModuleMass = 0
 		additionalCost = 0
 		diskSpaceCostFactor = 0.0244140625
