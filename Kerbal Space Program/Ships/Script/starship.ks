@@ -533,7 +533,7 @@ if RSS {         // Real Solar System
     set trCompensation to -10000.
 }
 else if KSRSS {      // 2.5-2.7x scaled Kerbin
-    set LandingAoA to 77.
+    set LandingAoA to 78.
     set MaxCargoToOrbit to 126000.
     set MaxReEntryCargoThickAtmo to 2500.
     set MaxIU to 100.
@@ -584,7 +584,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set trCompensation to 3000.
 }
 else {       // Stock Kerbin
-    set LandingAoA to 77.
+    set LandingAoA to 78.
     set MaxCargoToOrbit to 77800.
     set MaxReEntryCargoThickAtmo to 2500.
     set MaxIU to 100.
@@ -11382,20 +11382,10 @@ function ReEntryAndLand {
         when airspeed < 310 then set maxPitchPID to 24.
 
         if DynamicBanking {
-            set PlotAoA to PlotAoA + 2.
+            set PlotAoA to PlotAoA + 1.
+            set LastLZChange to time:seconds.
             SetPlanetData().
             set addons:tr:descentangles to DescentAngles.
-        }
-        if DynamicBanking and not TargetOLM = ("False") when alt:radar < 45000 * Scale then {
-            set Vessel(TargetOLM):loaddistance:unpack to DistanceToTarget*1.2.
-            when Vessel(TargetOLM):unpacked then {
-                set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
-                if vAng(TowerHeadingVector, noth:vector) < 90 set bank to -1.
-                else set bank to 1.
-                set dbactive to true.
-                set Vessel(TargetOLM):loaddistance:unpack to 1200.
-                set Vessel(TargetOLM):loaddistance:pack to 1250.
-            }
         }
 
         set addons:tr:descentmodes to list(true, true, true, true).
@@ -11486,6 +11476,49 @@ function ReEntryAndLand {
         if not AFTONLY FRflap:getmodule("ModuleSEPControlSurface"):DoAction("activate yaw control", true).
         if not AFTONLY ALflap:getmodule("ModuleSEPControlSurface"):DoAction("deactivate yaw control", true).
         if not AFTONLY ARflap:getmodule("ModuleSEPControlSurface"):DoAction("deactivate yaw control", true).
+
+        
+        if DynamicBanking {
+            when alt:radar < 64000 * Scale then {
+                hudtext("Searching Tower..",3,2,16,yellow,true).
+                set TargetedOLM to "False".
+                for x in shiplist {
+                    if x:name:contains("OrbitalLaunchMount") or x:name:contains("KSC OrbitalLaunchMount") set TargetedOLM to x:name.
+                }
+                if not TargetedOLM = ("False") when alt:radar < 52000 * Scale then {
+                    hudtext("Loading Tower..",3,2,16,yellow,true).
+                    set Vessel(TargetedOLM):loaddistance:landed:load to DistanceToTarget*1250.
+                    set Vessel(TargetedOLM):loaddistance:prelaunch:load to DistanceToTarget*1250.
+                    set Vessel(TargetedOLM):loaddistance:landed:unpack to DistanceToTarget*1200.
+                    set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to DistanceToTarget*1200.
+                    when Vessel(TargetedOLM):loaded then {
+                        set TgtLocation to ship:body:geopositionof(Vessel(TargetedOLM):position).
+                        set TowerHeadingVector to vxcl(up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                        if vAng(TowerHeadingVector, north:vector) < 90 set bank to -1.
+                        else set bank to 1.
+                        set dbactive to true.
+                        set Vessel(TargetedOLM):loaddistance:landed:unpack to 1200.
+                        wait 0.
+                        set Vessel(TargetedOLM):loaddistance:landed:pack to 1250.
+                        wait 0.001.
+                        set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to 1200.
+                        wait 0.
+                        set Vessel(TargetedOLM):loaddistance:prelaunch:pack to 1250.
+                        wait 0.001.
+                        set Vessel(TargetedOLM):loaddistance:landed:load to 2200.
+                        wait 0.
+                        set Vessel(TargetedOLM):loaddistance:landed:unload to 3250.
+                        wait 0.001.
+                        set Vessel(TargetedOLM):loaddistance:prelaunch:load to 2200.
+                        wait 0.
+                        set Vessel(TargetedOLM):loaddistance:prelaunch:unload to 3250.
+                        wait 0.001.
+                        hudtext("Unloading Tower..",3,2,16,green,true).
+                    }
+                }
+                else hudtext("No Tower Found..",3,2,16,yellow,true).
+            }
+        }
 
         if LFShip > max(FuelVentCutOffValue, MaxFuel) and ship:body:atm:sealevelpressure > 0.5 {
             ToggleHeaderTank(0).
@@ -11788,19 +11821,24 @@ function ReEntrySteering {
         }
 
         if DynamicBanking and LastLZchange + 0.4 < time:seconds and DBactive {
-            set bankLNG to 0.03 * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 - 0.01.
-            set bankLAT to 0.5 * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65.
+            set bankLNG to 0.002 * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 - 0.001.
+            set bankLAT to 0.02 * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65.
             set landingzone to 
-                latlng(OLM:position:lng + bank * min(max(0,DistanceToTarget-100/200),1) * bankLNG * min(max(0,2000/max(500,DistanceToTarget-500)),1),
-                    OLM:position:lat + bank * min(max(0,DistanceToTarget-100/100),1) * bankLAT * min(max(0,1600/max(800,DistanceToTarget-600)),1)).
+                latlng(TgtLocation:lng + bank * min(max(0,DistanceToTarget-100/200),1) * bankLNG * min(max(0,2000/max(500,DistanceToTarget-500)),1),
+                    TgtLocation:lat + bank * min(max(0,DistanceToTarget-100/100),1) * bankLAT * min(max(0,1600/max(800,DistanceToTarget-600)),1)).
             set LastLZChange to time:seconds.
         }
 
         set LngLatErrorList to LngLatError().
 
-        set aoa_adjust to min(max(-2 ,round(0.005*((LngLatErrorList[0] - trCompensation)/1000)^3 + 0.05*((LngLatErrorList[0] - trCompensation)/1000),1)/2), 2).
-        if airspeed > 300 set aoa to min(max(PlotAoA - 5 ,aoa + aoa_adjust), PlotAoA + 5).
-        else set aoa to PlotAoA.
+        if airspeed > 300 {
+            set aoa_adjust to min(max(-2 ,round(0.005*((LngLatErrorList[0] - trCompensation)/1000)^3 + 0.05*((LngLatErrorList[0] - trCompensation)/1000),1)/2), 2).
+            set aoa to min(max(PlotAoA - 5 ,aoa + aoa_adjust), PlotAoA + 5).
+        }
+        else {
+            set aoa_adjust to min(max(0 , round(LngLatErrorList[0]/80, 1)),2).
+            set aoa to PlotAoA + aoa_adjust.
+        }
         if airspeed < 300 and currentAoA > 74 set Bellyflop to true.
         else set Bellyflop to false.
 
@@ -11809,8 +11847,8 @@ function ReEntrySteering {
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 50).
         set YawPID:minoutput to -YawPID:maxoutput.
 
-        set pitchctrl to -PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]).
-        set yawctrl to YawPID:UPDATE(TIME:SECONDS, LngLatErrorList[1]).
+        set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
+        set yawctrl to round(YawPID:UPDATE(TIME:SECONDS, LngLatErrorList[1]),1).
         if RadarAlt > 5000 {
             set SRFPRGD to srfprograde.
         }
@@ -12237,7 +12275,7 @@ function ReEntryData {
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             set ThrottleMin to 0.38.
             if STOCK {
-                set FlipAngleFactor to 0.5.
+                set FlipAngleFactor to 0.6.
                 set CatchVS to -0.3.
             }
             else if KSRSS {
@@ -12485,6 +12523,7 @@ function ReEntryData {
                 set twoSL to true.
                 set ThrottleMin to 0.33.
                 if RSS set ThrottleMin to 0.22.
+                if LandSomewhereElse set ThrottleMin to ThrottleMin * 1.4.
                 wait 0.
                 if SLEngines[0]:hassuffix("activate") if SLEngines[0]:thrust > 50 set twoSL to false.
                 when ThrottleMin * 2 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and throttle < ThrottleMin + 0.003 and ship:groundspeed < 1 * Scale and verticalspeed > -8 * Scale and RadarAlt > 5 or verticalSpeed > CatchVS * 0.8 and RadarAlt > 4 then {
@@ -14697,7 +14736,7 @@ function PerformBurn {
             lock steering to lookdirup(BVec, facing:topvector).
         }
         set bTime to time:seconds + 9999.
-        when time:seconds > bTime - 1 then {
+        if SingleEngineDeOrbitBurn when time:seconds > bTime - 1.6 then {
             if DeOrbitEngNr = 1 {
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
