@@ -11596,23 +11596,23 @@ function ReEntryAndLand {
                     else set PitchPID:kp to 0.00005.
                 }
 
-                if RSS when airspeed < 2435 then 
-                        set trCompensation to trCompensation + 4000.
+                if RSS and DynamicBanking when airspeed < 2435 then 
+                        set trCompensation to trCompensation + 4000 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
                 when airspeed < 850 * Scale then {
-                    if DynamicBanking set YawBank to 3.
+                    if DynamicBanking set YawBank to 3 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
                     else set YawBank to 1.
                     if RSS {
-                        set trCompensation to trCompensation + 4000.
+                        set trCompensation to trCompensation + 4000 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
                         set PitchPID to PIDLOOP(0.0005, 0.0001, 0.001, -25, 26 - TRJCorrection).
                         set YawPID to PIDLOOP(0.002*YawBank, 0.00014*YawBank, 0.0008*YawBank, -50, 50).
                     }
                     else if KSRSS {
-                        set trCompensation to trCompensation + 3000.
+                        set trCompensation to trCompensation + 3000 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
                         set PitchPID to PIDLOOP(0.001, 0, 0, -25, 26 + TRJCorrection).
                         set YawPID to PIDLOOP(0.0045*YawBank, 0, 0.0002*YawBank, -50, 50).
                     }
                     else {
-                        set trCompensation to trCompensation + 1000.
+                        set trCompensation to trCompensation + 1000 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
                         set PitchPID to PIDLOOP(0.0008, 0.0001, 0.001, -25, 26 - TRJCorrection). 
                         set YawPID to PIDLOOP(0.0028*YawBank, 0.0002*YawBank, 0.0006*YawBank, -50, 50).
                     }
@@ -11623,7 +11623,7 @@ function ReEntryAndLand {
                 when airspeed < 600 then {
                     set trCompensation to trCompensation/2.
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
-                    if DynamicBanking set YawBank to 3.
+                    if DynamicBanking set YawBank to 3 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
                     else set YawBank to 1.
                     if RSS {
                         set PitchPID to PIDLOOP(0.005, 0.0001, 0.001, -25, 26 - TRJCorrection).
@@ -11658,7 +11658,7 @@ function ReEntryAndLand {
                         if RSS {
                             set PitchPID:kp to 0.09.
                             set PitchPID_kp to 0.09.
-                            set PitchPID:ki to 0.06.
+                            set PitchPID:ki to 0.07.
                             set PitchPID:kd to 0.12.
                             set YawPID:kp to 0.03.
                             set YawPID:ki to 0.018.
@@ -11845,7 +11845,7 @@ function ReEntrySteering {
             lock throttle to 0.
         }
 
-        if DynamicBanking and LastLZchange + 0.4 < time:seconds and dbactive and airspeed > 320 {
+        if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 320 {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
             set bankLNG to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio.
             set bankLAT to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio.
@@ -11876,13 +11876,13 @@ function ReEntrySteering {
         if airspeed < 300 and currentAoA > 74 set Bellyflop to true.
         else set Bellyflop to false.
         if Bellyflop {
-            set PitchPID:kp to PitchPID_kp * max(0.1,(abs(LngLatErrorList[0])/50)^0.3) * max(1,5/max(1,abs(LngLatErrorList[0]))).
+            set PitchPID:kp to PitchPID_kp * max(0.5,(abs(LngLatErrorList[0])/50)^0.3) * max(1,5/max(1,abs(LngLatErrorList[0]))).
         }
 
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (100 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 50).
-        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5)).
+        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7*vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90)).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
@@ -12581,7 +12581,7 @@ function ReEntryData {
                 }
             }
             set AngleAbort to false.
-            when verticalspeed > CatchVS * 2 and RadarAlt < 10 * Scale and vAng(facing:forevector, up:vector) > 24 then set AngleAbort to true.
+            when verticalspeed > CatchVS * 3 and RadarAlt < 12 * Scale and vAng(facing:forevector, up:vector) > 24 then set AngleAbort to true.
 
             until verticalspeed > CatchVS and RadarAlt < 15 * Scale and ship:groundspeed < 3.75*Scale or AngleAbort {
                 SendPing().
@@ -12616,7 +12616,7 @@ function ReEntryData {
             if not (TargetOLM = "False") {
                 wait 0.001.
                 set t to time:seconds.
-                until time:seconds > t + 8 or (ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.01 or RadarAlt < -1 or ShipLanded {
+                until time:seconds > t + 8 or (ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.01 or RadarAlt < -1 or ShipLanded or AngleAbort {
                     SendPing().
                     BackGroundUpdate().
                     print "slowly lowering down ship..".

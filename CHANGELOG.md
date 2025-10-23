@@ -15,6 +15,7 @@
     - Question for HSR Jettison after Boostback
     - Mission Name below T-Minus-Clock
     - Option to customize Countdown length
+    - **Dynamic Banking for Ship Reentry (as demonstrated on IFT 11)**
   - Reduced the Telemetry Height to match SpaceXs old Telemetry
   - Telemetry Rescaling now requires Input of Horizontal and Vertical Resolution
     - Uses Ratio to determine the best Scaling
