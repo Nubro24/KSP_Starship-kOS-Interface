@@ -106,6 +106,7 @@ if homeconnection:isconnected if exists("0:/settings.json") {
         set LSCoords to L["Launch Coordinates"].
     }
 } 
+set TgtLandingzone to LSCoords.
 
 if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
@@ -642,7 +643,7 @@ if homeconnection:isconnected if exists("0:/settings.json") {
     if L:haskey("DynamicBanking") {
         set DynamicBanking to L["DynamicBanking"].
     }
-    else set DynamicBanking to false.
+    else set DynamicBanking to true.
 }
 else set DynamicBanking to false.    //Change if the Ship approaches the OLM from the correct angle or just heads straight (first demonstrated during IFT 11)
 set DBactive to false.
@@ -11378,15 +11379,11 @@ function ReEntryAndLand {
         set PitchInputOld to 0.
         set lastFuelBalanc to time:seconds.
         set Bellyflop to false.
+        set Once to false.
+        set LastLZChange to time:seconds.
         set maxPitchPID to 38.
         when airspeed < 310 then set maxPitchPID to 24.
-
-        if DynamicBanking {
-            set PlotAoA to PlotAoA + 1.
-            set LastLZChange to time:seconds.
-            SetPlanetData().
-            set addons:tr:descentangles to DescentAngles.
-        }
+        set SteeringManager:ROLLCONTROLANGLERANGE to 24.
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
@@ -11479,20 +11476,21 @@ function ReEntryAndLand {
 
         
         if DynamicBanking {
+            set trCompensation to trCompensation + 2400*(Scale^2.9).
             when alt:radar < 64000 * Scale then {
                 hudtext("Searching Tower..",3,2,16,yellow,true).
                 set TargetedOLM to "False".
                 for x in shiplist {
                     if x:name:contains("OrbitalLaunchMount") or x:name:contains("KSC OrbitalLaunchMount") set TargetedOLM to x:name.
                 }
-                if not TargetedOLM = ("False") when alt:radar < 52000 * Scale then {
+                if not TargetedOLM = ("False") when alt:radar < 58000 * Scale then {
                     hudtext("Loading Tower..",3,2,16,yellow,true).
                     set Vessel(TargetedOLM):loaddistance:landed:load to DistanceToTarget*1250.
                     set Vessel(TargetedOLM):loaddistance:prelaunch:load to DistanceToTarget*1250.
                     set Vessel(TargetedOLM):loaddistance:landed:unpack to DistanceToTarget*1200.
                     set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to DistanceToTarget*1200.
                     when Vessel(TargetedOLM):loaded then {
-                        set TgtLocation to ship:body:geopositionof(Vessel(TargetedOLM):position).
+                        set TgtLandingzone to landingzone.
                         set TowerHeadingVector to vxcl(up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                         if vAng(TowerHeadingVector, north:vector) < 90 set bank to -1.
                         else set bank to 1.
@@ -11513,10 +11511,10 @@ function ReEntryAndLand {
                         wait 0.
                         set Vessel(TargetedOLM):loaddistance:prelaunch:unload to 3250.
                         wait 0.001.
-                        hudtext("Unloading Tower..",3,2,16,green,true).
+                        hudtext("Unloading Tower.",3,2,16,green,true).
                     }
                 }
-                else hudtext("No Tower Found..",3,2,16,yellow,true).
+                else hudtext("No Tower Found..",3,2,16,red,true).
             }
         }
 
@@ -11549,7 +11547,7 @@ function ReEntryAndLand {
             set YawPID to PIDLOOP(0.001, 0.000001, 0.000001, -42, 42).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
                 set PitchPID to PIDLOOP(0.00005, 0.000001, 0.00001, -25, 27 - TRJCorrection).
-                set YawPID to PIDLOOP(0.0005, 0.0000001, 0.0001, -50, 50).
+                set YawPID to PIDLOOP(0.0018, 0.0000001, 0.0001, -50, 50).
             }
         }
         else if KSRSS {
@@ -11598,23 +11596,46 @@ function ReEntryAndLand {
                     else set PitchPID:kp to 0.00005.
                 }
 
+                if RSS when airspeed < 2435 then 
+                        set trCompensation to trCompensation + 4000.
+                when airspeed < 850 * Scale then {
+                    if DynamicBanking set YawBank to 3.
+                    else set YawBank to 1.
+                    if RSS {
+                        set trCompensation to trCompensation + 4000.
+                        set PitchPID to PIDLOOP(0.0005, 0.0001, 0.001, -25, 26 - TRJCorrection).
+                        set YawPID to PIDLOOP(0.002*YawBank, 0.00014*YawBank, 0.0008*YawBank, -50, 50).
+                    }
+                    else if KSRSS {
+                        set trCompensation to trCompensation + 3000.
+                        set PitchPID to PIDLOOP(0.001, 0, 0, -25, 26 + TRJCorrection).
+                        set YawPID to PIDLOOP(0.0045*YawBank, 0, 0.0002*YawBank, -50, 50).
+                    }
+                    else {
+                        set trCompensation to trCompensation + 1000.
+                        set PitchPID to PIDLOOP(0.0008, 0.0001, 0.001, -25, 26 - TRJCorrection). 
+                        set YawPID to PIDLOOP(0.0028*YawBank, 0.0002*YawBank, 0.0006*YawBank, -50, 50).
+                    }
+                }
                 when airspeed < 900 then {
                     set trCompensation to trCompensation/1.5.
                 }
                 when airspeed < 600 then {
                     set trCompensation to trCompensation/2.
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
+                    if DynamicBanking set YawBank to 3.
+                    else set YawBank to 1.
                     if RSS {
                         set PitchPID to PIDLOOP(0.005, 0.0001, 0.001, -25, 26 - TRJCorrection).
-                        set YawPID to PIDLOOP(0.002, 0.00014, 0.0008, -50, 50).
+                        set YawPID to PIDLOOP(0.002*YawBank, 0.00014*YawBank, 0.0008*YawBank, -50, 50).
                     }
                     else if KSRSS {
                         set PitchPID to PIDLOOP(0.005, 0, 0, -25, 26 + TRJCorrection).
-                        set YawPID to PIDLOOP(0.00065, 0, 0.0002, -50, 50).
+                        set YawPID to PIDLOOP(0.00065*YawBank, 0, 0.0002*YawBank, -50, 50).
                     }
                     else {
                         set PitchPID to PIDLOOP(0.001, 0.0001, 0.001, -25, 26 - TRJCorrection). 
-                        set YawPID to PIDLOOP(0.0028, 0.0002, 0.0006, -50, 50).
+                        set YawPID to PIDLOOP(0.0028*YawBank, 0.0002*YawBank, 0.0006*YawBank, -50, 50).
                     }
                     if AFTONLY {
                         set PitchPID:kp to PitchPID:kp * 0.95.
@@ -11635,8 +11656,9 @@ function ReEntryAndLand {
                         set aoa to LandingAoA.
                         set DescentAngles to list(aoa, aoa, aoa, aoa).
                         if RSS {
-                            set PitchPID:kp to 0.08.
-                            set PitchPID:ki to 0.05.
+                            set PitchPID:kp to 0.09.
+                            set PitchPID_kp to 0.09.
+                            set PitchPID:ki to 0.06.
                             set PitchPID:kd to 0.12.
                             set YawPID:kp to 0.03.
                             set YawPID:ki to 0.018.
@@ -11645,6 +11667,7 @@ function ReEntryAndLand {
                         }
                         else if KSRSS {
                             set PitchPID:kp to 0.2. //0.25
+                            set PitchPID_kp to 0.2.
                             set PitchPID:ki to 0.02. //0.0225
                             set PitchPID:kd to 0.03. //0.03
                             set YawPID:kp to 0.02. //0.1
@@ -11654,6 +11677,7 @@ function ReEntryAndLand {
                         }
                         else {
                             set PitchPID:kp to 0.03. //0.03
+                            set PitchPID_kp to 0.03.
                             set PitchPID:ki to 0.026. //0.035
                             set PitchPID:kd to 0.046. //0.028
                             set YawPID:kp to 0.1. //0.1
@@ -11691,7 +11715,8 @@ function ReEntryAndLand {
                     set runningprogram to "Final Approach".
                     wait 0.1.
                     set below300Time to time:seconds.
-                    when time:seconds > below300Time + 1.2 then CheckLZReachable().
+                    if not DynamicBanking when time:seconds > below300Time + 1.2 then CheckLZReachable().
+                    else when RadarAlt < 6000 * Scale then CheckLZReachable().
                     LogToFile("Vehicle is Subsonic, precise steering activated").
                     when RadarAlt < 12000 then {
                         //InhibitButtons(1, 1, 1).
@@ -11820,13 +11845,22 @@ function ReEntrySteering {
             lock throttle to 0.
         }
 
-        if DynamicBanking and LastLZchange + 0.4 < time:seconds and DBactive {
-            set bankLNG to 0.002 * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 - 0.001.
-            set bankLAT to 0.02 * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65.
-            set landingzone to 
-                latlng(TgtLocation:lng + bank * min(max(0,DistanceToTarget-100/200),1) * bankLNG * min(max(0,2000/max(500,DistanceToTarget-500)),1),
-                    TgtLocation:lat + bank * min(max(0,DistanceToTarget-100/100),1) * bankLAT * min(max(0,1600/max(800,DistanceToTarget-600)),1)).
+        if DynamicBanking and LastLZchange + 0.4 < time:seconds and dbactive and airspeed > 320 {
+            set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
+            set bankLNG to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio.
+            set bankLAT to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio.
+            if not RSS set landingzone to 
+                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-150/150),1) * bank * bankLAT * min(max(0, 150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/800), 1),
+                    TgtLandingzone:lng + min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/800), 1)).
+            else set landingzone to 
+                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-250/250),1) * bank * bankLAT * min(max(0, 250/max(250,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1500), 1),
+                    TgtLandingzone:lng + min(max(0,DistanceToTarget-160/160),1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1500), 1)).
             set LastLZChange to time:seconds.
+            set Once to true.
+        }
+        else if Once {
+            set Once to false.
+            set landingzone to TgtLandingzone.
         }
 
         set LngLatErrorList to LngLatError().
@@ -11841,10 +11875,14 @@ function ReEntrySteering {
         }
         if airspeed < 300 and currentAoA > 74 set Bellyflop to true.
         else set Bellyflop to false.
+        if Bellyflop {
+            set PitchPID:kp to PitchPID_kp * max(0.1,(abs(LngLatErrorList[0])/50)^0.3) * max(1,5/max(1,abs(LngLatErrorList[0]))).
+        }
 
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (100 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 50).
+        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5)).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
@@ -11866,9 +11904,15 @@ function ReEntrySteering {
         set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.2, 1).
         set stabalizeDamp to min((max((0.2/steeringOffset), 0))^1.2, 10).
 
-        if currentAoA > 100 set stableDamp to -(currentAoA-100)/40.
-        else if currentAoA < 50 set stableDamp to (50-currentAoA)/40.
-        else set stableDamp to 0.
+        if yawctrl < 8 or yawctrl > -8 {
+            if currentAoA > 100 set stableDamp to -(currentAoA-100)/40.
+            else if currentAoA < 50 set stableDamp to (50-currentAoA)/40.
+            else set stableDamp to 0.
+        } else {
+            if currentAoA > 85 set stableDamp to -(currentAoA-85)/40.
+            else if currentAoA < 50 set stableDamp to (50-currentAoA)/40.
+            else set stableDamp to 0.
+        }
 
         set resultVec to GuidVec:vector:normalized + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
 
@@ -12276,15 +12320,15 @@ function ReEntryData {
             set ThrottleMin to 0.38.
             if STOCK {
                 set FlipAngleFactor to 0.6.
-                set CatchVS to -0.3.
+                set CatchVS to -0.4.
             }
             else if KSRSS {
                 set FlipAngleFactor to 0.5.
-                set CatchVS to -0.35.
+                set CatchVS to -0.45.
             }
             else {
                 set FlipAngleFactor to 0.5.
-                set CatchVS to -0.4.
+                set CatchVS to -0.5.
             }
             
             wait 0.001.
@@ -12559,7 +12603,7 @@ function ReEntryData {
                     LogToFile("Re-Entry Telemetry").
                     BackGroundUpdate().
                 }
-                else {
+                else if verticalSpeed > -5 {
                     set DesiredDecel to 11 - Planet1G.
                 }
                 if KUniverse:activevessel = ship {}
@@ -12633,7 +12677,7 @@ function ClosingSpeed {
 
 
 function LandingThrottle {
-    set minDecel to max(min((Planet1G - 1.2) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))),0.6),0.2).
+    set minDecel to max(min((Planet1G - 1.2) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))),0.6), 0.2) - 0.02.
     if verticalSpeed < 3*CatchVS and Hover {
         set Hover to false.
     }
@@ -12767,7 +12811,7 @@ function LandingVector {
 
                     set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.1.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
-                    set result to LndGuidVec - facing:topvector * _2SL + facing:starvector * _1SL + facing:forevector * LndsteerDamp.
+                    set result to LndGuidVec:normalized - facing:topvector * _2SL/LndGuidVec:mag + facing:starvector * _1SL/LndGuidVec:mag + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
                     //set v2 to vecDraw(HeaderTank:position, -TgtErrorVector:normalized * TgtErrorStrength, blue, "2",2,true,0.05).
                     //set v3 to vecDraw(HeaderTank:position, GSVec:normalized * VelCancel, red, "3",2,true,0.05).
@@ -12824,6 +12868,8 @@ function LandingVector {
     }
 
     set ShipRot to GetShipRotation().
+
+    if ship:groundspeed > abs(ship:verticalspeed) set result to result - GSVec * 0.02.
 
     set steeringOffset to vAng(facing:forevector, result).
     set steeringDamp to min((max((steeringOffset - 1) / 20, 0))^1.2, 1.2).
@@ -13133,6 +13179,12 @@ function CalculateDeOrbitBurn {
     set idealLng to 0.
     set lngPredict to 9999.
     set AngleAccuracy to 10.
+    
+    if DynamicBanking {
+        set PlotAoA to PlotAoA + 1.
+        SetPlanetData().
+        set addons:tr:descentangles to DescentAngles.
+    }
 
     if kuniverse:timewarp:warp > 0 {
         set kuniverse:timewarp:warp to 0.
@@ -14492,6 +14544,7 @@ function CheckLZReachable {
     set LngLatErrorList to LngLatError().
     if ship:body:atm:sealevelpressure > 0.5 {
         if LngLatErrorList[0] > 2600 or LngLatErrorList[0] < -5400 or abs(LngLatErrorList[1]) > 2000 {
+            set LandSomewhereElse to true.
             set AvailableLandingSpots to CheckSlope(1).
             wait 0.1.
             set FindNewTarget to true.
@@ -14507,6 +14560,7 @@ function CheckLZReachable {
     }
     else if ship:body:atm:sealevelpressure < 0.5 and ship:body:atm:exists {
         if abs(LngLatErrorList[0]) > 7000 and not (RSS) or abs(LngLatErrorList[0]) > 200000 and RSS or abs(LngLatErrorList[1]) > 2500 and not (RSS) or abs(LngLatErrorList[1]) > 10000 and RSS {
+            set LandSomewhereElse to true.
             set AvailableLandingSpots to CheckSlope(1).
             wait 0.1.
             set FindNewTarget to true.
@@ -14522,6 +14576,7 @@ function CheckLZReachable {
     }
     else {
         if abs(LngLatErrorList[0]) > 1000 or abs(LngLatErrorList[1]) > 500 {
+            set LandSomewhereElse to true.
             set AvailableLandingSpots to CheckSlope(1).
             wait 0.1.
             set FindNewTarget to true.
