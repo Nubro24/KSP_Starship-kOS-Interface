@@ -637,7 +637,14 @@ set AFTFlapDefault to 75.
 set rcsRaptorBoundary to 80.  // Defines the custom burn boundary velocity where the ship will burn either RCS/Single Raptor below it or VAC Raptors above it.
 set CoGFuelBalancing to true.  // Disable this to stop constant fuel transfers during re-entry.
 set DynamicPitch to true.   // Change the flap defaults dynamically during re-entry.
-set DynamicBanking to false.    //Change if the Ship approaches the OLM from the correct angle or just heads straight (first demonstrated during IFT 11)
+if homeconnection:isconnected if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("DynamicBanking") {
+        set DynamicBanking to L["DynamicBanking"].
+    }
+    else set DynamicBanking to false.
+}
+else set DynamicBanking to false.    //Change if the Ship approaches the OLM from the correct angle or just heads straight (first demonstrated during IFT 11)
 set DBactive to false.
 set PlotAoA to aoa.
 set steeringmanager:pitchtorquefactor to 0.75.
@@ -1858,6 +1865,28 @@ set MissionCountdownSave:onclick to {
     if OnOrbitalMount sendMessage(processor(Volume("OrbitalLaunchMount")),"TMinusCountdown,"+TMinusCountdown).
     SaveToSettings("TMinusCountdown", TMinusCountdown).
 }.
+
+local DynBank is FlightSettingsLayout:addbutton(" Dynamic Banking during Reentry").
+    set DynBank:style:fontsize to 16.
+    set DynBank:style:margin:left to 24.
+    set DynBank:style:margin:top to 24.
+    set DynBank:style:margin:right to 16.
+    set DynBank:style:height to 24.
+local DynBankLabel is FlightSettingsLayout:addlabel().
+    set DynBankLabel:style:fontsize to 12.
+    set DynBankLabel:style:margin:left to 24.
+    set DynBankLabel:style:margin:top to 5.
+    set DynBankLabel:style:margin:right to 8.
+    set DynBankLabel:style:height to 18.
+    if DynamicBanking set DynBankLabel:text to "Currently On".
+    else set DynBankLabel:text to "Currently Off".
+set DynBank:onclick to {
+    set DynamicBanking to not DynamicBanking.
+    SaveToSettings("DynamicBanking", DynamicBanking).
+    if DynamicBanking set DynBankLabel:text to "Currently On".
+    else set DynBankLabel:text to "Currently Off".
+}.
+
 
 set IgnitionChances:ontoggle to {
     parameter toggle.
