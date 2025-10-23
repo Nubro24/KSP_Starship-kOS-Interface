@@ -637,6 +637,8 @@ set AFTFlapDefault to 75.
 set rcsRaptorBoundary to 80.  // Defines the custom burn boundary velocity where the ship will burn either RCS/Single Raptor below it or VAC Raptors above it.
 set CoGFuelBalancing to true.  // Disable this to stop constant fuel transfers during re-entry.
 set DynamicPitch to true.   // Change the flap defaults dynamically during re-entry.
+set DynamicBanking to false.    //Change if the Ship approaches the OLM from the correct angle or just heads straight (first demonstrated during IFT 11)
+set DBactive to false.
 set PlotAoA to aoa.
 set steeringmanager:pitchtorquefactor to 0.75.
 set steeringmanager:yawtorquefactor to 0.75.
@@ -683,6 +685,7 @@ set TimeSinceLastAttSteering to time:seconds - 1.
 set prevattroll to 0.
 set aoaChangeLow to false.
 set aoaChangeHigh to false.
+set DistanceToTarget to 6000.
 SetPlanetData().
 set prevattpitch to aoa.
 set towerrot to 8.
@@ -11349,6 +11352,23 @@ function ReEntryAndLand {
         set maxPitchPID to 38.
         when airspeed < 310 then set maxPitchPID to 24.
 
+        if DynamicBanking {
+            set PlotAoA to PlotAoA + 2.
+            SetPlanetData().
+            set addons:tr:descentangles to DescentAngles.
+        }
+        if DynamicBanking and not TargetOLM = ("False") when alt:radar < 45000 * Scale then {
+            set Vessel(TargetOLM):loaddistance:unpack to DistanceToTarget*1.2.
+            when Vessel(TargetOLM):unpacked then {
+                set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                if vAng(TowerHeadingVector, noth:vector) < 90 set bank to -1.
+                else set bank to 1.
+                set dbactive to true.
+                set Vessel(TargetOLM):loaddistance:unpack to 1200.
+                set Vessel(TargetOLM):loaddistance:pack to 1250.
+            }
+        }
+
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
         LogToFile("Re-Entry & Landing Program Started").
@@ -11702,7 +11722,7 @@ function ReEntryAndLand {
 
 
             lock CancelDist to CalcCancelTime().
-            lock Dist2LandProc to vxcl(up:vector, ship:position - landingzone:position):mag - CancelDist - 500 - 3 * groundspeed.
+            lock Dist2LandProc to vxcl(up:vector, ship:position - landingzone:position):mag - CancelDist - 600 - 3 * groundspeed.
 
             until vxcl(up:vector, ship:position - landingzone:position):mag < CancelDist + 500 + 3 * groundspeed or cancelconfirmed and not ClosingIsRunning {
                 ReEntryData().
@@ -11736,6 +11756,15 @@ function ReEntrySteering {
 
         if RadarAlt > FlipAltitude + 100 {
             lock throttle to 0.
+        }
+
+        if DynamicBanking and LastLZchange + 0.4 < time:seconds and DBactive {
+            set bankLNG to 0.03 * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 - 0.01.
+            set bankLAT to 0.5 * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65.
+            set landingzone to 
+                latlng(OLM:position:lng + bank * min(max(0,DistanceToTarget-100/200),1) * bankLNG * min(max(0,2000/max(500,DistanceToTarget-500)),1),
+                    OLM:position:lat + bank * min(max(0,DistanceToTarget-100/100),1) * bankLAT * min(max(0,1600/max(800,DistanceToTarget-600)),1)).
+            set LastLZChange to time:seconds.
         }
 
         set LngLatErrorList to LngLatError().
