@@ -914,7 +914,7 @@ PART
 		name = kOSProcessor
 		isEnabled = True
 		bootFile = /boot/starship.ks
-		diskSpace = 1500000
+		diskSpace = 1710000
 		baseDiskSpace = 855000
 		baseModuleMass = 0
 		additionalCost = 18677
