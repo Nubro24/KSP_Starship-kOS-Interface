@@ -11847,14 +11847,14 @@ function ReEntrySteering {
 
         if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 320 {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
-            set bankLNG to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio.
-            set bankLAT to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio.
+            set bankLNG to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio * min(1,(40000*Scale)/(DistanceToTarget^2)).
+            set bankLAT to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio * min(1,(40000*Scale)/(DistanceToTarget^2)).
             if not RSS set landingzone to 
                 latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-150/150),1) * bank * bankLAT * min(max(0, 150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/800), 1),
                     TgtLandingzone:lng + min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/800), 1)).
             else set landingzone to 
-                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-250/250),1) * bank * bankLAT * min(max(0, 250/max(250,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1500), 1),
-                    TgtLandingzone:lng + min(max(0,DistanceToTarget-160/160),1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1500), 1)).
+                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220),1) * bank * bankLAT * min(max(0, 200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1500), 1),
+                    TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200),1) * bankLNG * min(max(0,200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1500), 1)).
             set LastLZChange to time:seconds.
             set Once to true.
         }
@@ -11882,7 +11882,7 @@ function ReEntrySteering {
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (100 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 50).
-        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7*vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
+        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
@@ -11894,7 +11894,7 @@ function ReEntrySteering {
             set t to time:seconds.
             set SRFPRGD to srfprograde.
         }
-        set DesiredAoA to min(max(42 , aoa + pitchctrl), 105).
+        set DesiredAoA to min(max(42 , aoa + pitchctrl), 95).
         //set DesiredAoA to min(max(42 , aoa + pitchctrl + TRJCorrection), 116).      * cos(yawctrl)
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
@@ -11905,7 +11905,7 @@ function ReEntrySteering {
         set stabalizeDamp to min((max((0.2/steeringOffset), 0))^1.2, 10).
 
         if yawctrl < 8 or yawctrl > -8 {
-            if currentAoA > 100 set stableDamp to -(currentAoA-100)/40.
+            if currentAoA > 95 set stableDamp to -(currentAoA-95)/40.
             else if currentAoA < 50 set stableDamp to (50-currentAoA)/40.
             else set stableDamp to 0.
         } else {
