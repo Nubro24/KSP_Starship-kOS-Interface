@@ -11494,7 +11494,7 @@ function ReEntryAndLand {
                         set TowerHeadingVector to vxcl(up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                         if vAng(TowerHeadingVector, north:vector) < 90 set bank to -1.
                         else set bank to 1.
-                        set TowerHeadDraw to vecDraw(HeaderTank:position,TowerHeadingVector,red,"Tower",2,true,0.2).
+                        //set TowerHeadDraw to vecDraw(HeaderTank:position,TowerHeadingVector,red,"Tower",2,true,0.2).
                         if vAng(TowerHeadingVector, north:vector) < 52 set TowerHeading to "North".
                         else if vAng(TowerHeadingVector, -north:vector) > 128 set TowerHeading to "South".
                         else if vAng(TowerHeadingVector, vCrs(up:vector,north:vector)) < 60 set TowerHeading to "East".
@@ -11607,7 +11607,7 @@ function ReEntryAndLand {
                     if DynamicBanking set YawBank to 3 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                     else set YawBank to 1.
                     if RSS {
-                        set trCompensation to trCompensation + 3000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
+                        set trCompensation to trCompensation + 5000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                         set PitchPID to PIDLOOP(0.0005, 0.0001, 0.001, -25, 26 - TRJCorrection).
                         set YawPID to PIDLOOP(0.002*YawBank, 0.00014*YawBank, 0.0008*YawBank, -50, 50).
                     }
@@ -11852,14 +11852,14 @@ function ReEntrySteering {
 
         if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 320 {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
-            set bankLNG to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio * min(1,(46000*Scale)/(DistanceToTarget^2)).
-            set bankLAT to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio * min(1,(46000*Scale)/(DistanceToTarget^2)).
+            set bankLNG to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2)).
+            set bankLAT to 0.36/(Scale^4.5) * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2)).
             if not RSS set landingzone to 
                 latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-150/150),1) * bank * bankLAT * min(max(0, 150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/800), 1),
                     TgtLandingzone:lng + min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/800), 1)).
             else set landingzone to 
-                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220),1) * bank * bankLAT * min(max(0, 200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1500), 1),
-                    TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200),1) * bankLNG * min(max(0,200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1500), 1)).
+                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220),1) * bank * bankLAT * min(max(0, 200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1600), 1),
+                    TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200),1) * bankLNG * min(max(0,200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1600), 1)).
             set LastLZChange to time:seconds.
             set Once to true.
         }
