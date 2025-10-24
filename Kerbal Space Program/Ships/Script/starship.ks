@@ -11597,22 +11597,22 @@ function ReEntryAndLand {
                 }
 
                 if RSS and DynamicBanking when airspeed < 2435 then 
-                        set trCompensation to trCompensation + 4000 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
+                        set trCompensation to trCompensation + 4000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                 when airspeed < 850 * Scale then {
-                    if DynamicBanking set YawBank to 3 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
+                    if DynamicBanking set YawBank to 3 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                     else set YawBank to 1.
                     if RSS {
-                        set trCompensation to trCompensation + 4000 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
+                        set trCompensation to trCompensation + 4000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                         set PitchPID to PIDLOOP(0.0005, 0.0001, 0.001, -25, 26 - TRJCorrection).
                         set YawPID to PIDLOOP(0.002*YawBank, 0.00014*YawBank, 0.0008*YawBank, -50, 50).
                     }
                     else if KSRSS {
-                        set trCompensation to trCompensation + 3000 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
+                        set trCompensation to trCompensation + 3000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                         set PitchPID to PIDLOOP(0.001, 0, 0, -25, 26 + TRJCorrection).
                         set YawPID to PIDLOOP(0.0045*YawBank, 0, 0.0002*YawBank, -50, 50).
                     }
                     else {
-                        set trCompensation to trCompensation + 1000 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
+                        set trCompensation to trCompensation + 1000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                         set PitchPID to PIDLOOP(0.0008, 0.0001, 0.001, -25, 26 - TRJCorrection). 
                         set YawPID to PIDLOOP(0.0028*YawBank, 0.0002*YawBank, 0.0006*YawBank, -50, 50).
                     }
@@ -11623,7 +11623,7 @@ function ReEntryAndLand {
                 when airspeed < 600 then {
                     set trCompensation to trCompensation/2.
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
-                    if DynamicBanking set YawBank to 3 * vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90.
+                    if DynamicBanking set YawBank to 3 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                     else set YawBank to 1.
                     if RSS {
                         set PitchPID to PIDLOOP(0.005, 0.0001, 0.001, -25, 26 - TRJCorrection).
@@ -11882,7 +11882,7 @@ function ReEntrySteering {
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (100 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 50).
-        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7*vAng(TowerRotationVector, vxcl(up:vector, velocity:surface))/90)).
+        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7*vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
