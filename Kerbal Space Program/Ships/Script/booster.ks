@@ -2680,7 +2680,7 @@ function Boostback {
     }
 
 
-    until (verticalspeed > CatchVS - 0.5 and RadarAlt < 5) or (verticalspeed > -0.1 and RadarAlt < 200) or hover {
+    until (verticalspeed > CatchVS - 0.5 and RadarAlt < 5) or (verticalspeed > -0.2 and RadarAlt < 100*Scale) or hover {
         SteeringCorrections().
         if GfC and not offshoreDivert and not LZchange if landingzone:distance < 1500 set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
         set LandingVector to LandingGuidance().
@@ -2725,7 +2725,7 @@ function Boostback {
     when PositionError:mag > 0.5*BoosterHeight or RadarAlt < -1.3*Scale then set cAbort to true.
 
 
-    until ((ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.1) or (RadarAlt < -1) or (verticalSpeed > -0.1 and RadarAlt < 1) {
+    until ((ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.1) or (RadarAlt < -1) or (verticalSpeed > -0.3 and RadarAlt < 1) {
         clearScreen.
         print "slowly lowering down booster..".
         if GfC and not offshoreDivert set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
