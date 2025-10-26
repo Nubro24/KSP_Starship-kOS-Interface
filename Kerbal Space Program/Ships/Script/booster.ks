@@ -1063,6 +1063,8 @@ else if addons:tr:hasimpact set landingzone to
             addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * BoosterGlideDistance * 360 / (2* constant:pi * ship:body:radius)).
 else set landingzone to ship:geoposition.
 
+set TgtLandingzone to landingzone.
+
 for res in bCH4Tank:resources {
     if res:name = "LqdMethane" {
         set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 5.310536.
@@ -1085,6 +1087,7 @@ set ShipConnectedToBooster to true.
 set ConnectedMessage to false.
 set PreDockPos to false.
 set TelemetryTimer to time:seconds.
+set dbactive to false.
 
 
 
@@ -2006,7 +2009,7 @@ function Boostback {
         when steeringManager:angleerror < 90 then
             set SteeringManager:yawtorquefactor to 0.3.
 
-        until time:seconds - turnTime > 30 and steeringManager:angleerror < 42 {
+        until time:seconds - turnTime > 15 and steeringManager:angleerror < 45 {
             SteeringCorrections().
             PollUpdate().
             SetBoosterActive().
@@ -2128,6 +2131,45 @@ function Boostback {
         set NoGo:text to "<color=red>ABORT</color>".
         if not GfC and not fullAuto {
             NoGo:hide().
+        }
+    }
+    set TargetedOLM to "False".
+    for x in shiplist {
+        if x:name:contains("OrbitalLaunchMount") or x:name:contains("KSC OrbitalLaunchMount") set TargetedOLM to x:name.
+    }
+    wait 0.
+    if not TargetedOLM = "False" and 1=2 when alt:radar < 42000 * Scale then if not TargetedOLM = "False" {
+        hudtext("Loading Tower..",3,2,16,yellow,true).
+        set Vessel(TargetedOLM):loaddistance:landed:load to 61000*Scale.
+        set Vessel(TargetedOLM):loaddistance:prelaunch:load to 61000*Scale.
+        set Vessel(TargetedOLM):loaddistance:landed:unpack to 60000*Scale.
+        set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to 60000*Scale.
+        when Vessel(TargetedOLM):loaded then {
+            set TgtLandingzone to landingzone.
+            set TheTowerHeadingVector to vxcl(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+            //set TowerHeadDraw to vecDraw(BoosterCore:position,TowerHeadingVector,red,"Tower",2,true,0.2).
+            if vAng(TheTowerHeadingVector, Vessel(TargetedOLM):north:vector) < 52 set TowerHeading to "North".
+            else if vAng(TheTowerHeadingVector, Vessel(TargetedOLM):north:vector) > 128 set TowerHeading to "South".
+            else if vAng(TheTowerHeadingVector, vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector)) < 42 set TowerHeading to "East".
+            else set TowerHeading to "West".
+            set dbactive to true.
+            set Vessel(TargetedOLM):loaddistance:landed:unpack to 1200.
+            wait 0.
+            set Vessel(TargetedOLM):loaddistance:landed:pack to 1250.
+            wait 0.001.
+            set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to 1200.
+            wait 0.
+            set Vessel(TargetedOLM):loaddistance:prelaunch:pack to 1250.
+            wait 0.001.
+            set Vessel(TargetedOLM):loaddistance:landed:load to 2200.
+            wait 0.
+            set Vessel(TargetedOLM):loaddistance:landed:unload to 3250.
+            wait 0.001.
+            set Vessel(TargetedOLM):loaddistance:prelaunch:load to 2200.
+            wait 0.
+            set Vessel(TargetedOLM):loaddistance:prelaunch:unload to 3250.
+            wait 0.001.
+            hudtext("Unloading Tower.",3,2,16,green,true).
         }
     }
 
@@ -2929,6 +2971,13 @@ FUNCTION SteeringCorrections {
         if not addons:tr:hastarget {
             ADDONS:TR:SETTARGET(landingzone).
         }
+        if dbactive and GfC and not cAbort {
+            if RadarAlt > LandingBurnAlt * 2 {
+                set ApproachError to TheTowerHeadingVector:normalized * vxcl(up:vector, BoosterCore:position - TgtLandingzone:position):mag - vxcl(up:vector, BoosterCore:position - TgtLandingzone:position).
+                set landingzone to ship:body:geopositionof(TgtLandingzone:position + ApproachError).
+            }
+            else set landingzone to TgtLandingzone.
+        }
         if altitude > 5000 and KUniverse:activevessel = vessel(ship:name) and not cAbort {
             set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
         } 
@@ -3050,6 +3099,7 @@ FUNCTION SteeringCorrections {
         if altitude < 30000 and not (RSS) or altitude < 50000 and RSS {
             print "LngCtrl: " + round(LngCtrl, 2) + " / " + round(LngCtrlPID:maxoutput, 1).
             print "LatCtrl: " + round(LatCtrl, 2) + " / " + round(LatCtrlPID:maxoutput, 1).
+            if defined TowerHeading print "Tower Heading: " + TowerHeading.
             print " ".
             print "Landing Burn Alt: " + round(LandingBurnAlt, 1) + "   - high: "+HighLandingBurn.
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
