@@ -11927,14 +11927,14 @@ function ReEntrySteering {
         set resultVec to GuidVec:vector:normalized + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
 
         //set GuidVec to vecDraw(HeaderTank:position, 0.5 * GuidVec:vector, red, "Guid Vector", 25, true, 0.005, true, true).
-        set ReentryVec to vecDraw(HeaderTank:position, 1 * resultVec, green, "Re-Entry Vector", 25, true, 0.005, true, true).
+        //set ReentryVec to vecDraw(HeaderTank:position, 1 * resultVec, green, "Re-Entry Vector", 25, true, 0.005, true, true).
 
         if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + vxcl(SRFPRGD:vector, resultVec:normalized) * 0.06 + (resultVec:normalized - facing:forevector).
         else set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) + vxcl(SRFPRGD:vector, resultVec:normalized) * 0.04 + (resultVec:normalized - facing:forevector).
         if vAng(facing:topvector,ReentryRoll) > 10 {
             set ReentryRoll to -vxcl(resultVec,landingzone:position - ship:position) + vxcl(SRFPRGD:vector, resultVec:normalized) * 0.04 + (resultVec:normalized - facing:forevector).
         }
-        set ReentryRollVec to vecDraw(Tank:position, 1 * ReentryRoll, green, "Re-Entry Vector", 25, true, 0.005, true, true).
+        //set ReentryRollVec to vecDraw(Tank:position, 1 * ReentryRoll, green, "Re-Entry Vector", 25, true, 0.005, true, true).
         set result to lookdirup(resultVec, ReentryRoll).
         set steeringOffsetFinal to vang(result:forevector, facing:forevector).
         if LandSomewhereElse {
