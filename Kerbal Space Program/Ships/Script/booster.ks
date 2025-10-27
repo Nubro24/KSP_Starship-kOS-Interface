@@ -93,6 +93,7 @@ set GoForCatch to false.
 set NrCounterEngine to list().
 set missingCount to 0.
 set inactiveCount to 0.
+set GridfinLength to 0.
 
 set GFset to false.
 set ECset to false.
@@ -284,10 +285,6 @@ else if GridfinLength = 3 {
     }
 }
 else set Gridfins to list("","").
-//set x to 0.
-//set Vec to list("","","").
-//for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {set Vec[x] to vecDraw(HSR:position, fin:position - HSR:position, red, "0", 2, true, 0.1). set x to x + 1.}
-//wait 3.
 if Gridfins[0] = "" or Gridfins[1] = "" or Gridfins[2] = "" {
     set Gridfins to ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN").
 }
@@ -895,7 +892,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 2540. 
-        else set BoosterGlideDistance to 2600. //1640 
+        else set BoosterGlideDistance to 2400. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.15.
         set BoosterGlideFactor to 1.
@@ -1034,6 +1031,7 @@ if BoosterType:contains("Block3") {
 lock RadarAlt to alt:radar - BoosterHeight*0.6.
 lock GSVec to vxcl(up:vector,velocity:surface).
 set LandingBurnAlt to 1800.
+set maxRoll to 5.
 
 set BoosterDockingHeight to 29.8*Scale.
 set maxstabengage to 80 * Scale.
@@ -1617,7 +1615,7 @@ function Boostback {
         }
         when time:seconds > flipStartTime + FlipTime*0.75 then {
             set ship:control:neutralize to true.
-            set steeringmanager:maxstoppingtime to 1.2*Scale + FlipAngle/(200*Scale).
+            set steeringmanager:maxstoppingtime to 1.1*Scale + FlipAngle/(200*Scale).
         }
 
         //show Poll HUD
@@ -1931,6 +1929,7 @@ function Boostback {
             when time:seconds - turnTime > 2 then {
                 BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                 set RenameHSR to false.
+                wait 0.
                 if not Block1HSR and kuniverse:activevessel:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and kuniverse:activevessel:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 {
                     set RenameHSR to true.
                     kuniverse:forceactive(vessel("Booster Ship")).
@@ -1975,7 +1974,7 @@ function Boostback {
             lock steering to SteeringVector.
             unlock SteeringVectorBoostback.
         }
-        when vAng(facing:forevector, BoosterCore:position - landingzone:position) < 15 then {
+        when vAng(facing:forevector, BoosterCore:position - landingzone:position) < 25 then {
             if RadarAlt > 32000 {
                 if BoosterType:contains("Block3") lock SteeringVector to lookDirUp(BoosterCore:position - landingzone:position, -ApproachVector).
                 else lock SteeringVector to lookDirUp(BoosterCore:position - landingzone:position, ApproachVector).
@@ -2133,41 +2132,37 @@ function Boostback {
             NoGo:hide().
         }
     }
-    set TargetedOLM to "False".
-    for x in shiplist {
-        if x:name:contains("OrbitalLaunchMount") or x:name:contains("KSC OrbitalLaunchMount") set TargetedOLM to x:name.
-    }
-    wait 0.
-    if not TargetedOLM = "False" and 1=2 when alt:radar < 42000 * Scale then if not TargetedOLM = "False" {
+
+    if not TargetOLM = "False" when alt:radar < 42000 * Scale then if not TargetOLM = "False" {
         hudtext("Loading Tower..",3,2,16,yellow,true).
-        set Vessel(TargetedOLM):loaddistance:landed:load to 61000*Scale.
-        set Vessel(TargetedOLM):loaddistance:prelaunch:load to 61000*Scale.
-        set Vessel(TargetedOLM):loaddistance:landed:unpack to 60000*Scale.
-        set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to 60000*Scale.
-        when Vessel(TargetedOLM):loaded then {
+        set Vessel(TargetOLM):loaddistance:landed:load to 61000*Scale.
+        set Vessel(TargetOLM):loaddistance:prelaunch:load to 61000*Scale.
+        set Vessel(TargetOLM):loaddistance:landed:unpack to 60000*Scale.
+        set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 60000*Scale.
+        when Vessel(TargetOLM):loaded then {
             set TgtLandingzone to landingzone.
-            set TheTowerHeadingVector to vxcl(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+            set TheTowerHeadingVector to vxcl(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
             //set TowerHeadDraw to vecDraw(BoosterCore:position,TowerHeadingVector,red,"Tower",2,true,0.2).
-            if vAng(TheTowerHeadingVector, Vessel(TargetedOLM):north:vector) < 52 set TowerHeading to "North".
-            else if vAng(TheTowerHeadingVector, Vessel(TargetedOLM):north:vector) > 128 set TowerHeading to "South".
-            else if vAng(TheTowerHeadingVector, vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector)) < 42 set TowerHeading to "East".
+            if vAng(TheTowerHeadingVector, Vessel(TargetOLM):north:vector) < 52 set TowerHeading to "North".
+            else if vAng(TheTowerHeadingVector, Vessel(TargetOLM):north:vector) > 128 set TowerHeading to "South".
+            else if vAng(TheTowerHeadingVector, vCrs(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):north:vector)) < 42 set TowerHeading to "East".
             else set TowerHeading to "West".
             set dbactive to true.
-            set Vessel(TargetedOLM):loaddistance:landed:unpack to 1200.
+            set Vessel(TargetOLM):loaddistance:landed:unpack to 1200.
             wait 0.
-            set Vessel(TargetedOLM):loaddistance:landed:pack to 1250.
+            set Vessel(TargetOLM):loaddistance:landed:pack to 1250.
             wait 0.001.
-            set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to 1200.
+            set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1200.
             wait 0.
-            set Vessel(TargetedOLM):loaddistance:prelaunch:pack to 1250.
+            set Vessel(TargetOLM):loaddistance:prelaunch:pack to 1250.
             wait 0.001.
-            set Vessel(TargetedOLM):loaddistance:landed:load to 2200.
+            set Vessel(TargetOLM):loaddistance:landed:load to 2200.
             wait 0.
-            set Vessel(TargetedOLM):loaddistance:landed:unload to 3250.
+            set Vessel(TargetOLM):loaddistance:landed:unload to 3250.
             wait 0.001.
-            set Vessel(TargetedOLM):loaddistance:prelaunch:load to 2200.
+            set Vessel(TargetOLM):loaddistance:prelaunch:load to 2200.
             wait 0.
-            set Vessel(TargetedOLM):loaddistance:prelaunch:unload to 3250.
+            set Vessel(TargetOLM):loaddistance:prelaunch:unload to 3250.
             wait 0.001.
             hudtext("Unloading Tower.",3,2,16,green,true).
         }
@@ -2257,6 +2252,7 @@ function Boostback {
     lock steering to SteeringVector.
 
     set DistanceError to landingzone:position - BoosterCore:position.
+    set maxRoll to 8.
 
     until alt:radar < 28000 and RSS or alt:radar < 26000 and KSRSS or alt:radar < 20000 {
         SteeringCorrections().
@@ -2270,6 +2266,11 @@ function Boostback {
         SetBoosterActive().
         wait 0.05.
     }
+    set maxRoll to 10.
+    when alt:radar < 20000 then 
+        set maxRoll to 16.
+    
+    if dbactive set BoosterGlideFactor to BoosterGlideFactor * vAng(vxcl(up:vector, landingzone:position - BoosterCore:position),TheTowerHeadingVector)/180.
 
 
     if BoosterType:contains("Block3") {
@@ -2793,7 +2794,7 @@ function Boostback {
         if not RSS lock throttle to 0.4 - (time:seconds-throttleTime)/2.
         else lock throttle to 0.2 - (time:seconds-throttleTime)/3.
     }
-    until ship:control:pilotmainthrottle < 0.1 and vAng(up:vector,facing:forevector) < 0.8 and angularVel:mag < 0.03 {
+    until ship:control:pilotmainthrottle < 0.1 and vAng(up:vector,facing:forevector) < 0.8 and angularVel:mag < 0.03 or vAng(up:vector, facing:forevector) > 42 {
         clearScreen.
         print ship:control:pilotmainthrottle.
         print angularVel:mag.
@@ -2946,7 +2947,7 @@ function Boostback {
                 if stopDist3 + stopDist5 < DistanceError:mag and throttle < 0.55 or throttle < 0.33 
                     return true.
             if not BoosterType:contains("Block3") and not (BoosterType:contains("Block2") and HSRType:contains("Block3") and BoosterSingleEngines) 
-                if stopDist3 < DistanceError:mag and throttle < 0.6 or throttle < 0.33 
+                if stopDist3 < DistanceError:mag and throttle < 0.5 or throttle < 0.33 
                     return true.
             if (vel < 69 and h > 540) or (vel < 52 and h > 460) or vel < 12
                 return true.
@@ -2973,15 +2974,17 @@ FUNCTION SteeringCorrections {
         }
         if dbactive and GfC and not cAbort {
             if RadarAlt > LandingBurnAlt * 2 {
-                set ApproachError to TheTowerHeadingVector:normalized * vxcl(up:vector, BoosterCore:position - TgtLandingzone:position):mag - vxcl(up:vector, BoosterCore:position - TgtLandingzone:position).
-                set landingzone to ship:body:geopositionof(TgtLandingzone:position + ApproachError).
+                set OffsetToTarget to BoosterCore:position - TgtLandingzone:position.
+                set ApproachError to TheTowerHeadingVector:normalized * vxcl(up:vector, OffsetToTarget):mag - vxcl(up:vector, BoosterCore:position - TgtLandingzone:position) * 0.6.
+                set ApproachStrength to min(max(0, (OffsetToTarget:mag - max(7000,LandingBurnAlt * 2.6))/(20000*Scale))^0.8, 1).
+                set landingzone to ship:body:geopositionof(TgtLandingzone:position + ApproachError * ApproachStrength).
             }
             else set landingzone to TgtLandingzone.
         }
-        if altitude > 5000 and KUniverse:activevessel = vessel(ship:name) and not cAbort {
+        if altitude > LandingBurnAlt * 2 and KUniverse:activevessel = vessel(ship:name) and not cAbort {
             set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
         } 
-        else if altitude > 5000 and KUniverse:activevessel = vessel(ship:name) and cAbort {
+        else if altitude > LandingBurnAlt * 2 and KUniverse:activevessel = vessel(ship:name) and cAbort {
             set ApproachVector to vxcl(up:vector, landingzone:position + ship:position):normalized.
         }
         if addons:tr:hasimpact {
@@ -2999,7 +3002,7 @@ FUNCTION SteeringCorrections {
             }
             set LngCtrlPID:maxoutput to max(min(abs(LngError - LngCtrlPID:setpoint) / (PIDFactor), 10), 2.5).
             set LngCtrlPID:minoutput to -LngCtrlPID:maxoutput.
-            set LatCtrlPID:maxoutput to max(min(abs(LatError) / (10 * Scale), 5), 0.5).
+            set LatCtrlPID:maxoutput to max(min(abs(LatError) / (10 * Scale), maxRoll), 0.5).
             set LatCtrlPID:minoutput to -LatCtrlPID:maxoutput.
 
             set LngCtrl to -LngCtrlPID:UPDATE(time:seconds, LngError).
@@ -3010,12 +3013,12 @@ FUNCTION SteeringCorrections {
 
             if LandingBurnStarted and BoosterSingleEngines and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3"))) {
                 set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
-                set maxDecel5 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 8 * Scale)) - 9.805, 0.00001).
-                set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
+                set maxDecel5 to max((min(ActiveRC,5) * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 8 * Scale)) - 9.805, 0.00001).
+                set maxDecel3 to max((min(ActiveRC,3) * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
             }
             else if LandingBurnStarted and BoosterSingleEngines {
                 set maxDecel to max((ActiveRC * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
-                set maxDecel3 to max((ActiveRC * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
+                set maxDecel3 to max((min(ActiveRC,3) * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805, 0.00001).
             }
             else if BoosterSingleEngines and (BoosterType:contains("Block3") or (BoosterType:contains("Block2") and HSRType:contains("Block3"))) {
                 set maxDecel to max(((13-missingCount) * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
@@ -3219,6 +3222,8 @@ function LandingGuidance {
     else set PrVec to 10*up:vector - velocity:surface:normalized.
     set GuidVec to PrVec - TgtErrorVector * 20/max(airspeed-280,20) + TgtErrorVector * max(0,airspeed-300)/70 
             + GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.2/2, 0)).
+    
+    if cAbort and airspeed < 69 set GuidVec to up:vector - velocity:surface:normalized.
     
     // === TVC compensation ===
     set steeringOffset to vAng(GuidVec,facing:forevector).

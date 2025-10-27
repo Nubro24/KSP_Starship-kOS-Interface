@@ -106,7 +106,7 @@ if homeconnection:isconnected if exists("0:/settings.json") {
         set LSCoords to L["Launch Coordinates"].
     }
 } 
-set TgtLandingzone to LSCoords.
+set TgtLandingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
 
 if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
@@ -481,6 +481,7 @@ else {
 set aoa to 61.
 if RSS set aoa to 65.7.
 set currentAoA to aoa.
+set maxAoA to 90.
 
 set BoosterAp to 35000.
 
@@ -532,7 +533,7 @@ if RSS {         // Real Solar System
         set TRJCorrection to -2.
     }
     set trCompensation to -10000.
-    set maxLatChange to 2.9.
+    set maxLatChange to 0.1.
 }
 else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set LandingAoA to 78.
@@ -584,7 +585,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
         set TRJCorrection to -2.
     }
     set trCompensation to 3000.
-    set maxLatChange to 0.3.
+    set maxLatChange to 0.5.
 }
 else {       // Stock Kerbin
     set LandingAoA to 78.
@@ -627,7 +628,7 @@ else {       // Stock Kerbin
         set TRJCorrection to -2.
     }
     set trCompensation to 2000.
-    set maxLatChange to 0.3.
+    set maxLatChange to 0.36.
 }
 
 set DeOrbitEngNr to 1. // Engine used for Single Engine DeOrbit Burn
@@ -7556,14 +7557,14 @@ function Launch {
             set cancel:text to "<b>ABORT</b>".
             set cancel:style:textcolor to red.
             if RSS {
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,0,5,117.5,true").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,117.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,20,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,5,0.6").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
             else {
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,0,5,117.5,true").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,117.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,12.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,1.8,0.5").
@@ -11484,7 +11485,7 @@ function ReEntryAndLand {
                 hudtext("Searching Tower..",3,2,16,yellow,true).
                 set TargetedOLM to "False".
                 for x in shiplist {
-                    if x:name:contains("OrbitalLaunchMount") or x:name:contains("KSC OrbitalLaunchMount") set TargetedOLM to x:name.
+                    if x:name:contains("OrbitalLaunchMount") and not x:name:contains("Debris") set TargetedOLM to x:name.
                 }
                 if not TargetedOLM = ("False") when alt:radar < 58000 * Scale then {
                     hudtext("Loading Tower..",3,2,16,yellow,true).
@@ -11494,7 +11495,13 @@ function ReEntryAndLand {
                     set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to DistanceToTarget*1200.
                     when Vessel(TargetedOLM):loaded then {
                         set TgtLandingzone to landingzone.
-                        set TowerHeadingVector to vxcl(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                        if Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  
+                            set TowerHeadingVector to vxcl(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                        else {
+                            set TowerHeadingVector to vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector).
+                            set LandSomewhereElse to true.
+                            hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
+                        }
                         if vAng(TowerHeadingVector, Vessel(TargetedOLM):north:vector) < 90 set bank to -1.
                         else set bank to 1.
                         //set TowerHeadDraw to vecDraw(HeaderTank:position,TowerHeadingVector,red,"Tower",2,true,0.2).
@@ -11606,6 +11613,8 @@ function ReEntryAndLand {
 
                 if RSS and DynamicBanking when airspeed < 2435 then 
                         set trCompensation to trCompensation + 6000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
+                if DynamicBanking when airspeed < 800 or airspeed < 1800 and RSS then
+                    set trCompensation to trCompensation*1.5.
                 when airspeed < 850 * Scale then {
                     if DynamicBanking set YawBank to 3 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                     else set YawBank to 1.
@@ -11855,14 +11864,14 @@ function ReEntrySteering {
 
         if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 320 {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
-            set bankLNG to maxLatChange * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2)).
-            set bankLAT to maxLatChange * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2)).
+            set bankLNG to min(max(-2*maxLatChange, maxLatChange * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
+            set bankLAT to min(max(-2*maxLatChange, maxLatChange * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
             if not RSS set landingzone to 
                 latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-120/120),1) * bank * bankLAT * min(max(0, 100/max(100,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/800), 1),
                     TgtLandingzone:lng + min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,100/max(100,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/800), 1)).
             else set landingzone to 
-                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220),1) * bank * bankLAT * min(max(0, 200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1600), 1),
-                    TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200),1) * bankLNG * min(max(0,200/max(200,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1600), 1)).
+                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220),1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1800), 1),
+                    TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200),1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1800), 1)).
             set LastLZChange to time:seconds.
             set Once to true.
         }
@@ -11891,12 +11900,13 @@ function ReEntrySteering {
 
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (100 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
-        set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 50).
+        set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 40).
         if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
         set yawctrl to round(YawPID:UPDATE(TIME:SECONDS, LngLatErrorList[1]),1).
+        set maxAoA to round(90 * 31/max(31,min(abs(yawctrl),40)),1).
         if RadarAlt > 5000 {
             set SRFPRGD to srfprograde.
         }
@@ -11904,22 +11914,22 @@ function ReEntrySteering {
             set t to time:seconds.
             set SRFPRGD to srfprograde.
         }
-        set DesiredAoA to min(max(42 , aoa + pitchctrl), 95).
+        set DesiredAoA to min(max(42 , aoa + pitchctrl), maxAoA).
         //set DesiredAoA to min(max(42 , aoa + pitchctrl + TRJCorrection), 116).      * cos(yawctrl)
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
 
         //SteeringCompensation
         set steeringOffset to vAng(GuidVec:vector,facing:forevector).
-        set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.2, 1).
-        set stabalizeDamp to min((max((0.2/steeringOffset), 0))^1.2, 10).
+        set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.4, 1).
+        set stabalizeDamp to min((max((0.2/steeringOffset), 0.8))^1.2, 10).
 
         if yawctrl < 8 or yawctrl > -8 {
-            if currentAoA > 95 set stableDamp to -(currentAoA-95)/40.
+            if currentAoA > 89 set stableDamp to -(currentAoA-89)/40.
             else if currentAoA < 50 set stableDamp to (50-currentAoA)/40.
             else set stableDamp to 0.
         } else {
-            if currentAoA > 85 set stableDamp to -(currentAoA-85)/40.
+            if currentAoA > 80 set stableDamp to -(currentAoA-80)/40.
             else if currentAoA < 50 set stableDamp to (50-currentAoA)/40.
             else set stableDamp to 0.
         }
@@ -11937,9 +11947,6 @@ function ReEntrySteering {
         //set ReentryRollVec to vecDraw(Tank:position, 1 * ReentryRoll, green, "Re-Entry Vector", 25, true, 0.005, true, true).
         set result to lookdirup(resultVec, ReentryRoll).
         set steeringOffsetFinal to vang(result:forevector, facing:forevector).
-        if LandSomewhereElse {
-            set result to srfprograde * R(-75, 0, 0).
-        }
 
         clearscreen.
         //set ReEntryVector to vecdraw(v(0, 0, 0), 1.5 * result:vector, green, "Re-Entry Vector", 25, true, 0.005, true, true).
@@ -12082,9 +12089,10 @@ function ReEntryData {
         if time:seconds > t + 2 {
             set PitchInput to SLEngines[0]:gimbal:pitchangle.
             set t to time:seconds.
-            if PitchInputOld > 0.5 and PitchInput > 0.5 {
+            if abs(PitchInputOld) > 0.5 and abs(PitchInput) > 0.5 {
                 set PitchInput to (PitchInput + PitchInputOld)/2.
-                set FWDFlapDefault to max(min(75 - (PitchInput * 20 / Scale),85),40).
+                if ShipSubType:contains("Block2") or ShipType:contains("Block2") set FWDFlapDefault to max(min(55 - (PitchInput * 20 / Scale),70),40).
+                else set FWDFlapDefault to max(min(75 - (PitchInput * 20 / Scale),85),40).
                 set AFTFlapDefault to max(min(70 + (PitchInput * 20 / Scale),80),50).
                 if AFTONLY {
                     set AFTFlapDefault to AFTFlapDefault * 0.9.
@@ -12212,13 +12220,13 @@ function ReEntryData {
     
     set LngDistanceToTarget to 0.
     SetPlanetData().
-    if (landingzone:lng - ship:geoposition:lng) < -180 {
-        set LngDistanceToTarget to ((landingzone:lng - ship:geoposition:lng + 360) * Planet1Degree).
+    if (TgtLandingzone:lng - ship:geoposition:lng) < -180 {
+        set LngDistanceToTarget to ((TgtLandingzone:lng - ship:geoposition:lng + 360) * Planet1Degree).
     }
     else {
-        set LngDistanceToTarget to ((landingzone:lng - ship:geoposition:lng) * Planet1Degree).
+        set LngDistanceToTarget to ((TgtLandingzone:lng - ship:geoposition:lng) * Planet1Degree).
     }
-    set LatDistanceToTarget to max(landingzone:lat - ship:geoposition:lat, ship:geoposition:lat - landingzone:lat) * Planet1Degree.
+    set LatDistanceToTarget to max(TgtLandingzone:lat - ship:geoposition:lat, ship:geoposition:lat - TgtLandingzone:lat) * Planet1Degree.
     if LatDistanceToTarget < 0 {set LatDistanceToTarget to -1 * LatDistanceToTarget.}
     //print(LngDistanceToTarget).
     set DistanceToTarget to sqrt(LngDistanceToTarget * LngDistanceToTarget + LatDistanceToTarget * LatDistanceToTarget).
@@ -12429,7 +12437,8 @@ function ReEntryData {
             set SteeringManager:ROLLCONTROLANGLERANGE to 15.
             set STEERINGMANAGER:PITCHTS to 0.6.
             set STEERINGMANAGER:YAWTS to 0.5.
-            set FlipAngle to vang(-1 * velocity:surface, ship:facing:forevector).
+            set FlipAngle to vang(-velocity:surface, ship:facing:forevector).
+            if FlipAngle < 45 {set FlipAngle to 45. set FlipAngleFactor to 0.8.}
             set LandingForwardDirection to facing:forevector.
             set LandingLateralDirection to facing:starvector.
             set LandingBurnStarted to false.
@@ -12815,8 +12824,8 @@ function LandingVector {
             }
             else {
                 if ship:body:atm:sealevelpressure > 0.5 {
-                    if TargetOLM and altitude < 1000 set TowerRotationVector to vCrs(vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position),up:vector).
-                    else set TowerRotationVector to north:vector.
+                    if TargetOLM and altitude < 1000 if Vessel(TargetOLM):distance < 2000 set TowerRotationVector to vCrs(vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position),up:vector).
+                    else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
                     set TgtErrorVector to (landingzone:position + MZHeight*up:vector) - (myFuturePos).
@@ -12892,7 +12901,10 @@ function LandingVector {
 
     set steeringOffset to vAng(facing:forevector, result).
     set steeringDamp to min((max((steeringOffset - 1) / 20, 0))^1.2, 1.2).
-    set result to result*1.2 + facing:forevector * steeringDamp.
+    set upDamp to 0.
+    set upOffset to (vAng(facing:forevector, up:vector) + vAng(facing:forevector, -velocity:surface))/2.
+    if twoSL set upDamp to min((max((upOffset) / 24, 0))^1.2, 1.2).
+    set result to result*1.2 + facing:forevector * steeringDamp + upDamp * up:vector.
 
     wait 0.001.
     if TargetOLM and RadarAlt < 3*ShipHeight and not (LandSomewhereElse) {
@@ -13179,10 +13191,10 @@ function LngLatError {
 
         set lngresult to lngresult - LngLatOffset.
 
-        if LandSomewhereElse {
-            set lngresult to 0.
-            set latresult to 0.
-        }
+        //if LandSomewhereElse {
+        //    set lngresult to 0.
+        //    set latresult to 0.
+        //}
 
         return list(lngresult, latresult).
     }
@@ -13200,7 +13212,7 @@ function CalculateDeOrbitBurn {
     set AngleAccuracy to 10.
     
     if DynamicBanking {
-        set PlotAoA to PlotAoA + 2.
+        set PlotAoA to PlotAoA + 2/(Scale^0.7).
         SetPlanetData().
         set addons:tr:descentangles to DescentAngles.
     }
