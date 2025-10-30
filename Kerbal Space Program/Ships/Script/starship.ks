@@ -27,6 +27,15 @@ if homeconnection:isconnected if exists("0:/settings.json") {
 
 if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
+    if L:haskey("highSplash") {
+        set bHighSplashBool to L["highSplash"].
+    }
+    else set bHighSplashBool to false.
+}
+else set bHighSplashBool to false.
+
+if homeconnection:isconnected if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
     if L:haskey("TelemetryScale") {
         set TScale to L["TelemetryScale"].
     }
@@ -533,7 +542,7 @@ if RSS {         // Real Solar System
         set TRJCorrection to -2.
     }
     set trCompensation to -10000.
-    set maxLatChange to 0.1.
+    set maxLatChange to 0.09.
 }
 else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set LandingAoA to 78.
@@ -585,7 +594,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
         set TRJCorrection to -2.
     }
     set trCompensation to 3000.
-    set maxLatChange to 0.5.
+    set maxLatChange to 0.7.
 }
 else {       // Stock Kerbin
     set LandingAoA to 78.
@@ -628,7 +637,7 @@ else {       // Stock Kerbin
         set TRJCorrection to -2.
     }
     set trCompensation to 2000.
-    set maxLatChange to 0.36.
+    set maxLatChange to 0.48.
 }
 
 set DeOrbitEngNr to 1. // Engine used for Single Engine DeOrbit Burn
@@ -1516,6 +1525,7 @@ local IgnitionChancesGUI is GUI(320).
 local SettingsMenu is IgnitionChancesGUI:addhlayout().
 local IgnChaLayout is SettingsMenu:addvlayout().
 local FlightSettingsLayout is SettingsMenu:addvlayout().
+local FlightSettingsLayout2 is SettingsMenu:addvlayout().
 local Quest is IgnChaLayout:addlabel().
     set Quest:text to "<b>Ignition Chances</b>".
     set Quest:style:margin:top to 14.
@@ -1892,6 +1902,30 @@ set DynBank:onclick to {
     else set DynBankLabel:text to "Currently Off".
 }.
 
+local FlSetLaySpace is FlightSettingsLayout2:addlabel("").
+    set FlSetLaySpace:style:height to 36.
+
+local bHighSplash is FlightSettingsLayout2:addbutton(" High Booster Splashdown").
+    set bHighSplash:style:fontsize to 16.
+    set bHighSplash:style:margin:left to 24.
+    set bHighSplash:style:margin:top to 24.
+    set bHighSplash:style:margin:right to 16.
+    set bHighSplash:style:height to 24.
+local bHighSplashLabel is FlightSettingsLayout2:addlabel().
+    set bHighSplashLabel:style:fontsize to 12.
+    set bHighSplashLabel:style:margin:left to 24.
+    set bHighSplashLabel:style:margin:top to 5.
+    set bHighSplashLabel:style:margin:right to 8.
+    set bHighSplashLabel:style:height to 18.
+    if DynamicBanking set bHighSplashLabel:text to "Currently On".
+    else set bHighSplashLabel:text to "Currently Off".
+set bHighSplash:onclick to {
+    set bHighSplashBool to not bHighSplashBool.
+    SaveToSettings("highSplash", bHighSplashBool).
+    if Boosterconnected sendMessage(processor(Volume("Booster")),"highSplash,"+bHighSplashBool).
+    if bHighSplashBool set bHighSplashLabel:text to "Currently On".
+    else set bHighSplashLabel:text to "Currently Off".
+}.
 
 set IgnitionChances:ontoggle to {
     parameter toggle.
@@ -11870,8 +11904,8 @@ function ReEntrySteering {
                 latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-120/120),1) * bank * bankLAT * min(max(0, 100/max(100,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/800), 1),
                     TgtLandingzone:lng + min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,100/max(100,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/800), 1)).
             else set landingzone to 
-                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220),1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1800), 1),
-                    TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200),1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1800), 1)).
+                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220)^1.5,1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1800)^1.5, 1),
+                    TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200)^1.5,1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1800)^1.5, 1)).
             set LastLZChange to time:seconds.
             set Once to true.
         }
