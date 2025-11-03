@@ -70,8 +70,16 @@ local VersionDisplay is GUI(100).
 VersionDisplay:show().
 local sAttitude is ShipAttitude:addlabel().
     set sAttitude:style:bg to "starship_img/ship".
-local sSpeed is ShipStatus:addlabel("<b>SPEED  </b>").
+local sSpeed is ShipStatus:addbutton("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
+    set sSpeed:style:bg to "".
+    set sSpeed:style:align to "left".
+    set sSpeed:style:hover:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:hover_on:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:active:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:active_on:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:focused:bg to sSpeed:style:normal:bg.
+    set sSpeed:style:focused_on:bg to sSpeed:style:normal:bg.
 local sAltitude is ShipStatus:addlabel("<b>ALTITUDE  </b>").
     set sAltitude:style:wordwrap to false.
 
@@ -136,10 +144,10 @@ function CreateTelemetry {
     set sAttitude:style:width to 180*TScale.
     set sAttitude:style:height to 180*TScale.
 
-    set sSpeed:style:margin:left to 45*TScale.
-    set sSpeed:style:margin:top to 20*TScale.
+    set sSpeed:style:margin:left to 43*TScale.
+    set sSpeed:style:margin:top to 12*TScale.
     set sSpeed:style:width to 296*TScale.
-    set sSpeed:style:fontsize to 30*TScale.
+    set sSpeed:style:fontsize to 28*TScale.
 
     set sAltitude:style:margin:left to 45*TScale.
     set sAltitude:style:margin:top to 2*TScale.
