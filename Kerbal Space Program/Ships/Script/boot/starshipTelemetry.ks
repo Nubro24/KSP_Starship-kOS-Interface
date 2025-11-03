@@ -1029,6 +1029,9 @@ function updateTelemetry {
     if Boosterconnected set currentThr to 0.
     else set currentThr to throttle.
 
+    if shipThrust = 0 and currentThr > 0.1 set TestThrust to ship:thrust.
+    if TestThrust > shipThrust + 100 set shipThrust to TestThrust. 
+
     set sThrust:text to "<b>Thrust: </b> " + round(shipThrust) + " kN" + "          Throttle: " + min(round(currentThr,2)*100,100) + "%".
 
     set missionTimerNow to time:seconds-missionTimer.
