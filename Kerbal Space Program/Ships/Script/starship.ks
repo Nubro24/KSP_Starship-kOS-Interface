@@ -11679,7 +11679,7 @@ function ReEntryAndLand {
 
                 if RSS and DynamicBanking when airspeed < 2435 then 
                         set trCompensation to trCompensation + 6000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
-                if DynamicBanking when airspeed < 800 or airspeed < 1800 and RSS then
+                if DynamicBanking when airspeed < 1200 or airspeed < 1800 and RSS then
                     set trCompensation to trCompensation*1.5.
                 when airspeed < 850 * Scale then {
                     if DynamicBanking set YawBank to 3 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
@@ -12895,8 +12895,8 @@ function LandingVector {
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
                     set TgtErrorVector to (landingzone:position + MZHeight*up:vector) - (myFuturePos).
-                    set closingPID:kd to 0.042*(Scale^0.7) * TgtErrorVector:mag/(5*Scale).
-                    set cancelPID:kp to 0.14 * max(1,2/max(1,RadarRatio)).
+                    set closingPID:kd to 0.042*(Scale^0.7) * TgtErrorVector:mag/(4*Scale).
+                    set cancelPID:kp to 0.14 * max(1,2/max(0.7,RadarRatio)).
                     
                     if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.
@@ -13181,13 +13181,13 @@ function LngLatError {
                 if STOCK {
                     if ShipSubType:contains("Block2") {
                         if RadarAlt > 4000 set LngLatOffset to -15.
-                        else set LngLatOffset to -8 - vxcl(up:vector, velocity:surface):mag*0.6.
+                        else set LngLatOffset to -12 - vxcl(up:vector, velocity:surface):mag*0.6.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 4000 set LngLatOffset to -15.
-                        else set LngLatOffset to -2 - vxcl(up:vector, velocity:surface):mag*0.5.
+                        else set LngLatOffset to -4 - vxcl(up:vector, velocity:surface):mag*0.5.
                     } else {
                         if RadarAlt > 4000 set LngLatOffset to -15.
-                        else set LngLatOffset to -2 - vxcl(up:vector, velocity:surface):mag*0.55.
+                        else set LngLatOffset to -5 - vxcl(up:vector, velocity:surface):mag*0.55.
                     }
                 }
                 else if KSRSS {
@@ -13278,7 +13278,7 @@ function CalculateDeOrbitBurn {
     set AngleAccuracy to 10.
     
     if DynamicBanking {
-        set PlotAoA to PlotAoA + 2/(Scale^0.7).
+        set PlotAoA to PlotAoA + 2.1/(Scale).
         SetPlanetData().
         set addons:tr:descentangles to DescentAngles.
     }

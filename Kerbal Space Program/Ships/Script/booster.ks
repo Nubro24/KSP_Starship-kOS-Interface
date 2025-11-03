@@ -489,7 +489,6 @@ set angle to 75.
 set speed to 10.
 set HighIncl to false.
 set landDistance to 500.
-set distNorm to 1. 
 set angleToTarget to 0.
 set LandingVector to up:vector.
 set SteeringUpdateTime to 0.
@@ -1077,7 +1076,7 @@ set BoosterDockingHeight to 29.8*Scale.
 set maxstabengage to 80 * Scale.
 set maxpusherengage to 0.33*Scale.
 
-set MZHeight to 60*Scale.
+set MZHeight to 70*Scale.
 
 if not oldBooster {
     set BoosterDockingHeight to 32.6*Scale.
@@ -1483,6 +1482,7 @@ function Boostback {
             set YawStrength to max(round(random(),1),0.2).
             if rndYaw < 0.44 set YawStrength to -2.5*YawStrength.
             if 0.4 > YawStrength and YawStrength > -0.4 set PitchStrength to PitchStrength*1.5.
+            if abs(YawStrength) + abs(PitchStrength) < 2.4 set PitchStrength to PitchStrength * (1 + 2.4-abs(YawStrength) + abs(PitchStrength)).
 
             set ship:control:pitch to -2 * PitchStrength.
             set ship:control:yaw to -2 * YawStrength.
@@ -1682,6 +1682,7 @@ function Boostback {
             lock throttle to 0.75.
             set FC to true.
             if not fullAuto bGUI:show().
+            if fullAuto bGUI:hide().
         }
         when time:seconds > flipStartTime + FlipTime * 1.24 then {
             set steeringmanager:maxstoppingtime to 0.8 + FlipAngle/(220*Scale).
@@ -2519,17 +2520,17 @@ function Boostback {
             set LZchange to false.
             wait 0.
             addons:tr:settarget(landingzone).
-            lock SteeringVector to lookDirUp(up:vector - 0.04*ErrorVector - 0.03 * velocity:surface, facing:topvector).
+            lock SteeringVector to lookDirUp(up:vector - 0.03*ErrorVector - 0.03 * velocity:surface, facing:topvector).
             lock steering to SteeringVector.
             when time:seconds > abortTime + 4 then {
                 if RSS {
-                    lock SteeringVector to lookdirup(up:vector - 0.04 * velocity:surface - 0.003 * ErrorVector, facing:topvector).
+                    lock SteeringVector to lookdirup(up:vector - 0.033 * velocity:surface - 0.003 * ErrorVector, facing:topvector).
                 }
                 else if KSRSS {
                     lock SteeringVector to lookdirup(up:vector - 0.03 * velocity:surface - 0.001 * ErrorVector, facing:topvector).
                 }
                 else {
-                    lock SteeringVector to lookdirup(up:vector - 0.05 * velocity:surface - 0.0005 * ErrorVector, facing:topvector).
+                    lock SteeringVector to lookdirup(up:vector - 0.04 * velocity:surface - 0.0003 * ErrorVector, facing:topvector).
                 }
                 lock steering to SteeringVector.
             }
@@ -2554,9 +2555,9 @@ function Boostback {
         set LandSomewhereElse to true.
         if highSplash lock RadarAlt to alt:radar - RadarAltOffset - MZHeight.
         else lock RadarAlt to alt:radar - RadarAltOffset.
-        if BoosterType:contains("Block3") lock SteeringVector to lookdirup(-velocity:surface, -ApproachVector).
-        else lock SteeringVector to lookdirup(-velocity:surface, ApproachVector).
-        lock steering to SteeringVector.
+        //if BoosterType:contains("Block3") lock SteeringVector to lookdirup(-velocity:surface, -ApproachVector).
+        //else lock SteeringVector to lookdirup(-velocity:surface, ApproachVector).
+        //lock steering to SteeringVector.
         addons:tr:settarget(landingzone).
     }
 
@@ -3186,7 +3187,7 @@ FUNCTION SteeringCorrections {
             print "AoA: " + round(vAng(-velocity:surface,facing:forevector),1).
             print "GS: " + round(groundspeed,2).
             print " ".
-            print "Dist.: " + round(landDistance,1) + "m     Ratio: " + round(distNorm,1) + "  | " + NrCounterEngine.
+            print "Dist.: " + round(landDistance,1) + "m     | " + NrCounterEngine.
             print " ".
         }
     }
@@ -3264,7 +3265,6 @@ function LandingThrottle {
 function LandingGuidance {
     set RadarRatio to max(RadarAlt/BoosterHeight,0.001).
     set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
-    set distNorm to min(max(landDistance / (0.4*LandingBurnAlt), 0), 1). 
     set CatchPins to BoosterCore:position + BoosterHeight/2 * facing:forevector.
     set CatchPos to landingzone:position + MZHeight*up:vector.
     if verticalSpeed < 0 set vSpeed to -verticalSpeed.
@@ -3303,6 +3303,7 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((steeringOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-150)/50, 1).
     set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + ((vAng(up:vector,GuidVec)-5)*20/max(airspeed-280,20))/24.
+    set lookUpDamp to lookUpDamp * min(1, 100/(max(10,airspeed-200)^2)).
 
     // === Final Vector ===
     set FinalVec to GuidVec:normalized * min(1, (RadarRatio^1.2)/0.12) 
