@@ -898,14 +898,14 @@ function FindParts {
             if x:name:contains("SEP.23.BOOSTER.INTEGRATED") {}
             else if x:name:contains("SEP.25.BOOSTER.CORE") {}
             else if x:name:contains("Block.3.AFT") {}
-            else if x:name:contains("Block.3.CH4") {}
-            else if x:name:contains("Block.3.CMN") {}
             else if x:name:contains("Block.3.LOX") {}
+            else if x:name:contains("Block.3.CMN") {}
+            else if x:name:contains("Block.3.CH4") {}
+            else if x:name:contains("Block.3.FWD") {}
             else if x:name:contains("SEP.23.SHIP.BODY") {}
 			else if x:name:contains("SEP.24.SHIP.CORE") {}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
-            else if x:name:contains("Block.3.FWD") {}
             else {
                 if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C")) and x:parent:name:contains("SHIP") {
                     set SL to true.
@@ -16626,17 +16626,14 @@ function updateTelemetry {
             if res:name = "LiquidFuel" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
-                set ShipFuelAmount to res:amount.
             }
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
-                set ShipFuelAmount to res:amount.
             }
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set lox to lox + res:amount.
                 set mlox to mlox + res:capacity.
-                set ShipLoxAmount to res:amount.
             }
         }
 

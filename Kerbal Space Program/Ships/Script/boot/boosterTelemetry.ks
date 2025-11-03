@@ -33,22 +33,40 @@ set ECset to false.
 set BTset to false.
 set HSset to false.
 for part in ship:parts {
+    print RandomFlip.
     if part:name:contains("SEP.23.BOOSTER.INTEGRATED") and not BTset {
+        set BoosterType to "Block0".
         set BoosterCore to part.
+        set bLOXTank to part.
+        set bCH4Tank to part.
+        set bCMNDome to part.
         set oldBooster to true.
         set BTset to true.
+        set RandomFlip to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
+        set BoosterType to "Block2".
+        set BoosterCore to part.
+        set bLOXTank to part.
+        set bCH4Tank to part.
+        set bCMNDome to part.
+        set BTset to true.
+        set RandomFlip to true.
+    }
+    if part:name:contains("Block.3.AFT") and not BTset {
+        set BoosterType to "Block3".
+        set BoosterEngines to ship:partsnamed("Block.3.AFT").
         set BoosterCore to part.
         set BTset to true.
     }
-    if part:name = ("SEP.23.BOOSTER") and not BTset {
-        set BoosterCore to part.
-        set BTset to true.
+    if part:name:contains("Block.3.CH4") {
+        set bCH4Tank to part.
     }
-    if part:name = ("SEP.24.BOOSTER") and not BTset {
-        set BoosterCore to part.
-        set BTset to true.
+    if part:name:contains("Block.3.LOX") {
+        set bLOXTank to part.
+    }
+    if part:name:contains("Block.3.CMN") {
+        set bCMNDome to part.
     }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
@@ -58,21 +76,9 @@ for part in ship:parts {
         set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
         set ECset to true.
     }
-    if part:name = ("BOOSTER.CLUSTER") and not ECset {
-        set BoosterEngines to ship:partsnamed("BOOSTER.CLUSTER").
+    if part:name:contains("Raptor.3Cluster") and not ECset {
+        set BoosterEngines to ship:partsnamed("Raptor.3Cluster").
         set ECset to true.
-    }
-    if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
-        set Gridfins to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN").
-        set GFset to true.
-    }
-    if part:name:contains("SEP.25.BOOSTER.GRIDFIN") and not GFset {
-        set Gridfins to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN").
-        set GFset to true.
-    }
-    if part:name = ("SEP.Gridfin") and not GFset {
-        set Gridfins to ship:partsnamed("SEP.Gridfin").
-        set GFset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
         set HSRType to "Block0".
@@ -89,12 +95,7 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
-    if part:name = ("SEP.HSR.1") and not HSset {
-        set HSRType to "Block2".
-        set HSR to part.
-        set HSset to true.
-    }
-    if part:name = ("SEP.HSR.2") and not HSset {
+    if part:name:contains("Block.3.FWD") and not HSset {
         set HSRType to "Block3".
         set HSR to part.
         set HSset to true.
@@ -124,8 +125,11 @@ FindEngines().
 
 function FindEngines {
     set findingEngines to true.
-    if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-            or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
+    if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
+            or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
+            or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
+            or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB") ) {
         set BoosterSingleEngines to true.
         set BoosterSingleEnginesRB to list().
         set BoosterSingleEnginesRC to list().
@@ -470,6 +474,27 @@ set OnceShipName to false.
 set ShipConnectedToBooster to true.
 set ConnectedMessage to false.
 set distanceLoad to ship:loaddistance:suborbital:pack.
+set MaxQ to false.
+set Hotstaging to false.
+set SECO to false.
+set qCheck to 1.
+
+when MaxQ then {
+    set ClockHeader:text to "Max Q".
+    set MaxQTime to time:seconds.
+    when MaxQTime + 4 < time:seconds then set ClockHeader:text to MissionName.
+}
+when Hotstaging then {
+    set ClockHeader:text to "Hotstaging".
+    set HotstagingTime to time:seconds.
+    when HotstagingTime + 5 < time:seconds then set ClockHeader:text to MissionName.
+} 
+when SECO then {
+    set ClockHeader:text to "SECO".
+    set SECOTime to time:seconds.
+    when SECOTime + 4 < time:seconds then set ClockHeader:text to MissionName.
+} 
+
 
 bTelemetry:show().
 
@@ -513,14 +538,20 @@ function GUIupdate {
     else set currentPitch to vAng(facing:forevector,up:vector).
     if round(currentPitch) = 360 set currentPitch to 0.
 
-    if ShipConnectedToBooster and ShipType:contains("Block2") {
-        set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
-    } else if ShipConnectedToBooster {
-        set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
-    } else {
-        set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
-    }
+    if ShipConnectedToBooster and ShipType:contains("Block2") set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
+    else if ShipConnectedToBooster set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
+    else set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
 
+    if not MaxQ and airspeed > 2 {
+        if qCheck = 1 {
+            set LastQ to ship:q.
+            set qCheck to qCheck + 1.
+        } else if qCheck < 10 {
+            set qCheck to qCheck + 1.
+        }
+        else if LastQ > ship:q set MaxQ to true.
+        else set qCheck to 1.
+    }
 
     set boosterAltitude to RadarAlt.
     set boosterSpeed to ship:airspeed.
@@ -544,17 +575,58 @@ function GUIupdate {
     } 
     else set boosterThrust to BoosterEngines[0]:thrust.
 
-    for res in BoosterCore:resources {
+    for res in bLOXTank:resources {
         if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
-            set boosterLOX to res:amount*100/res:capacity.
+            set boosterLOX to res:amount.
+            set boosterLOXCap to res:capacity.
         }
+    }
+    for res in bCH4Tank:resources {
         if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-            set boosterCH4 to res:amount*100/res:capacity.
+            set boosterCH4 to res:amount.
+            set boosterCH4Cap to res:capacity.
             set methane to true.
         }
         if res:name = "LiquidFuel" {
-            set boosterCH4 to res:amount*100/res:capacity.
+            set boosterCH4 to res:amount.
+            set boosterCH4Cap to res:capacity.
             set methane to false.
+        }
+    }
+    if BoosterType:contains("Block3") {
+        for res in BoosterCore:resources {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
+                set boosterLOX to boosterLOX + res:amount.
+                set boosterLOXCap to boosterLOXCap + res:capacity.
+            }
+        }
+        for res in HSR:resources {
+            if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
+                set methane to true.
+            }
+            if res:name = "LiquidFuel" {
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
+                set methane to false.
+            }
+        }
+        for res in bCMNDome:resources {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
+                set boosterLOX to boosterLOX + res:amount.
+                set boosterLOXCap to boosterLOXCap + res:capacity.
+            }
+            if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
+                set methane to true.
+            }
+            if res:name = "LiquidFuel" {
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
+                set methane to false.
+            }
         }
     }
 
@@ -593,6 +665,43 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
                     set x to x+1.
                 }
+            } else if Mode = "Raptor_3_Core" and ModeChanged {
+                set x to 1.
+                until x > 3 {
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                    set x to x+1.
+                }
+                until x > 33 {
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                    set x to x+1.
+                }
+            } else if Mode = "Raptor_3_2Inner" and ModeChanged {
+                set x to 1.
+                until x > 13 {
+                    if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                    else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                    set x to x+1.
+                }
+                until x > 33 {
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                    set x to x+1.
+                }
+            } else if Mode = "Raptor_3_Inner" and ModeChanged {
+                set x to 1.
+                until x > 13 {
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                    set x to x+1.
+                }
+                until x > 33 {
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                    set x to x+1.
+                }
+            } else if Mode = "Raptor_3_All" and ModeChanged {
+                set x to 1.
+                until x > 33 {
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                    set x to x+1.
+                }
             } else if Mode = "NaN" {
                 print("Mode not found").
             }
@@ -601,18 +710,26 @@ function GUIupdate {
             set z to 0.
             if ShipConnectedToBooster { 
                 for uieng in BoosterSingleEnginesRB {
-                    if uieng:hassuffix("activate") {
+                    if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
                         if uieng:thrust > 60*Scale set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster/" + (z+14).
                         else set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster/0".
+                    }
+                    else if uieng:hassuffix("activate") {
+                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster3/" + (z+14).
+                        else set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster3/0".
                     }
                     set z to z+1.
                 }
                 set z to 0.
             }
             for uieng in BoosterSingleEnginesRC {
-                if uieng:hassuffix("activate") {
+                if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
                     if uieng:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/" + (z+1).
                     else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
+                }
+                else if uieng:hassuffix("activate") {
+                    if uieng:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster3/" + (z+1).
+                    else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster3/0".
                 }
                 set z to z+1.
             }
@@ -638,6 +755,8 @@ function GUIupdate {
     }
     set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
 
+    set boosterLOX to boosterLOX*100/boosterLOXCap.
+    set boosterCH4 to boosterCH4*100/boosterCH4Cap.
 
     set bLOXLabel:text to "<b>LOX</b>   ".// + round(boosterLOX,1) + " %".
     set bLOXSlider:style:overflow:right to -196*TScale + 2*round(boosterLOX,1)*TScale.
@@ -669,32 +788,20 @@ function GUIupdate {
 
     set hoursV to missionTimerNow/60/60.
     set Thours to round(hoursV).
-    if hoursV < Thours {
-        set Thours to Thours - 1.
-    }
+    if hoursV < Thours set Thours to Thours - 1.
 
     set minV to missionTimerNow/60 - Thours*60.
     set Tminutes to round(minV).
-    if minV < Tminutes {
-        set Tminutes to Tminutes - 1.
-    }
+    if minV < Tminutes set Tminutes to Tminutes - 1.
     
     set Tseconds to missionTimerNow - Thours*60*60 - Tminutes*60.
     set Tseconds to floor(Tseconds).
 
-    if Thours < 9.1 {
-        set Thours to "0"+Thours.
-    }
-    if Tminutes < 9.1 {
-        set Tminutes to "0"+Tminutes.
-    }
-    if Tseconds < 9.1 {
-        set Tseconds to "0"+Tseconds.
-    }
-    if TMinus {
-        set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
-    } else {
-        set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
-    }
+    if Thours < 9.1 set Thours to "0"+Thours.
+    if Tminutes < 9.1 set Tminutes to "0"+Tminutes.
+    if Tseconds < 9.1 set Tseconds to "0"+Tseconds.
+
+    if TMinus set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
+    else set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
     
 }

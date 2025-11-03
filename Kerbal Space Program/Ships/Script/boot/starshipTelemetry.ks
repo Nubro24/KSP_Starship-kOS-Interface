@@ -355,6 +355,11 @@ function FindParts {
         for x in StartPart:children {
             if x:name:contains("SEP.23.BOOSTER.INTEGRATED") {}
             else if x:name:contains("SEP.25.BOOSTER.CORE") {}
+            else if x:name:contains("Block.3.AFT") {}
+            else if x:name:contains("Block.3.LOX") {}
+            else if x:name:contains("Block.3.CMN") {}
+            else if x:name:contains("Block.3.CH4") {}
+            else if x:name:contains("Block.3.FWD") {}
             else if x:name:contains("SEP.23.SHIP.BODY") {}
 			else if x:name:contains("SEP.24.SHIP.CORE") {}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
@@ -512,7 +517,6 @@ function FindParts {
     } 
     else if not sEngSet {
         print("SLEngine count is wrong!").
-        hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,2,18,red,false).
     }
 
     if Vac and Vaccount = 3 and not sEngSetVac {
@@ -629,7 +633,6 @@ function FindParts {
     } 
     else if not sEngSetVac {
         print("VACEngine count is wrong!").
-        hudtext("VACEngine count is wrong! (" + Vaccount + "; needs 3 or 6)",10,2,18,red,false).
     }
 
     if SLStep {
@@ -666,6 +669,7 @@ function FindParts {
     if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
         set oldBooster to true.
         set Boosterconnected to true.
+        set BoosterType to "Block0".
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
         set sLOXLabel:style:textcolor to grey.
@@ -677,6 +681,9 @@ function FindParts {
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
         set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+        set bLOXTank to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+        set bCH4Tank to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+        set bCMNDome to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             print(round(BoosterCore[0]:drymass)).
@@ -695,6 +702,7 @@ function FindParts {
         set missionTimeLabel:text to "".
     } else if ship:partsnamed("SEP.25.BOOSTER.CORE"):length > 0 {
         set Boosterconnected to true.
+        set BoosterType to "Block2".
         set sAltitude:style:textcolor to grey.
         set sSpeed:style:textcolor to grey.
         set sLOXLabel:style:textcolor to grey.
@@ -707,6 +715,43 @@ function FindParts {
         if ship:partsnamed("SEP.25.BOOSTER.HSR"):length > 0 set HSR to SHIP:PARTSNAMED("SEP.25.BOOSTER.HSR").
         else if ship:partsnamed("VS.25.HSR.BL3"):length > 0 set HSR to SHIP:PARTSNAMED("VS.25.HSR.BL3").
         set BoosterCore to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        set bLOXTank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        set bCH4Tank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        set bCMNDome to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("Block.3.AFT"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block3".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        if SHIP:PARTSNAMED("Raptor.3Cluster"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("Raptor.3Cluster").
+        set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
+        set HSR to SHIP:PARTSNAMED("Block.3.FWD").
+        set BoosterCore to SHIP:PARTSNAMED("Block.3.AFT").
+        set bLOXTank to SHIP:PARTSNAMED("Block.3.LOX").
+        set bCH4Tank to SHIP:PARTSNAMED("Block.3.CH4").
+        set bCMNDome to SHIP:PARTSNAMED("Block.3.CMN").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             //print(round(BoosterCore[0]:drymass)).
@@ -904,7 +949,7 @@ function BoosterExists {
 
 function updateTelemetry {
 
-    if ShipSubType:contains("Block2") {
+    if ShipSubType:contains("Block2") or ShipType:contains("Block2") {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
@@ -917,7 +962,8 @@ function updateTelemetry {
             if round(currentPitch) = 360 set currentPitch to 0.
             set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
         }
-    } else {
+    } 
+    else {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
@@ -980,22 +1026,27 @@ function updateTelemetry {
     set shipCH4 to ch4*100/mch4.
 
     set engCount to 0.
+    set SLactive to 0.
     set engCountVar to 1.
     for eng in SLEngines {
         if eng:hassuffix("activate")
-            if eng:thrust > 0 set engCount to engCount + engCountVar.
+            if eng:thrust > 10 {
+                set engCount to engCount + engCountVar.
+                set SLactive to SLactive + 1.
+            }
         set engCountVar to engCountVar*2.
     }
     for eng in VACEngines {
         if eng:hassuffix("activate")
-            if eng:thrust > 0 set engCount to engCount + engCountVar.
+            if eng:thrust > 10 set engCount to engCount + engCountVar.
         set engCountVar to engCountVar*2.
     }
     set picPath to "starship_img/EngPic" + VACEngines:length + "Vac/" + engCount:tostring.
     set sEngines:style:bg to picPath.
 
     
-    set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
+    if shipSpeed < 9999 set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
+    else set sSpeed:text to "<b><size=24>SPEED</size>       </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
     if shipAltitude > 99999 {
         set sAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(shipAltitude/1000) + " <size=24>KM</size>".
     } else if shipAltitude > 999 {
@@ -1005,7 +1056,7 @@ function updateTelemetry {
     }
 
     set sLOXLabel:text to "<b>LOX</b>   ".// + round(shipLOX,1) + " %".
-    set sLOXSlider:style:overflow:right to -196 + 2*round(shipLOX,1).
+    set sLOXSlider:style:overflow:right to -196*TScale + 2*round(shipLOX,1)*TScale.
     set sLOXNumber:text to round(shipLOX,1) + "%".
 
     if methane {
@@ -1067,12 +1118,15 @@ function updateTelemetry {
     }
     if Boosterconnected or runningprogram = "LAUNCH" {
         set missionTimeLabel:text to "".
+        set ClockHeader:text to "".
         VersionDisplay:hide().
     } else if TMinus {
         set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
+        set ClockHeader:text to MissionName.
         VersionDisplay:show().
     } else {
         set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
+        set ClockHeader:text to MissionName.
         VersionDisplay:show().
     }
 }
