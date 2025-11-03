@@ -5,9 +5,10 @@
 - **Improved Reentry Guidance for Ship**
 - Added Support for a Booster with 3 Gridfins (V3 Layout)
 - Added Support for Questin's Block 3 Booster & Raptor 3 Engines
+  - Added 13-5-3 Landing Burn Configuration
 - Added Support for Testflight
 - Added Booster Static Fire (Action Group 5, with ship-less Booster on OLM)
-- Improved Engine Checks for Booster
+- Improved Engine Health Checks for Booster
 - **UI Changes**
   - Added Flight Settings:
     - Hide Inteface during Flight Operations
@@ -16,9 +17,12 @@
     - Mission Name below T-Minus-Clock
     - Option to customize Countdown length
     - **Dynamic Banking for Ship Reentry (as demonstrated on IFT 11)**
+    - Option for a hard splashdown / High Engine Shutdown for Booster offshore Landings
+    - Option to activate Block 3 Landing Burn (13-5-3) for Block2 Booster
   - Reduced the Telemetry Height to match SpaceXs old Telemetry
   - Telemetry Rescaling now requires Input of Horizontal and Vertical Resolution
     - Uses Ratio to determine the best Scaling
+  - Added Block 3 Booster Engine Diagram
 - multiple Bug-/Errorfixes
 
 # V3.5.2 (2025-06-25)

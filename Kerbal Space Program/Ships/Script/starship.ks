@@ -36,6 +36,15 @@ else set bHighSplashBool to false.
 
 if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
+    if L:haskey("Bl3LndProf") {
+        set Bl3LndProf to L["Bl3LndProf"].
+    }
+    else set Bl3LndProf to false.
+}
+else set Bl3LndProf to false.
+
+if homeconnection:isconnected if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
     if L:haskey("TelemetryScale") {
         set TScale to L["TelemetryScale"].
     }
@@ -637,7 +646,7 @@ else {       // Stock Kerbin
         set TRJCorrection to -2.
     }
     set trCompensation to 2000.
-    set maxLatChange to 0.48.
+    set maxLatChange to 0.56.
 }
 
 set DeOrbitEngNr to 1. // Engine used for Single Engine DeOrbit Burn
@@ -1917,7 +1926,7 @@ local bHighSplashLabel is FlightSettingsLayout2:addlabel().
     set bHighSplashLabel:style:margin:top to 5.
     set bHighSplashLabel:style:margin:right to 8.
     set bHighSplashLabel:style:height to 18.
-    if DynamicBanking set bHighSplashLabel:text to "Currently On".
+    if bHighSplashBool set bHighSplashLabel:text to "Currently On".
     else set bHighSplashLabel:text to "Currently Off".
 set bHighSplash:onclick to {
     set bHighSplashBool to not bHighSplashBool.
@@ -1926,6 +1935,29 @@ set bHighSplash:onclick to {
     if bHighSplashBool set bHighSplashLabel:text to "Currently On".
     else set bHighSplashLabel:text to "Currently Off".
 }.
+
+local bBl3LandingProf is FlightSettingsLayout2:addbutton(" Booster Landing Burn 13>5>3").
+    set bBl3LandingProf:style:fontsize to 16.
+    set bBl3LandingProf:style:margin:left to 24.
+    set bBl3LandingProf:style:margin:top to 24.
+    set bBl3LandingProf:style:margin:right to 16.
+    set bBl3LandingProf:style:height to 24.
+local bBl3LandingProfLabel is FlightSettingsLayout2:addlabel().
+    set bBl3LandingProfLabel:style:fontsize to 12.
+    set bBl3LandingProfLabel:style:margin:left to 24.
+    set bBl3LandingProfLabel:style:margin:top to 5.
+    set bBl3LandingProfLabel:style:margin:right to 8.
+    set bBl3LandingProfLabel:style:height to 18.
+    if Bl3LndProf set bBl3LandingProfLabel:text to "Currently On".
+    else set bBl3LandingProfLabel:text to "Currently Off".
+set bBl3LandingProf:onclick to {
+    set Bl3LndProf to not Bl3LndProf.
+    SaveToSettings("Bl3LndProf", Bl3LndProf).
+    if Boosterconnected sendMessage(processor(Volume("Booster")),"Bl3LndProf,"+Bl3LndProf).
+    if Bl3LndProf set bBl3LandingProfLabel:text to "Currently On".
+    else set bBl3LandingProfLabel:text to "Currently Off".
+}.
+
 
 set IgnitionChances:ontoggle to {
     parameter toggle.
