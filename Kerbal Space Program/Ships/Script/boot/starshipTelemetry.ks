@@ -42,6 +42,7 @@ else if exists("0:/settings.json") {
     }
 }
 set RadarAlt to 0.
+set TestThrust to 0.
 set ShipSubType to "None".
 
 local sTelemetry is GUI(150).
