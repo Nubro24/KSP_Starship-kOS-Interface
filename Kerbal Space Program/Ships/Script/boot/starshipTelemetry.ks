@@ -391,7 +391,7 @@ function FindParts {
                     set SL to true.
                     set SLcount to SLcount + 1.
                 }
-                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V" or x:name:contains("Raptor.3RC")) {
+                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
@@ -501,7 +501,7 @@ function FindParts {
         set SL3 to false.
         for x in Tank:children {
             if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
-                if x:name:contains("SEP.23.RAPTOR2.SL.RC") {
+                if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("Raptor.3RC") {
                     set partPos to x:position - Tank:position.
                     set compPos to Tank:facing:topvector.
                     if vAng(partPos, compPos) < 89 {
