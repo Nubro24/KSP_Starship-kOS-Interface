@@ -3,6 +3,8 @@ unlock steering.
 
 clearscreen.
 set Scriptversion to "v4".
+//<==== Mission Name (below Clock) ====>
+set MissionName to "".
 
 
 //<------------Telemtry Scale-------------->

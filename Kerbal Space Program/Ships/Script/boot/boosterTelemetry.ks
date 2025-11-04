@@ -4,6 +4,8 @@ set Scriptversion to "v4".
 
 //<==== Countdown Start (T- ... ) ====>
 set CountdownStart to 240.
+//<==== Mission Name (below Clock) ====>
+set MissionName to "".
 
 
 //<------------Telemtry Scale-------------->
