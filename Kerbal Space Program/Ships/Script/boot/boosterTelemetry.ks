@@ -250,6 +250,9 @@ local bThrust is boosterStatus:addlabel("<b>THRUST  </b>").
 local bAttitude is boosterAttitude:addlabel().
     set bAttitude:style:bg to "starship_img/booster".
 local missionTimeLabel is missionTimeDisplay:addlabel().
+local ClockHeader is missionTimeDisplay:addlabel().
+    set ClockHeader:style:align to "center".
+    set ClockHeader:text to MissionName.
 local VersionDisplay is GUI(100).
     local VersionDisplayLabel is VersionDisplay:addlabel().
         set VersionDisplayLabel:style:align to "center".
@@ -391,6 +394,13 @@ function CreateTelemetry {
     set missionTimeLabel:style:width to 160*TScale.
     set missionTimeLabel:style:fontsize to 42*TScale.
     set missionTimeLabel:style:align to "center".
+
+    set ClockHeader:style:wordwrap to false.
+    set ClockHeader:style:margin:left to 140*TScale.
+    set ClockHeader:style:margin:right to 160*TScale.
+    set ClockHeader:style:margin:top to 10*TScale.
+    set ClockHeader:style:width to 160*TScale.
+    set ClockHeader:style:fontsize to 24*TScale.
 
     set VersionDisplay:x to 0.
     set VersionDisplay:y to 25*TScale.

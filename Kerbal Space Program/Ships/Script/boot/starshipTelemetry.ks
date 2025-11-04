@@ -62,6 +62,9 @@ local missionTimeLabel is sMissionTime:addlabel().
     set missionTimeLabel:style:wordwrap to false.
     set missionTimeLabel:style:align to "center".
     set missionTimeLabel:text to "Startup".
+local ClockHeader is sMissionTime:addlabel().
+    set ClockHeader:style:align to "center".
+    set ClockHeader:text to MissionName.
 local VersionDisplay is GUI(100).
     set VersionDisplay:style:bg to "".
     local VersionDisplayLabel is VersionDisplay:addlabel().
@@ -133,6 +136,13 @@ function CreateTelemetry {
     set missionTimeLabel:style:margin:top to 80*TScale.
     set missionTimeLabel:style:width to 160*TScale.
     set missionTimeLabel:style:fontsize to 42*TScale.
+
+    set ClockHeader:style:wordwrap to false.
+    set ClockHeader:style:margin:left to 0.
+    set ClockHeader:style:margin:right to 120*TScale.
+    set ClockHeader:style:margin:top to 10*TScale.
+    set ClockHeader:style:width to 160*TScale.
+    set ClockHeader:style:fontsize to 24*TScale.
 
     set VersionDisplay:x to 0.
     set VersionDisplay:y to 36*TScale.
