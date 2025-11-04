@@ -15,6 +15,7 @@ set TScale to 1.
 // 1080p    -   1
 // 1440p    -   1.33
 // 2160p    -   2
+// --> (verticalRes)/1080 = x
 //_________________________________________
 
 
@@ -386,11 +387,11 @@ function FindParts {
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else {
-                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C")) and x:parent:name:contains("SHIP") {
+                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("Raptor.3RC")) and x:parent:name:contains("SHIP") {
                     set SL to true.
                     set SLcount to SLcount + 1.
                 }
-                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") {
+                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V" or x:name:contains("Raptor.3RC")) {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }

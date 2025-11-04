@@ -16,6 +16,7 @@ set TScale to 1.
 // 1080p    -   1
 // 1440p    -   1.33
 // 2160p    -   2
+// --> (verticalRes)/1080 = x
 //_________________________________________
 
 
@@ -178,7 +179,9 @@ local boosterStatus is bAttitudeTelemetry:addvlayout().
 local boosterAttitude is bAttitudeTelemetry:addvlayout().
 local missionTimeDisplay is bAttitudeTelemetry:addvlayout().
 local shipSpace is bAttitudeTelemetry:addvlayout().
-local EngBG is boosterCluster:addlabel(). set EngBG:style:bg to "starship_img/EngPicBooster/zero".
+local EngBG is boosterCluster:addlabel(). 
+    set EngBG:style:bg to "starship_img/EngPicBooster/zero".
+    if BoosterType:contains("Block3") set EngBG:style:bg to "starship_img/EngPicBooster3/zero".
 local Eng1 is boosterCluster:addlabel().
 local Eng2 is boosterCluster:addlabel().
 local Eng3 is boosterCluster:addlabel().

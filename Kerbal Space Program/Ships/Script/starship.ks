@@ -11548,13 +11548,13 @@ function ReEntryAndLand {
         if DynamicBanking {
             set trCompensation to trCompensation + 7000*(Scale^1.2).
             when alt:radar < 64000 * Scale then {
-                hudtext("Searching Tower..",3,2,16,yellow,true).
+                //hudtext("Searching Tower..",3,2,16,yellow,true).
                 set TargetedOLM to "False".
                 for x in shiplist {
                     if x:name:contains("OrbitalLaunchMount") and not x:name:contains("Debris") set TargetedOLM to x:name.
                 }
                 if not TargetedOLM = ("False") when alt:radar < 58000 * Scale then {
-                    hudtext("Loading Tower..",3,2,16,yellow,true).
+                    //hudtext("Loading Tower..",3,2,16,yellow,true).
                     set Vessel(TargetedOLM):loaddistance:landed:load to DistanceToTarget*1250.
                     set Vessel(TargetedOLM):loaddistance:prelaunch:load to DistanceToTarget*1250.
                     set Vessel(TargetedOLM):loaddistance:landed:unpack to DistanceToTarget*1200.
@@ -11592,7 +11592,7 @@ function ReEntryAndLand {
                         wait 0.
                         set Vessel(TargetedOLM):loaddistance:prelaunch:unload to 3250.
                         wait 0.001.
-                        hudtext("Unloading Tower.",3,2,16,green,true).
+                        //hudtext("Unloading Tower.",3,2,16,green,true).
                     }
                 }
                 else hudtext("No Tower Found..",3,2,16,red,true).
@@ -11641,7 +11641,7 @@ function ReEntryAndLand {
             when airspeed < ChangeOverSensitivity then {
                 set PitchPID to PIDLOOP(0.0005, 0.000001, 0.00003, -25, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
-            set YawPID to PIDLOOP(0.0022, 0.0000012, 0.00005, -50, 50).
+            set YawPID to PIDLOOP(0.0024, 0.0000012, 0.00008, -50, 50).
         }
         if AFTONLY {
             set PitchPID:kp to PitchPID:kp * 0.95.
@@ -11680,7 +11680,7 @@ function ReEntryAndLand {
                 if RSS and DynamicBanking when airspeed < 2435 then 
                         set trCompensation to trCompensation + 6000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                 if DynamicBanking when airspeed < 1200 or airspeed < 1800 and RSS then
-                    set trCompensation to trCompensation*1.5.
+                    set trCompensation to trCompensation + 2000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                 when airspeed < 850 * Scale then {
                     if DynamicBanking set YawBank to 3 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                     else set YawBank to 1.
@@ -11933,8 +11933,8 @@ function ReEntrySteering {
             set bankLNG to min(max(-2*maxLatChange, maxLatChange * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
             set bankLAT to min(max(-2*maxLatChange, maxLatChange * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
             if not RSS set landingzone to 
-                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-120/120),1) * bank * bankLAT * min(max(0, 100/max(100,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/800), 1),
-                    TgtLandingzone:lng + min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,100/max(100,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/800), 1)).
+                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-120/120),1) * bank * bankLAT * min(max(0, 150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/750), 1),
+                    TgtLandingzone:lng + min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/750), 1)).
             else set landingzone to 
                 latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220)^1.5,1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1800)^1.5, 1),
                     TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200)^1.5,1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1800)^1.5, 1)).

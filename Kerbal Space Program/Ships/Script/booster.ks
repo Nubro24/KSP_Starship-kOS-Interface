@@ -3010,7 +3010,7 @@ function Boostback {
         if BoosterType:contains("Block3") set vel to vel - 32.
         if not MiddleEnginesShutdown {
             if Bl3LndProf and BoosterSingleEngines
-                if stopDist3 + stopDist5 < DistanceError:mag and throttle < 0.44 or throttle < 0.33 
+                if stopDist3 + stopDist5 < DistanceError:mag and throttle < 0.5 or throttle < 0.33 
                     return true.
             if not Bl3LndProf and BoosterSingleEngines 
                 if stopDist3 < DistanceError:mag and throttle < 0.44 or throttle < 0.33 
@@ -3099,10 +3099,10 @@ FUNCTION SteeringCorrections {
             if not (MiddleEnginesShutdown) and Bl3LndProf and BoosterSingleEngines {
                 set stopTime9 to (airspeed - 75) / min(maxDecel, 50*Scale).
                 set stopDist9 to ((airspeed + 75) / 2) * stopTime9.
-                set stopTime5 to min(51, airspeed - 24) / min(maxDecel5, 18*Scale).
-                set stopDist5 to (min(51, airspeed + 24) / 2) * stopTime5.
-                set stopTime3 to min(24, airspeed) / min(maxDecel3, FinalDeceleration).
-                set stopDist3 to (min(24, airspeed) / 2) * stopTime3.
+                set stopTime5 to min(57, airspeed - 18) / min(maxDecel5, 18*Scale).
+                set stopDist5 to (min(57, airspeed + 18) / 2) * stopTime5.
+                set stopTime3 to min(18, airspeed) / min(maxDecel3, FinalDeceleration).
+                set stopDist3 to (min(18, airspeed) / 2) * stopTime3.
                 set TotalstopTime to stopTime9 + stopTime5 + stopTime3.
                 set TotalstopDist to (stopDist9 + stopDist5 + stopDist3) * cos(vang(-velocity:surface, up:vector)).
                 set landingRatio to max(0, TotalstopDist / (RadarAlt)).
@@ -3117,10 +3117,10 @@ FUNCTION SteeringCorrections {
                 set landingRatio to max(0, TotalstopDist / (RadarAlt)).
             }
             else if Bl3LndProf and not downToThree {
-                set stopTime5 to (airspeed - 24) / min(maxDecel5, 16*Scale ).
-                set stopDist5 to ((airspeed - 24) / 2) * stopTime5.
-                set stopTime3 to min(24, airspeed) / min(maxDecel3, FinalDeceleration).
-                set stopDist3 to (min(24, airspeed) / 2) * stopTime3.
+                set stopTime5 to (airspeed - 18) / min(maxDecel5, 16*Scale ).
+                set stopDist5 to ((airspeed - 18) / 2) * stopTime5.
+                set stopTime3 to min(18, airspeed) / min(maxDecel3, FinalDeceleration).
+                set stopDist3 to (min(18, airspeed) / 2) * stopTime3.
                 set TotalstopTime to stopTime5 + stopTime3.
                 set TotalstopDist to (stopDist5 + stopDist3) * cos(vang(-velocity:surface, up:vector)).
                 set landingRatio to max(0, TotalstopDist / (RadarAlt - 0.24)).
@@ -3277,7 +3277,7 @@ function LandingGuidance {
     if dbactive {
         set OffsetPosVec to vxcl(up:vector, landingzone:position-BoosterCore:position).
         set HighAngleVec to TheTowerHeadingVector:normalized * OffsetPosVec:mag + OffsetPosVec.
-        set haVstrength to min(max(-1, (380-airspeed)/50), 1) * min(RadarRatio/3, 1) * 1/LandingBurnAlt.
+        set haVstrength to min(max(-1, (380-airspeed)/50), 1) * min(RadarRatio/3, 1) * 2/LandingBurnAlt.
     }
 
     // === Future Offset from Target ===
@@ -3941,7 +3941,7 @@ function GetBoosterRotation {
             set varPredctVec to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + GSVec).
         } else {
             set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-            set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + TotalstopTime*GSVec).
+            set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + TotalstopTime*GSVec*0.6).
         }
         set varVecFinal to varVec + varPredctVec/2.
         set varFinal to vang(varVecFinal, TowerHeadingVector).
