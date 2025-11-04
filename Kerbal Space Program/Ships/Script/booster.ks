@@ -941,6 +941,10 @@ if bodyexists("Earth") {
         set BoosterReturnMass to 200.
         set BoosterRaptorThrust to 2130.
         set BoosterRaptorThrust3 to 2140.
+        if Block3Cluster or BoosterType:contains("Block3") {
+            set BoosterRaptorThrust to 2550.
+            set BoosterRaptorThrust3 to 2550.
+        }
         set Scale to 1.6.
         set CorrFactor to 0.7.
         set PIDFactor to 16.
@@ -974,6 +978,10 @@ if bodyexists("Earth") {
         set BoosterReturnMass to 125.
         set BoosterRaptorThrust to 555.
         set BoosterRaptorThrust3 to 555.
+        if Block3Cluster or BoosterType:contains("Block3") {
+            set BoosterRaptorThrust to 672.
+            set BoosterRaptorThrust3 to 672.
+        }
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
@@ -1014,6 +1022,10 @@ else {
         set BoosterReturnMass to 125.
         set BoosterRaptorThrust to 555.
         set BoosterRaptorThrust3 to 555.
+        if Block3Cluster or BoosterType:contains("Block3") {
+            set BoosterRaptorThrust to 672.
+            set BoosterRaptorThrust3 to 672.
+        }
         set Scale to 1.
         set CorrFactor to 0.8.
         set PIDFactor to 8.
