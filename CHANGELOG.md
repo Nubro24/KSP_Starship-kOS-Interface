@@ -1,4 +1,4 @@
-# V3.6.0 (2025-09-22)
+# V3.6.0 (2025-11-05)
 - **Reworked Catch Guidance for Booster and Ship** 
   - uses Catch position instead ground impact position
   - PID based (better adjustments in different situations + easier fine tuning)
@@ -6,9 +6,12 @@
 - Added Support for a Booster with 3 Gridfins (V3 Layout)
 - Added Support for Questin's Block 3 Booster & Raptor 3 Engines
   - Added 13-5-3 Landing Burn Configuration
+- Added Support for flights without HSR
 - Added Support for Testflight
 - Added Booster Static Fire (Action Group 5, with ship-less Booster on OLM)
 - Improved Engine Health Checks for Booster
+- Fixed Booster not considering Engine ignition time in LandingBurnHeight calculation
+- Improved Chopstick Movement relative to Booster
 - **UI Changes**
   - Added Flight Settings:
     - Hide Inteface during Flight Operations

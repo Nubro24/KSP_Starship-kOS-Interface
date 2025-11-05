@@ -5992,7 +5992,7 @@ set launchbutton:ontoggle to {
                             if TargetShip = 0 and not hastarget {}
                             else if not (TargetShip = 0) {
                                 if RSS {
-                                    set LaunchTimeSpanInSeconds to 450.
+                                    set LaunchTimeSpanInSeconds to 500.
                                     set LaunchDistance to 1450000.
                                 }
                                 else if KSRSS {
@@ -7563,7 +7563,7 @@ function Launch {
             set PitchIncrement to 0 + 2.4 * CargoMass / MaxCargoToOrbit.
             set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0, 0, -30, PitchIncrement).
             set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 20.
-            set BoosterThrottleDownAlt to 2100.
+            set BoosterThrottleDownAlt to 1800.
         }
         else if KSRSS {
             set LaunchElev to altitude - 67.74.
@@ -7581,7 +7581,7 @@ function Launch {
             }
             set PitchIncrement to 0 + 2.5 * CargoMass / MaxCargoToOrbit.
             set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0, 0, -30, PitchIncrement).
-            set BoosterThrottleDownAlt to 1800.
+            set BoosterThrottleDownAlt to 1700.
         }
         else {
             set LaunchElev to altitude - 67.74.
@@ -8199,12 +8199,14 @@ function Launch {
                     wait 0.1.
                 }
                 lock throttle to 0.5.
+                set IFT1SEI to false.
                 updateTelemetry().
                 unlock steering.
                 if not cancelconfirmed {
                     sendMessage(Processor(volume("Booster")), "Boostback").
                 }
-                set quickengine3:pressed to true.
+                if defined HSR set quickengine3:pressed to true.
+                else set IFT1SEI to true.
                 updateTelemetry().
                 if BoosterType:contains("Block3") {
                     print "Block 3".
@@ -8251,9 +8253,10 @@ function Launch {
                 }
                 updateTelemetry().
 
-                wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0.
+                wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("Block.3.AFT"):LENGTH = 0.
                 updateTelemetry().
-                set HotStageTime to time:seconds.
+                if not IFT1SEI set HotStageTime to time:seconds.
+                else set HotStageTime to time:seconds + 2.
                 set StageSepComplete to true.
                 set ship:name to ("Starship " + ShipType).
                 set Boosterconnected to false.
@@ -8280,6 +8283,10 @@ function Launch {
                     SetLoadDistances(ship, 900000).
                 }
                 LogToFile("Hot-Staging Complete").
+                if IFT1SEI when time:seconds > HotStageTime - 1 then {
+                    set quickengine3:pressed to true.
+                    set HotStageTime to time:seconds + 0.2.
+                }
                 when time:seconds > HotStageTime + 0.2 then {
                     set quickengine2:pressed to true.
                 }
@@ -8458,16 +8465,18 @@ function LaunchThrottle {
     if Boosterconnected {
         set gLoad to ship:maxThrust / (ship:mass * 9.805).
         if ship:q > 0.25 {
-            set thr to 1 - 3 * (ship:q - 0.25).
+            set thr to 1 - 0.0033 * 32/max(1,CargoMass/1000) - 4.2 * (ship:q - 0.25).
         }
-        else if gLoad > 2.5 {
-            set thr to 1 - 0.1 * (gLoad - 2.5).
+        else if gLoad > 2.2 {
+            set thr to 1 - 0.0033 * 32/max(1,CargoMass/1000) - 0.12 * (gLoad - 2.2).
         }
         else {
-            set thr to 1.
+            set thr to 1 - 0.0033 * 32/max(1,CargoMass/1000).
         }
         if apoapsis > BoosterAp {
-            set thr to max((1 - 0.1 * (gLoad - 2.5))/2 + min((1 - 0.1 * (gLoad - 2.5))/2 - ((apoapsis - BoosterAp) / BoosterThrottleDownAlt),0.5),0.5).
+            set thr to max((1 - 0.0033 * 32/max(1,CargoMass/1000) - 0.12 * (gLoad - 2.2))/2 
+                        + min((1 - 0.0033 * 32/max(1,CargoMass/1000) - 0.12 * (gLoad - 2.2))/2 
+                        - ((apoapsis - BoosterAp) / BoosterThrottleDownAlt),0.5),0.5).
         }
     }
     else {
@@ -8497,7 +8506,7 @@ function LaunchThrottle {
                             set thr to max(min((1 * Planet1G) / MaxAccel, max(deltaV / MaxAccel, 0.1)), 0.33).
                         }
                         else {
-                            set thr to max(min((3 * Planet1G) / MaxAccel, max(deltaV / MaxAccel, 0.1)), 0.33).
+                            set thr to max(min((2 * Planet1G) / MaxAccel, max(deltaV / MaxAccel, 0.1)), 0.33).
                         }
                     }
                     else {
@@ -8592,7 +8601,7 @@ Function LaunchSteering {
     } 
     else if altitude - LaunchElev < 1000 {
         if RSS {
-            set targetpitch to 90 - (7.5 * SQRT(max((altitude - 120 - LaunchElev), 0)/1600)).
+            set targetpitch to 90 - (7.3 * SQRT(max((altitude - 120 - LaunchElev), 0)/1600)).
         }
         else if KSRSS {
             if RESCALE {
@@ -8616,7 +8625,7 @@ Function LaunchSteering {
         }
         else {
             if RSS {
-                set result to lookDirUp(srfPrograde:vector + 0.22*up:vector, LaunchRollVector).
+                set result to lookDirUp(srfPrograde:vector + 0.19*up:vector, LaunchRollVector).
             } else {
                 set result to lookDirUp(srfPrograde:vector + 0.2*up:vector, LaunchRollVector).
             }
@@ -8628,7 +8637,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
             else {
-                set targetpitch to 90 - (8.9 * SQRT(max((altitude - 250 - LaunchElev), 0)/950)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -8665,7 +8674,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (7.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (8.7 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (8.4 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -8702,7 +8711,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (7.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
             }
             else {
-                set targetpitch to 90 - (8.6 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.3 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
         }
         else if KSRSS {
@@ -8737,8 +8746,8 @@ Function LaunchSteering {
         set ProgradeAngle to 90 - vang(velocity:surface, up:vector)*1.02.
         if RSS {
             if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
-            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.95.
-            else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.87.
+            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.92.
+            else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.86.
         }
         if MaintainVS {
             if deltaV > 500*Scale {
@@ -8753,7 +8762,7 @@ Function LaunchSteering {
         else {
             set OrbitBurnPitchCorrection to OrbitBurnPitchCorrectionPID:UPDATE(TIME:SECONDS, apoapsis).
         }
-        
+
 
         print "Target Pitch: " + round(ProgradeAngle + OrbitBurnPitchCorrection, 1) + "°".
         print "Desired Accel: " + round(DesiredAccel / 9.81, 2) + "G".
@@ -11553,7 +11562,7 @@ function ReEntryAndLand {
                 for x in shiplist {
                     if x:name:contains("OrbitalLaunchMount") and not x:name:contains("Debris") set TargetedOLM to x:name.
                 }
-                if not TargetedOLM = ("False") when alt:radar < 58000 * Scale then {
+                if not TargetedOLM = ("False") when alt:radar < 58000 * Scale then if not TargetedOLM = "False" and not TargetOLM = "False" {
                     //hudtext("Loading Tower..",3,2,16,yellow,true).
                     set Vessel(TargetedOLM):loaddistance:landed:load to DistanceToTarget*1250.
                     set Vessel(TargetedOLM):loaddistance:prelaunch:load to DistanceToTarget*1250.
@@ -11653,7 +11662,7 @@ function ReEntryAndLand {
         }
 
         set ReentryVector to ReEntrySteering().
-        lock STEERING to ReentryVector.
+        when alt:radar < ship:body:atm:height * 1.1 then lock STEERING to ReentryVector.
 
 
 
@@ -11680,7 +11689,7 @@ function ReEntryAndLand {
                 if RSS and DynamicBanking when airspeed < 2435 then 
                         set trCompensation to trCompensation + 6000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                 if DynamicBanking when airspeed < 1200 or airspeed < 1800 and RSS then
-                    set trCompensation to trCompensation + 2000 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
+                    set trCompensation to trCompensation + 2000/Scale * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                 when airspeed < 850 * Scale then {
                     if DynamicBanking set YawBank to 3 * vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90.
                     else set YawBank to 1.
@@ -11930,14 +11939,16 @@ function ReEntrySteering {
 
         if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 320 {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
+            
             set bankLNG to min(max(-2*maxLatChange, maxLatChange * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * 1/ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
+            if RSS set LngMove to min(max(0,DistanceToTarget-200/200)^1.5,1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1800)^1.5, 1).
+            else set LngMove to min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/750), 1).
+
             set bankLAT to min(max(-2*maxLatChange, maxLatChange * min(65,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65 * ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
-            if not RSS set landingzone to 
-                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-120/120),1) * bank * bankLAT * min(max(0, 150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/750), 1),
-                    TgtLandingzone:lng + min(max(0,DistanceToTarget-100/100),1) * bankLNG * min(max(0,150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/750), 1)).
-            else set landingzone to 
-                latlng(TgtLandingzone:lat + min(max(0,DistanceToTarget-220/220)^1.5,1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1800)^1.5, 1),
-                    TgtLandingzone:lng + min(max(0,DistanceToTarget-200/200)^1.5,1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/1800)^1.5, 1)).
+            if RSS set LatMove to min(max(0,DistanceToTarget-220/220)^1.5,1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/1800)^1.5, 1).
+            else set LatMove to min(max(0,DistanceToTarget-120/120),1) * bank * bankLAT * min(max(0, 150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/750), 1).
+
+            set landingzone to latlng(TgtLandingzone:lat + LatMove, TgtLandingzone:lng + LngMove).
             set LastLZChange to time:seconds.
             set Once to true.
         }
@@ -12005,11 +12016,9 @@ function ReEntrySteering {
         //set GuidVec to vecDraw(HeaderTank:position, 0.5 * GuidVec:vector, red, "Guid Vector", 25, true, 0.005, true, true).
         //set ReentryVec to vecDraw(HeaderTank:position, 1 * resultVec, green, "Re-Entry Vector", 25, true, 0.005, true, true).
 
-        if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + vxcl(SRFPRGD:vector, resultVec:normalized) * 0.06 + (resultVec:normalized - facing:forevector).
-        else set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) + vxcl(SRFPRGD:vector, resultVec:normalized) * 0.04 + (resultVec:normalized - facing:forevector).
-        if vAng(facing:topvector,ReentryRoll) > 10 {
-            set ReentryRoll to -vxcl(resultVec,landingzone:position - ship:position) + vxcl(SRFPRGD:vector, resultVec:normalized) * 0.04 + (resultVec:normalized - facing:forevector).
-        }
+        if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + (resultVec:normalized - facing:forevector).
+        else set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) + (resultVec:normalized - facing:forevector).
+        
         //set ReentryRollVec to vecDraw(Tank:position, 1 * ReentryRoll, green, "Re-Entry Vector", 25, true, 0.005, true, true).
         set result to lookdirup(resultVec, ReentryRoll).
         set steeringOffsetFinal to vang(result:forevector, facing:forevector).
@@ -12823,9 +12832,9 @@ function LandingVector {
         set LngLatErrorList to LngLatError().
         set LngError to vdot(LandingForwardDirection, ErrorVector).
         set LatError to vdot(LandingLateralDirection, ErrorVector).
-        if twoSL set _2SL to 0.55*(Scale^0.6).
+        if twoSL set _2SL to 0.55*(Scale^0.64).
         else set _2SL to 0.
-        if oneSL set _1SL to 0.55*(Scale^0.6).
+        if oneSL set _1SL to 0.55*(Scale^0.64).
         else set _1SL to 0.
 
         if ship:body:atm:sealevelpressure > 0.5 {
@@ -12873,9 +12882,9 @@ function LandingVector {
                     set result to up:vector - 0.008 * GSVec - 0.02 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
                 }
                 else if RadarAlt > 10 {
-                    set result to up:vector - 0.015 * GSVec - 0.005 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
+                    set result to up:vector - 0.018 * GSVec - 0.007 * ErrorVector - facing:topvector * _2SL + facing:starvector * _1SL.
                 }
-                else set result to up:vector - 0.02 * GSVec.
+                else set result to up:vector - 0.03 * GSVec.
                 if RadarAlt < 5 set result to result + 2*up:vector.
                 set message1:text to "<b>Landing Off-Target..</b>".
                 if ErrorVector:MAG < 10000 {
@@ -12973,7 +12982,7 @@ function LandingVector {
     set result to result*1.2 + facing:forevector * steeringDamp + upDamp * up:vector.
 
     wait 0.001.
-    if TargetOLM and RadarAlt < 3*ShipHeight and not (LandSomewhereElse) {
+    if TargetOLM and RadarAlt < 3*ShipHeight and not (LandSomewhereElse) and Vessel(TargetOLM):distance < 2000 {
         set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Nose:position).
         return lookDirUp(result, RollVector).
     }
@@ -13278,7 +13287,7 @@ function CalculateDeOrbitBurn {
     set AngleAccuracy to 10.
     
     if DynamicBanking {
-        set PlotAoA to PlotAoA + 2.1/(Scale).
+        set PlotAoA to PlotAoA + 2.1/(Scale^1.5).
         SetPlanetData().
         set addons:tr:descentangles to DescentAngles.
     }
@@ -16685,7 +16694,7 @@ function updateTelemetry {
         set sCH4Slider:style:overflow:right to -196*TScale + 2*round(shipCH4,1)*TScale.
         set sCH4Number:text to round(shipCH4,1) + "%".
     } else {
-        set sCH4Label:text to "<b>Fuel</b>   ".// + round(shipCH4,1) + " %".
+        set sCH4Label:text to "<b><color=red>Fuel</color></b>   ".// + round(shipCH4,1) + " %".
         set sCH4Slider:style:overflow:right to -196*TScale + 2*round(shipCH4,1)*TScale.
         set sCH4Number:text to round(shipCH4,1) + "%".
     }
