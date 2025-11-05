@@ -375,9 +375,9 @@ function FindParts {
     function TreeWalking {
         parameter StartPart.
         for x in StartPart:children {
-            if x:name:contains("SEP.23.BOOSTER.INTEGRATED") {}
-            else if x:name:contains("SEP.25.BOOSTER.CORE") {}
-            else if x:name:contains("Block.3.AFT") {}
+            if x:name:contains("SEP.23.BOOSTER.INTEGRATED") {set Boosterconnected to true.}
+            else if x:name:contains("SEP.25.BOOSTER.CORE") {set Boosterconnected to true.}
+            else if x:name:contains("Block.3.AFT") {set Boosterconnected to true.}
             else if x:name:contains("Block.3.LOX") {}
             else if x:name:contains("Block.3.CMN") {}
             else if x:name:contains("Block.3.CH4") {}
@@ -776,13 +776,6 @@ function FindParts {
         set bCMNDome to SHIP:PARTSNAMED("Block.3.CMN").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
-            //print(round(BoosterCore[0]:drymass)).
-            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
-                set BoosterCorrectVariant to true.
-            }
-            else {
-                set BoosterCorrectVariant to true.
-            }
             if ShipType = "Depot" {
                 sendMessage(processor(volume("Booster")),"Depot").
             }
@@ -867,7 +860,7 @@ when not Boosterconnected then {
 
 
 until false {
-    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and Boosterconnected {
+    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and ship:partsnamed("Block.3.AFT"):length = 0 and Boosterconnected {
         set Boosterconnected to false.
         //sendMessage(Vessel("Booster"),"HotStage").
     } 
