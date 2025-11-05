@@ -7,7 +7,7 @@ Here I describe the steps required to make a .craft file for the Interface:
 - Select the boot files for kOS and configure the parts:
     - Nose part (not available on depot): *watchdog.ks*.
     - Ship Tank: *starship.ks*, set ships body autostrut to the heaviest part (important for relaunching a 2nd time). Set Vessel Naming and priority to highest.
-    - HSR: set docking switch to 'docking port' / 'enabled' .
+    - HSR: set docking switch to 'docking port' / 'enabled'.
     - OLM: *tower.ks*, set docking switch to 'enabled'.
     - Booster: *booster.ks*, set docking switch to 'docking port' / 'enabled'. 
 - Set fuel priority *for Ship* so it uses fuel in the following order: Main Tank (0) --> Tanker Module (-1) --> Header  (-2).
