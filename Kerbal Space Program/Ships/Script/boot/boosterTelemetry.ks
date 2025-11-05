@@ -1,6 +1,6 @@
 wait until ship:unpacked.
 
-set Scriptversion to "v4".
+set Scriptversion to "v5".
 
 //<==== Countdown Start (T- ... ) ====>
 set CountdownStart to 240.

@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 
 clearscreen.
-set Scriptversion to "v4".
+set Scriptversion to "v5".
 //<==== Mission Name (below Clock) ====>
 set MissionName to "".
 
@@ -837,7 +837,7 @@ if ship:name:contains("OrbitalLaunchMount") {
 print ShipType.
 print "Starship Telemetry startup complete!".
 
-when ship:partstitled("Starship Orbital Launch Mount"):length = 0 then {
+when ship:partstitled("Starship Orbital Launch Mount"):length = 0 and ship:partstitled("OLM-B/2"):length = 0 then {
     if not PostLaunch {
         SaveToSettings("Launch Time", time:seconds).
         set missionTimer to time:seconds.
