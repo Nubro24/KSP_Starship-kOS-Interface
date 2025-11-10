@@ -10659,7 +10659,7 @@ function setflaps {
         ALflap:getmodule("ModuleSEPControlSurface"):SetField("Authority Limiter", authority).
         ARflap:getmodule("ModuleSEPControlSurface"):SetField("Authority Limiter", authority).
     }
-    else if AFTONLY {
+    else if AFTONLY and not ShipType:contains("Exp") {
         ALflap:getmodule("ModuleSEPControlSurface"):SetField("Deploy", deploy).
         ARflap:getmodule("ModuleSEPControlSurface"):SetField("Deploy", deploy).
 
