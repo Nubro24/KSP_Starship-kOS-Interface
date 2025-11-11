@@ -16274,7 +16274,7 @@ function CheckFullTanks {
         
 
         if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 and FullTanks {
-            for res in list(BoosterCore[0]:resources) {
+            for res in BoosterCore[0]:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass > 24000 {
                     set FullTanks to false.
                     set missingStuffWhere to missingStuffWhere + "bOldHigh|".
