@@ -100,7 +100,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 
-### Planned Features:
+## Planned Features:
 - Landings with sub-meter precision
 - better Ship Catch Abort
 - IFT - Flight profile option
@@ -108,7 +108,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Implement unused Heat Pictograms
 - Rendezvous Maneuver
 
-#### Planned/Suggested Features for later:
+### Planned/Suggested Features for later:
 - Flight Experiments:
     - Force Go for Catch
     - High Booster Reentry AoA (custom setting)
