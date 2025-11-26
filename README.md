@@ -108,6 +108,16 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Implement unused Heat Pictograms
 - Rendezvous Maneuver
 
+#### Planned/Suggested Features for later:
+- Flight Experiments:
+    - Force Go for Catch
+    - High Booster Reentry AoA (custom setting)
+- Ship Go Nogo UI
+- Ship Landing on Barge/Drone-Ship
+- Custom Booster Offshore Landing Height
+- Custom Hover Time
+- Custom Offshore distance to Shore
+- High Engine Outage during Boostback --> BB abort and land anywhere
 
 
 > [!NOTE]
