@@ -837,6 +837,7 @@ set cAbort to false.
 set GfC to true.
 set TMinusCountdown to 17.
 set lowTWR to false.
+set HAFTAp to 10000.
 
 
 
@@ -1478,6 +1479,7 @@ function HighAltitudeFlightTest {
                     hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
                 }
             }
+            set tgtVec to tgtVec - TowerHeadingVector:normalized * 950*Scale.
             set RotationTgt to tgtVec:normalized - TowerHeadingVector:normalized.
         }
     }
@@ -1487,7 +1489,7 @@ function HighAltitudeFlightTest {
     }
     when shipCH4 < 50 then Tank:shutdown.
     set HAFTthrPID to pidLoop(0.02,0.001,0.02,0.33,1).
-    set HAFTthrPID:setpoint to 10000.
+    set HAFTthrPID:setpoint to HAFTAp.
     wait until SLEThrust*3 > (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.15.
     hudtext("Venting complete..",5,2,18,yellow,false).
     set missionTimer to time:seconds.
@@ -1502,32 +1504,35 @@ function HighAltitudeFlightTest {
     wait 0.5.
     ship:partsnamed("SLE.SS.TS")[0]:getmodule("LaunchClamp"):doaction("release clamp", true).
     when (time:seconds-ignTime)/2 > 0.95 then lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
-    when apoapsis > 7000 then if shipCH4 > 20 Tank:activate.
-    when shipCH4 < 8/Scale then Tank:shutdown.
-    when apoapsis > 5000 then if SLEngines[0]:hassuffix("activate") {
+    when apoapsis > HAFTAp-3600 then if shipCH4 > 20 Tank:activate.
+    when shipCH4 < 6/Scale then Tank:shutdown.
+    when apoapsis > HAFTAp/2 then if SLEngines[0]:hassuffix("activate") {
         SLEngines[0]:shutdown.
         SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
         set steeringManager:pitchpid:kd to 0.5.
         set steeringManager:yawpid:kd to 0.5.
     }
-    when apoapsis > 8800 then if SLEngines[0]:hassuffix("activate") {
+    when apoapsis > HAFTAp-1200 then if SLEngines[0]:hassuffix("activate") {
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         set steeringManager:pitchpid:kd to 0.6.
         set steeringManager:yawpid:kd to 0.6.
         SLEngines[1]:shutdown.
         SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+        lock steering to lookDirUp(up:vector*8-0.024*facing:topvector+0.032*facing:starvector-tgtVec/HAFTAp-0.01*RotationTgt-0.08*GSVec+0.2*TowerHeadingVector:normalized, -TowerHeadingVector).
     }
-    when alt:radar > 243 then lock steering to lookDirUp(up:vector+0.02*facing:topvector+tgtVec/10000+0.005*RotationTgt, -TowerHeadingVector).
-    when alt:radar > 6800 then {
+    when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp+0.003*RotationTgt, -TowerHeadingVector*0.5 + facing:topvector).
+    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp+0.005*RotationTgt, -TowerHeadingVector).
+    when alt:radar > HAFTAp-3200 then {
         lock steering to lookDirUp(up:vector, -TowerHeadingVector).
-        when steeringManager:angleerror < 2 then lock steering to lookDirUp(up:vector-0.042*facing:topvector-tgtVec/10000-0.01*RotationTgt, -TowerHeadingVector).
+        when steeringManager:angleerror < 1 then lock steering to lookDirUp(up:vector*5-tgtVec*0.5/HAFTAp-0.01*RotationTgt, -TowerHeadingVector).
     }
-    when apoapsis > 10000 then {
+    when apoapsis > HAFTAp then {
         set descentTgtVec to -facing:topvector.
         set HAFTthrPID:setpoint to 5.
         lock throttle to HAFTthrPID:update(time:seconds, verticalSpeed).
     }
-    until apoapsis > 10000 {
+    until apoapsis > HAFTAp {
+        if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
         wait 0.1.
@@ -1538,14 +1543,29 @@ function HighAltitudeFlightTest {
         else rcs off.
         wait 0.1.
     }
-        setflaps(24, 85, 1, 24).
-        lock steering to lookDirUp(descentTgtVec+up:vector, up:vector).
-        set stopRCS to true.
-        wait 0.3.
-        if SLEngines[0]:hassuffix("activate") SLEngines[2]:shutdown.
-        lock throttle to 0.
-        set stopRCS to false.
-    until vAng(facing:topvector, up:vector) < 42 and verticalSpeed < 0 {
+    setflaps(24, 85, 1, 24).
+    set steeringManager:pitchpid:kd to 1.
+    lock steering to lookDirUp(descentTgtVec+0.1*up:vector, up:vector).
+    set stopRCS to true.
+    wait 0.1.
+    if SLEngines[0]:hassuffix("activate") SLEngines[2]:shutdown.
+    lock throttle to 0.
+    set stopRCS to false.
+    for res in tank:resources {
+        if res:name = "Oxidizer" {
+            set RepositionOxidizer to TRANSFERALL("Oxidizer", HeaderTank, Tank).
+            set RepositionOxidizer:ACTIVE to TRUE.
+        }
+        if res:name = "LiquidFuel" {
+            set RepositionLF to TRANSFERALL("LiquidFuel", HeaderTank, Tank).
+            set RepositionLF:ACTIVE to TRUE.
+        }
+        if res:name = "LqdMethane" {
+            set RepositionLF to TRANSFERALL("LqdMethane", HeaderTank, Tank).
+            set RepositionLF:ACTIVE to TRUE.
+        }
+    }
+    until vAng(facing:topvector, up:vector) < 12 and verticalSpeed < 0 {
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
         wait 0.1.
@@ -12529,7 +12549,7 @@ function ReEntryData {
                 set landingzone to ship:body:geopositionof(addons:tr:IMPACTPOS:position + facing:forevector:normalized*ShipHeight).
                 addons:tr:settarget(landingzone).
                 set LandSomewhereElse to true.
-                when vang(facing:forevector, -velocity:surface) < 45 then {
+                if LngLatErrorList[0] > 20*Scale when vang(facing:forevector, -velocity:surface) < 45 then {
                     set landingzone to ship:body:geopositionof(addons:tr:IMPACTPOS:position).
                     addons:tr:settarget(landingzone).
                 }
@@ -12557,6 +12577,7 @@ function ReEntryData {
             wait 0.001.
             lock throttle to 0.5.
             if RSS {lock throttle to 0.33.}
+            if GSVec:mag < 20 {set throttleOffset to (20-GSVec:mag)/10. lock throttle to 0.5 + throttleOffset.}
 
             //set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0001).
             //addons:tr:settarget(landingzone).
