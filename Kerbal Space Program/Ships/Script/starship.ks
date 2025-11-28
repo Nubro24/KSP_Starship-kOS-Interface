@@ -836,6 +836,7 @@ set LngLatOffset to 0.
 set cAbort to false.
 set GfC to true.
 set TMinusCountdown to 17.
+set lowTWR to false.
 
 
 
@@ -7976,7 +7977,6 @@ function Launch {
                 if fullAuto g:show().
                 return.
             }
-            set lowTWR to false.
             set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass.
             lock throttle to 0.77.
             wait 0.1.
