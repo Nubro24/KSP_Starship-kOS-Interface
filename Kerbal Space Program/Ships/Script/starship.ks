@@ -1497,6 +1497,7 @@ function HighAltitudeFlightTest {
     wait 0.
     addons:tr:settarget(landingzone).
     set tgtVec to tgtVec - TowerHeadingVector:normalized * 1200*Scale.
+    for HAFTres1 in Tank:resources {if HAFTres1:name:contains("Methane") {set Fam1 to HAFTres1:amount. set Fcap to HAFTres1:capacity.}}
     if SLEThrust*3*0.9 < (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18 {
         Tank:activate.
         hudtext("Venting starting.. Too heavy for liftoff right now",5,2,18,yellow,false).
