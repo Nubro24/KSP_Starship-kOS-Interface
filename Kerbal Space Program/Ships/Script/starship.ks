@@ -838,6 +838,7 @@ set GfC to true.
 set TMinusCountdown to 17.
 set lowTWR to false.
 set HAFTAp to 10000.
+set ActiveRC to 0.
 
 
 
@@ -858,7 +859,8 @@ when NOT CORE:MESSAGES:EMPTY then {
 
 
 function FindParts {
-    if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
+    wait 0.
+    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 and ship:partsnamed("SEP.24.SHIP.CORE"):length > 0 if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
         set ShipIsDocked to true.
     }
     else {
@@ -909,6 +911,7 @@ function FindParts {
             else if x:name:contains("Block.3.FWD") {}
             else if x:name:contains("SEP.23.SHIP.BODY") {}
 			else if x:name:contains("SEP.24.SHIP.CORE") {}
+			else if x:name:contains("SEP.24.SHIP.PROTO.BODY") {}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else {
@@ -920,29 +923,23 @@ function FindParts {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:title = "Donnager MK-1 Rear Left Flap" or x:title = "Starship Rear Left Flap" {
+                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") {
                     set ALflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:title = "Donnager MK-1 Rear Right Flap" or x:title = "Starship Rear Right Flap" {
+                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:title = "Donnager MK-1 Front Left Flap" or x:title = "Starship Forward Left Flap" {
+                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:title = "Donnager MK-1 Front Right Flap" or x:title = "Starship Forward Right Flap" {
+                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") {
                     set FRflap to x.
                 }
-				else if x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:title = "Donnager MK-3 Rear Left Flap" or x:title = "Starship Block 1 Rear Left Flap" {
-                    set ALflap to x.
-                }
-                else if x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:title = "Donnager MK-3 Rear Right Flap" or x:title = "Starship Block 1 Rear Right Flap" {
-                    set ARflap to x.
-                }
-                else if x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:title = "Donnager MK-3 Front Left Flap" or x:title = "Starship Block 1 Forward Left Flap" or x:name:contains("VS.25.BL2.FLAP.LEFT") {
-                    set FLflap to x.
-                }
-                else if x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:title = "Donnager MK-3 Front Right Flap" or x:title = "Starship Block 1 Forward Right Flap" or x:name:contains("VS.25.BL2.FLAP.RIGHT") {
-                    set FRflap to x.
+                else if x:name:contains("SEP.24.SHIP.PROTO.NOSE") {
+                    set HeaderTank to x.
+                    set Nose to x.
+                    set ShipType to "SN".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.23.SHIP.HEADER") {
                     set HeaderTank to x.
@@ -1037,8 +1034,8 @@ function FindParts {
         set SL2 to false.
         set SL3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
-                if x:name:contains("SEP.23.RAPTOR2.SL.RC") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") {
+                if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") {
                     set partPos to x:position - Tank:position.
                     set compPos to Tank:facing:topvector.
                     if vAng(partPos, compPos) < 89 {
@@ -1191,7 +1188,7 @@ function FindParts {
             set VACStep to true.
         }
     } 
-    else if not sEngSetVac {
+    else if not sEngSetVac and ship:partsnamed("SEP.24.SHIP.PROTO.NOSE"):length = 0 and ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length = 0 {
         print("VACEngine count is wrong!").
         hudtext("VACEngine count is wrong! (" + Vaccount + "; needs 3 or 6)",10,2,18,red,false).
     }
@@ -1204,6 +1201,7 @@ function FindParts {
         set VACEngines to VACEnginesStep.
         set VACStep to false.
     } 
+    if defined VACEngines {} else {set VACEngines to list(False,False,False).}
     set NrOfVacEngines to VACEngines:length.
     set ShipMass to ShipMassStep * 1000.
     set CargoMass to CargoMassStep * 1000.
@@ -1433,7 +1431,7 @@ function EngineTest {
     hudtext("Static Fire Test starting..",5,2,18,yellow,false).
     wait 5.
     lock throttle to 0.8.
-    for eng in VACEngines {
+    if not SHipType:contains("SN") for eng in VACEngines {
         eng:activate.
         wait 0.2.
     } 
@@ -1443,7 +1441,7 @@ function EngineTest {
         wait 0.2.
     } 
     wait 5.
-    for eng in VACEngines {
+    if not SHipType:contains("SN") for eng in VACEngines {
         eng:shutdown.
         wait 0.2.
     } 
@@ -1458,15 +1456,28 @@ function EngineTest {
 }
 
 function HighAltitudeFlightTest {
+    sas off.
     local stopRCS to false.
+    if ship:partsnamed("SEP.24.R1C"):length > 0 if not RSS set SLEThrust to 454. else set SLEThrust to 1814.
     wait 2.
-    set tgtVec to v(0,0,0).
+    set tgtVec to -facing:starvector*500.
     set TowerHeadingVector to -facing:topvector.
     set descentTgtVec to -facing:topvector.
-    set RotationTgt to v(0,0,0).
     set steeringManager:pitchpid:kd to 0.4.
     set steeringManager:yawpid:kd to 0.4.
     hudtext("High Altitude Flight Test starting..",5,2,24,yellow,false).
+    set launchlabel:style:textcolor to grey.
+    set message1:style:textcolor to white.
+    set message2:style:textcolor to white.
+    set message3:style:textcolor to white.
+    set landlabel:style:textcolor to grey.
+    set textbox:style:bg to "starship_img/starship_main_square_bg".
+    set message1:text to "High Altitude Flight Test".
+    set message2:text to "Venting in Progress".
+    set message3:text to "Active Engines: " + SLactive.
+    if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+    if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+    if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
     list targets in OLMSearch.
     for tgt in OLMSearch {
         if tgt:name:contains("OrbitalLaunchMount") {
@@ -1479,79 +1490,121 @@ function HighAltitudeFlightTest {
                     hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
                 }
             }
-            set tgtVec to tgtVec - TowerHeadingVector:normalized * 950*Scale.
-            set RotationTgt to tgtVec:normalized - TowerHeadingVector:normalized.
         }
     }
-    if shipCH4 > 60 {
+    wait 0.
+    set landingzone to ship:body:geopositionof(tgtVec).
+    wait 0.
+    addons:tr:settarget(landingzone).
+    set tgtVec to tgtVec - TowerHeadingVector:normalized * 1200*Scale.
+    if SLEThrust*3*0.9 < (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18 {
         Tank:activate.
         hudtext("Venting starting.. Too heavy for liftoff right now",5,2,18,yellow,false).
+        set TimeStamp1 to time:seconds.
+        for HAFTres1 in Tank:resources {if HAFTres1:name:contains("Methane") {set Fam1 to HAFTres1:amount. set Fcap to HAFTres1:capacity.}}
+        when time:seconds - TimeStamp1 > 1 then {
+            for HAFTres2 in Tank:resources {if HAFTres2:name:contains("Methane") set Fam2 to HAFTres2:amount.}
+            set VentSpeed to (Fam1-Fam2)/(time:seconds - TimeStamp1).
+        }
     }
-    when shipCH4 < 50 then Tank:shutdown.
-    set HAFTthrPID to pidLoop(0.02,0.001,0.02,0.33,1).
+    when SLEThrust*3*0.9 > (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18 then {
+        Tank:shutdown.
+        set VentstartTime to time:seconds + 120 - Fcap*(0.16/Scale)/VentSpeed.
+        when time:seconds > VentstartTime then Tank:activate.
+    }
+    set HAFTthrPID to pidLoop(0.01,0,0.01,0.33,1).
     set HAFTthrPID:setpoint to HAFTAp.
-    wait until SLEThrust*3 > (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.15.
+    until SLEThrust*3*0.9 > (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18 {
+        set message2:text to "Venting in Progress: " + round(SLEThrust*3*0.9/((ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18), 3)*100 + "%".
+        wait 0.2.
+    }
     hudtext("Venting complete..",5,2,18,yellow,false).
-    set missionTimer to time:seconds.
+    set missionTimer to time:seconds+2.
     wait 2.
+    set message2:text to "Ascent in Progress".
     set ignTime to time:seconds.
     lock throttle to (time:seconds-ignTime)/2.
     lock steering to lookDirUp(up:vector, facing:topvector).
     for eng in SLEngines {
         eng:activate.
+        set message3:text to "Active Engines: " + SLactive.
         wait 0.3.
     } 
     wait 0.5.
     ship:partsnamed("SLE.SS.TS")[0]:getmodule("LaunchClamp"):doaction("release clamp", true).
-    when (time:seconds-ignTime)/2 > 0.95 then lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
-    when apoapsis > HAFTAp-3600 then if shipCH4 > 20 Tank:activate.
-    when shipCH4 < 6/Scale then Tank:shutdown.
+    when (time:seconds-ignTime)/2 > 0.95 then lock throttle to HAFTthrPID:update(time:seconds, apoapsis)-0.1.
+    when shipCH4 < 6/(Scale^0.7) then Tank:shutdown.
     when apoapsis > HAFTAp/2 then if SLEngines[0]:hassuffix("activate") {
         SLEngines[0]:shutdown.
         SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
         set steeringManager:pitchpid:kd to 0.5.
         set steeringManager:yawpid:kd to 0.5.
+        wait 0.
+        set message3:text to "Active Engines: " + SLactive.
     }
-    when apoapsis > HAFTAp-1200 then if SLEngines[0]:hassuffix("activate") {
+    when apoapsis > HAFTAp-1140 and not ShipType:contains("SN") or apoapsis > HAFTAp-880 then
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
-        set steeringManager:pitchpid:kd to 0.6.
+    when apoapsis > HAFTAp-1100 and not ShipType:contains("SN") or apoapsis > HAFTAp-850 then if SLEngines[0]:hassuffix("activate") {
+        set steeringManager:pitchpid:kp to 0.5.
+        set steeringManager:pitchpid:kd to 0.8.
         set steeringManager:yawpid:kd to 0.6.
+        wait 0.1.
         SLEngines[1]:shutdown.
         SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
-        lock steering to lookDirUp(up:vector*8-0.024*facing:topvector+0.032*facing:starvector-tgtVec/HAFTAp-0.01*RotationTgt-0.08*GSVec+0.2*TowerHeadingVector:normalized, -TowerHeadingVector).
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 1200*Scale*TowerHeadingVector:normalized).
+        lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
+        lock steering to (lookDirUp(facing:forevector*2+up:vector*10-0.14*GSVec+tgtVec*0.5/HAFTAp+0.1*TowerHeadingVector:normalized, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
+        wait 0.
+        set message3:text to "Active Engines: " + SLactive.
     }
-    when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp+0.003*RotationTgt, -TowerHeadingVector*0.5 + facing:topvector).
-    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp+0.005*RotationTgt, -TowerHeadingVector).
+    when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector*0.5 + facing:topvector).
+    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector).
     when alt:radar > HAFTAp-3200 then {
         lock steering to lookDirUp(up:vector, -TowerHeadingVector).
-        when steeringManager:angleerror < 1 then lock steering to lookDirUp(up:vector*5-tgtVec*0.5/HAFTAp-0.01*RotationTgt, -TowerHeadingVector).
+        when steeringManager:angleerror < 1 then lock steering to lookDirUp(up:vector, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector).
     }
     when apoapsis > HAFTAp then {
         set descentTgtVec to -facing:topvector.
         set HAFTthrPID:setpoint to 5.
+        set HAFTthrPID:kp to 0.2.
+        set HAFTthrPID:kd to 0.04.
         lock throttle to HAFTthrPID:update(time:seconds, verticalSpeed).
     }
     until apoapsis > HAFTAp {
         if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
+        set message3:text to "Active Engines: " + SLactive.
         wait 0.1.
     }
-    until verticalSpeed < 10 and vAng(facing:topvector, velocity:surface) > 95 {
+    set message2:text to "Hover in Progress".
+    until verticalSpeed < 10 and vAng(facing:topvector, GSVec) > 95 {
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
+        set message3:text to "Active Engines: " + SLactive.
         wait 0.1.
     }
+    lock steering to (lookDirUp(up:vector, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
+    until shipCH4 < 10/(Scale^0.7) {
+        if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
+        if alt:radar > 7400 and not stopRCS rcs on.
+        else rcs off.
+        set message3:text to "Active Engines: " + SLactive.
+        wait 0.1.
+    }
+    set message2:text to "Transition to horizontal in Progress".
     setflaps(24, 85, 1, 24).
     set steeringManager:pitchpid:kd to 1.
-    lock steering to lookDirUp(descentTgtVec+0.1*up:vector, up:vector).
+    lock steering to lookDirUp(descentTgtVec+0.2*up:vector, up:vector).
     set stopRCS to true.
-    wait 0.1.
+    wait 0.2.
     if SLEngines[0]:hassuffix("activate") SLEngines[2]:shutdown.
     lock throttle to 0.
+    wait 0.
+    set message3:text to "Active Engines: " + SLactive.
     set stopRCS to false.
-    for res in tank:resources {
+    if not RSS for res in tank:resources {
         if res:name = "Oxidizer" {
             set RepositionOxidizer to TRANSFERALL("Oxidizer", HeaderTank, Tank).
             set RepositionOxidizer:ACTIVE to TRUE.
@@ -1569,6 +1622,7 @@ function HighAltitudeFlightTest {
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
         wait 0.1.
+        set message3:text to "Active Engines: " + SLactive.
     }
     SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
     SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
@@ -1611,7 +1665,7 @@ if OnOrbitalMount {
 }
 set ship:type to "Ship".
 ShipsInOrbit().
-Tank:getmodule("ModuleDockingNode"):SETFIELD("docking acquire force", 0).
+if not ShipType:contains("SN") and ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 and ship:partsnamed("SEP.24.SHIP.CORE"):length > 0 Tank:getmodule("ModuleDockingNode"):SETFIELD("docking acquire force", 0).
 FindParts().
 
 if ship:name:contains("OrbitalLaunchMount") {
@@ -4193,9 +4247,9 @@ local quickengine3 is enginecheckboxes:addcheckbox("<b>VAC Raptors</b>").
     
 set quickengine1:onclick to {
     for eng in SLEngines {if eng:hassuffix("activate") eng:shutdown.}.
-    for eng in VACEngines {if eng:hassuffix("activate") eng:shutdown.}.
+    if not ShipType:contains("SN") for eng in VACEngines {if eng:hassuffix("activate") eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not ShipType:contains("SN") {
         Nose:shutdown.
     } else if (ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ") {
         HeaderTank:shutdown.
@@ -4249,7 +4303,7 @@ set quickengine3:ontoggle to {
     }
     else {
         if quickengine2:pressed {
-            for eng in VACEngines {eng:shutdown.}.
+            if not SHipType:contains("SN") for eng in VACEngines {eng:shutdown.}.
             LogToFile("VAC Engines OFF").
         }
         else {
@@ -5609,7 +5663,7 @@ set ManeuverPicker:onchange to {
         if hasnode {
             if nextnode:deltav:mag > rcsRaptorBoundary {
                 set maneuver2label1:text to "<b>Burn @:  </b><color=yellow>" + timestamp(nextnode:time):full + "</color>           <b>Thrust:  </b><color=magenta>VAC Engines</color>".
-                set MaxAccel to (VACEngines[0]:possiblethrust * NrOfVacEngines) / ship:mass.
+                if not SHipType:contains("SN") if VACEngines[0]:hassuffix("activate") set MaxAccel to (VACEngines[0]:possiblethrust * NrOfVacEngines) / ship:mass.
             }
             else {
                 set maneuver2label1:text to "<b>Burn @:  </b><color=yellow>" + timestamp(nextnode:time):full + "</color>           <b>Thrust:  </b><color=magenta>RCS Thrusters</color>".
@@ -6679,11 +6733,11 @@ set landbutton:ontoggle to {
                                     set runningprogram to "Venting Fuel..".
                                     HideEngineToggles(1).
                                     ToggleHeaderTank(0).
-                                    if not Nose:name:contains("SEP.23.SHIP.FLAPS") and not ShipType:contains("Block1") {
+                                    if not Nose:name:contains("SEP.23.SHIP.FLAPS") and not ShipType:contains("Block1") and not ShipType:contains("SN")  {
                                         Nose:activate.
-                                    } else if ShipType:contains("Block1") and not ShipType:contains("Exp") {
+                                    } else if ShipType:contains("Block1") and not ShipType:contains("Exp") and not ShipType:contains("SN")  {
                                         HeaderTank:activate.
-                                    } else if ShipType:contains("Exp") and ShipType:contains("Block1") {
+                                    } else if ShipType:contains("Exp") and ShipType:contains("Block1") and not ShipType:contains("SN")  {
                                         Nose:activate.
                                     }
                                     Tank:activate.
@@ -6878,7 +6932,7 @@ set landbutton:ontoggle to {
                         set runningprogram to "Venting Fuel..".
                         ToggleHeaderTank(0).
                         HideEngineToggles(1).
-                        Nose:activate.
+                        if not ShipType:contains("SN") Nose:activate.
                         Tank:activate.
                         lock throttle to 0.
                         set message1:text to "<b>Fuel Vent Progress:</b>".
@@ -9154,7 +9208,7 @@ Function AbortLaunch {
                 Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
             }
         }
-        if ShipType:contains("Block1") {} else Nose:activate.
+        if ShipType:contains("Block1") or ShipType:contains("SN") {} else Nose:activate.
         Tank:activate.
         if apoapsis < 2500 {
             set AbortLaunchMode to "Early AbortLaunch".
@@ -9182,7 +9236,7 @@ Function AbortLaunch {
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
             if ShipType:contains("Block1") HeaderTank:activate.
-            else if not ShipType:contains("EXP") Nose:activate.
+            else if not ShipType:contains("EXP") and not ShipType:contains("SN") Nose:activate.
             Tank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
@@ -9218,7 +9272,7 @@ Function AbortLaunch {
             lock throttle to 0.
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
-            Nose:activate.
+            if not ShipType:contains("SN") Nose:activate.
             Tank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
@@ -9254,7 +9308,7 @@ Function AbortLaunch {
             lock throttle to 0.
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
-            Nose:activate.
+            if not ShipType:contains("SN") Nose:activate.
             Tank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
@@ -9895,7 +9949,7 @@ function updateEnginePage {
             set engine1label4:tooltip to "Status of the Vacuum Raptor Engines".
             set engine2label1:tooltip to "Thrust in kN of the Sea-Level Raptor Engines".
             set engine2label5:tooltip to "Thrust in kN of the Vacuum Raptor Engines".
-            if SLEngines[0]:ignition = false and VACEngines[0]:ignition = false and not (FourVacBrakingBurn) and not (TwoVacEngineLanding) {
+            if not SHipType:contains("SN") if SLEngines[0]:ignition = false and VACEngines[0]:ignition = false and not (FourVacBrakingBurn) and not (TwoVacEngineLanding) {
                 if ship:control:translation:z > 0 or ship:control:pilottranslation:z > 0 {
                     if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_rcs".
@@ -9944,7 +9998,7 @@ function updateEnginePage {
                     set engine2label4:style:overflow:right to 10.
                 }
             }
-            if SLEngines[0]:ignition = true and VACEngines[0]:ignition = false {
+            if not SHipType:contains("SN") if SLEngines[0]:ignition = true and VACEngines[0]:ignition = false {
                 if SLEngines[0]:thrust > 0 {
                     if SLEngines[1]:ignition = true and SLEngines[2]:ignition = true {
                         if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp" {
@@ -10019,7 +10073,7 @@ function updateEnginePage {
                 }
                 set engine2label5:text to "SBY".
             }
-            if SLEngines[0]:ignition = false and VACEngines[0]:ignition = true or FourVacBrakingBurn or TwoVacEngineLanding {
+            if not SHipType:contains("SN") if SLEngines[0]:ignition = false and VACEngines[0]:ignition = true or FourVacBrakingBurn or TwoVacEngineLanding {
                 if throttle > 0 {
                     if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_vac_active".
@@ -10083,7 +10137,7 @@ function updateEnginePage {
                     set engine2label5:text to round(2 * FinalDescentEngines[0]:thrust):tostring + " kN".
                 }
                 else {
-                    set engine2label5:text to round(NrOfVacEngines * VACEngines[0]:thrust):tostring + " kN".
+                    if NrOfVacEngines > 0 if VACEngines[0]:hassuffix("activate") set engine2label5:text to round(NrOfVacEngines * VACEngines[0]:thrust):tostring + " kN".
                 }
                 if EngineTogglesHidden {
                     set engine2label4:style:overflow:right to min(39 + (100 * min(throttle, 1)), 139).
@@ -10092,7 +10146,7 @@ function updateEnginePage {
                     set engine2label4:style:overflow:right to min(10 + (100 * min(throttle, 1)), 110).
                 }
             }
-            if SLEngines[0]:ignition = true and VACEngines[0]:ignition = true {
+            if not SHipType:contains("SN") if SLEngines[0]:ignition = true and VACEngines[0]:ignition = true {
                 if SLEngines[0]:thrust > 0 {
                     if ShipType = "Depot" or ShipType = "Expendable" or ShipType = "Block1CargoExp" or ShipType = "Block1Exp" or ShipType = "Block1PEZExp" {
                         set engine2label3:style:bg to "starship_img/starship_noflaps_all_active".
@@ -11214,7 +11268,7 @@ function LandwithoutAtmo {
                 set CancelVelocityHasStarted to true.
                 when LngLatErrorList[0] < 150 then {
                     lock throttle to 0.
-                    for engine in VACEngines {
+                    if not SHipType:contains("SN") for engine in VACEngines {
                         engine:shutdown.
                     }
                     set CancelVelocityHasFinished to true.
@@ -11233,7 +11287,7 @@ function LandwithoutAtmo {
             if kuniverse:timewarp:warp > 0 {
                 set kuniverse:timewarp:warp to 0.
             }
-            for engine in VACEngines {
+            if not SHipType:contains("SN") for engine in VACEngines {
                 engine:shutdown.
             }
             set LandingFacingVector to vxcl(ApproachUPVector, landingzone:position - ship:position):normalized.
@@ -11581,6 +11635,7 @@ function ReEntryAndLand {
         set DistanceToTarget to 5000.
         SetPlanetData().
         set FlipAltitude to 700.
+        if ShipType:contains("SN") set FlipAltitude to 500.
         set PitchInputOld to 0.
         set lastFuelBalanc to time:seconds.
         set Bellyflop to false.
@@ -11738,13 +11793,13 @@ function ReEntryAndLand {
 
         if LFShip > max(FuelVentCutOffValue, MaxFuel) and ship:body:atm:sealevelpressure > 0.5 {
             ToggleHeaderTank(0).
-            if not ShipType:contains("Block1") {
+            if not ShipType:contains("Block1") and not ShipType:contains("SN") {
                 Nose:activate.
             }
             Tank:activate.
             when LFShip < max(FuelVentCutOffValue, MaxFuel) then {
                 Tank:shutdown.
-                if not ShipType:contains("Block1") {
+                if not ShipType:contains("Block1") and not ShipType:contains("SN") {
                     Nose:shutdown.
                 }
                 ToggleHeaderTank(1).
@@ -11982,7 +12037,7 @@ function ReEntryAndLand {
         if ship:body:atm:sealevelpressure < 0.5 {
             wait 0.001.
             if (0.8 * max(SLEngines[0]:availablethrust, 0.000001) * 3) / ship:mass > 2 * 9.805 {
-                for eng in VACEngines {
+                if not SHipType:contains("SN") for eng in VACEngines {
                     eng:shutdown.
                 }
             }
@@ -12577,7 +12632,7 @@ function ReEntryData {
             wait 0.001.
             lock throttle to 0.5.
             if RSS {lock throttle to 0.33.}
-            if GSVec:mag < 20 {set throttleOffset to (20-GSVec:mag)/10. lock throttle to 0.5 + throttleOffset.}
+            if GSVec:mag < 20 {set throttleOffset to (20-GSVec:mag)/10. lock throttle to 0.4 + throttleOffset.}
 
             //set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0001).
             //addons:tr:settarget(landingzone).
@@ -12611,6 +12666,8 @@ function ReEntryData {
                             sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
                             sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + 1*Scale + ", 2")).
                         }
+                        lock throttle to 0.5.
+                        if RSS {lock throttle to 0.33.}
                     }
                 }
             } 
@@ -12785,7 +12842,7 @@ function ReEntryData {
                     when ship:groundspeed > 44 and not (TargetOLM = "false") then {
                         set LandSomewhereElse to true.
                     }
-                    when verticalspeed > -20 then {
+                    when verticalspeed > -20 and RadarAlt < ShipHeight*1.5 then {
                         GEAR on.
                         SLEngines[0]:shutdown.
                         SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
@@ -12795,7 +12852,7 @@ function ReEntryData {
                 }
                 if ship:body:atm:sealevelpressure < 0.5 {
                     when LngError < 25 or vang(up:vector, facing:forevector) < 20 and ship:groundspeed < 25 and RSS then {
-                        for eng in VACEngines {
+                        if not SHipType:contains("SN") for eng in VACEngines {
                             eng:shutdown.
                         }
                         set CancelVelocityHasFinished to true.
@@ -13888,12 +13945,12 @@ function ActivateEngines {
         LogToFile("SL Engine Start Successful!").
     }
     else {
-        for eng in VACEngines {
+        if not SHipType:contains("SN") for eng in VACEngines {
             if eng:hassuffix("activate") if random() < VCIgnCha/100 eng:activate.
         }
         LogToFile("VAC Engine Start Successful!").
     }
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not ShipType:contains("SN") {
         Nose:shutdown.
     } else if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
         HeaderTank:shutdown.
@@ -14920,8 +14977,9 @@ function PerformBurn {
         set UseRCSforBurn to true.
     }
     else {
-        lock MaxAccel to (VACEngines[0]:possiblethrust * NrOfVacEngines) / ship:mass.
         set UseRCSforBurn to false.
+        if not SHipType:contains("SN") lock MaxAccel to (VACEngines[0]:possiblethrust * NrOfVacEngines) / ship:mass.
+        else set UseRCSforBurn to true.
     }
     if BurnType = "DeOrbit" {
         set SingleEngineDeOrbitBurn to true.
@@ -16815,6 +16873,7 @@ function updateTelemetry {
         set engCountVar to engCountVar*2.
     }
     set picPath to "starship_img/EngPic" + VACEngines:length + "Vac/" + engCount:tostring.
+    if  ShipType:contains("SN") set picPath to "starship_img/EngPic0Vac/" + engCount:tostring.
     set sEngines:style:bg to picPath.
     if SLEngines[0]:hassuffix("activate") if SLEngines[0]:thrust < 60 set SL0Off to true.
     else set SL0Off to false. else set SL0Off to false.
@@ -16848,7 +16907,7 @@ function updateTelemetry {
     for eng in SLEngines {
         if eng:hassuffix("activate") set shipThrust to shipThrust + eng:thrust.
     }
-    for eng in VACEngines {
+    if not SHipType:contains("SN") for eng in VACEngines {
         if eng:hassuffix("activate") set shipThrust to shipThrust + eng:thrust.
     }
 
