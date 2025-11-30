@@ -847,6 +847,7 @@ set HAFTAp to 10000.
 set ActiveRC to 0.
 set LFShip to 0.
 set LFShipCap to 0.
+set PlotAoAset to false.
 
 
 //---------------Finding Parts-----------------//
@@ -13788,10 +13789,11 @@ function CalculateDeOrbitBurn {
     set lngPredict to 9999.
     set AngleAccuracy to 10.
     
-    if DynamicBanking {
+    if DynamicBanking and not PlotAoAset {
         set PlotAoA to PlotAoA + 2.4/(Scale^1.98) * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^0.8.
         SetPlanetData().
         set addons:tr:descentangles to DescentAngles.
+        set PlotAoAset to true.
     }
 
     if kuniverse:timewarp:warp > 0 {
