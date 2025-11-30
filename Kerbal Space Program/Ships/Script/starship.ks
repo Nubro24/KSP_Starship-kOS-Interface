@@ -460,13 +460,25 @@ else {
 set WaitTime to false.
 
 set FuelUnitsToKg to 11 + (1/9).
-for res in Core:part:resources {
-    if res:name = "LqdMethane" {
-        set Methane to true.
-        set FuelUnitsToKg to 2.09227666666667.
+when partsfound then if defined HeaderTank {
+    for res in HeaderTank:resources {
+        if res:name = "LqdMethane" {
+            set Methane to true.
+            set FuelUnitsToKg to 2.09227666666667.
+        }
+        if res:name = "LiquidFuel" {
+            set LF to true.
+        }
     }
-    if res:name = "LiquidFuel" {
-        set LF to true.
+} else {
+    for res in Core:part:resources {
+        if res:name = "LqdMethane" {
+            set Methane to true.
+            set FuelUnitsToKg to 2.09227666666667.
+        }
+        if res:name = "LiquidFuel" {
+            set LF to true.
+        }
     }
 }
 
@@ -839,7 +851,8 @@ set TMinusCountdown to 17.
 set lowTWR to false.
 set HAFTAp to 10000.
 set ActiveRC to 0.
-
+set LFShip to 0.
+set LFShipCap to 0.
 
 
 //---------------Finding Parts-----------------//
@@ -860,7 +873,7 @@ when NOT CORE:MESSAGES:EMPTY then {
 
 function FindParts {
     wait 0.
-    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 and ship:partsnamed("SEP.24.SHIP.CORE"):length > 0 if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
+    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 or ship:partsnamed("SEP.24.SHIP.CORE"):length > 0) if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
         set ShipIsDocked to true.
     }
     else {
@@ -868,6 +881,7 @@ function FindParts {
     }
 
     set Tank to Core:part.
+    set sCMNTank to Core:part.
 
     set PartListStep to List(Tank).
     set ShipMassStep to Tank:mass.
@@ -909,30 +923,38 @@ function FindParts {
             else if x:name:contains("Block.3.CMN") {}
             else if x:name:contains("Block.3.CH4") {}
             else if x:name:contains("Block.3.FWD") {}
-            else if x:name:contains("SEP.23.SHIP.BODY") {}
-			else if x:name:contains("SEP.24.SHIP.CORE") {}
-			else if x:name:contains("SEP.24.SHIP.PROTO.BODY") {}
+            else if x:name:contains("FNB.BL3.BOOSTERAFT") {}
+            else if x:name:contains("FNB.BL3.BOOSTERLOX") {}
+            else if x:name:contains("FNB.BL3.BOOSTERCMN") {}
+            else if x:name:contains("FNB.BL3.BOOSTERCH4") {}
+            else if x:name:contains("FNB.BL3.BOOSTERFWD") {}
+            else if x:name:contains("FNB.BL3.BOOSTERHSR") {}
+            else if x:name:contains("SEP.23.SHIP.BODY") {set sCMNTank to x.}
+			else if x:name:contains("SEP.24.SHIP.CORE") {set sCMNTank to x.}
+            else if x:name:contains("FNB.BL2.LOX") {}
+            else if x:name:contains("FNB.BL3.LOX") {}
+			else if x:name:contains("SEP.24.SHIP.PROTO.BODY") {set sCMNTank to x.}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else {
-                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C")) and x:parent:name:contains("SHIP") {
+                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER")) and (x:parent:name:contains("SHIP") or x:parent:name:contains("LOX")) {
                     set SL to true.
                     set SLcount to SLcount + 1.
                 }
-                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") {
+                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") or x:name:contains("FNB.R3.VAC") {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") {
+                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
                     set ALflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") {
+                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
                     set FRflap to x.
                 }
                 else if x:name:contains("SEP.24.SHIP.PROTO.NOSE") {
@@ -941,13 +963,16 @@ function FindParts {
                     set ShipType to "SN".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
+                else if x:name:contains("FNB.BL2.HEADER") {
+                    set HeaderTank to x.
+                }
+                else if x:name:contains("FNB.BL3.HEADER") {
+                    set HeaderTank to x.
+                }
                 else if x:name:contains("SEP.23.SHIP.HEADER") {
                     set HeaderTank to x.
                 }
-                else if x:title = "Donnager MK-1 Header Tank" {
-                    set HeaderTank to x.
-                }
-				else if x:title = "Donnager MK-3 Header Tank" or x:name:contains("SEP.24.SHIP.HEADER") {
+				else if x:name:contains("SEP.24.SHIP.HEADER") {
                     set HeaderTank to x.
                 }
                 else if x:name:contains("SEP.23.SHIP.CARGO") and not x:name:contains("SEP.23.SHIP.CARGO.EXP") {
@@ -984,6 +1009,24 @@ function FindParts {
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
+                else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set MaxCargoToOrbit to 95000.
+                    set ShipType to "Block2PEZ".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("FNB.BL3.NC") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set MaxCargoToOrbit to 100000.
+                    set ShipType to "Block3PEZ".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("FNB.BL2.CH4") or x:name:contains("FNB.BL3.CH4") {
+                    set sCH4Tank to x.
+                }
+                else if x:name:contains("FNB.BL2.CMN") or x:name:contains("FNB.BL3.CMN") {
+                    set sCMNTank to x.
+                }
                 else if x:name:contains("SEP.24.SHIP.PEZ.EXP") {
                     set Nose to x.
                     set MaxCargoToOrbit to 68000.
@@ -1013,7 +1056,7 @@ function FindParts {
                     set ShipType to "Expendable".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
-                else if not (ShipType = "Tanker") and not x:name:contains("SEP.25.BOOSTER.CORE") {
+                else if not (ShipType = "Tanker") {
                     set CargoMassStep to CargoMassStep + x:mass.
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
@@ -1034,8 +1077,8 @@ function FindParts {
         set SL2 to false.
         set SL3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") {
-                if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+                if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") {
                     set partPos to x:position - Tank:position.
                     set compPos to Tank:facing:topvector.
                     if vAng(partPos, compPos) < 89 {
@@ -1082,8 +1125,8 @@ function FindParts {
         set Vac2 to false.
         set Vac3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
-                if x:name:contains("SEP.23.RAPTOR.VAC") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") {
                     set partPos to x:position - Tank:position.
                     set compPos to -Tank:facing:topvector.
                     if vAng(partPos, compPos) < 89 {
@@ -1127,8 +1170,8 @@ function FindParts {
         set Vac5 to false.
         set Vac6 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") {
-                if x:name:contains("SEP.23.RAPTOR.VAC") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") {
                     set partPos to vxcl(Tank:facing:forevector,x:position - Tank:position).
                     set compPos to -Tank:facing:starvector.
                     if vAng(partPos, compPos) < 10 {
@@ -1307,12 +1350,48 @@ function FindParts {
         set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         if SHIP:PARTSNAMED("Raptor.3Cluster"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("Raptor.3Cluster").
-        set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
+        if SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN"):length > 0 set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
+        else if SHIP:PARTSNAMED("Block.3.Fin"):length > 0 set GridFins to SHIP:PARTSNAMED("Block.3.Fin").
         set HSR to SHIP:PARTSNAMED("Block.3.FWD").
         set BoosterCore to SHIP:PARTSNAMED("Block.3.AFT").
         set bLOXTank to SHIP:PARTSNAMED("Block.3.LOX").
         set bCH4Tank to SHIP:PARTSNAMED("Block.3.CH4").
         set bCMNDome to SHIP:PARTSNAMED("Block.3.CMN").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("FNB.BL3.BOOSTERAFT"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block3".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        if SHIP:PARTSNAMED("FNB.R3.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.R3.CLUSTER").
+        set GridFins to SHIP:PARTSNAMED("FNB.BL3.BOOSTERFIN").
+        set HSR to SHIP:PARTSNAMED("FNB.BL3.BOOSTERIHSR").
+        set BoosterCore to SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT").
+        set bLOXTank to SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX").
+        set bCH4Tank to SHIP:PARTSNAMED("FNB.BL3.BOOSTERCH4").
+        set bCMNDome to SHIP:PARTSNAMED("FNB.BL3.BOOSTERCMN").
+        set bFWDDome to SHIP:PARTSNAMED("FNB.BL3.BOOSTERFWD").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             //print(round(BoosterCore[0]:drymass)).
@@ -1453,13 +1532,33 @@ function EngineTest {
     lock throttle to 0.
     unlock throttle.
     hudtext("Static Fire Test complete..",5,2,18,green,false).
+    set StaticFireFinished to true.
 }
 
 function HighAltitudeFlightTest {
     sas off.
     local stopRCS to false.
+    set LaunchClamp to false.
+    set LaunchDock to false.
     if ship:partsnamed("SEP.24.R1C"):length > 0 if not RSS set SLEThrust to 454. else set SLEThrust to 1814.
-    wait 2.
+    if ship:partsnamed("FNB.R3.CENTER"):length > 0 if not RSS set SLEThrust to 672. else set SLEThrust to 2579.
+    if ship:partsnamed("SLE.SS.TS"):length > 0 {
+        set LaunchStand to ship:partsnamed("SLE.SS.TS")[0].
+        set LaunchClamp to true.
+    }
+    else if ship:partsnamed("Starship.Massey.SFS"):length > 0 {
+        set LaunchStand to ship:partsnamed("Starship.Massey.SFS")[0].
+        set LaunchDock to true.
+    }
+    else if ship:partsnamed("Starship.Suborbital.Pad"):length > 0 {
+        set LaunchStand to ship:partsnamed("Starship.Suborbital.Pad")[0].
+        set LaunchDock to true.
+    }
+    else if ship:partsnamed("Starship.SQR3"):length > 0 {
+        set LaunchStand to ship:partsnamed("Starship.SQR3")[0].
+        set LaunchDock to true.
+    }
+    wait 0.2.
     set tgtVec to -facing:starvector*500.
     set TowerHeadingVector to -facing:topvector.
     set descentTgtVec to -facing:topvector.
@@ -1478,16 +1577,31 @@ function HighAltitudeFlightTest {
     if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
     if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-    list targets in OLMSearch.
-    for tgt in OLMSearch {
-        if tgt:name:contains("OrbitalLaunchMount") {
-            if vessel(tgt:name):distance < 5000 set tgtVec to (tgt:position - ship:position).
-            if vessel(tgt:name):loaded {
-                if Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  
-                    set TowerHeadingVector to vxcl(Vessel(tgt:name):up:vector, Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
-                else {
-                    set TowerHeadingVector to vCrs(Vessel(tgt:name):up:vector, Vessel(tgt:name):north:vector).
-                    hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
+    
+    if ship:partsnamed("SLE.SS.OLM"):length > 0 {
+        set tgtVec to v(0,0,0).
+        if ship:PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and ship:PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  {
+            set TowerHeadingVector to vxcl(ship:up:vector, ship:PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - ship:PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+            sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,0,1,117.5,true").
+        }
+        else {
+            set TowerHeadingVector to vCrs(ship:up:vector, ship:north:vector).
+            set tgtVec to facing:topvector*200.
+            hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
+        }
+    }
+    else {
+        list targets in OLMSearch.
+        for tgt in OLMSearch {
+            if tgt:name:contains("OrbitalLaunchMount") {
+                if vessel(tgt:name):distance < 5000 set tgtVec to (tgt:position - ship:position).
+                if vessel(tgt:name):loaded {
+                    if Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  
+                        set TowerHeadingVector to vxcl(Vessel(tgt:name):up:vector, Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                    else {
+                        set TowerHeadingVector to vCrs(Vessel(tgt:name):up:vector, Vessel(tgt:name):north:vector).
+                        hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
+                    }
                 }
             }
         }
@@ -1497,26 +1611,32 @@ function HighAltitudeFlightTest {
     wait 0.
     addons:tr:settarget(landingzone).
     set tgtVec to tgtVec - TowerHeadingVector:normalized * 1200*Scale.
-    for HAFTres1 in Tank:resources {if HAFTres1:name:contains("Methane") {set Fam1 to HAFTres1:amount. set Fcap to HAFTres1:capacity.}}
-    if SLEThrust*3*0.9 < (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18 {
-        Tank:activate.
+    for HAFTres1 in Tank:resources {if HAFTres1:name:contains("Ox") {set Fam1 to HAFTres1:amount. set Fcap to HAFTres1:capacity.}}
+    set VentSpeed to 5*Scale.
+    if SLEThrust*3*0.9 < (ship:mass-LaunchStand:mass)*9.81*1.18 {
+        sCMNTank:activate.
         hudtext("Venting starting.. Too heavy for liftoff right now",5,2,18,yellow,false).
         set TimeStamp1 to time:seconds.
-        for HAFTres1 in Tank:resources {if HAFTres1:name:contains("Methane") {set Fam1 to HAFTres1:amount. set Fcap to HAFTres1:capacity.}}
+        for HAFTres1 in Tank:resources {if HAFTres1:name:contains("Ox") {set Fam1 to HAFTres1:amount. set Fcap to HAFTres1:capacity.}}
         when time:seconds - TimeStamp1 > 1 then {
-            for HAFTres2 in Tank:resources {if HAFTres2:name:contains("Methane") set Fam2 to HAFTres2:amount.}
+            for HAFTres2 in Tank:resources {if HAFTres2:name:contains("Ox") set Fam2 to HAFTres2:amount.}
             set VentSpeed to (Fam1-Fam2)/(time:seconds - TimeStamp1).
         }
     }
-    when SLEThrust*3*0.9 > (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18 then {
-        Tank:shutdown.
+    when SLEThrust*3*0.9 > (ship:mass-LaunchStand:mass)*9.81*1.18 then {
+        sCMNTank:shutdown.
         set VentstartTime to time:seconds + 120 - Fcap*(0.16/Scale)/VentSpeed.
-        when time:seconds > VentstartTime then Tank:activate.
+        when time:seconds > VentstartTime then {
+            sCMNTank:activate.
+            when shipCH4 < 6/Scale or shipLOX < 6/Scale then {
+                sCMNTank:shutdown.
+            }
+        }
     }
     set HAFTthrPID to pidLoop(0.01,0,0.01,0.33,1).
     set HAFTthrPID:setpoint to HAFTAp.
-    until SLEThrust*3*0.9 > (ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18 {
-        set message2:text to "Venting in Progress: " + round(SLEThrust*3*0.9/((ship:mass-ship:partsnamed("SLE.SS.TS")[0]:mass)*9.81*1.18), 3)*100 + "%".
+    until SLEThrust*3*0.9 > (ship:mass-LaunchStand:mass)*9.81*1.18 {
+        set message2:text to "Venting in Progress: " + round(SLEThrust*3*0.9/((ship:mass-LaunchStand:mass)*9.81*1.18), 3)*100 + "%".
         wait 0.2.
     }
     hudtext("Venting complete..",5,2,18,yellow,false).
@@ -1532,9 +1652,9 @@ function HighAltitudeFlightTest {
         wait 0.3.
     } 
     wait 0.5.
-    ship:partsnamed("SLE.SS.TS")[0]:getmodule("LaunchClamp"):doaction("release clamp", true).
+    if LaunchClamp LaunchStand:getmodule("LaunchClamp"):doaction("release clamp", true).
+    else if LaunchDock LaunchStand:getmodule("ModuleDockingNode"):doaction("undock node", true).
     when (time:seconds-ignTime)/2 > 0.95 then lock throttle to HAFTthrPID:update(time:seconds, apoapsis)-0.1.
-    when shipCH4 < 6/(Scale^0.7) then Tank:shutdown.
     when apoapsis > HAFTAp/2 then if SLEngines[0]:hassuffix("activate") {
         SLEngines[0]:shutdown.
         SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
@@ -1554,15 +1674,13 @@ function HighAltitudeFlightTest {
         SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
         set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 1200*Scale*TowerHeadingVector:normalized).
         lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
-        lock steering to (lookDirUp(facing:forevector*2+up:vector*10-0.14*GSVec+tgtVec*0.5/HAFTAp+0.1*TowerHeadingVector:normalized, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
-        wait 0.
-        set message3:text to "Active Engines: " + SLactive.
+        lock steering to (lookDirUp(facing:forevector*4+up:vector*10+tgtVec*0.3/HAFTAp-0.04*GSVec+TowerHeadingVector:normalized, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
     }
-    when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector*0.5 + facing:topvector).
-    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector).
+    when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector*0.2 + facing:topvector).
+    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec*1.5/HAFTAp, -TowerHeadingVector).
     when alt:radar > HAFTAp-3200 then {
         lock steering to lookDirUp(up:vector, -TowerHeadingVector).
-        when steeringManager:angleerror < 1 then lock steering to lookDirUp(up:vector, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector).
+        when steeringManager:angleerror < 1 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector).
     }
     when apoapsis > HAFTAp then {
         set descentTgtVec to -facing:topvector.
@@ -1572,6 +1690,7 @@ function HighAltitudeFlightTest {
         lock throttle to HAFTthrPID:update(time:seconds, verticalSpeed).
     }
     until apoapsis > HAFTAp {
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 1200*Scale*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
@@ -1580,6 +1699,7 @@ function HighAltitudeFlightTest {
     }
     set message2:text to "Hover in Progress".
     until verticalSpeed < 10 and vAng(facing:topvector, GSVec) > 95 {
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 1200*Scale*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
@@ -1605,7 +1725,7 @@ function HighAltitudeFlightTest {
     wait 0.
     set message3:text to "Active Engines: " + SLactive.
     set stopRCS to false.
-    if not RSS for res in tank:resources {
+    if not RSS and not ShipType:contains("SN") and not ShipType:contains("Block2") and not ShipType:contains("Block3") for res in tank:resources {
         if res:name = "Oxidizer" {
             set RepositionOxidizer to TRANSFERALL("Oxidizer", HeaderTank, Tank).
             set RepositionOxidizer:ACTIVE to TRUE.
@@ -1616,6 +1736,19 @@ function HighAltitudeFlightTest {
         }
         if res:name = "LqdMethane" {
             set RepositionLF to TRANSFERALL("LqdMethane", HeaderTank, Tank).
+            set RepositionLF:ACTIVE to TRUE.
+        }
+    } else for res in tank:resources {
+        if res:name = "Oxidizer" {
+            set RepositionOxidizer to TRANSFERALL("Oxidizer", Tank, HeaderTank).
+            set RepositionOxidizer:ACTIVE to TRUE.
+        }
+        if res:name = "LiquidFuel" {
+            set RepositionLF to TRANSFERALL("LiquidFuel", Tank, HeaderTank).
+            set RepositionLF:ACTIVE to TRUE.
+        }
+        if res:name = "LqdMethane" {
+            set RepositionLF to TRANSFERALL("LqdMethane", Tank, HeaderTank).
             set RepositionLF:ACTIVE to TRUE.
         }
     }
@@ -1629,6 +1762,7 @@ function HighAltitudeFlightTest {
     SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
     ReEntryAndLand().
     hudtext("High Altitude Flight Test complete..",5,2,18,green,false).
+    set HAFTFinished to true.
 }
 
 
@@ -1666,7 +1800,7 @@ if OnOrbitalMount {
 }
 set ship:type to "Ship".
 ShipsInOrbit().
-if not ShipType:contains("SN") and ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 and ship:partsnamed("SEP.24.SHIP.CORE"):length > 0 Tank:getmodule("ModuleDockingNode"):SETFIELD("docking acquire force", 0).
+if not ShipType:contains("SN") and ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 or ship:partsnamed("SEP.24.SHIP.CORE"):length > 0) Tank:getmodule("ModuleDockingNode"):SETFIELD("docking acquire force", 0).
 FindParts().
 
 if ship:name:contains("OrbitalLaunchMount") {
@@ -1714,6 +1848,7 @@ local SettingsMenu is IgnitionChancesGUI:addhlayout().
 local IgnChaLayout is SettingsMenu:addvlayout().
 local FlightSettingsLayout is SettingsMenu:addvlayout().
 local FlightSettingsLayout2 is SettingsMenu:addvlayout().
+local FlightSettingsLayout3 is SettingsMenu:addvlayout().
 local Quest is IgnChaLayout:addlabel().
     set Quest:text to "<b>Ignition Chances</b>".
     set Quest:style:margin:top to 14.
@@ -2137,6 +2272,44 @@ set bBl3LandingProf:onclick to {
     else set bBl3LandingProfLabel:text to "Currently Off".
 }.
 
+local FlSetLaySpace2 is FlightSettingsLayout3:addlabel("").
+    set FlSetLaySpace2:style:height to 36.
+
+set StaticFireFinished to false.
+local sStaticFire is FlightSettingsLayout3:addbutton(" Start Static Fire").
+    set sStaticFire:style:fontsize to 16.
+    set sStaticFire:style:margin:left to 24.
+    set sStaticFire:style:margin:top to 24.
+    set sStaticFire:style:margin:right to 16.
+    set sStaticFire:style:height to 24.
+set sStaticFire:onclick to {
+    set IgnitionChances:pressed to false.
+    IgnitionChancesGUI:hide().
+    IgnitionChancesOpen:hide().
+    when StaticFireFinished then {
+        set StaticFireFinished to false.
+        IgnitionChancesOpen:show().
+    }
+    EngineTest().
+}.
+
+set HAFTFinished to false.
+local sHAFT is FlightSettingsLayout3:addbutton(" Start High Altitude Flight Test").
+    set sHAFT:style:fontsize to 16.
+    set sHAFT:style:margin:left to 24.
+    set sHAFT:style:margin:top to 24.
+    set sHAFT:style:margin:right to 16.
+    set sHAFT:style:height to 24.
+set sHAFT:onclick to {
+    set IgnitionChances:pressed to false.
+    IgnitionChancesGUI:hide().
+    IgnitionChancesOpen:hide().
+    when HAFTFinished then {
+        set HAFTFinished to false.
+        IgnitionChancesOpen:show().
+    }
+    HighAltitudeFlightTest().
+}.
 
 set IgnitionChances:ontoggle to {
     parameter toggle.
@@ -2552,12 +2725,18 @@ set g_close:onclick to {
             lock throttle to 0.
             unlock throttle.
             if defined Nose {
-                if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
-                else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+                if ShipType:contains("Block1") and not ShipType:contains("EXP") {
+                    HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+                }
+                else {
+                    Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
                 }
             }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            }
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             LogToFile("Closing GUI confirmed").
             if defined watchdog {
@@ -3650,12 +3829,18 @@ set quickattitude1:onclick to {
     set attitude2label:style:textcolor to grey.
     set attitude2label:style:bg to "starship_img/attitude_page_background".
     if defined Nose {
-        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).}
-            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-        Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        if ShipType:contains("Block1") and not ShipType:contains("EXP") {
+            HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        }
+        else  {
+            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
         }
     }
     Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+    if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+        sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+    }
     unlock steering.
     SetPlanetData().
     sas on.
@@ -4255,7 +4440,7 @@ set quickengine1:onclick to {
     } else if (ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ") {
         HeaderTank:shutdown.
     }
-    Tank:shutdown.
+    sCMNTank:shutdown.
     if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
     if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
@@ -6734,14 +6919,14 @@ set landbutton:ontoggle to {
                                     set runningprogram to "Venting Fuel..".
                                     HideEngineToggles(1).
                                     ToggleHeaderTank(0).
-                                    if not Nose:name:contains("SEP.23.SHIP.FLAPS") and not ShipType:contains("Block1") and not ShipType:contains("SN")  {
+                                    if not ShipType:contains("Block1") and not ShipType:contains("SN")  {
                                         Nose:activate.
                                     } else if ShipType:contains("Block1") and not ShipType:contains("Exp") and not ShipType:contains("SN")  {
                                         HeaderTank:activate.
                                     } else if ShipType:contains("Exp") and ShipType:contains("Block1") and not ShipType:contains("SN")  {
                                         Nose:activate.
                                     }
-                                    Tank:activate.
+                                    sCMNTank:activate.
                                     lock throttle to 0.
                                     set message1:text to "<b>Fuel Vent Progress:</b>".
                                     set message2:text to "".
@@ -6934,7 +7119,7 @@ set landbutton:ontoggle to {
                         ToggleHeaderTank(0).
                         HideEngineToggles(1).
                         if not ShipType:contains("SN") Nose:activate.
-                        Tank:activate.
+                        sCMNTank:activate.
                         lock throttle to 0.
                         set message1:text to "<b>Fuel Vent Progress:</b>".
                         set message2:text to "".
@@ -7327,19 +7512,10 @@ if addons:tr:available and not startup {
         }
         if ShipType = "Cargo" {
             cargobutton:show().
-            if Nose:name:contains("SEP.23.SHIP.FLAPS") {print("V2 Flap config").}
             if nose:name:contains("SEP.23.SHIP.CARGO") {
                 set Watchdog to nose:PARTSNAMED("SEP.23.SHIP.CARGO").
                 if Watchdog:length = 0 {
                     set Watchdog to nose:PARTSNAMED(("SEP.23.SHIP.CARGO (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
-                }
-                else {
-                    set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
-                }
-            } else if Nose:name:contains("SEP.23.SHIP.FLAPS") {
-                set Watchdog to nose:PARTSNAMED("SEP.23.SHIP.FLAPS").
-                if Watchdog:length = 0 {
-                    set Watchdog to nose:PARTSNAMED(("SEP.23.SHIP.FLAPS (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
                 }
                 else {
                     set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
@@ -7400,6 +7576,30 @@ if addons:tr:available and not startup {
             set Watchdog to SHIP:PARTSNAMED("SEP.24.SHIP.PEZ").
             if Watchdog:length = 0 {
                 set Watchdog to SHIP:PARTSNAMED(("SEP.24.SHIP.PEZ (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+            }
+            else {
+                set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
+            }
+            Watchdog:activate().
+        }
+        if ShipType = "Block2PEZ" {
+            set cargo1text:text to "Closed".
+            cargobutton:show().
+            set Watchdog to SHIP:PARTSNAMED("FNB.BL2.NC").
+            if Watchdog:length = 0 {
+                set Watchdog to SHIP:PARTSNAMED(("FNB.BL2.NC (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+            }
+            else {
+                set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
+            }
+            Watchdog:activate().
+        }
+        if ShipType = "Block3PEZ" {
+            set cargo1text:text to "Closed".
+            cargobutton:show().
+            set Watchdog to SHIP:PARTSNAMED("FNB.BL3.NC").
+            if Watchdog:length = 0 {
+                set Watchdog to SHIP:PARTSNAMED(("FNB.BL3.NC (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
             }
             else {
                 set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
@@ -7568,8 +7768,10 @@ else if not startup {
     set startup to true.
 }
 
-if not Boosterconnected and Ship:status = "PRELaunch" and ship:partsnamed("SLE.SS.TS"):length > 0 {
-    HighAltitudeFlightTest().
+
+if Boosterconnected {
+    sStaticFire:hide().
+    sHAFT:hide().
 }
 
 WHEN runningprogram = "None" THEN {
@@ -7920,11 +8122,18 @@ function Launch {
                         set resBooster:enabled to true.
                     }
                 }
-                for resBooster in HSR[0]:resources {
-                    if resBooster:name = "LqdMethane" or resBooster:name = "LiquidFuel" {
-                        set resBooster:enabled to true.
+                if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 
+                    for resBooster in HSR[0]:resources {
+                        if resBooster:name = "LqdMethane" or resBooster:name = "LiquidFuel" {
+                            set resBooster:enabled to true.
+                        }
                     }
-                }
+                else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 
+                    for resBooster in bFWDDome[0]:resources {
+                        if resBooster:name = "LqdMethane" or resBooster:name = "LiquidFuel" {
+                            set resBooster:enabled to true.
+                        }
+                    }
                 for resBooster in BoosterCore[0]:resources {
                     if resBooster:name = "Oxidizer" {
                         set resBooster:enabled to true.
@@ -8250,7 +8459,7 @@ function Launch {
                 set steeringManager:rolltorquefactor to 3.5*Scale.
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
-                if ShipSubType:contains("Block2") {
+                if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                     if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
                     set LaunchRollVector to up:vector.
                 } 
@@ -8265,7 +8474,7 @@ function Launch {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
-                if ShipSubType:contains("Block2") set LaunchRollVector to up:vector.
+                if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") set LaunchRollVector to up:vector.
                 set steeringManager:rolltorquefactor to 5.
                 set Hotstaging to true.
                 sendMessage(processor(Volume("Booster")),"Hotstaging").
@@ -8361,7 +8570,7 @@ function Launch {
                 }
                 updateTelemetry().
                 wait 0.02.
-                if defined HSR {
+                if defined HSR and ship:partsnamed("FNB.BL3.BOOSTERIHSR"):length = 0 {
                     for x in range(0, HSR[0]:modules:length) {
                         if HSR[0]:getmodulebyindex(x):hasfield("% rated thrust") {
                             if HSR[0]:getmodulebyindex(x):hasevent("activate engine") {
@@ -8388,7 +8597,13 @@ function Launch {
                 if defined HSR set quickengine3:pressed to true.
                 else set IFT1SEI to true.
                 updateTelemetry().
-                if BoosterType:contains("Block3") {
+                if ShipType:contains("Block2") or ShipType:contains("Block3") {
+                    if defined HSR {
+                        HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
+                    }
+                    wait 0.1.
+                } 
+                else if BoosterType:contains("Block3") {
                     print "Block 3".
                     if defined HSR {
                         HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
@@ -8433,7 +8648,7 @@ function Launch {
                 }
                 updateTelemetry().
 
-                wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("Block.3.AFT"):LENGTH = 0.
+                wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("Block.3.AFT"):LENGTH = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):LENGTH = 0.
                 updateTelemetry().
                 if not IFT1SEI set HotStageTime to time:seconds.
                 else set HotStageTime to time:seconds + 2.
@@ -8714,7 +8929,8 @@ function LaunchThrottle {
 }
 
 Function LaunchSteering {
-    //set drawRoll to vecDraw(Tank:position, steeringManager:target:topvector, red, "Roll", 30, true, 0.016).
+    //set drawTgtRoll to vecDraw(Tank:position, steeringManager:target:topvector, green, "Roll", 30, true, 0.016).
+    //set drawRoll to vecDraw(Tank:position, facing:topvector, red, "Roll", 15, true, 0.01).
     set myAzimuth to LAZcalc(LaunchData).
     clearscreen.
     print "Steering Error: " + round(SteeringManager:angleerror, 2).
@@ -8750,7 +8966,7 @@ Function LaunchSteering {
             set WaitTime to false.
         }
     }
-    else if ShipSubType:contains("Block2") and not WaitTime and fullAuto {
+    else if (ShipSubType:contains("Block2") or ShipType:contains("Block2")) and not WaitTime and fullAuto {
         set WaitTime to true.
         if random() < ifIgnCha/6 and runningEngines:length > 0 {
             set failedEngNr to min(max(floor(random()*engNumber),0),5).
@@ -9210,7 +9426,7 @@ Function AbortLaunch {
             }
         }
         if ShipType:contains("Block1") or ShipType:contains("SN") {} else Nose:activate.
-        Tank:activate.
+        sCMNTank:activate.
         if apoapsis < 2500 {
             set AbortLaunchMode to "Early AbortLaunch".
             lock steering to heading(90, 85).
@@ -9238,7 +9454,7 @@ Function AbortLaunch {
             wait 0.1.
             if ShipType:contains("Block1") HeaderTank:activate.
             else if not ShipType:contains("EXP") and not ShipType:contains("SN") Nose:activate.
-            Tank:activate.
+            sCMNTank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
             wait 0.001.
@@ -9274,7 +9490,7 @@ Function AbortLaunch {
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
             if not ShipType:contains("SN") Nose:activate.
-            Tank:activate.
+            sCMNTank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
             wait 0.001.
@@ -9310,7 +9526,7 @@ Function AbortLaunch {
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
             if not ShipType:contains("SN") Nose:activate.
-            Tank:activate.
+            sCMNTank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
             wait 0.001.
@@ -9445,16 +9661,42 @@ function updatestatusbar {
                 set LFShip to res:amount.
                 set LFShipCap to res:capacity.
             }
-            if res:name = "LqdMethane" {
+            if res:name = "LqdMethane" or res:name = "CooledLqdMethane"  {
                 set LFShip to res:amount.
                 set LFShipCap to res:capacity.
             }
-            if res:name = "Oxidizer" {
+            if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set OxShip to res:amount.
                 set OxShipCap to res:capacity.
             }
             if not (res:enabled) {
                 set res:enabled to true.
+            }
+        }
+        if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+            for res in sCMNTank:resources {
+                if res:name = "LiquidFuel" {
+                    set LFShip to LFShip + res:amount.
+                    set LFShipCap to LFShipCap + res:capacity.
+                }
+                if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+                    set LFShip to LFShip + res:amount.
+                    set LFShipCap to LFShipCap + res:capacity.
+                }
+                if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
+                    set OxShip to OxShip + res:amount.
+                    set OxShipCap to OxShipCap + res:capacity.
+                }
+            }
+            for res in sCH4Tank:resources {
+                if res:name = "LiquidFuel" {
+                    set LFShip to LFShip + res:amount.
+                    set LFShipCap to LFShipCap + res:capacity.
+                }
+                if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+                    set LFShip to LFShip + res:amount.
+                    set LFShipCap to LFShipCap + res:capacity.
+                }
             }
         }
         if defined HeaderTank {
@@ -9463,11 +9705,11 @@ function updatestatusbar {
                     set LFShip to LFShip + res:amount.
                     set LFShipCap to LFShipCap + res:capacity.
                 }
-                if res:name = "LqdMethane" {
+                if res:name = "LqdMethane" or res:name = "CooledLqdMethane"  {
                     set LFShip to LFShip + res:amount.
                     set LFShipCap to LFShipCap + res:capacity.
                 }
-                if res:name = "Oxidizer" {
+                if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                     set OxShip to OxShip + res:amount.
                     set OxShipCap to OxShipCap + res:capacity.
                 }
@@ -9502,7 +9744,7 @@ function updatestatusbar {
             }
         }
         else {
-            print "2 ENGINES NOT SET CORRECTLY".
+            //print "2 ENGINES NOT SET CORRECTLY".
             set EngineISP to 327.
         }
         
@@ -11252,12 +11494,18 @@ function LandwithoutAtmo {
         ActivateEngines(1).
         lock throttle to 0.
         if defined Nose {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).}
-            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            }
+            else {
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
             }
         }
         Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+            sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        }
 
         if groundspeed > 50 or altitude > 10000 {
             LogToFile("Landing without atmo, with cancelling of velocity enabled").
@@ -11327,7 +11575,12 @@ function LandwithoutAtmo {
         }
         set runningprogram to "After Landing".
         if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).}
+        else Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
         Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
+        if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+            sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
+            sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
+        }
         set ship:control:translation to v(0, 0, 0).
         set ShutdownComplete to false.
         set ShutdownProcedureStart to time:seconds.
@@ -11367,12 +11620,18 @@ function LandwithoutAtmo {
         set message3:text to "<b>Hatches may now be opened..</b>".
         set runningprogram to "None".
         if defined Nose {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).}
-            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") {
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            }
+            else {
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
             }
         }
         Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+            sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        }
         unlock steering.
         LogToFile("Self-Check Complete, Landing Program Complete.").
         set textbox:style:bg to "starship_img/starship_main_square_bg".
@@ -11623,7 +11882,7 @@ function ReEntryAndLand {
     if addons:tr:hasimpact {
         SteeringManager:RESETTODEFAULT().
         set ProgramStartTime to time:seconds.
-        if ShipSubType:contains("Block2") {set aoa to aoa. set LandingAoA to LandingAoA*0.99.}
+        if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {set aoa to aoa. set LandingAoA to LandingAoA*0.99.}
         if not ShipType:contains("Block1") set aoa to 62.
         set LandButtonIsRunning to true.
         if fullAuto or HideGUI g:hide().
@@ -11662,12 +11921,20 @@ function ReEntryAndLand {
         set textbox:style:bg to "starship_img/starship_main_square_bg".
         set t to time:seconds.
 
-        if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).}
-            else if not (ShipType="Block1") and not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).}
+        if ShipType:contains("Block1") and not ShipType:contains("EXP") {
+            HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).
+        }
+        else if not (ShipType="Block1") {
+            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).
+        }
         Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).
-        //if Tank:getmodule("ModuleSepPartSwitchAction"):getfield("current docking system") = "QD" {
-        //    Tank:getmodule("ModuleSepPartSwitchAction"):DoAction("next docking system", true).
-        //}
+        if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+            sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).
+            sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 25).
+        }
+        if Tank:hasmodule("ModuleSepPartSwitchAction") if Tank:getmodule("ModuleSepPartSwitchAction"):getfield("current docking system") = "QD" {
+            Tank:getmodule("ModuleSepPartSwitchAction"):DoAction("next docking system", true).
+        }
         for res in HeaderTank:resources {
             if not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                 set res:enabled to true.
@@ -11792,14 +12059,14 @@ function ReEntryAndLand {
             }
         }
 
-        if LFShip > max(FuelVentCutOffValue, MaxFuel) and ship:body:atm:sealevelpressure > 0.5 {
+        if LFShip > max(FuelVentCutOffValue, MaxFuel) and ship:body:atm:sealevelpressure > 0.5 and not ShipType:contains("SN") {
             ToggleHeaderTank(0).
             if not ShipType:contains("Block1") and not ShipType:contains("SN") {
                 Nose:activate.
             }
-            Tank:activate.
+            sCMNTank:activate.
             when LFShip < max(FuelVentCutOffValue, MaxFuel) then {
-                Tank:shutdown.
+                sCMNTank:shutdown.
                 if not ShipType:contains("Block1") and not ShipType:contains("SN") {
                     Nose:shutdown.
                 }
@@ -12013,10 +12280,10 @@ function ReEntryAndLand {
                         if ship:body:atm:sealevelpressure > 0.5 {
                             when RadarAlt < 1500 then {
                                 if currentdeltav > maxDeltaV*1.1 and ship:body:atm:sealevelpressure > 0.5 {
-                                    Tank:activate.
+                                    sCMNTank:activate.
                                     //Nose:activate.
                                     when currentdeltav < maxDeltaV then {
-                                        Tank:shutdown.
+                                        sCMNTank:shutdown.
                                         //Nose:shutdown.
                                     }
                                 }
@@ -12298,51 +12565,75 @@ function ReEntryData {
     }
     if altitude < ship:body:atm:height - 5000 and vang(facing:forevector, result:vector) > 30 or CargoMass > 25000 * Scale {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 70).}
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 70).
+            else 
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 70).
-            }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 80).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            }
         }
         else {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 30).}
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 30).
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 30).
-            }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 40).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 35).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 35).
+            }
         }
         set tt to time:seconds.
     }
     if time:seconds > tt + 15 and not AFTONLY {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).}
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
+            else 
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
-            }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
+            }
         }
         else {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).}
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).
+            else 
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).
-            }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 2).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 2).
+            }
         }
     }
     else if time:seconds > tt + 15 {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).}
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
-            }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
+            }
         }
         else {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 6).}
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 6).
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 6).
-            }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 4).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 5).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 5).
+            }
         }
     }
 
@@ -12353,7 +12644,7 @@ function ReEntryData {
             set t to time:seconds.
             if abs(PitchInputOld) > 0.5 and abs(PitchInput) > 0.5 {
                 set PitchInput to (PitchInput + PitchInputOld)/2.
-                if ShipSubType:contains("Block2") or ShipType:contains("Block2") set FWDFlapDefault to max(min(55 - (PitchInput * 20 / Scale),70),40).
+                if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") set FWDFlapDefault to max(min(55 - (PitchInput * 20 / Scale),70),40).
                 else set FWDFlapDefault to max(min(75 - (PitchInput * 20 / Scale),85),40).
                 set AFTFlapDefault to max(min(70 + (PitchInput * 20 / Scale),80),50).
                 if AFTONLY {
@@ -12614,8 +12905,12 @@ function ReEntryData {
             set LandingBurnDirection to vxcl(up:vector, velocity:surface).
             set ship:control:pitch to 1.
             if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
-            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
+            else {Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            }
             set ThrottleMin to 0.38.
             if STOCK {
                 set FlipAngleFactor to 0.6.
@@ -12641,7 +12936,7 @@ function ReEntryData {
 
 
             if ship:body:atm:sealevelpressure > 0.5 and airspeed < 130 {
-                Tank:shutdown.
+                sCMNTank:shutdown.
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
@@ -12673,7 +12968,7 @@ function ReEntryData {
                 }
             } 
             else if ship:body:atm:sealevelpressure > 0.5 and airspeed > 130 {
-                Tank:shutdown.
+                sCMNTank:shutdown.
                 if not (TargetOLM = "False") when Vessel(TargetOLM):distance < 2000 then {
                     sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,26,80,true")).
                     sendMessage(Vessel(TargetOLM), "ExtendMechazillaRails").
@@ -12724,7 +13019,7 @@ function ReEntryData {
                 set LandingFlipTime to 2.2.
             } else if RSS {
                 set LandingFlipTime to 2.8.
-                if ShipSubType:contains("Block2") set LandingFlipTime to 2.7.
+                if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") set LandingFlipTime to 2.7.
             }
             set maxDecel to 0.
             set maxG to 4.
@@ -12787,7 +13082,7 @@ function ReEntryData {
                 setflaps(80, 80, 1, 0).
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
-                    if not ShipSubType:contains("Block2") and not AFTONLY {
+                    if not ShipSubType:contains("Block2") and not ShipType:contains("Block2") and not ShipType:contains("Block3") and not AFTONLY {
                         if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 6.4.
                         else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.8.
                     }
@@ -12816,7 +13111,7 @@ function ReEntryData {
                         }
 
                         when RadarAlt < 2.85 * ShipHeight then {
-                            if not Shipsubtype:contains("Block2") setflaps(0, 85, 1, 0).
+                            if not Shipsubtype:contains("Block2") and not ShipType:contains("Block2") and not ShipType:contains("Block3") setflaps(0, 85, 1, 0).
                             set steeringManager:maxstoppingtime to 0.9*Scale.
                         }
                         when RadarAlt < 0.8 * ShipHeight then {
@@ -13229,18 +13524,22 @@ function LandingVector {
             set FWDFlapDefault to 60.
             set AFTFlapDefault to 60.
             set FlapsYawEngaged to true.
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
-            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-            }
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            else 
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            }
             SLEngines[0]:shutdown. SLEngines[1]:shutdown. SLEngines[2]:shutdown.
             //if GEAR {
             //    Tank:getmodule("ModuleLevelingBase"):doaction("auto-level", true).
             //}
 
             if TargetOLM {
-                if ShipSubType:contains("Block2") {
+                if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                     when time:seconds > ShutdownProcedureStart + 5 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(0.3 * Scale,2) + ",false")).
                         sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
@@ -13286,21 +13585,29 @@ function LandingVector {
             else {
                 setflaps(80, 85, 1, 0).
             }
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).}
-            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-            Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
-            }
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
+            else 
+                Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
+            }
             set message1:text to "<b><color=green>Vehicle Self-Check OK!</color></b>".
             set message1:style:textcolor to white.
             set message2:text to "<b>Re-Entry & Land Program completed..</b>".
             set message3:text to "<b>Hatches may now be opened..</b>".
             set runningprogram to "None".
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).}
-            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            else
             Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-            }
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+                sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+                sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+            }
             unlock steering.
             LogToFile("Self-Check Complete, Re-Entry & Land Program Complete.").
             set textbox:style:bg to "starship_img/starship_main_square_bg".
@@ -13391,7 +13698,7 @@ function LngLatError {
         if ship:body:atm:sealevelpressure > 0.5 {
             if TargetOLM {
                 if STOCK {
-                    if ShipSubType:contains("Block2") {
+                    if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                         if RadarAlt > 4000 set LngLatOffset to -15.
                         else set LngLatOffset to -6 - vxcl(up:vector, velocity:surface):mag*0.6.
                     } else if ShipType:contains("Block1"){
@@ -13403,7 +13710,7 @@ function LngLatError {
                     }
                 }
                 else if KSRSS {
-                    if ShipSubType:contains("Block2") {
+                    if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                         if RadarAlt > 5000 set LngLatOffset to -36.
                         else set LngLatOffset to -26 - vxcl(up:vector, velocity:surface):mag*0.7.
                     } else if ShipType:contains("Block1"){
@@ -13415,7 +13722,7 @@ function LngLatError {
                     }
                 }
                 else {
-                    if ShipSubType:contains("Block2") {
+                    if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                         if RadarAlt > 6000 set LngLatOffset to -65.
                         else set LngLatOffset to -52 - vxcl(up:vector, velocity:surface):mag*0.85.
                     } else if ShipType:contains("Block1"){
@@ -13870,7 +14177,6 @@ function ClearInterfaceAndSteering {
     wait 0.001.
     if ShipType = "Cargo" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_cargo".
-        if Nose:name:contains("SEP.23.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_cargoFLAPS".}
     }
     if ShipType = "Crew" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_crew".
@@ -13956,7 +14262,7 @@ function ActivateEngines {
     } else if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
         HeaderTank:shutdown.
     } 
-    Tank:shutdown.
+    sCMNTank:shutdown.
 }
 
 
@@ -14656,7 +14962,7 @@ function LandAtOLM {
             }
         }
         else {
-            if ShipSubType:contains("Block2") {
+            if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                 set FlipAltitude to 660.
             } else if ShipType:contains("Block1") {
                 set FlipAltitude to 710.
@@ -15074,12 +15380,16 @@ function PerformBurn {
         set runningprogram to "Standby for Burn".
         HideEngineToggles(1).
         if defined Nose {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") {HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).}
-            else if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
+            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+                HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
-            }
         }
         Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+            sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+            sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
+        }
         sas off.
         rcs off.
         if SingleEngineDeOrbitBurn {
@@ -15452,848 +15762,9 @@ function SetLoadDistances {
 }
 
 
-function DisengageYawRCS {
-    parameter boolean.
-    if boolean = 1 {
-        if tank:getmodule("MODULERCSFX"):hasevent("show actuation toggles") {
-            tank:getmodule("MODULERCSFX"):doevent("show actuation toggles").
-        }
-        tank:getmodule("MODULERCSFX"):setfield("yaw", false).
-        tank:getmodule("MODULERCSFX"):doevent("hide actuation toggles").
-        if defined nose {
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-                if nose:getmodule("MODULERCSFX"):hasevent("show actuation toggles") {
-                  nose:getmodule("MODULERCSFX"):doevent("show actuation toggles").
-                }
-                nose:getmodule("MODULERCSFX"):setfield("yaw", false).
-                nose:getmodule("MODULERCSFX"):doevent("hide actuation toggles").
-            }
-        }
-    }
-    else {
-        if tank:getmodule("MODULERCSFX"):hasevent("show actuation toggles") {
-            tank:getmodule("MODULERCSFX"):doevent("show actuation toggles").
-        }
-        tank:getmodule("MODULERCSFX"):setfield("yaw", true).
-        tank:getmodule("MODULERCSFX"):doevent("hide actuation toggles").
-        if defined nose {
-            if not Nose:name:contains("SEP.23.SHIP.FLAPS") {
-                if nose:getmodule("MODULERCSFX"):hasevent("show actuation toggles") {
-                    nose:getmodule("MODULERCSFX"):doevent("show actuation toggles").
-                }
-                nose:getmodule("MODULERCSFX"):setfield("yaw", true).
-                nose:getmodule("MODULERCSFX"):doevent("hide actuation toggles").
-            }
-        }
-    }
-}
-
 
 function VehicleSelfCheck {
-    set FuelFail to false.
-    if STOCK and 1=2{
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
-            for res in HeaderTank:resources {
-                if Methane {
-                    if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
-                        if round(res:capacity) = 4200 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("Header-CH4").
-                        }
-                    }
-                    if res:name = "Oxidizer" and res:amount < res:capacity + 1 {
-                        if round(res:capacity) = 1400 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("Header-LOX").
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 720 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 880 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-        if ShipType = "Tanker" {
-            for res in Nose:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        if round(res:capacity) = 36706 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if round(res:capacity) = 12235 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 6912 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 8448 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-        for res in Tank:resources {
-            if Methane {
-                if res:name = "LqdMethane" {
-                    if ShipType = "Depot" {
-                        if round(res:capacity) = 119487 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if round(res:capacity) = 80625 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("S-CH4").
-                        }
-                    }
-                }
-                if res:name = "Oxidizer" {
-                    if ShipType = "Depot" {
-                        if round(res:capacity) = 39829 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if round(res:capacity) = 26875 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("S-LOX").
-                        }
-                    }
-                }
-            }
-            else {
-                if res:name = "Liquid Fuel" {
-                    if ShipType = "Depot" {
-                        if res:capacity = 22500 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if res:capacity = 6210 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                if res:name = "Oxidizer" {
-                    if ShipType = "Depot" {
-                        if res:capacity = 27500 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if res:capacity = 7590 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-        if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
-            for res in BoosterCore[0]:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        if round(res:capacity) = 393000 and res:amount < res:capacity + 1 {}
-                         else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-CH4").
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if round(res:capacity) = 131000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-LOX").
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 33120 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 40480 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-
-        if SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length > 0 {
-            for res in BoosterCore[0]:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        if round(res:capacity) = 175125 and res:amount < res:capacity + 1 {}
-                         else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-CH4").
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if round(res:capacity) = 58375 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-LOX").
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 306000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 374000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if KSRSS and 1=2{
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
-            for res in HeaderTank:resources {
-                if Methane {
-                    if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
-                        if round(res:capacity) = 3824 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" and res:amount < res:capacity + 1 {
-                        if round(res:capacity) = 1275 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 720 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 880 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-        if ShipType = "Tanker" {
-            for res in Nose:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        //if round(res:capacity) = 59744 and res:amount < res:capacity + 1 {}
-                        if round(res:capacity) = 36706 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        //if round(res:capacity) = 19914 and res:amount < res:capacity + 1 {}
-                        if round(res:capacity) = 12235 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 6912 and res:amount < res:capacity + 1 {}
-                        //if res:capacity = 11250 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 8448 and res:amount < res:capacity + 1 {}
-                        //if res:capacity = 13750 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-        for res in Tank:resources {
-            if Methane {
-                if res:name = "LqdMethane" {
-                    if ShipType = "Depot" {
-                        if round(res:capacity) = 133825 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if round(res:capacity) = 86031 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                if res:name = "Oxidizer" {
-                    if ShipType = "Depot" {
-                        if round(res:capacity) = 44608 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if round(res:capacity) = 28677 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-            else {
-                if res:name = "Liquid Fuel" {
-                    if ShipType = "Depot" {
-                        //if res:capacity = 43200 and res:amount < res:capacity + 1 {}
-                        if res:capacity = 25200 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if res:capacity = 16200 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                if res:name = "Oxidizer" {
-                    if ShipType = "Depot" {
-                        //if res:capacity = 52800 and res:amount < res:capacity + 1 {}
-                        if res:capacity = 30800 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if res:capacity = 19800 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-        if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
-            for res in BoosterCore[0]:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        if round(res:capacity) = 420594 and res:amount < res:capacity + 1 {}
-                         else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if round(res:capacity) = 140198 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 79200 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 96800 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-
-        if SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length > 0 {
-            for res in BoosterCore[0]:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        if round(res:capacity) = 175125 and res:amount < res:capacity + 1 {}
-                         else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-CH4").
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if round(res:capacity) = 58375 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-LOX").
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 306000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 374000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if RSS and 1=2 {
-        if not (ShipType = "Depot") and not (ShipType = "Expendable") and not (ShipType = "Block1CargoExp") and not (ShipType = "Block1Exp") and not (ShipType = "Block1PEZExp") {
-            for res in HeaderTank:resources {
-                if Methane {
-                    if res:name = "LqdMethane" and res:amount < res:capacity + 1 {
-                        if round(res:capacity) = 9894 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" and res:amount < res:capacity + 1 {
-                        if round(res:capacity) = 3298 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 1863 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 2277 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        
-        if ShipType = "Tanker" {
-            for res in Nose:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        if round(res:capacity) = 71692 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if round(res:capacity) = 23897 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 13500 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 16500 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-        for res in Tank:resources {
-            
-                if Methane {
-                if res:name = "LqdMethane" {
-                    if ShipType = "Depot" {
-                        if round(res:capacity) = 812512 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if round(res:capacity) = 450000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                if res:name = "Oxidizer" {
-                    if ShipType = "Depot" {
-                        if round(res:capacity) = 270837 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if round(res:capacity) = 450000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-            else {
-                if res:name = "Liquid Fuel" {
-                    if ShipType = "Depot" {
-                        if res:capacity = 153000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if res:capacity = 108000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-                if res:name = "Oxidizer" {
-                    if ShipType = "Depot" {
-                        if res:capacity = 187000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    else {
-                        if res:capacity = 132000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-            }
-        }
-        if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
-            for res in BoosterCore[0]:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        if round(res:capacity) = 1625023 and res:amount < res:capacity + 1 {}
-                         else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-CH4").
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if round(res:capacity) = 541674 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-LOX").
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 306000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 374000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-
-        if SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length > 0 {
-            for res in BoosterCore[0]:resources {
-                if Methane {
-                    if res:name = "LqdMethane" {
-                        if round(res:capacity) = 175125 and res:amount < res:capacity + 1 {}
-                         else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-CH4").
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if round(res:capacity) = 58375 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                            print("B-LOX").
-                        }
-                    }
-                }
-                else {
-                    if res:name = "Liquid Fuel" {
-                        if res:capacity = 306000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                    if res:name = "Oxidizer" {
-                        if res:capacity = 374000 and res:amount < res:capacity + 1 {}
-                        else {
-                            set FuelFail to true.
-                            print res:amount.
-                            print res:capacity.
-                        }
-                    }
-                }
-            }
-        }
-
-    }
     
-    if FuelFail {
-        print "Fuel Tanks mismatch detected!".
-        print "Planet Pack: " + planetpack.
-        print "LqdMethane: " + (Methane).
-        print "Interface Disabled..".
-        LogToFile("Fuel Tanks mismatch detected! Interface Disabled..").
-        InhibitButtons(1, 1, 1).
-        ShowButtons(0).
-        ShowHomePage().
-        set message1:text to "<b>Fuel Amount vs. Capacity mismatch!</b>".
-        set message2:text to "<b>Check the readme on the github page..</b>".
-        set message3:text to "<b>Interface has been disabled!</b>".
-        set message1:style:textcolor to red.
-        set message2:style:textcolor to yellow.
-        set message3:style:textcolor to grey.
-        set textbox:style:bg to "starship_img/starship_main_square_bg".
-        set runningprogram to "Self-Test Failed".
-        updatestatusbar().
-    }
-    if ship:name:contains("Real Size") and not (RSS) {
-        print "Wrong Craft detected!".
-        print "Interface Disabled..".
-        LogToFile("Wrong Craft detected! Interface Disabled..").
-        InhibitButtons(1, 1, 1).
-        ShowButtons(0).
-        ShowHomePage().
-        set message1:text to "<b>You are using the wrong craft!</b>".
-        set message2:text to "<b>Use 'Starship..' craft..</b>".
-        set message3:text to "<b>Interface has been disabled!</b>".
-        set message1:style:textcolor to red.
-        set message2:style:textcolor to yellow.
-        set message3:style:textcolor to grey.
-        set textbox:style:bg to "starship_img/starship_main_square_bg".
-        set runningprogram to "Self-Test Failed".
-        updatestatusbar().
-    }
-    if methane and LF {
-        print "Fuel Tanks mismatch detected!".
-        print "Planet Pack: " + planetpack.
-        print "LqdMethane: " + (Methane).
-        print "LF:" + (LF).
-        print "Interface Disabled..".
-        LogToFile("Fuel Tanks mismatch detected! LF and LqdMethane found simultaneously. Interface Disabled..").
-        InhibitButtons(1, 1, 1).
-        ShowButtons(0).
-        ShowHomePage().
-        set message1:text to "<b>LF and Lqd CH4 detected simultaneously!</b>".
-        set message2:text to "<b>Load a fresh craft..</b>".
-        set message3:text to "<b>Interface has been disabled!</b>".
-        set message1:style:textcolor to red.
-        set message2:style:textcolor to yellow.
-        set message3:style:textcolor to grey.
-        set textbox:style:bg to "starship_img/starship_main_square_bg".
-        set runningprogram to "Self-Test Failed".
-        updatestatusbar().
-    }
 }
 
 
@@ -16420,26 +15891,13 @@ function CheckFullTanks {
                 }
             }
         }
-        if ShipType = "Tanker" {
+        if ShipType:contains("Tanker") {
             for res in Nose:resources {
                 if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") {
                     set FullTanks to false.
                     set missingStuffWhere to missingStuffWhere + "TnkNose|".
                     set amount to amount + res:amount.
                     set cap to cap + res:capacity.
-                }
-            }
-        }
-        if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
-            for res in HeaderTank:resources {
-                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") {
-                    set res:enabled to true.
-                    set FullTanks to false.
-                    set missingStuffWhere to missingStuffWhere + "V1Header|".
-                    set amount to amount + res:amount.
-                    set cap to cap + res:capacity.
-                } else {
-                    set res:enabled to false.
                 }
             }
         }
@@ -16466,11 +15924,19 @@ function CheckFullTanks {
                             set res2:enabled to true.
                         }
                     }
-                    for res2 in HSR[0]:resources {
-                        if res2:name = "LqdMethane" {
-                            set res2:enabled to true.
+                    if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 
+                        for res2 in HSR[0]:resources {
+                            if res2:name = "LqdMethane" {
+                                set res2:enabled to true.
+                            }
                         }
-                    }
+                    else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 
+                        for res2 in bFWDDome[0]:resources {
+                            if res2:name = "LqdMethane" {
+                                set res2:enabled to true.
+                            }
+                        }
+                    
                 }
             }
         }
@@ -16575,11 +16041,12 @@ function CheckFullTanks {
             }
         }
 
-        if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 and FullTanks {
+        if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 or SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 and FullTanks {
             set BoosterResourcesSTEP to BoosterCore[0]:resources.
             BoosterResourcesSTEP:add(bLOXTank[0]:resources). 
             BoosterResourcesSTEP:add(bCH4Tank[0]:resources).
-            BoosterResourcesSTEP:add(HSR[0]:resources).
+            if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 BoosterResourcesSTEP:add(HSR[0]:resources).
+            else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 BoosterResourcesSTEP:add(bFWDDome[0]:resources).
             BoosterResourcesSTEP:add(bCMNDome[0]:resources).
             set BoosterResources to list().
             for StepRes in BoosterResourcesSTEP {
@@ -16706,7 +16173,6 @@ function ToggleHeaderTank {
 function SetShipBGPage {
     if ShipType = "Cargo" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_cargo".
-        if Nose:name:contains("SEP.23.SHIP.FLAPS") {set textbox:style:bg to "starship_img/starship_main_square_bg_cargoFLAPS".}
     }
     if ShipType = "Block1" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block1".
@@ -16725,6 +16191,12 @@ function SetShipBGPage {
     }
     if ShipType = "Block1PEZExp" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block1PEZexp".
+    }
+    if ShipType = "Block2PEZ" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block2PEZ".
+    }
+    if ShipType = "Block3PEZ" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block3PEZ".
     }
     if ShipType = "Crew" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_crew".
@@ -16766,7 +16238,7 @@ function GetShipRotation {
 
 function updateTelemetry {
 
-    if ShipSubType:contains("Block2") {
+    if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
@@ -16835,7 +16307,22 @@ function updateTelemetry {
             }
         }
     }
-        for res in Tank:resources {
+    for res in Tank:resources {
+        if res:name = "LiquidFuel" {
+            set ch4 to ch4 + res:amount.
+            set mch4 to mch4 + res:capacity.
+        }
+        if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+            set ch4 to ch4 + res:amount.
+            set mch4 to mch4 + res:capacity.
+        }
+        if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
+            set lox to lox + res:amount.
+            set mlox to mlox + res:capacity.
+        }
+    }
+    if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+        for res in sCMNTank:resources {
             if res:name = "LiquidFuel" {
                 set ch4 to ch4 + res:amount.
                 set mch4 to mch4 + res:capacity.
@@ -16849,13 +16336,20 @@ function updateTelemetry {
                 set mlox to mlox + res:capacity.
             }
         }
-
-
-
-
+        for res in sCH4Tank:resources {
+            if res:name = "LiquidFuel" {
+                set ch4 to ch4 + res:amount.
+                set mch4 to mch4 + res:capacity.
+            }
+            if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+                set ch4 to ch4 + res:amount.
+                set mch4 to mch4 + res:capacity.
+            }
+        }
+    }
 
     set shipLOX to lox*100/mlox.
-    set shipCH4 to ch4*100/mch4.
+    set shipCH4 to ch4*100/max(0.1,mch4).
 
     set engCount to 0.
     set SLactive to 0.
