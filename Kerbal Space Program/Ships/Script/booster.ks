@@ -3878,14 +3878,14 @@ function CheckFuel {
             set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") {
                 BoosterCore:shutdown.
-            } else if BoosterType:contains("Block3") DumpVents[1]:doaction("shutdown engine", true).
+            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and BoosterType:contains("Block3") DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3")  {
                 BoosterCore:shutdown.
-            } else if BoosterType:contains("Block3") DumpVents[1]:doaction("shutdown engine", true).
+            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and BoosterType:contains("Block3") DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
             set OxBooster to res:amount.

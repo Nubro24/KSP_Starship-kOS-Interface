@@ -543,12 +543,10 @@ if RSS {         // Real Solar System
     set TargetAp to 225000.
     set RCSThrust to 100.
     set RCSBurnTimeLimit to 120.
-    if Methane {
+    set VentRate to 183.55.
+    when partsfound then if Methane {
         set VentRate to 974.745.
         set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
-    }
-    else {
-        set VentRate to 183.55.
     }
     set ArmsHeight to 138.16.
     set OrbitPrecision to 250.
@@ -596,12 +594,10 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set TargetAp to 125000.
     set RCSThrust to 70.
     set RCSBurnTimeLimit to 180.
-    if Methane {
+    set VentRate to 91.775.
+    when partsfound then if Methane {
         set VentRate to 487.3725.
         set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
-    }
-    else {
-        set VentRate to 91.775.
     }
     set ArmsHeight to 86.35.
     set OrbitPrecision to 150.
@@ -640,12 +636,10 @@ else {       // Stock Kerbin
     set TargetAp to 75000.
     set RCSThrust to 40.
     set RCSBurnTimeLimit to 120.
-    if Methane {
+    set VentRate to 36.71.
+    when partsfound then if Methane {
         set VentRate to 194.949.
         set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
-    }
-    else {
-        set VentRate to 36.71.
     }
     set ArmsHeight to 86.35.
     set OrbitPrecision to 100.
@@ -6951,6 +6945,8 @@ set landbutton:ontoggle to {
                                             }
                                             BackGroundUpdate().
                                         }
+                                        clearScreen.
+                                        print LFShip + " / " + FuelVentCutOffValue.
                                     }
                                     ShutDownAllEngines().
                                     ToggleHeaderTank(1).
@@ -9629,8 +9625,6 @@ function sendMessage {
 }
 //--------------Update Functions------------------------------//
 function updatestatusbar {
-
-    
     if not (StatusBarIsRunning) {
         set StatusBarIsRunning to true.
         for res in ship:resources {
@@ -9673,7 +9667,7 @@ function updatestatusbar {
                 set res:enabled to true.
             }
         }
-        if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+        if (ship:partsnamed("FNB.BL2.LOX"):length > 0 and ShipType:contains("Block2")) or (ship:partsnamed("FNB.BL3.LOX"):length > 0 and ShipType:contains("Block3")) {
             for res in sCMNTank:resources {
                 if res:name = "LiquidFuel" {
                     set LFShip to LFShip + res:amount.
