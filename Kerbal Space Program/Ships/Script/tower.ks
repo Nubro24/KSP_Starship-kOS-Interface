@@ -486,19 +486,19 @@ function MechazillaArms {
     print "curErr:"+armsopenangle.
     print ArmsOpen.
     print "curAng:"+currentAngle.
-    if targetangle = 999 {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
-    } else {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle).
-    }
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed).
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle).
     if ArmsOpen = "true" and Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("open arms") {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
     }
     if ArmsOpen = "false" and Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("close arms") {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
     }
+    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle).
+    if targetangle = 999 {
+        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
+    } else {
+        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle).
+    }
+    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed).
 }
 
 
