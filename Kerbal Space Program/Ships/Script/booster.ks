@@ -807,13 +807,13 @@ function CreateTelemetry {
     set message1:style:fontsize to 21*TScale.
 
     set Go:style:width to 100*TScale.
-    set Go:style:border:h to 10*TScale.
-    set Go:style:border:v to 10*TScale.
+    set Go:style:border:h to 10*(TScale^0.5).
+    set Go:style:border:v to 10*(TScale^0.5).
     set Go:style:fontsize to 18*TScale.
 
     set NoGo:style:width to 100*TScale.
-    set NoGo:style:border:h to 10*TScale.
-    set NoGo:style:border:v to 10*TScale.
+    set NoGo:style:border:h to 10*(TScale^0.5).
+    set NoGo:style:border:v to 10*(TScale^0.5).
     set NoGo:style:fontsize to 18*TScale.
 
     set message4:style:margin:left to 10*TScale.
@@ -883,7 +883,7 @@ function CreateTelemetry {
     set bLOXBorder:style:margin:top to 18*TScale.
     set bLOXBorder:style:width to 190*TScale.
     set bLOXBorder:style:height to 8*TScale.
-    set bLOXBorder:style:border:h to 4*TScale.
+    set bLOXBorder:style:border:h to 4*(TScale^0.5).
     set bLOXBorder:style:border:v to 0*TScale.
     set bLOXBorder:style:overflow:left to 0*TScale.
     set bLOXBorder:style:overflow:right to 8*TScale.
@@ -893,7 +893,7 @@ function CreateTelemetry {
     set bLOXSlider:style:margin:top to 18*TScale.
     set bLOXSlider:style:width to 0*TScale.
     set bLOXSlider:style:height to 8*TScale.
-    set bLOXSlider:style:border:h to 4*TScale.
+    set bLOXSlider:style:border:h to 4*(TScale^0.5).
     set bLOXSlider:style:border:v to 0*TScale.
     set bLOXSlider:style:overflow:left to 200*TScale.
     set bLOXSlider:style:overflow:right to 0*TScale.
@@ -917,7 +917,7 @@ function CreateTelemetry {
     set bCH4Border:style:margin:top to 13*TScale.
     set bCH4Border:style:width to 190*TScale.
     set bCH4Border:style:height to 8*TScale.
-    set bCH4Border:style:border:h to 4*TScale.
+    set bCH4Border:style:border:h to 4*(TScale^0.5).
     set bCH4Border:style:border:v to 0*TScale.
     set bCH4Border:style:overflow:left to 0*TScale.
     set bCH4Border:style:overflow:right to 8*TScale.
@@ -927,7 +927,7 @@ function CreateTelemetry {
     set bCH4Slider:style:margin:top to 13*TScale.
     set bCH4Slider:style:width to 0*TScale.
     set bCH4Slider:style:height to 8*TScale.
-    set bCH4Slider:style:border:h to 4*TScale.
+    set bCH4Slider:style:border:h to 4*(TScale^0.5).
     set bCH4Slider:style:border:v to 0*TScale.
     set bCH4Slider:style:overflow:left to 200*TScale.
     set bCH4Slider:style:overflow:right to 0*TScale.
