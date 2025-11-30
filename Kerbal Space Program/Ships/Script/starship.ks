@@ -1660,7 +1660,6 @@ function HighAltitudeFlightTest {
     when apoapsis > HAFTAp-1140 and not ShipType:contains("SN") or apoapsis > HAFTAp-880 then
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
     when apoapsis > HAFTAp-1100 and not ShipType:contains("SN") or apoapsis > HAFTAp-850 then if SLEngines[0]:hassuffix("activate") {
-        set steeringManager:pitchpid:kp to 0.5.
         set steeringManager:pitchpid:kd to 0.8.
         set steeringManager:yawpid:kd to 0.6.
         wait 0.1.
@@ -1668,20 +1667,13 @@ function HighAltitudeFlightTest {
         SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
         set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 1200*Scale*TowerHeadingVector:normalized).
         lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
-        lock steering to (lookDirUp(facing:forevector*4+up:vector*10+tgtVec*0.3/HAFTAp-0.04*GSVec+TowerHeadingVector:normalized, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
+        lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10+tgtVec*0.4/HAFTAp-0.04*GSVec+TowerHeadingVector:normalized, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
     }
     when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector*0.2 + facing:topvector).
-    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec*1.5/HAFTAp, -TowerHeadingVector).
+    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec*1.6/HAFTAp, -TowerHeadingVector).
     when alt:radar > HAFTAp-3200 then {
         lock steering to lookDirUp(up:vector, -TowerHeadingVector).
         when steeringManager:angleerror < 1 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector).
-    }
-    when apoapsis > HAFTAp then {
-        set descentTgtVec to -facing:topvector.
-        set HAFTthrPID:setpoint to 5.
-        set HAFTthrPID:kp to 0.2.
-        set HAFTthrPID:kd to 0.04.
-        lock throttle to HAFTthrPID:update(time:seconds, verticalSpeed).
     }
     until apoapsis > HAFTAp {
         set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 1200*Scale*TowerHeadingVector:normalized).
@@ -1691,8 +1683,13 @@ function HighAltitudeFlightTest {
         set message3:text to "Active Engines: " + SLactive.
         wait 0.1.
     }
+    set descentTgtVec to -facing:topvector.
+    set HAFTthrPID:setpoint to 5.
+    set HAFTthrPID:kp to 0.2.
+    set HAFTthrPID:kd to 0.04.
+    lock throttle to HAFTthrPID:update(time:seconds, verticalSpeed).
     set message2:text to "Hover in Progress".
-    until verticalSpeed < 10 and vAng(facing:topvector, GSVec) > 95 {
+    until verticalSpeed < 10 {
         set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 1200*Scale*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         if alt:radar > 8000 and not stopRCS rcs on.
@@ -1700,8 +1697,9 @@ function HighAltitudeFlightTest {
         set message3:text to "Active Engines: " + SLactive.
         wait 0.1.
     }
-    lock steering to (lookDirUp(up:vector, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
-    until shipCH4 < 10/(Scale^0.7) {
+    lock steering to (lookDirUp(up:vector+tgtVec*0.3/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
+    until shipCH4 < 7/(Scale^0.7) {
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 1200*Scale*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         if alt:radar > 7400 and not stopRCS rcs on.
         else rcs off.
@@ -12582,7 +12580,7 @@ function ReEntryData {
         }
         set tt to time:seconds.
     }
-    if time:seconds > tt + 15 and not AFTONLY {
+    if time:seconds > tt + 24 and not AFTONLY {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") 
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
@@ -12606,7 +12604,7 @@ function ReEntryData {
             }
         }
     }
-    else if time:seconds > tt + 15 {
+    else if time:seconds > tt + 24 {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") 
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
@@ -15038,7 +15036,7 @@ function ShipsInOrbit {
                 set t to t + 1.
             }
             if x:status = "ORBITING" and x:body = ship:body {
-                if x:name:contains("Crew") or x:name:contains("Cargo") or x:name:contains("Tanker") or x:name:contains("Depot") or x:name:contains("Starship") {
+                if (x:name:contains("Crew") or x:name:contains("Cargo") or x:name:contains("Tanker") or x:name:contains("Depot") or x:name:contains("Starship")) and not x:type = "Debris" or x:type = "Station" {
                     if RSS and x:orbit:apoapsis < 500000 and x:orbit:periapsis > 140000 {
                         ShipsInOrbitList:add(Vessel(x:name)).
                     }
