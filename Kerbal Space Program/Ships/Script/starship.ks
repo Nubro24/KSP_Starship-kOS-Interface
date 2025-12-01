@@ -1582,17 +1582,18 @@ function EngineTest {
             set res:enabled to true.
         }
     }
-    hudtext("Static Fire Test starting..",5,2,18,yellow,false).
-    wait 5.
+    hudtext("Static Fire Test starting..",5,2,22,yellow,false).
+    set missionTimer to time:seconds+10.
+    wait 10.
     lock throttle to 0.8.
     if not SHipType:contains("SN") for eng in VACEngines {
         eng:activate.
-        wait 0.2.
+        wait 0.1.
     } 
-    wait 1.
+    wait 0.2.
     for eng in SLEngines {
         eng:activate.
-        wait 0.2.
+        wait 0.1.
     } 
     wait 5.
     if not SHipType:contains("SN") for eng in VACEngines {
@@ -1645,7 +1646,7 @@ function HighAltitudeFlightTest {
     set descentTgtVec to -facing:topvector.
     set steeringManager:pitchpid:kd to 0.4.
     set steeringManager:yawpid:kd to 0.4.
-    hudtext("High Altitude Flight Test starting..",5,2,24,yellow,false).
+    hudtext("High Altitude Flight Test starting..",5,2,22,yellow,false).
     set launchlabel:style:textcolor to grey.
     set message1:style:textcolor to white.
     set message2:style:textcolor to white.
@@ -1691,12 +1692,11 @@ function HighAltitudeFlightTest {
     set landingzone to ship:body:geopositionof(tgtVec).
     wait 0.
     addons:tr:settarget(landingzone).
-    set tgtVec to tgtVec - TowerHeadingVector:normalized * 2500*Scale.
+    set tgtVec to tgtVec - TowerHeadingVector:normalized * 2400*Scale.
     set Venting to false. set Fueling to true.
     if SLEThrust*3*0.9 < (ship:mass-LaunchStand:mass)*9.81*1.19 {
         set Venting to true.
         sCMNTank:activate.
-        hudtext("Venting starting.. Too heavy for liftoff right now",5,2,18,yellow,false).
     }
     else if SLEThrust*3*0.9 > (ship:mass-LaunchStand:mass)*9.81*1.24 {
         set Fueling to true.
@@ -1717,10 +1717,10 @@ function HighAltitudeFlightTest {
             for HAFTres2 in Tank:resources {if HAFTres2:name:contains("Ox") set Fam2 to HAFTres2:amount.}
             set VentSpeed to (Fam1-Fam2)/(time:seconds - TimeStamp1).
             sCMNTank:shutdown.
-            set VentstartTime to time:seconds + 120 - Fcap*(0.16/Scale)/VentSpeed.
+            set VentstartTime to time:seconds + 120 - Fcap*(0.16/Scale)/max(0.01,VentSpeed).
             when time:seconds > VentstartTime then {
                 sCMNTank:activate.
-                when ((shipCH4 < 6/Scale or shipLOX < 6/Scale) and alt:radar > 0.98*HAFTAp) or ((shipCH4 < 14/Scale or shipLOX < 14/Scale) and alt:radar < 0.99*HAFTAp) then {
+                when ((shipCH4 < 6/Scale or shipLOX < 6/Scale) and alt:radar > 0.98*HAFTAp) or ((shipCH4 < 14/Scale or shipLOX < 14/Scale) and Apoapsis < HAFTAp) then {
                     sCMNTank:shutdown.
                 }
             }
@@ -1734,8 +1734,8 @@ function HighAltitudeFlightTest {
         wait 0.2.
     }
     set message2:text to "Countdown..".
-    set missionTimer to time:seconds+5.
-    wait 5.
+    set missionTimer to time:seconds+10.
+    wait 10.
     set message2:text to "Ascent in Progress".
     set ignTime to time:seconds.
     lock throttle to (time:seconds-ignTime)/2.
@@ -1756,24 +1756,26 @@ function HighAltitudeFlightTest {
         set steeringManager:yawpid:kd to 0.5.
         wait 0.
         set message3:text to "Active Engines: " + SLactive.
-        lock steering to lookDirUp(up:vector*10+tgtVec*1.5/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
+        lock steering to lookDirUp(up:vector*10+tgtVec*2.4/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
     }
     when apoapsis > HAFTAp-1140 and not ShipType:contains("SN") or apoapsis > HAFTAp-880 then
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
     when apoapsis > HAFTAp-1100 and not ShipType:contains("SN") or apoapsis > HAFTAp-850 then if SLEngines[0]:hassuffix("activate") {
         set steeringManager:pitchpid:kd to 0.8.
-        set steeringManager:yawpid:kd to 0.6.
+        set steeringManager:yawpid:kd to 0.8.
         wait 0.1.
         SLEngines[1]:shutdown.
         SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
-        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2500*Scale*TowerHeadingVector:normalized).
         lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
-        lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10+tgtVec*0.7/HAFTAp-0.08*GSVec-0.06*vxcl(TowerHeadingVector, GSVec)+0.1*TowerHeadingVector:normalized, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + ship:facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:topvector).
+        lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10+tgtVec*1.4/HAFTAp-0.02*GSVec-0.04*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + ship:facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:topvector).
+        wait 0.
+        if tgtVec:mag < 1000 when steeringManager:angleerror < 1 then lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10+tgtVec/HAFTAp-0.09*GSVec-0.11*vxcl(TowerHeadingVector, GSVec)+0.04*TowerHeadingVector:normalized, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + ship:facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:topvector).
     }
-    when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec/HAFTAp, -TowerHeadingVector*0.2 + facing:topvector).
-    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec*2/HAFTAp, -TowerHeadingVector).
+    when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec*1.2/HAFTAp, -TowerHeadingVector*0.2 + facing:topvector).
+    when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec*2.6/HAFTAp, -TowerHeadingVector).
+    when alt:radar > 343 then lock steering to lookDirUp(up:vector*10+tgtVec*3.2/HAFTAp, -TowerHeadingVector).
     until apoapsis > HAFTAp {
-        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2500*Scale*TowerHeadingVector:normalized).
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*Scale*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
@@ -1785,9 +1787,9 @@ function HighAltitudeFlightTest {
     set HAFTthrPID:kp to 0.2.
     set HAFTthrPID:kd to 0.04.
     lock throttle to HAFTthrPID:update(time:seconds, verticalSpeed).
-    set message2:text to "Hover in Progress".
+    set message2:text to "Hovering..".
     until verticalSpeed < 10 {
-        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2500*Scale*TowerHeadingVector:normalized).
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*Scale*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
@@ -1795,9 +1797,9 @@ function HighAltitudeFlightTest {
         wait 0.1.
     }
     sCMNTank:activate.
-    lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10-0.1*GSVec-0.1*vxcl(TowerHeadingVector, GSVec)+tgtVec*0.4/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
+    lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10-0.12*GSVec-0.16*vxcl(TowerHeadingVector, GSVec)+0.06*TowerHeadingVector+tgtVec/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
     until shipCH4 < 7/(Scale^0.7) {
-        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2500*Scale*TowerHeadingVector:normalized).
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*Scale*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         if alt:radar > 7400 and not stopRCS rcs on.
         else rcs off.
@@ -8695,6 +8697,7 @@ function Launch {
                 }
                 if defined HSR set quickengine3:pressed to true.
                 else set IFT1SEI to true.
+                if IFT1SEI lock throttle to 0.
                 updateTelemetry().
                 if ShipType:contains("Block2") or ShipType:contains("Block3") {
                     if defined HSR {
@@ -12526,9 +12529,9 @@ function ReEntrySteering {
             set minAoA to 70.
         } else set minAoA to 42.
 
-        set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (100 * Scale) + 2), maxPitchPID).
+        set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (80 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
-        set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 40).
+        set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 40).
         if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
         set YawPID:minoutput to -YawPID:maxoutput.
 
@@ -12542,15 +12545,18 @@ function ReEntrySteering {
             set t to time:seconds.
             set SRFPRGD to srfprograde.
         }
+        if abs(LngLatErrorList[1]) > 8*Scale and yawctrl < min(40,abs(LngLatErrorList[1]))/2 set yawctrl to yawctrl * 2.
         set DesiredAoA to min(max(minAoA , aoa + pitchctrl), maxAoA).
         //set DesiredAoA to min(max(42 , aoa + pitchctrl + TRJCorrection), 116).      * cos(yawctrl)
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
 
         //SteeringCompensation
-        set steeringOffset to vAng(GuidVec:vector,facing:forevector).
+        set steeringOffset to vAng(vxcl(facing:starvector, GuidVec:vector),facing:forevector).
+        set yawOffset to vAng(vxcl(facing:topvector, GuidVec:vector),facing:forevector).
+        set yawIncrease to min((max((yawOffset - 0.2) / 2, 0.05))^1.4, 1).
         set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.4, 1).
-        set stabalizeDamp to min((max((0.2/steeringOffset), 0.8))^1.2, 10).
+        set stabalizeDamp to min((max((0.2/steeringOffset), 0.8))^1.2, 5).
 
         if yawctrl < 8 or yawctrl > -8 {
             if currentAoA > 89 set stableDamp to -(currentAoA-89)/40.
@@ -12562,7 +12568,7 @@ function ReEntrySteering {
             else set stableDamp to 0.
         }
 
-        set resultVec to GuidVec:vector:normalized + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
+        set resultVec to GuidVec:vector:normalized + vxcl(up:vector, vxcl(facing:forevector, GuidVec:vector:normalized))*yawIncrease + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
 
         //set GuidVec to vecDraw(HeaderTank:position, 0.5 * GuidVec:vector, red, "Guid Vector", 25, true, 0.005, true, true).
         //set ReentryVec to vecDraw(HeaderTank:position, 1 * resultVec, green, "Re-Entry Vector", 25, true, 0.005, true, true).
@@ -13073,7 +13079,7 @@ function ReEntryData {
                 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 0).
-                if abs(LngLatErrorList[0]) > 20*Scale or abs(LngLatErrorList[1]) > 30*Scale {
+                if abs(LngLatErrorList[0]) > 34*Scale or abs(LngLatErrorList[1]) > 20*Scale {
                     set LandSomewhereElse to true.
                     lock throttle to 1.
                     if RSS {lock throttle to 1.}
@@ -13355,11 +13361,9 @@ function ReEntryData {
 
 //------------------Landing Loop-----------------------///
 function ClosingAngle {
-    if (53/(1+constant:e^(-2.2*((RadarRatio) - 2.8)))) + 28 > 29.8 {
-        set angle to (53/(1+constant:e^(-2.2*((RadarRatio) - 2.8)))) + 28.
-    } else {
-        set angle to (30/(1+constant:e^(-6*((RadarRatio) - 0.6)))) + 0.3.
-    }
+    set angle1 to (60/(1+constant:e^(-2.2*((RadarRatio) - 2.8)))) + 30.
+    set angle2 to (1/(1+constant:e^(-8*((RadarRatio) - 0.5)))).
+    set angle to angle1*angle2.
     if angle > 80 set angle to 80.
     
     if time:seconds > lastAngleTime + 0.2 set lastAngle to angle.
@@ -13391,7 +13395,7 @@ function LandingThrottle {
     set stopTime to airspeed / DesiredDecel.
     set stopDist to 0.5 * airspeed * stopTime.
     
-    if verticalspeed > 5*CatchVS or Slow {
+    if (verticalspeed > 5*CatchVS and RadarAlt < 5) or Slow {
         set Slow to true.
         return ((minDecel+2*DesiredDecel)/3)* min((-verticalSpeed/10)^0.8,1).
     }
@@ -13505,7 +13509,8 @@ function LandingVector {
                     if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(3*Scale),1)+TgtErrorStrength)/2.
-                    set VelCancel to cancelPID:update(time:seconds, GSVec:mag).
+                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 set TgtErrorStrength to TgtErrorStrength*1.5.
+                    set VelCancel to cancelPID:update(time:seconds, GSVec:mag)*2.
 
                     set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.1.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).

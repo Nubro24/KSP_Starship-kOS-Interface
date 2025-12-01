@@ -12,6 +12,8 @@
 - Improved Engine Health Checks for Booster
 - Fixed Booster not considering Engine ignition time in LandingBurnHeight calculation
 - Improved Chopstick Movement relative to Booster
+- **Added High Altitude Flight Test and Static Fire**
+  - recommended to use a Test Stand below the Ship
 - **UI Changes**
   - Added Flight Settings:
     - Hide Inteface during Flight Operations
