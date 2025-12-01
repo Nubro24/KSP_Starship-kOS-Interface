@@ -2410,6 +2410,45 @@ set sHAFT:onclick to {
     HighAltitudeFlightTest().
 }.
 
+set bStaticFireFinished to false.
+local bStaticFire is FlightSettingsLayout3:addbutton(" Start High Altitude Flight Test").
+    set bStaticFire:style:fontsize to 16.
+    set bStaticFire:style:margin:left to 24.
+    set bStaticFire:style:margin:top to 24.
+    set bStaticFire:style:margin:right to 16.
+    set bStaticFire:style:height to 24.
+set bStaticFire:onclick to {
+    set IgnitionChances:pressed to false.
+    IgnitionChancesGUI:hide().
+    IgnitionChancesOpen:hide().
+    when bStaticFireFinished then {
+        set bStaticFireFinished to false.
+        IgnitionChancesOpen:show().
+    }
+    when not core:messages:empty then {
+        if RECEIVED:content = "bStaticFireFinished" set bStaticFireFinished to true.
+    }
+    sendMessage(processor(Volume("Booster")),"StaticFire").
+}.
+
+//set HAFTFinished to false.
+//local sHAFT is FlightSettingsLayout3:addbutton(" Start High Altitude Flight Test").
+//    set sHAFT:style:fontsize to 16.
+//    set sHAFT:style:margin:left to 24.
+//    set sHAFT:style:margin:top to 24.
+//    set sHAFT:style:margin:right to 16.
+//    set sHAFT:style:height to 24.
+//set sHAFT:onclick to {
+//    set IgnitionChances:pressed to false.
+//    IgnitionChancesGUI:hide().
+//    IgnitionChancesOpen:hide().
+//    when HAFTFinished then {
+//        set HAFTFinished to false.
+//        IgnitionChancesOpen:show().
+//    }
+//    HighAltitudeFlightTest().
+//}.
+
 set IgnitionChances:ontoggle to {
     parameter toggle.
     if toggle {
@@ -7873,6 +7912,8 @@ else if not startup {
 if Boosterconnected {
     sStaticFire:hide().
     sHAFT:hide().
+} else {
+    bStaticFire:hide().
 }
 
 WHEN runningprogram = "None" THEN {
@@ -14824,6 +14865,7 @@ function SetRadarAltitude {
             set ShipBottomRadarHeight to 9.15.
         }
     }
+    if ShipType:contains("SN") set ShipBottomRadarHeight to ShipBottomRadarHeight + 0.75*Scale.
     if TargetOLM and not (LandSomewhereElse) {
         if RSS {
             lock RadarAlt to altitude - max(ship:geoposition:terrainheight, 0) - ArmsHeight + (39.5167 - ShipBottomRadarHeight) - 0.1.

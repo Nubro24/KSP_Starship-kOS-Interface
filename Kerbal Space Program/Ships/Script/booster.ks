@@ -1401,6 +1401,13 @@ until False {
     else if command = "Bl3LndProf" {
         set Bl3LndProf to MesParameter.
     }
+    else if RECEIVED:content = "StaticFire" {
+        if not BoosterStaticFireRunning and ship:partstitled("Starship Orbital Launch Mount"):length > 0 {
+            set ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+            BoosterStaticFire().
+        }
+        sendMessage(processor(volume("Ship")),"bStaticFireFinished").
+    }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
     }
