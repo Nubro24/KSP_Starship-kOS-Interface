@@ -332,7 +332,7 @@ function CreateTelemetry {
     set sLOXBorder:style:margin:top to 18*TScale.
     set sLOXBorder:style:width to 190*TScale.
     set sLOXBorder:style:height to 8*TScale.
-    set sLOXBorder:style:border:h to 4*(TScale^0.5).
+    set sLOXBorder:style:border:h to 4*(TScale^0.6).
     set sLOXBorder:style:border:v to 0*TScale.
     set sLOXBorder:style:overflow:left to 0*TScale.
     set sLOXBorder:style:overflow:right to 8*TScale.
@@ -342,7 +342,7 @@ function CreateTelemetry {
     set sLOXSlider:style:margin:top to 18*TScale.
     set sLOXSlider:style:width to 0*TScale.
     set sLOXSlider:style:height to 8*TScale.
-    set sLOXSlider:style:border:h to 4*(TScale^0.5).
+    set sLOXSlider:style:border:h to 4*(TScale^0.6).
     set sLOXSlider:style:border:v to 0*TScale.
     set sLOXSlider:style:overflow:left to 200*TScale.
     set sLOXSlider:style:overflow:right to 0*TScale.
@@ -366,7 +366,7 @@ function CreateTelemetry {
     set sCH4Border:style:margin:top to 12*TScale.
     set sCH4Border:style:width to 190*TScale.
     set sCH4Border:style:height to 8*TScale.
-    set sCH4Border:style:border:h to 4*(TScale^0.5).
+    set sCH4Border:style:border:h to 4*(TScale^0.6).
     set sCH4Border:style:border:v to 0*TScale.
     set sCH4Border:style:overflow:left to 0*TScale.
     set sCH4Border:style:overflow:right to 8*TScale.
@@ -376,7 +376,7 @@ function CreateTelemetry {
     set sCH4Slider:style:margin:top to 12*TScale.
     set sCH4Slider:style:width to 0*TScale.
     set sCH4Slider:style:height to 8*TScale.
-    set sCH4Slider:style:border:h to 4*(TScale^0.5).
+    set sCH4Slider:style:border:h to 4*(TScale^0.6).
     set sCH4Slider:style:border:v to 0*TScale.
     set sCH4Slider:style:overflow:left to 200*TScale.
     set sCH4Slider:style:overflow:right to 0*TScale.
