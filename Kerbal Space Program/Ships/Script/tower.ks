@@ -361,7 +361,7 @@ function LiftOff {
 function StaticFireDeluge {
     parameter T0.
     set T0 to T0:toscalar.
-    wait until time:seconds - T0 > -8.
+    wait until time:seconds - T0 > -10.
         if OLM:hasmodule("ModuleEnginesFX") {
             if OLM:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
                 OLM:getmodule("ModuleEnginesFX"):doevent("activate engine").
@@ -372,7 +372,7 @@ function StaticFireDeluge {
                 OLM:getmodule("ModuleEnginesRF"):doevent("activate engine").
             }
         }
-    wait until time:seconds - T0 > -3.
+    wait until time:seconds - T0 > -4.
         if SteelPlate:hasmodule("ModuleEnginesFX") {
             if SteelPlate:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
                 SteelPlate:getmodule("ModuleEnginesFX"):doevent("activate engine").

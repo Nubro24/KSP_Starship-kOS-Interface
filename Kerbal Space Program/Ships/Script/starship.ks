@@ -1521,7 +1521,7 @@ function EngineTest {
     }
     for x in range(0, LaunchStand:modules:length) {
         if LaunchStand:getmodulebyindex(x):hasaction("toggle fueling") or LaunchStand:getmodulebyindex(x):name:contains("ModuleGenerator") {
-            set FuelingModule to x.
+            set FuelingModuleNr to x.
             break.
         }
     }
@@ -1529,8 +1529,8 @@ function EngineTest {
     if shipCH4 < 8 or shipLOX < 50 {
         hudtext("Fueling..",8,2,18,yellow,false).
         set Fueling to true.
-        if LaunchStand:getmodulebyindex(FuelingModule):HasEvent("Start Fueling") {
-            LaunchStand:getmodulebyindex(FuelingModule):DoEvent("Start Fueling").
+        if LaunchStand:getmodulebyindex(FuelingModuleNr):HasEvent("Start Fueling") {
+            LaunchStand:getmodulebyindex(FuelingModuleNr):DoEvent("Start Fueling").
         }
         until shipCH4 > 8 and shipLOX > 50 {
             for res in sCMNTank:resources {
@@ -1567,8 +1567,8 @@ function EngineTest {
             }
             wait 0.2.
         }
-        if LaunchStand:getmodulebyindex(FuelingModule):HasEvent("Stop Fueling") {
-            LaunchStand:getmodulebyindex(FuelingModule):DoEvent("Stop Fueling").
+        if LaunchStand:getmodulebyindex(FuelingModuleNr):HasEvent("Stop Fueling") {
+            LaunchStand:getmodulebyindex(FuelingModuleNr):DoEvent("Stop Fueling").
         }
     }
     for res in sCMNTank:resources {
@@ -1636,7 +1636,7 @@ function HighAltitudeFlightTest {
     }
     for x in range(0, LaunchStand:modules:length) {
         if LaunchStand:getmodulebyindex(x):hasaction("toggle fueling") or LaunchStand:getmodulebyindex(x):name:contains("ModuleGenerator") {
-            set FuelingModule to x.
+            set FuelingModuleNr to x.
             break.
         }
     }
@@ -1668,7 +1668,7 @@ function HighAltitudeFlightTest {
         }
         else {
             set TowerHeadingVector to vCrs(ship:up:vector, ship:north:vector).
-            set tgtVec to facing:topvector*200.
+            set tgtVec to facing:topvector*100-facing:starvector*300.
             hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
         }
     }
@@ -1676,14 +1676,28 @@ function HighAltitudeFlightTest {
         list targets in OLMSearch.
         for tgt in OLMSearch {
             if tgt:name:contains("OrbitalLaunchMount") {
-                if vessel(tgt:name):distance < 5000 set tgtVec to (tgt:position - ship:position).
-                if vessel(tgt:name):loaded {
+                if vessel(tgt:name):distance < HAFTAp/2 set tgtVec to (tgt:position - ship:position).
+                if not vessel(tgt:name):loaded {
+                    set vessel(tgt:name):loaddistance:prelaunch:load to vessel(tgt:name):distance * 1.1.
+                    set vessel(tgt:name):loaddistance:landed:load to vessel(tgt:name):distance * 1.1.
+                    set vessel(tgt:name):loaddistance:prelaunch:unpack to vessel(tgt:name):distance * 1.1.
+                    set vessel(tgt:name):loaddistance:landed:unpack to vessel(tgt:name):distance * 1.1.
+                }
+                when vessel(tgt:name):loaded then {
                     if Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  
                         set TowerHeadingVector to vxcl(Vessel(tgt:name):up:vector, Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                     else {
                         set TowerHeadingVector to vCrs(Vessel(tgt:name):up:vector, Vessel(tgt:name):north:vector).
                         hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
                     }
+                    set vessel(tgt:name):loaddistance:prelaunch:load to 2400.
+                    set vessel(tgt:name):loaddistance:landed:load to 2400.
+                    set vessel(tgt:name):loaddistance:prelaunch:unpack to 2200.
+                    set vessel(tgt:name):loaddistance:landed:unpack to 2200.
+                    set vessel(tgt:name):loaddistance:prelaunch:unload to 4200.
+                    set vessel(tgt:name):loaddistance:landed:unload to 4200.
+                    set vessel(tgt:name):loaddistance:prelaunch:pack to 4000.
+                    set vessel(tgt:name):loaddistance:landed:pack to 4000.
                 }
             }
         }
@@ -1692,7 +1706,11 @@ function HighAltitudeFlightTest {
     set landingzone to ship:body:geopositionof(tgtVec).
     wait 0.
     addons:tr:settarget(landingzone).
-    set tgtVec to tgtVec - TowerHeadingVector:normalized * 2400*Scale.
+    set tgtVec to tgtVec - TowerHeadingVector:normalized * 2400.
+    if tgtVec:mag > HAFTAp/2 {
+        set tgtVec to -facing:starvector*500 - TowerHeadingVector:normalized * 2400.
+        hudtext("Landing Target too far away..Landing somewhere closer",5,2,20,red,false).
+    }
     set Venting to false. set Fueling to true.
     if SLEThrust*3*0.9 < (ship:mass-LaunchStand:mass)*9.81*1.19 {
         set Venting to true.
@@ -1700,15 +1718,15 @@ function HighAltitudeFlightTest {
     }
     else if SLEThrust*3*0.9 > (ship:mass-LaunchStand:mass)*9.81*1.24 {
         set Fueling to true.
-        if LaunchStand:getmodulebyindex(FuelingModule):HasEvent("Start Fueling") {
-            LaunchStand:getmodulebyindex(FuelingModule):DoEvent("Start Fueling").
+        if LaunchStand:getmodulebyindex(FuelingModuleNr):HasEvent("Start Fueling") {
+            LaunchStand:getmodulebyindex(FuelingModuleNr):DoEvent("Start Fueling").
         }
     }
     set Fam1 to 90*Scale.
     set Fam2 to 80*Scale.
     when SLEThrust*3*0.9 > (ship:mass-LaunchStand:mass)*9.81*1.19 and SLEThrust*3*0.9 < (ship:mass-LaunchStand:mass)*9.81*1.24 then {
-        if LaunchStand:getmodulebyindex(FuelingModule):HasEvent("Stop Fueling") {
-            LaunchStand:getmodulebyindex(FuelingModule):DoEvent("Stop Fueling").
+        if LaunchStand:getmodulebyindex(FuelingModuleNr):HasEvent("Stop Fueling") {
+            LaunchStand:getmodulebyindex(FuelingModuleNr):DoEvent("Stop Fueling").
         }
         sCMNTank:activate.
         set TimeStamp1 to time:seconds.
@@ -1717,7 +1735,7 @@ function HighAltitudeFlightTest {
             for HAFTres2 in Tank:resources {if HAFTres2:name:contains("Ox") set Fam2 to HAFTres2:amount.}
             set VentSpeed to (Fam1-Fam2)/(time:seconds - TimeStamp1).
             sCMNTank:shutdown.
-            set VentstartTime to time:seconds + 120 - Fcap*(0.16/Scale)/max(0.01,VentSpeed).
+            set VentstartTime to time:seconds + 120 - Fcap*((0.18*10000)/(Scale*HAFTAp))/max(0.01,VentSpeed).
             when time:seconds > VentstartTime then {
                 sCMNTank:activate.
                 when ((shipCH4 < 6/Scale or shipLOX < 6/Scale) and alt:radar > 0.98*HAFTAp) or ((shipCH4 < 14/Scale or shipLOX < 14/Scale) and Apoapsis < HAFTAp) then {
@@ -1728,6 +1746,7 @@ function HighAltitudeFlightTest {
     }
     set HAFTthrPID to pidLoop(0.01,0.0001,0.01,0.33,1).
     set HAFTthrPID:setpoint to HAFTAp.
+    set steeringManager:rollcontrolanglerange to 24.
     until SLEThrust*3*0.9 > (ship:mass-LaunchStand:mass)*9.81*1.18 and SLEThrust*3*0.9 < (ship:mass-LaunchStand:mass)*9.81*1.25 {
         if Venting set message2:text to "Venting in Progress: " + round(SLEThrust*3*0.9/((ship:mass-LaunchStand:mass)*9.81*1.18), 3)*100 + "%".
         else if Fueling set message2:text to "Fueling in Progress: " + round(((ship:mass-LaunchStand:mass)*9.81*1.24)/(SLEThrust*3*0.9), 3)*100 + "%".
@@ -1750,46 +1769,49 @@ function HighAltitudeFlightTest {
     else if LaunchDock LaunchStand:getmodule("ModuleDockingNode"):doaction("undock node", true).
     when (time:seconds-ignTime)/2 > 0.95 then lock throttle to HAFTthrPID:update(time:seconds, apoapsis)-0.1.
     when apoapsis > HAFTAp/2 then if SLEngines[0]:hassuffix("activate") {
-        SLEngines[0]:shutdown.
-        SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
-        set steeringManager:pitchpid:kd to 0.5.
-        set steeringManager:yawpid:kd to 0.5.
+        SLEngines[1]:shutdown.
+        SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+        set steeringManager:pitchpid:kd to 0.6.
+        set steeringManager:yawpid:kd to 0.6.
         wait 0.
         set message3:text to "Active Engines: " + SLactive.
-        lock steering to lookDirUp(up:vector*10+tgtVec*2.4/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
+        lock steering to lookDirUp(up:vector*10+tgtVec*2.4/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector+facing:topvector).
     }
     when apoapsis > HAFTAp-1140 and not ShipType:contains("SN") or apoapsis > HAFTAp-880 then
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
-    when apoapsis > HAFTAp-1100 and not ShipType:contains("SN") or apoapsis > HAFTAp-850 then if SLEngines[0]:hassuffix("activate") {
-        set steeringManager:pitchpid:kd to 0.8.
-        set steeringManager:yawpid:kd to 0.8.
-        wait 0.1.
-        SLEngines[1]:shutdown.
-        SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+    when apoapsis > HAFTAp-1300 and not ShipType:contains("SN") or apoapsis > HAFTAp-1200 then if SLEngines[0]:hassuffix("activate") {
+        set steeringManager:pitchpid:kd to 0.8*Scale.
+        set steeringManager:yawpid:kd to 0.9*Scale.
+        when verticalSpeed < 50 then if Apoapsis < HAFTAp {set HAFTthrPID:kd to 0.}
+        SLEngines[2]:shutdown.
+        SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
+        wait 0.2.
         lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
-        lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10+tgtVec*1.4/HAFTAp-0.02*GSVec-0.04*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + ship:facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:topvector).
+        lock steering to lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
         wait 0.
-        if tgtVec:mag < 1000 when steeringManager:angleerror < 1 then lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10+tgtVec/HAFTAp-0.09*GSVec-0.11*vxcl(TowerHeadingVector, GSVec)+0.04*TowerHeadingVector:normalized, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + ship:facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:topvector).
+        if tgtVec:mag < 1000 
+            when vAng(facing:forevector, lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector):forevector) < 1 and angularVel:mag < 0.02 then 
+                lock steering to lookDirUp(facing:forevector*10+up:vector*10+tgtVec*1.4/HAFTAp-0.02*GSVec-0.03*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
     }
     when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec*1.2/HAFTAp, -TowerHeadingVector*0.2 + facing:topvector).
     when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec*2.6/HAFTAp, -TowerHeadingVector).
     when alt:radar > 343 then lock steering to lookDirUp(up:vector*10+tgtVec*3.2/HAFTAp, -TowerHeadingVector).
     until apoapsis > HAFTAp {
-        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*Scale*TowerHeadingVector:normalized).
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
         set message3:text to "Active Engines: " + SLactive.
         wait 0.1.
     }
-    set descentTgtVec to -facing:topvector.
+    set HAFTthrPID:kd to 0.08.
     set HAFTthrPID:setpoint to 5.
     set HAFTthrPID:kp to 0.2.
     set HAFTthrPID:kd to 0.04.
     lock throttle to HAFTthrPID:update(time:seconds, verticalSpeed).
     set message2:text to "Hovering..".
     until verticalSpeed < 10 {
-        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*Scale*TowerHeadingVector:normalized).
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         if alt:radar > 8000 and not stopRCS rcs on.
         else rcs off.
@@ -1797,15 +1819,16 @@ function HighAltitudeFlightTest {
         wait 0.1.
     }
     sCMNTank:activate.
-    lock steering to (lookDirUp(facing:forevector*4*Scale+up:vector*10-0.12*GSVec-0.16*vxcl(TowerHeadingVector, GSVec)+0.06*TowerHeadingVector+tgtVec/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:starvector)) * angleAxis(-vAng(up:vector, ship:position + facing:starvector:normalized*0.8675*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),facing:topvector).
+    lock steering to lookDirUp(facing:forevector*4*Scale+up:vector*10-0.12*GSVec-0.16*vxcl(TowerHeadingVector, GSVec)+0.06*TowerHeadingVector+tgtVec*1.6/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
     until shipCH4 < 7/(Scale^0.7) {
-        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*Scale*TowerHeadingVector:normalized).
+        set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
         if alt:radar > 7400 and not stopRCS rcs on.
         else rcs off.
         set message3:text to "Active Engines: " + SLactive.
         wait 0.1.
     }
+    set descentTgtVec to vxcl(up:vector, landingzone:position - ship:position).
     sCMNTank:shutdown.
     set message2:text to "Transition to horizontal in Progress".
     setflaps(24, 85, 1, 32).
@@ -1851,7 +1874,7 @@ function HighAltitudeFlightTest {
         wait 0.1.
         set message3:text to "Active Engines: " + SLactive.
     }
-    SLEngines[0]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
+    SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
     SLEngines[1]:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
     ReEntryAndLand().
     hudtext("High Altitude Flight Test complete..",5,2,18,green,false).
@@ -2375,7 +2398,7 @@ local FlightSettingsHeader2 is FlightSettingsLayout3:addlabel().
     set FlightSettingsHeader2:style:fontsize to 16.
 
 set StaticFireFinished to false.
-local sStaticFire is FlightSettingsLayout3:addbutton(" Start Static Fire").
+local sStaticFire is FlightSettingsLayout3:addbutton(" Ship Static Fire   ").
     set sStaticFire:style:fontsize to 16.
     set sStaticFire:style:margin:left to 24.
     set sStaticFire:style:margin:top to 24.
@@ -2393,12 +2416,24 @@ set sStaticFire:onclick to {
 }.
 
 set HAFTFinished to false.
-local sHAFT is FlightSettingsLayout3:addbutton(" Start High Altitude Flight Test").
+local sHAFT is FlightSettingsLayout3:addbutton(" High Altitude Flight Test").
     set sHAFT:style:fontsize to 16.
     set sHAFT:style:margin:left to 24.
     set sHAFT:style:margin:top to 24.
     set sHAFT:style:margin:right to 16.
     set sHAFT:style:height to 24.
+local sHAFTAp is FlightSettingsLayout3:addtextfield().
+    set sHAFTAp:style:fontsize to 16.
+    set sHAFTAp:style:margin:left to 24.
+    set sHAFTAp:style:margin:top to 24.
+    set sHAFTAp:style:margin:right to 8.
+    set sHAFTAp:style:height to 24.
+    set sHAFTAp:tooltip to "Enter Target Apogee [m] (default: '10000')".
+set sHAFTAp:onchange to {
+    parameter inputNumber.
+    if inputNumber = "" set HAFTAp to 10000.
+    else set HAFTAp to inputNumber:toscalar.
+}.
 set sHAFT:onclick to {
     set IgnitionChances:pressed to false.
     IgnitionChancesGUI:hide().
@@ -2411,7 +2446,7 @@ set sHAFT:onclick to {
 }.
 
 set bStaticFireFinished to false.
-local bStaticFire is FlightSettingsLayout3:addbutton(" Start High Altitude Flight Test").
+local bStaticFire is FlightSettingsLayout3:addbutton(" Booster Static Fire    ").
     set bStaticFire:style:fontsize to 16.
     set bStaticFire:style:margin:left to 24.
     set bStaticFire:style:margin:top to 24.
@@ -2425,8 +2460,11 @@ set bStaticFire:onclick to {
         set bStaticFireFinished to false.
         IgnitionChancesOpen:show().
     }
+    until core:messages:empty {core:messages:pop.}
     when not core:messages:empty then {
+        SET RECEIVED TO CORE:MESSAGES:POP.
         if RECEIVED:content = "bStaticFireFinished" set bStaticFireFinished to true.
+        else return true.
     }
     sendMessage(processor(Volume("Booster")),"StaticFire").
 }.
@@ -12036,7 +12074,6 @@ function ReEntryAndLand {
         set DistanceToTarget to 5000.
         SetPlanetData().
         set FlipAltitude to 700.
-        if ShipType:contains("SN") set FlipAltitude to 500.
         set PitchInputOld to 0.
         set lastFuelBalanc to time:seconds.
         set Bellyflop to false.
@@ -12045,6 +12082,9 @@ function ReEntryAndLand {
         set maxPitchPID to 38.
         when airspeed < 310 then set maxPitchPID to 24.
         set SteeringManager:ROLLCONTROLANGLERANGE to 24.
+        set steeringManager:pitchpid:kd to 0.5.
+        set steeringManager:yawpid:kd to 0.7.
+        set steeringManager:rollpid:kd to 0.4.
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
@@ -12345,7 +12385,7 @@ function ReEntryAndLand {
                             set PitchPID:kp to 0.09.
                             set PitchPID_kp to 0.09.
                             set PitchPID:ki to 0.07.
-                            set PitchPID:kd to 0.12.
+                            set PitchPID:kd to 0.115.
                             set YawPID:kp to 0.03.
                             set YawPID:ki to 0.018.
                             set YawPID:kd to 0.012.
@@ -12434,6 +12474,21 @@ function ReEntryAndLand {
                 }
             }
         }
+        when RadarAlt < FlipAltitude + abs(verticalSpeed) then 
+            for res in tank:resources {
+                if res:name = "Oxidizer" {
+                    set RepositionOxidizer to TRANSFERALL("Oxidizer", HeaderTank, Tank).
+                    set RepositionOxidizer:ACTIVE to TRUE.
+                }
+                if res:name = "LiquidFuel" {
+                    set RepositionLF to TRANSFERALL("LiquidFuel", HeaderTank, Tank).
+                    set RepositionLF:ACTIVE to TRUE.
+                }
+                if res:name = "LqdMethane" {
+                    set RepositionLF to TRANSFERALL("LqdMethane", HeaderTank, Tank).
+                    set RepositionLF:ACTIVE to TRUE.
+                }
+            }
         
         if ship:body:atm:sealevelpressure > 0.5 {
             until RadarAlt < FlipAltitude or altitude - AvailableLandingSpots[4] < FlipAltitude or cancelconfirmed and not ClosingIsRunning or vAng(facing:forevector,up:vector) < 45 and RadarAlt < 2*FlipAltitude {
@@ -12567,10 +12622,10 @@ function ReEntrySteering {
             set PitchPID:kp to PitchPID_kp * max(0.5,(abs(LngLatErrorList[0])/50)^0.3) * max(1,5/max(1,abs(LngLatErrorList[0]))).
             if abs(pitchctrl) > 0.5 * PitchPID:maxoutput and abs(yawctrl) > 0.5 * YawPID:maxoutput or abs(yawctrl) > 0.75 * YawPID:maxoutput or abs(pitchctrl) > 0.75 * PitchPID:maxoutput 
                 setflaps(FWDFlapDefault, AFTFlapDefault, 1, 40).
-            set minAoA to 70.
+            set minAoA to 70 - min(5,abs(LngLatErrorList[0])/50).
         } else set minAoA to 42.
 
-        set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (80 * Scale) + 2), maxPitchPID).
+        set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (60 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 40).
         if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
@@ -13012,20 +13067,6 @@ function ReEntryData {
         if LandButtonIsRunning and not LaunchButtonIsRunning and not cancelconfirmed {
             set config:ipu to 2000.
             
-            for res in tank:resources {
-                if res:name = "Oxidizer" {
-                    set RepositionOxidizer to TRANSFERALL("Oxidizer", HeaderTank, Tank).
-                    set RepositionOxidizer:ACTIVE to TRUE.
-                }
-                if res:name = "LiquidFuel" {
-                    set RepositionLF to TRANSFERALL("LiquidFuel", HeaderTank, Tank).
-                    set RepositionLF:ACTIVE to TRUE.
-                }
-                if res:name = "LqdMethane" {
-                    set RepositionLF to TRANSFERALL("LqdMethane", HeaderTank, Tank).
-                    set RepositionLF:ACTIVE to TRUE.
-                }
-            }
             unlock throttle.
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
@@ -13072,7 +13113,11 @@ function ReEntryData {
             wait 0.001.
             lock throttle to 0.5.
             if RSS {lock throttle to 0.33.}
-            if GSVec:mag < 20 {set throttleOffset to (20-GSVec:mag)/10. lock throttle to 0.4 + throttleOffset.}
+            if GSVec:mag < 20 {
+                set throttleOffset to (20-GSVec:mag)/(10*Scale). 
+                if RSS set throttleOffset to min(0.2,throttleOffset).
+                lock throttle to 0.4 + throttleOffset.
+            }
 
             //set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0001).
             //addons:tr:settarget(landingzone).
@@ -13183,7 +13228,10 @@ function ReEntryData {
                 if addons:tr:hasimpact if (addons:tr:impactpos:position - landingzone:position):mag < 2* ShipHeight 
                     set landingzone to ship:body:geoPositionOf(landingzone:position + vxcl(up:vector, velocity:surface)*10*Scale + vxcl(up:vector, ship:position - landingzone:position)).
                 ADDONS:TR:SETTARGET(landingzone).
-                lock RadarAlt to alt:radar - ShipHeight*0.6.
+                SetRadarAltitude().
+                when verticalspeed > -20 and RadarAlt < ShipHeight*1.5 then {
+                    GEAR on.
+                }
             }
 
             when RadarAlt < ShipHeight then if not LandSomewhereElse if TgtErrorVector:mag > 0.7*ShipHeight set cAbort to true.
@@ -13284,10 +13332,6 @@ function ReEntryData {
                     }
                     when verticalspeed > -20 and RadarAlt < ShipHeight*1.5 then {
                         GEAR on.
-                        SLEngines[0]:shutdown.
-                        SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                        LogToFile("1st engine shutdown; performing a single engine landing..").
-                        set twoSL to true.
                     }
                 }
                 if ship:body:atm:sealevelpressure < 0.5 {
@@ -13306,8 +13350,10 @@ function ReEntryData {
             when RadarAlt < 5*Scale then if LandSomewhereElse or cAbort SetRadarAltitude().
             
             when (verticalspeed > -42 and throttle < ThrottleMin + 0.05 and ship:groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and RadarAlt < 2*ShipHeight) or (verticalSpeed > -30 and throttle < 0.58) then {
-                if SLActive > 2 and SLEngines[0]:hassuffix("activate") SLEngines[0]:shutdown.
-                if SLActive > 2 and SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                if SLActive > 2 and SLEngines[0]:hassuffix("activate") {
+                    SLEngines[0]:shutdown.
+                    SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                }
                 LogToFile("1st engine shutdown; performing a 2-engine landing..").
                 set twoSL to true.
                 set ThrottleMin to 0.33.
@@ -13328,7 +13374,7 @@ function ReEntryData {
             set AngleAbort to false.
             when verticalspeed > CatchVS * 3 and RadarAlt < 12 * Scale and vAng(facing:forevector, up:vector) > 24 then set AngleAbort to true.
 
-            until verticalspeed > CatchVS and RadarAlt < 15 * Scale and ship:groundspeed < 3.75*Scale or AngleAbort {
+            until verticalspeed > CatchVS and RadarAlt < 0.5 * Scale and ship:groundspeed < 2.5*Scale or AngleAbort {
                 SendPing().
                 if config:ipu < 1300 set config:ipu to 1400.
                 if ship:body:atm:sealevelpressure > 0.5 {
@@ -13519,12 +13565,12 @@ function LandingVector {
                     }
                 }
                 if verticalspeed < -30 {
-                    set result to ((up:vector - 0.008 * GSVec - 0.02 * ErrorVector) * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector).
+                    set result to ((facing:forevector + up:vector - 0.008 * GSVec - 0.02 * ErrorVector) * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector).
                 }
-                else if RadarAlt > 10 {
-                    set result to ((up:vector - 0.018 * GSVec - 0.007 * ErrorVector) * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector).
+                else if RadarAlt > 10*Scale {
+                    set result to ((facing:forevector + up:vector - 0.018 * GSVec - 0.007 * ErrorVector) * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector).
                 }
-                else set result to up:vector - 0.03 * GSVec.
+                else set result to 0.4*facing:forevector + up:vector - 0.03 * GSVec.
                 if RadarAlt < 5 set result to result + 2*up:vector.
                 set message1:text to "<b>Landing Off-Target..</b>".
                 if ErrorVector:MAG < 10000 {
@@ -15093,7 +15139,9 @@ function LandAtOLM {
         set LandAtOLMisrunning to true.
         set TargetOLM to false.
         if STOCK {
-            if ShipType:contains("Block1") {
+            if ShipType:contains("SN") 
+                set FlipAltitude to 620.
+            else if ShipType:contains("Block1") {
                 set FlipAltitude to 642.
             } else {
                 set FlipAltitude to 625.
@@ -15107,7 +15155,9 @@ function LandAtOLM {
             }
         }
         else {
-            if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
+            if ShipType:contains("SN") 
+                set FlipAltitude to 530.
+            else if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                 set FlipAltitude to 660.
             } else if ShipType:contains("Block1") {
                 set FlipAltitude to 710.

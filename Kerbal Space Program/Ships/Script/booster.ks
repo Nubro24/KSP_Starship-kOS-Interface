@@ -125,6 +125,7 @@ for part in ship:parts {
         set bLOXTank to part.
         set bCH4Tank to part.
         set bCMNDome to part.
+        set FWD to part.
         set DumpVents to list().
         set ModulesFound to false.
         set x to 0.
@@ -146,6 +147,7 @@ for part in ship:parts {
         set bLOXTank to part.
         set bCH4Tank to part.
         set bCMNDome to part.
+        set FWD to part.
         set DumpVents to list().
         set ModulesFound to false.
         set x to 0.
@@ -265,6 +267,7 @@ for part in ship:parts {
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
         set HSRType to "Block0".
         set HSR to part.
+        set FWD to part.
         set HSset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
@@ -405,6 +408,13 @@ else if ship:partsnamed("FNB.BL3.LOX"):length > 0 {
     set ShipType to "Block3".
 }
 else set ShipType to "None".
+for part in ship:parts {
+    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
+        set ShipTank to part.
+        set ShipConnectedToBooster to true.
+        set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
+    }
+}
 
 FindEngines().
 
@@ -1406,7 +1416,7 @@ until False {
             set ship:partstitled("Starship Orbital Launch Mount")[0]:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
             BoosterStaticFire().
         }
-        sendMessage(processor(volume("Ship")),"bStaticFireFinished").
+        sendMessage(processor(volume("Starship")),"bStaticFireFinished").
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -1418,6 +1428,77 @@ until False {
 function BoosterStaticFire {
     if (BoosterSingleEngines or defined BoosterEngines) and defined bLOXTank and defined bCH4Tank {
         set BoosterStaticFireRunning to true.
+        set LaunchStand to ship:partstitled("Starship Orbital Launch Mount")[0].
+        for x in range(0, LaunchStand:modules:length) {
+            if LaunchStand:getmodulebyindex(x):hasaction("toggle fueling") or LaunchStand:getmodulebyindex(x):name:contains("ModuleGenerator") { 
+                set FuelingModuleNr to x+1.
+                break.
+            }
+        }
+        if boosterCH4 < 8 or boosterLOX < 90 {
+            hudtext("Fueling..",8,2,18,yellow,false).
+            if LaunchStand:getmodulebyindex(FuelingModuleNr):HasEvent("Start Fueling") {
+                LaunchStand:getmodulebyindex(FuelingModuleNr):DoEvent("Start Fueling").
+            }
+            until boosterCH4 > 16 and boosterLOX > 90 {
+                for res in bCMNDome:resources {
+                    if res:name:contains("Ox") {
+                        if boosterLOX < 91 set res:enabled to true.
+                        else set res:enabled to false.
+                    }
+                    if res:name:contains("Methane") {
+                        if boosterCH4 < 17 set res:enabled to true.
+                        else set res:enabled to false.
+                    }
+                }
+                if BoosterType:contains("Block3") {
+                    for res in bLOXTank:resources {
+                        if res:name:contains("Ox") {
+                            if boosterLOX < 91 set res:enabled to true.
+                            else set res:enabled to false.
+                        }
+                        if res:name:contains("Methane") {
+                            if boosterCH4 < 17 set res:enabled to true.
+                            else set res:enabled to false.
+                        }
+                    }
+                    for res in BoosterEngines[0]:resources {
+                        if res:name:contains("Ox") {
+                            if boosterLOX < 91 set res:enabled to true.
+                            else set res:enabled to false.
+                        }
+                        if res:name:contains("Methane") {
+                            if boosterCH4 < 17 set res:enabled to true.
+                            else set res:enabled to false.
+                        }
+                    }
+                    for res in bCH4Tank:resources {
+                        if res:name:contains("Ox") {
+                            if boosterLOX < 91 set res:enabled to true.
+                            else set res:enabled to false.
+                        }
+                        if res:name:contains("Methane") {
+                            if boosterCH4 < 17 set res:enabled to true.
+                            else set res:enabled to false.
+                        }
+                    }
+                    for res in FWD:resources {
+                        if res:name:contains("Ox") {
+                            if boosterLOX < 91 set res:enabled to true.
+                            else set res:enabled to false.
+                        }
+                        if res:name:contains("Methane") {
+                            if boosterCH4 < 17 set res:enabled to true.
+                            else set res:enabled to false.
+                        }
+                    }
+                }
+                wait 0.2.
+            }
+            if LaunchStand:getmodulebyindex(FuelingModuleNr):HasEvent("Stop Fueling") {
+                LaunchStand:getmodulebyindex(FuelingModuleNr):DoEvent("Stop Fueling").
+            }
+        }
         HUDTEXT("Initiating Static Fire..", 10, 2, 24, yellow, false).
         CheckFuel().
         if LFBooster > LFBoosterFuelCutOff {
@@ -1434,72 +1515,66 @@ function BoosterStaticFire {
         }
         set missionTimer to time:seconds + 15.
         until time:seconds - missionTimer > -10 {
-            GUIupdate().wait 0.03.
+            wait 0.03.
         }
-        GUIupdate().
         sendMessage(processor(volume("OrbitalLaunchMount")), "StaticFire,"+missionTimer).
         until time:seconds - missionTimer > -2 {
-            GUIupdate().wait 0.03.
+            wait 0.03.
         }
         lock throttle to 1.
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
         wait 0.
-        GUIupdate().
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
         else {
             for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if eng:activate.
         }
-        GUIupdate().
-        wait 1.
-        GUIupdate().
+        until time:seconds - missionTimer > -1 {
+            wait 0.03.
+        }
         if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
         else {
-            set x to 0.
+            set y to 0.
             for eng in BoosterSingleEnginesRB {
-                if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
+                if y = 3 or y = 7 or y = 11 or y = 15  or y = 19 {}
                 else if eng:hassuffix("activate") if eng:activate.
-                set x to x + 1.
+                set y to y + 1.
             }
-            set inactiveEng to List(7,11,15,19,24).
+            set inactiveEng to List(3,7,11,15,19).
         }
-        GUIupdate().
-        wait 0.7.
-        GUIupdate().
+        until time:seconds - missionTimer > -0.3 {
+            wait 0.03.
+        }
         if BoosterSingleEngines {
-            set x to 0.
+            set y to 0.
             for eng in BoosterSingleEnginesRB {
-                if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if eng:activate.
-                set x to x + 1.
+                if eng:hassuffix("activate") if inactiveEng:contains(y) if eng:activate.
+                set y to y + 1.
             }
         }
         until time:seconds - missionTimer > 6 {
-            GUIupdate().wait 0.03.
+            wait 0.03.
         }
         if BoosterSingleEngines {
-        set x to 0.
-        until x > 3 {
-            if BoosterSingleEnginesRB[x]:hassuffix("activate") BoosterSingleEnginesRB[x]:shutdown.
-            if BoosterSingleEnginesRB[x+4]:hassuffix("activate") BoosterSingleEnginesRB[x+4]:shutdown.
-            if BoosterSingleEnginesRB[x+8]:hassuffix("activate") BoosterSingleEnginesRB[x+8]:shutdown.
-            if BoosterSingleEnginesRB[x+12]:hassuffix("activate") BoosterSingleEnginesRB[x+12]:shutdown.
-            if BoosterSingleEnginesRB[x+16]:hassuffix("activate") BoosterSingleEnginesRB[x+16]:shutdown.
-            set x to x + 1.
-            GUIupdate().
+        set y to 0.
+        until y > 3 {
+            if BoosterSingleEnginesRB[y]:hassuffix("activate") BoosterSingleEnginesRB[y]:shutdown.
+            if BoosterSingleEnginesRB[y+4]:hassuffix("activate") BoosterSingleEnginesRB[y+4]:shutdown.
+            if BoosterSingleEnginesRB[y+8]:hassuffix("activate") BoosterSingleEnginesRB[y+8]:shutdown.
+            if BoosterSingleEnginesRB[y+12]:hassuffix("activate") BoosterSingleEnginesRB[y+12]:shutdown.
+            if BoosterSingleEnginesRB[y+16]:hassuffix("activate") BoosterSingleEnginesRB[y+16]:shutdown.
+            set y to y + 1.
             wait 0.05.
         }
-        GUIupdate().
-        set x to 0.
-        until x > 1 {
-            if BoosterSingleEnginesRC[x+3]:hassuffix("activate") BoosterSingleEnginesRC[x+3]:shutdown.
-            if BoosterSingleEnginesRC[x+5]:hassuffix("activate") BoosterSingleEnginesRC[x+5]:shutdown.
-            if BoosterSingleEnginesRC[x+7]:hassuffix("activate") BoosterSingleEnginesRC[x+7]:shutdown.
-            if BoosterSingleEnginesRC[x+9]:hassuffix("activate") BoosterSingleEnginesRC[x+9]:shutdown.
-            if BoosterSingleEnginesRC[x+11]:hassuffix("activate") BoosterSingleEnginesRC[x+11]:shutdown.
-            set x to x + 1.
-            GUIupdate().
+        set y to 0.
+        until y > 1 {
+            if BoosterSingleEnginesRC[y+3]:hassuffix("activate") BoosterSingleEnginesRC[y+3]:shutdown.
+            if BoosterSingleEnginesRC[y+5]:hassuffix("activate") BoosterSingleEnginesRC[y+5]:shutdown.
+            if BoosterSingleEnginesRC[y+7]:hassuffix("activate") BoosterSingleEnginesRC[y+7]:shutdown.
+            if BoosterSingleEnginesRC[y+9]:hassuffix("activate") BoosterSingleEnginesRC[y+9]:shutdown.
+            if BoosterSingleEnginesRC[y+11]:hassuffix("activate") BoosterSingleEnginesRC[y+11]:shutdown.
+            set y to y + 1.
             wait 0.05.
         }
-        GUIupdate().
         if BoosterSingleEnginesRC[0]:hassuffix("activate") BoosterSingleEnginesRC[0]:shutdown.
         if BoosterSingleEnginesRC[1]:hassuffix("activate") BoosterSingleEnginesRC[1]:shutdown.
         if BoosterSingleEnginesRC[2]:hassuffix("activate") BoosterSingleEnginesRC[2]:shutdown.
@@ -1511,8 +1586,9 @@ function BoosterStaticFire {
         }
         lock throttle to 0.
         unlock throttle.
-        GUIupdate().
-        wait 2.
+        until time:seconds - missionTimer > 10 {
+            wait 0.03.
+        }
         hudtext("Static Fire Complete",3,5,24,green,true).
         set BoosterStaticFireRunning to false.
     }
@@ -1616,8 +1692,7 @@ function Boostback {
         set CurrentTime to time:seconds.
         set kuniverse:timewarp:warp to 0.
         bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-        if ship:partsnamed("Block.3.FWD"):length > 0 HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-        else if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length > 0 FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         if not BoosterSingleEngines MidGimbMod:doaction("lock gimbal", true).
         if not BoosterSingleEngines CtrGimbMod:SetField("gimbal limit", 100).
@@ -2069,8 +2144,7 @@ function Boostback {
         else set RadarAltOffset to BoosterHeight.
 
         bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
-        if ship:partsnamed("Block.3.FWD"):length > 0 HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
-        else if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length > 0 FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
+        FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
         if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
 
         if not Bl3LndProf {
@@ -2129,7 +2203,7 @@ function Boostback {
             lock steering to SteeringVector.
             unlock SteeringVectorBoostback.
         }
-        when vAng(facing:forevector, BoosterCore:position - landingzone:position) < 25 then {
+        when vAng(vxcl(vCrs(up:vector, vxcl(up:vector, BoosterCore:position - landingzone:position)),facing:forevector), BoosterCore:position - landingzone:position) < 10 then {
             if RadarAlt > 32000 {
                 if BoosterType:contains("Block3") lock SteeringVector to lookDirUp(BoosterCore:position - landingzone:position, -ApproachVector).
                 else lock SteeringVector to lookDirUp(BoosterCore:position - landingzone:position, ApproachVector).
@@ -2150,8 +2224,7 @@ function Boostback {
         }
         HUDTEXT("Booster Coast Phase - Timewarp available", 15, 2, 20, green, false).
         set config:ipu to 1600.
-        if ship:partsnamed("Block.3.FWD"):length > 0 HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-        else if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length > 0 FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
 
         
@@ -2200,8 +2273,7 @@ function Boostback {
         }
 
         bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
-        if ship:partsnamed("Block.3.FWD"):length > 0 HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
-        else if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length > 0 FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
+        FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
         if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
     }
     else {
@@ -2348,8 +2420,7 @@ function Boostback {
         if abs(steeringmanager:angleerror) > 10 {
             SetBoosterActive().
             bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
-            if ship:partsnamed("Block.3.FWD"):length > 0 HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
-            else if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length > 0 FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
+            FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
             if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
         }
         else if abs(steeringmanager:angleerror) < 0.25 and KUniverse:activevessel = ship {
@@ -2361,8 +2432,7 @@ function Boostback {
                 //if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
                 //SetStarshipActive().
                 bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
-                if ship:partsnamed("Block.3.FWD"):length > 0 HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
-                else if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length > 0 FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
+                FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
                 if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
                 set TimeStabilized to 0.
                 set OneTime to false.
@@ -2405,8 +2475,7 @@ function Boostback {
     set steeringManager:rolltorquefactor to 0.8.
 
     bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-    if ship:partsnamed("Block.3.FWD"):length > 0 HSR:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-    else if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length > 0 FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+    FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     if BoosterType:contains("Block3") {
         lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), -ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
@@ -2983,11 +3052,11 @@ function Boostback {
     if not RSS lock throttle to max(startThrottle - (time:seconds-throttleTime)/4,0.4).
     else lock throttle to max(startThrottle - (time:seconds-throttleTime)/6,0.2).
     wait 0.
-    when vAng(up:vector,facing:forevector) < 0.5 and angularVel:mag < 0.02 and (time:seconds-throttleTime) > 2 and verticalSpeed > -0.4 then  {
+    when vAng(up:vector,facing:forevector) < 0.5 and angularVel:mag < 0.01 and (time:seconds-throttleTime) > 2 and verticalSpeed > -0.4 then  {
         if not RSS lock throttle to 0.4 - (time:seconds-throttleTime)/4.
         else lock throttle to 0.2 - (time:seconds-throttleTime)/6.
     }
-    until (ship:control:pilotmainthrottle < 0.2 and vAng(up:vector,facing:forevector) < 0.6 and angularVel:mag < 0.02 and verticalSpeed > -0.5) or vAng(up:vector, facing:forevector) > 42 or (ship:control:pilotmainthrottle < 0.04 and verticalSpeed > -0.5) {
+    until (ship:control:pilotmainthrottle < 0.2 and vAng(up:vector,facing:forevector) < 0.6 and angularVel:mag < 0.01 and verticalSpeed > -0.5) or vAng(up:vector, facing:forevector) > 42 or (ship:control:pilotmainthrottle < 0.04 and verticalSpeed > -0.5) {
         clearScreen.
         print ship:control:pilotmainthrottle.
         print angularVel:mag.
@@ -3922,32 +3991,18 @@ function CheckFuel {
                 if LFBoosterFuelCutOff/LFBoosterCap > OxBooster/OxBoosterCap DumpVents[0]:doaction("shutdown engine", true).
             }
         }
-        if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length = 0
-            for res in HSR:resources {
-                if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-                    set boosterCH4 to boosterCH4 + res:amount.
-                    set boosterCH4Cap to boosterCH4Cap + res:capacity.
-                    set methane to true.
-                }
-                if res:name = "LiquidFuel" {
-                    set boosterCH4 to boosterCH4 + res:amount.
-                    set boosterCH4Cap to boosterCH4Cap + res:capacity.
-                    set methane to false.
-                }
+        for res in FWD:resources {
+            if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
+                set methane to true.
             }
-        else 
-            for res in FWD:resources {
-                if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-                    set boosterCH4 to boosterCH4 + res:amount.
-                    set boosterCH4Cap to boosterCH4Cap + res:capacity.
-                    set methane to true.
-                }
-                if res:name = "LiquidFuel" {
-                    set boosterCH4 to boosterCH4 + res:amount.
-                    set boosterCH4Cap to boosterCH4Cap + res:capacity.
-                    set methane to false.
-                }
+            if res:name = "LiquidFuel" {
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
+                set methane to false.
             }
+        }
     }
 }
 
@@ -4311,32 +4366,18 @@ function GUIupdate {
                 set boosterLOXCap to boosterLOXCap + res:capacity.
             }
         }
-        if ship:partsnamed("FNB.BL3.BOOSTERFWD"):length = 0
-            for res in HSR:resources {
-                if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-                    set boosterCH4 to boosterCH4 + res:amount.
-                    set boosterCH4Cap to boosterCH4Cap + res:capacity.
-                    set methane to true.
-                }
-                if res:name = "LiquidFuel" {
-                    set boosterCH4 to boosterCH4 + res:amount.
-                    set boosterCH4Cap to boosterCH4Cap + res:capacity.
-                    set methane to false.
-                }
+        for res in FWD:resources {
+            if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
+                set methane to true.
             }
-        else 
-            for res in FWD:resources {
-                if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-                    set boosterCH4 to boosterCH4 + res:amount.
-                    set boosterCH4Cap to boosterCH4Cap + res:capacity.
-                    set methane to true.
-                }
-                if res:name = "LiquidFuel" {
-                    set boosterCH4 to boosterCH4 + res:amount.
-                    set boosterCH4Cap to boosterCH4Cap + res:capacity.
-                    set methane to false.
-                }
+            if res:name = "LiquidFuel" {
+                set boosterCH4 to boosterCH4 + res:amount.
+                set boosterCH4Cap to boosterCH4Cap + res:capacity.
+                set methane to false.
             }
+        }
         for res in bCMNDome:resources {
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set boosterLOX to boosterLOX + res:amount.
@@ -4432,29 +4473,29 @@ function GUIupdate {
             }
         } 
         else if boosterThrust > 60*Scale and not findingEngines {
-            set z to 0.
+            set z to 1.
             if ShipConnectedToBooster { 
                 for uieng in BoosterSingleEnginesRB {
                     if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
-                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster/" + (z+14).
-                        else set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster/0".
+                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/" + (z+13).
+                        else set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/0".
                     }
                     else if uieng:hassuffix("activate") {
-                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster3/" + (z+14).
-                        else set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster3/0".
+                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster3/" + (z+13).
+                        else set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster3/0".
                     }
                     set z to z+1.
                 }
-                set z to 0.
+                set z to 1.
             }
             for uieng in BoosterSingleEnginesRC {
                 if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
-                    if uieng:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/" + (z+1).
-                    else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
+                    if uieng:thrust > 60*Scale set EngClusterDisplay[z-1]:style:bg to "starship_img/EngPicBooster/" + (z).
+                    else set EngClusterDisplay[z-1]:style:bg to "starship_img/EngPicBooster/0".
                 }
                 else if uieng:hassuffix("activate") {
-                    if uieng:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster3/" + (z+1).
-                    else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster3/0".
+                    if uieng:thrust > 60*Scale set EngClusterDisplay[z-1]:style:bg to "starship_img/EngPicBooster3/" + (z).
+                    else set EngClusterDisplay[z-1]:style:bg to "starship_img/EngPicBooster3/0".
                 }
                 set z to z+1.
             }
