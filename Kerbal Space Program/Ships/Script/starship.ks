@@ -1777,9 +1777,9 @@ function HighAltitudeFlightTest {
         set message3:text to "Active Engines: " + SLactive.
         lock steering to lookDirUp(up:vector*10+tgtVec*2.4/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector-facing:topvector).
     }
-    when apoapsis > HAFTAp-1140 and not ShipType:contains("SN") or apoapsis > HAFTAp-880 then
+    when apoapsis > HAFTAp-1340 and not ShipType:contains("SN") or apoapsis > HAFTAp-1140 then
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
-    when apoapsis > HAFTAp-1300 and not ShipType:contains("SN") or apoapsis > HAFTAp-1200 then if SLEngines[0]:hassuffix("activate") {
+    when apoapsis > HAFTAp-1300 and not ShipType:contains("SN") or apoapsis > HAFTAp-1100 then if SLEngines[0]:hassuffix("activate") {
         set steeringManager:pitchpid:kd to 0.8*Scale.
         set steeringManager:yawpid:kd to 0.9*Scale.
         when verticalSpeed < 50 then if Apoapsis < HAFTAp {set HAFTthrPID:kd to 0.}
