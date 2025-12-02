@@ -1775,7 +1775,7 @@ function HighAltitudeFlightTest {
         set steeringManager:yawpid:kd to 0.6.
         wait 0.
         set message3:text to "Active Engines: " + SLactive.
-        lock steering to lookDirUp(up:vector*10+tgtVec*2.4/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector-facing:topvector).
+        lock steering to lookDirUp(up:vector*10+tgtVec*2.4/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*0.5*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector+facing:topvector).
     }
     when apoapsis > HAFTAp-1340 and not ShipType:contains("SN") or apoapsis > HAFTAp-1140 then
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
@@ -1787,11 +1787,11 @@ function HighAltitudeFlightTest {
         SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
         wait 0.2.
         lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
-        lock steering to lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
+        lock steering to lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector).
         wait 0.
         if tgtVec:mag < 1000 
-            when vAng(facing:forevector, lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector):forevector) < 1 and angularVel:mag < 0.02 then 
-                lock steering to lookDirUp(facing:forevector*10+up:vector*10+tgtVec*1.4/HAFTAp-0.02*GSVec-0.03*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
+            when vAng(facing:forevector, lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector):forevector) < 1 and angularVel:mag < 0.02 then 
+                lock steering to lookDirUp(facing:forevector*10+up:vector*10+tgtVec*1.4/HAFTAp-0.02*GSVec-0.03*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector).
     }
     when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec*1.2/HAFTAp, -TowerHeadingVector*0.2 + facing:topvector).
     when alt:radar > 243 then lock steering to lookDirUp(up:vector*10+tgtVec*2.6/HAFTAp, -TowerHeadingVector).
@@ -1819,7 +1819,7 @@ function HighAltitudeFlightTest {
         wait 0.1.
     }
     sCMNTank:activate.
-    lock steering to lookDirUp(facing:forevector*4*Scale+up:vector*10-0.12*GSVec-0.16*vxcl(TowerHeadingVector, GSVec)+0.06*TowerHeadingVector+tgtVec*1.6/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),ship:facing:starvector).
+    lock steering to lookDirUp(facing:forevector*6*Scale+up:vector*10-0.12*GSVec-0.12*vxcl(TowerHeadingVector, GSVec)+0.06*TowerHeadingVector+tgtVec*1.6/HAFTAp, -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector).
     until shipCH4 < 7/(Scale^0.7) {
         set tgtVec to vxcl(up:vector, landingzone:position - ship:position - 2400*TowerHeadingVector:normalized).
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
