@@ -942,10 +942,10 @@ function FindParts {
                 else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
                     set FRflap to x.
                 }
                 else if x:name:contains("SEP.24.SHIP.PROTO.NOSE") {
@@ -1342,6 +1342,10 @@ function FindParts {
         set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         if SHIP:PARTSNAMED("Raptor.3Cluster"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("Raptor.3Cluster").
+        else {
+            set BoosterEngines to SHIP:PARTSNAMED("Block.3.AFT").
+            set BoosterSingleEngines to true.
+        }
         if SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN"):length > 0 set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
         else if SHIP:PARTSNAMED("Block.3.Fin"):length > 0 set GridFins to SHIP:PARTSNAMED("Block.3.Fin").
         set HSR to SHIP:PARTSNAMED("Block.3.FWD").
@@ -1377,6 +1381,10 @@ function FindParts {
         set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         if SHIP:PARTSNAMED("FNB.R3.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.R3.CLUSTER").
+        else { 
+            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT").
+            set BoosterSingleEngines to true.
+        }
         set GridFins to SHIP:PARTSNAMED("FNB.BL3.BOOSTERFIN").
         set HSR to SHIP:PARTSNAMED("FNB.BL3.BOOSTERIHSR").
         set BoosterCore to SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT").
@@ -1410,35 +1418,14 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not Hotstaging and not bEngSet and not BoosterType:contains("Block3") {
+    if Boosterconnected and not Hotstaging and not bEngSet {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
-                or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-                or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB") ) {
-            set BoosterSingleEngines to true.
-            set BoosterSingleEnginesRB to list().
-            set BoosterSingleEnginesRC to list().
-            set x to 1.
-            until x > 33 or not Boosterconnected {
-                if ship:partstagged(x:tostring):length > 0 {
-                    if x < 14 BoosterSingleEnginesRC:insert(x-1,ship:partstagged(x:tostring)[0]).
-                    else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
-                }
-                else {
-                    if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
-                    else BoosterSingleEnginesRB:insert(x-14, False).
-                }
-                set x to x + 1.
-            }
-        } 
-        else {
-            set BoosterSingleEngines to false.
-        }
-        set bEngSet to true.
-        print "bEngines set.. SingleEng.:" + BoosterSingleEngines.
-    }
-    else if Boosterconnected and not Hotstaging and not bEngSet and BoosterType:contains("Block3") {
-        if BoosterCore[0]:children:length > 1 and ( BoosterCore[0]:children[0]:name:contains("Raptor.3RC") or BoosterCore[0]:children[0]:name:contains("Raptor.3RB") 
-                or BoosterCore[0]:children[1]:name:contains("Raptor.3RC") or BoosterCore[0]:children[1]:name:contains("Raptor.3RB") ) {
+            or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
+            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER") 
+            or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
+            or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB")
+            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") )  {
             set BoosterSingleEngines to true.
             set BoosterSingleEnginesRB to list().
             set BoosterSingleEnginesRC to list().
@@ -1780,8 +1767,8 @@ function HighAltitudeFlightTest {
     when apoapsis > HAFTAp-1340 and not ShipType:contains("SN") or apoapsis > HAFTAp-1140 then
         if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
     when apoapsis > HAFTAp-1300 and not ShipType:contains("SN") or apoapsis > HAFTAp-1100 then if SLEngines[0]:hassuffix("activate") {
-        set steeringManager:pitchpid:kd to 0.8*Scale.
-        set steeringManager:yawpid:kd to 0.9*Scale.
+        set steeringManager:pitchpid:kd to 0.8.
+        set steeringManager:yawpid:kd to 0.8.
         when verticalSpeed < 50 then if Apoapsis < HAFTAp {set HAFTthrPID:kd to 0.}
         SLEngines[2]:shutdown.
         SLEngines[2]:getmodule("ModuleSEPRaptor"):doaction("enable actuate out", true).
@@ -7950,6 +7937,7 @@ else if not startup {
 if Boosterconnected {
     sStaticFire:hide().
     sHAFT:hide().
+    sHAFTAp:hide().
 } else {
     bStaticFire:hide().
 }
@@ -13596,7 +13584,7 @@ function LandingVector {
                     if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(3*Scale),1)+TgtErrorStrength)/2.
-                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 set TgtErrorStrength to TgtErrorStrength*1.5.
+                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 and TgtErrorVector:mag > 1.6*Scale set TgtErrorStrength to TgtErrorStrength*1.5.
                     set VelCancel to cancelPID:update(time:seconds, GSVec:mag)*2.
 
                     set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.1.
