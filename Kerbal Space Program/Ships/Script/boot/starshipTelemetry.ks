@@ -723,8 +723,6 @@ function FindParts {
         }
     }
     wait 0.01.
-    if FLflap = "false" and FRflap = "false" set AFTONLY to true.
-    print "Aft Flaps only: "+AFTONLY.
 
     if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 {
         set oldBooster to true.
