@@ -999,7 +999,7 @@ when not Boosterconnected then {
 
 
 until false {
-    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and ship:partsnamed("Block.3.AFT"):length = 0 and Boosterconnected {
+    if ship:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and ship:partsnamed("Block.3.AFT"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERAFT"):length = 0 and Boosterconnected {
         set Boosterconnected to false.
         //sendMessage(Vessel("Booster"),"HotStage").
     } 
