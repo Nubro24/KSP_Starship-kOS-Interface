@@ -1620,6 +1620,8 @@ function Boostback {
     rcs off.
     set steeringmanager:maxstoppingtime to 2.
     set bAttitude:style:bg to "starship_img/booster".
+    set steeringManager:pitchpid:kd to 0.5.
+    set steeringManager:yawpid:kd to 0.5.
 
     set HighLandingBurn to false.
 

@@ -12084,7 +12084,7 @@ function ReEntryAndLand {
         set SteeringManager:ROLLCONTROLANGLERANGE to 24.
         set steeringManager:pitchpid:kd to 0.5.
         set steeringManager:yawpid:kd to 0.7.
-        set steeringManager:rollpid:kd to 0.4.
+        set steeringManager:rollpid:kd to 0.5.
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).

@@ -270,6 +270,7 @@ set STOCK to false.
 set RESCALE to false.
 set Methane to false.
 set LF to false.
+set bEngSet to false.
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
@@ -880,7 +881,7 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not Hotstaging and not bEngSet {
+    if Boosterconnected and not bEngSet {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
             or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
             or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
