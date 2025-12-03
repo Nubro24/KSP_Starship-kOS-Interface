@@ -270,6 +270,25 @@ set STOCK to false.
 set RESCALE to false.
 set Methane to false.
 set LF to false.
+when partsfound then if defined HeaderTank {
+    for res in HeaderTank:resources {
+        if res:name:contains("Methane") {
+            set Methane to true.
+        }
+        if res:name = "LiquidFuel" {
+            set LF to true.
+        }
+    }
+} else {
+    for res in Core:part:resources {
+        if res:name:contains("Methane") {
+            set Methane to true.
+        }
+        if res:name = "LiquidFuel" {
+            set LF to true.
+        }
+    }
+}
 set bEngSet to false.
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
