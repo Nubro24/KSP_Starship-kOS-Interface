@@ -36,7 +36,6 @@ set ECset to false.
 set BTset to false.
 set HSset to false.
 for part in ship:parts {
-    print RandomFlip.
     if part:name:contains("SEP.23.BOOSTER.INTEGRATED") and not BTset {
         set BoosterType to "Block0".
         set BoosterCore to part.
@@ -57,7 +56,6 @@ for part in ship:parts {
         }
         set oldBooster to true.
         set BTset to true.
-        set RandomFlip to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterType to "Block2".
@@ -78,11 +76,9 @@ for part in ship:parts {
             set x to x+1.
         }
         set BTset to true.
-        set RandomFlip to true.
     }
     if part:name:contains("Block.3.AFT") and not BTset {
         set BoosterType to "Block3".
-        set Bl3LndProf to true.
         set BoosterEngines to ship:partsnamed("Block.3.AFT").
         set BoosterCore to part.
         set DumpVents to list().
@@ -101,11 +97,9 @@ for part in ship:parts {
             set x to x+1.
         }
         set BTset to true.
-        set RandomFlip to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERAFT") and not BTset {
         set BoosterType to "Block3".
-        set Bl3LndProf to true.
         set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERAFT").
         set BoosterCore to part.
         set DumpVents to list().
@@ -124,7 +118,6 @@ for part in ship:parts {
             set x to x+1.
         }
         set BTset to true.
-        set RandomFlip to true.
     }
     if part:name:contains("Block.3.CH4") {
         set bCH4Tank to part.
@@ -155,12 +148,10 @@ for part in ship:parts {
     if part:name:contains("Raptor.3Cluster") and not ECset {
         set BoosterEngines to ship:partsnamed("Raptor.3Cluster").
         set ECset to true.
-        set Block3Cluster to true.
     }
     if part:name:contains("FNB.R3.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("FNB.R3.CLUSTER").
         set ECset to true.
-        set Block3Cluster to true.
     }
     if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "23".
@@ -195,7 +186,6 @@ for part in ship:parts {
     }
     if part:name:contains("VS.25.HSR.BL3") and not HSset {
         set HSRType to "Block3".
-        set Bl3LndProf to true.
         set HSR to part.
         set HSset to true.
     }
@@ -210,7 +200,6 @@ for part in ship:parts {
     }
     if part:name:contains("FNB.BL3.BOOSTERIHSR") and not HSset {
         set HSRType to "Block3".
-        set Bl3LndProf to true.
         set HSR to part.
         set HSset to true.
     }
