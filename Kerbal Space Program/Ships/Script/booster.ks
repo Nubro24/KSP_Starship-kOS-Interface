@@ -267,7 +267,6 @@ for part in ship:parts {
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
         set HSRType to "Block0".
         set HSR to part.
-        set FWD to part.
         set HSset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
@@ -284,6 +283,7 @@ for part in ship:parts {
     if part:name:contains("Block.3.FWD") and not HSset {
         set HSRType to "Block3".
         set HSR to part.
+        set FWD to part.
         set CrossFeed to part:getmodule("ModuleToggleCrossfeed").
         set HSset to true.
     }
@@ -1282,7 +1282,10 @@ when time:seconds > TelemetryTimer + 0.03 then {
 if BoosterType:contains("Block3") and ship:partsnamed("FNB.BL3.BOOSTERAFT"):length = 0 {
     CrossFeed:doaction("Disable Crossfeed", true).
 }
-if BoosterType:contains("Block3") set maxAoA to 18.
+if BoosterType:contains("Block3") {
+    set maxAoA to 18.
+    set BoosterGlideDistance to BoosterGlideDistance * 1.5.
+}
 
 when MaxQ then {
     set ClockHeader:text to "Max Q".
@@ -2765,10 +2768,18 @@ function Boostback {
                 PollUpdate().
                 set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
                 set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
-                if not RSS 
-                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 3.8.
-                else 
-                    lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.1.
+                if BoosterType:contains("Block3") {
+                    if not RSS 
+                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.8.
+                    else 
+                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 1.5.
+                }
+                else {
+                    if not RSS 
+                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 3.8.
+                    else 
+                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.1.
+                }
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
 
@@ -3478,7 +3489,7 @@ function LandingGuidance {
     set CatchPos to landingzone:position + MZHeight*up:vector + TheTowerHeadingVector * angleAxis(ApproachAngle/2, up:vector) - TheTowerHeadingVector.
     if verticalSpeed < 0 set vSpeed to -verticalSpeed.
     else set vSpeed to max(verticalSpeed,0.001).
-    set PredictGSVec to GSVec + vxcl(up:vector, facing:forevector + velocity:surface:normalized):normalized*vAng(facing:forevector, -velocity:surface)*ActiveRC/15.
+    set PredictGSVec to GSVec + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*ActiveRC/15.
     set gsTime to max(PositionError:mag,2)*2/max(PredictGSVec:mag,0.01).
     set vertTime to RadarAlt*2/vSpeed.
     set speedRatio to vSpeed/max(0.1,PredictGSVec:mag).
@@ -3490,22 +3501,22 @@ function LandingGuidance {
         else set haVstrength to 0.
     }
     // === Future Offset from Target ===
-    if MiddleEnginesShutdown set TVCDamp to 0.6*PredictGSVec.
-    else set TVCDamp to 0.2*PredictGSVec.
+    if MiddleEnginesShutdown set TVCDamp to 0.69*PredictGSVec.
+    else set TVCDamp to 0.24*PredictGSVec.
     if addons:tr:hasimpact and RadarAlt > 3*Scale set myFuturePos to addons:tr:impactpos:position + MZHeight*(CatchPins-addons:tr:impactpos:position + velocity:surface/9.81):normalized*1/cos(vAng((CatchPins-addons:tr:impactpos:position + velocity:surface/9.81), up:vector)).
     else set myFuturePos to CatchPos.
     set TargetError to CatchPos - myFuturePos - TVCDamp.
-    set TgtErrorVector to ErrorVector * min(max(0.2, (RadarRatio-2)/4), 0.8) - TargetError * min(max(0.2, 1.25/(RadarRatio-1.5)), 0.8).
+    set TgtErrorVector to ErrorVector * min(max(0.1, (RadarRatio-2.5)/4), 0.8) - TargetError * min(max(0.2, 1.5/(RadarRatio-1.75)), 0.8).
 
     // === Guidance ===
     set angleTgtError to vAng(TargetError, PositionError). 
     if angleTgtError > 90 set predictInput to -TargetError:mag.
     else set predictInput to TargetError:mag.
     set predictValue to 6*min(1,max(RadarRatio,0.3))*tgtErrorPID:update(time:seconds, predictInput).
-    if landDistance > BoosterHeight or RadarAlt < BoosterHeight*0.7 set PrVec to (CatchPins - CatchPos):normalized * landDistance/3 + up:vector * landDistance/9.
-    else set PrVec to 10*up:vector - GSVec/10.
-    set GuidVec to PrVec - TgtErrorVector * 20/max(airspeed-280,20) 
-            + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)).
+    if landDistance > BoosterHeight or RadarAlt > BoosterHeight*0.7 set PrVec to (CatchPins - CatchPos):normalized * landDistance/3 + up:vector * landDistance/9.
+    else set PrVec to BoosterHeight*up:vector - GSVec*0.1.
+    set GuidVec to PrVec - TgtErrorVector * 20/max(airspeed-280,16) + TargetError * predictValue/6
+            + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
     if cAbort and airspeed < 69 set GuidVec to 2*up:vector - velocity:surface:normalized.
 
     // === TVC compensation ===
@@ -3522,10 +3533,10 @@ function LandingGuidance {
 
     // === Debug Draw ===
     //set tgtError to vecDraw(CatchPos, -TargetError, white, "TgtError", 1, true, 0.1).
-    //set TestVec to vecDraw(BoosterCore:position, PredictGSVec:normalized*predictValue*20/max(airspeed-280,20)*min(1, max(RadarRatio-0.2/2, 0)), red, "Test", 1, true, 0.2).
-    //set Test2Vec to vecDraw(BoosterCore:position, PrVec - TgtErrorVector * 20/max(airspeed-280,20), blue, "Test2", 1, true, 0.2).
-    //set drawGuid to vecDraw(BoosterCore:position, GuidVec, grey, "Guid", 1, true, 0.2).
-    //set drawFin to vecDraw(BoosterCore:position, FinalVec, white, "Final", 24, true, 0.008).
+    //set TestVec to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, PredictGSVec:normalized*predictValue*20/max(airspeed-280,20)*min(1,max(RadarRatio-0.24/2,0.1))*min(1,max(GSVec:mag,2)/7*Scale), red, "Test", 1, true, 0.2).
+    //set Test2Vec to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, PrVec-TgtErrorVector*20/max(airspeed-280,16)+TargetError*predictValue/6, blue, "Test2", 1, true, 0.2).
+    //set drawGuid to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, GuidVec, grey, "Guid", 1, true, 0.2).
+    //set drawFin to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, FinalVec, white, "Final", 24, true, 0.008).
     print round(gsTime,3)+ " _ " +round(vertTime,3)+ " - " +round(closureRatio,3)+ " / " +round(RadarRatio,2). 
     print round(predictValue,3).
 

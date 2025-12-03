@@ -36,14 +36,28 @@ set ECset to false.
 set BTset to false.
 set HSset to false.
 for part in ship:parts {
+    print RandomFlip.
     if part:name:contains("SEP.23.BOOSTER.INTEGRATED") and not BTset {
         set BoosterType to "Block0".
         set BoosterCore to part.
         set bLOXTank to part.
         set bCH4Tank to part.
         set bCMNDome to part.
+        set FWD to part.
+        set DumpVents to list().
+        set ModulesFound to false.
+        set x to 0.
+        until x > part:modules:length-1 or ModulesFound {
+            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
+                DumpVents:add(part:getmodulebyindex(x)).
+                set ModulesFound to true.
+                break.
+            }
+            set x to x+1.
+        }
         set oldBooster to true.
         set BTset to true.
+        set RandomFlip to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterType to "Block2".
@@ -51,13 +65,66 @@ for part in ship:parts {
         set bLOXTank to part.
         set bCH4Tank to part.
         set bCMNDome to part.
+        set FWD to part.
+        set DumpVents to list().
+        set ModulesFound to false.
+        set x to 0.
+        until x > part:modules:length-1 or ModulesFound {
+            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
+                DumpVents:add(part:getmodulebyindex(x)).
+                set ModulesFound to true.
+                break.
+            }
+            set x to x+1.
+        }
         set BTset to true.
+        set RandomFlip to true.
     }
     if part:name:contains("Block.3.AFT") and not BTset {
         set BoosterType to "Block3".
+        set Bl3LndProf to true.
         set BoosterEngines to ship:partsnamed("Block.3.AFT").
         set BoosterCore to part.
+        set DumpVents to list().
+        set ModulesFound to false.
+        set x to 0.
+        set y to 0.
+        until x > part:modules:length-1 or ModulesFound {
+            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
+                DumpVents:add(part:getmodulebyindex(x)).
+                set y to y+1.
+                if y = 2 {
+                    set ModulesFound to true.
+                    break.
+                }
+            }
+            set x to x+1.
+        }
         set BTset to true.
+        set RandomFlip to true.
+    }
+    if part:name:contains("FNB.BL3.BOOSTERAFT") and not BTset {
+        set BoosterType to "Block3".
+        set Bl3LndProf to true.
+        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERAFT").
+        set BoosterCore to part.
+        set DumpVents to list().
+        set ModulesFound to false.
+        set x to 0.
+        set y to 0.
+        until x > part:modules:length-1 or ModulesFound {
+            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
+                DumpVents:add(part:getmodulebyindex(x)).
+                set y to y+1.
+                if y = 2 {
+                    set ModulesFound to true.
+                    break.
+                }
+            }
+            set x to x+1.
+        }
+        set BTset to true.
+        set RandomFlip to true.
     }
     if part:name:contains("Block.3.CH4") {
         set bCH4Tank to part.
@@ -66,6 +133,15 @@ for part in ship:parts {
         set bLOXTank to part.
     }
     if part:name:contains("Block.3.CMN") {
+        set bCMNDome to part.
+    }
+    if part:name:contains("FNB.BL3.BOOSTERCH4") {
+        set bCH4Tank to part.
+    }
+    if part:name:contains("FNB.BL3.BOOSTERLOX") {
+        set bLOXTank to part.
+    }
+    if part:name:contains("FNB.BL3.BOOSTERCMN") {
         set bCMNDome to part.
     }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
@@ -79,10 +155,37 @@ for part in ship:parts {
     if part:name:contains("Raptor.3Cluster") and not ECset {
         set BoosterEngines to ship:partsnamed("Raptor.3Cluster").
         set ECset to true.
+        set Block3Cluster to true.
+    }
+    if part:name:contains("FNB.R3.CLUSTER") and not ECset {
+        set BoosterEngines to ship:partsnamed("FNB.R3.CLUSTER").
+        set ECset to true.
+        set Block3Cluster to true.
+    }
+    if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
+        set GridfinsType to "23".
+        set GridfinLength to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length.
+        set GFset to true.
+    }
+    if part:name:contains("SEP.25.BOOSTER.GRIDFIN") and not GFset {
+        set GridfinsType to "25".
+        set GridfinLength to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length.
+        set GFset to true.
+    }
+    if part:name:contains("Block.3.Fin") and not GFset {
+        set GridfinsType to "Block3".
+        set GridfinLength to ship:partsnamed("Block.3.Fin"):length.
+        set GFset to true.
+    }
+    if part:name:contains("FNB.BL3.BOOSTERFIN") and not GFset {
+        set GridfinsType to "Block3".
+        set GridfinLength to ship:partsnamed("FNB.BL3.BOOSTERFIN"):length.
+        set GFset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
         set HSRType to "Block0".
         set HSR to part.
+        set FWD to part.
         set HSset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
@@ -92,11 +195,22 @@ for part in ship:parts {
     }
     if part:name:contains("VS.25.HSR.BL3") and not HSset {
         set HSRType to "Block3".
+        set Bl3LndProf to true.
         set HSR to part.
         set HSset to true.
     }
     if part:name:contains("Block.3.FWD") and not HSset {
         set HSRType to "Block3".
+        set HSR to part.
+        set CrossFeed to part:getmodule("ModuleToggleCrossfeed").
+        set HSset to true.
+    }
+    if part:name:contains("FNB.BL3.BOOSTERFWD") {
+        set FWD to part.
+    }
+    if part:name:contains("FNB.BL3.BOOSTERIHSR") and not HSset {
+        set HSRType to "Block3".
+        set Bl3LndProf to true.
         set HSR to part.
         set HSset to true.
     }
@@ -108,6 +222,7 @@ for part in ship:parts {
 
 
 if ship:partsnamedpattern("VS.25.BL2"):length > 1 {
+    set RandomFlip to false.
     set ShipType to "Block2".
 }
 else if ship:partsnamed("SEP.24.SHIP.FWD.RIGHT.FLAP"):length > 0 {
@@ -116,20 +231,32 @@ else if ship:partsnamed("SEP.24.SHIP.FWD.RIGHT.FLAP"):length > 0 {
 else if ship:partsnamed("SEP.23.SHIP.FWD.RIGHT"):length > 0 {
     set ShipType to "Block0".
 }
+else if ship:partsnamed("FNB.BL2.LOX"):length > 0 {
+    set ShipType to "Block2".
+}
+else if ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+    set ShipType to "Block3".
+}
 else set ShipType to "None".
-
-
+for part in ship:parts {
+    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
+        set ShipTank to part.
+        set ShipConnectedToBooster to true.
+        set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
+    }
+}
 
 FindEngines().
-
 
 function FindEngines {
     set findingEngines to true.
     if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
             or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
             or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
+            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER") 
             or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
-            or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB") ) {
+            or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB")
+            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") ) {
         set BoosterSingleEngines to true.
         set BoosterSingleEnginesRB to list().
         set BoosterSingleEnginesRC to list().
@@ -612,7 +739,7 @@ function GUIupdate {
                 set boosterLOXCap to boosterLOXCap + res:capacity.
             }
         }
-        for res in HSR:resources {
+        for res in FWD:resources {
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
                 set boosterCH4 to boosterCH4 + res:amount.
                 set boosterCH4Cap to boosterCH4Cap + res:capacity.
@@ -719,29 +846,29 @@ function GUIupdate {
             }
         } 
         else if boosterThrust > 60*Scale and not findingEngines {
-            set z to 0.
+            set z to 1.
             if ShipConnectedToBooster { 
                 for uieng in BoosterSingleEnginesRB {
                     if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
-                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster/" + (z+14).
-                        else set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster/0".
+                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/" + (z+13).
+                        else set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/0".
                     }
                     else if uieng:hassuffix("activate") {
-                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster3/" + (z+14).
-                        else set EngClusterDisplay[z+13]:style:bg to "starship_img/EngPicBooster3/0".
+                        if uieng:thrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster3/" + (z+13).
+                        else set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster3/0".
                     }
                     set z to z+1.
                 }
-                set z to 0.
+                set z to 1.
             }
             for uieng in BoosterSingleEnginesRC {
                 if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
-                    if uieng:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/" + (z+1).
-                    else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster/0".
+                    if uieng:thrust > 60*Scale set EngClusterDisplay[z-1]:style:bg to "starship_img/EngPicBooster/" + (z).
+                    else set EngClusterDisplay[z-1]:style:bg to "starship_img/EngPicBooster/0".
                 }
                 else if uieng:hassuffix("activate") {
-                    if uieng:thrust > 60*Scale set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster3/" + (z+1).
-                    else set EngClusterDisplay[z]:style:bg to "starship_img/EngPicBooster3/0".
+                    if uieng:thrust > 60*Scale set EngClusterDisplay[z-1]:style:bg to "starship_img/EngPicBooster3/" + (z).
+                    else set EngClusterDisplay[z-1]:style:bg to "starship_img/EngPicBooster3/0".
                 }
                 set z to z+1.
             }

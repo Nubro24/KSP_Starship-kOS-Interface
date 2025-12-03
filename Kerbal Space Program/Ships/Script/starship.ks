@@ -6309,6 +6309,9 @@ set launchbutton:ontoggle to {
     parameter click.
     if not LaunchButtonIsRunning and not LaunchComplete {
         set LaunchButtonIsRunning to true.
+        set config:ipu to 1800.
+        set PreLaunchStuffDone to false.
+        when PreLaunchStuffDone then set config:ipu to CPUSPEED.
         LogToFile("Launch button clicked").
         ShowButtons(0).
         Droppriority().
@@ -6360,6 +6363,7 @@ set launchbutton:ontoggle to {
                         set textbox:style:bg to "starship_img/starship_main_square_bg".
                         wait 3.
                         ClearInterfaceAndSteering().
+                        set PreLaunchStuffDone to true.
                         return.
                     }
                     if not (BoosterCorrectVariant) {
@@ -6371,6 +6375,7 @@ set launchbutton:ontoggle to {
                         set textbox:style:bg to "starship_img/starship_main_square_bg".
                         wait 3.
                         ClearInterfaceAndSteering().
+                        set PreLaunchStuffDone to true.
                         return.
                     }
                     if TowerAlreadyExists {
@@ -6451,6 +6456,7 @@ set launchbutton:ontoggle to {
                                 LogToFile("Launch Function cancelled").
                                 ClearInterfaceAndSteering().
                                 set setting3:text to SavedInclination.
+                                set PreLaunchStuffDone to true.
                                 return.
                             }
                         }
@@ -6574,6 +6580,7 @@ set launchbutton:ontoggle to {
                                         wait 3.
                                         ClearInterfaceAndSteering().
                                         set setting3:text to SavedInclination.
+                                        set PreLaunchStuffDone to true.
                                         return.
                                     }
                                     set LaunchTime to time:seconds + launchWindowList[0] - TMinusCountdown - 2.
@@ -6596,6 +6603,7 @@ set launchbutton:ontoggle to {
                                 if cancelconfirmed or time:seconds > LaunchTime + 5 {
                                     ClearInterfaceAndSteering().
                                     set setting3:text to SavedInclination.
+                                    set PreLaunchStuffDone to true.
                                     return.
                                 }
                             }
@@ -6621,6 +6629,7 @@ set launchbutton:ontoggle to {
                                     wait 3.
                                     ClearInterfaceAndSteering().
                                     set setting3:text to SavedInclination.
+                                    set PreLaunchStuffDone to true.
                                     return.
                                 }
                                 set LaunchTime to time:seconds + launchWindowList[0] - TMinusCountdown - 2.
@@ -6642,12 +6651,14 @@ set launchbutton:ontoggle to {
                                 if cancelconfirmed or time:seconds > LaunchTime + 5 {
                                     ClearInterfaceAndSteering().
                                     set setting3:text to SavedInclination.
+                                    set PreLaunchStuffDone to true.
                                     return.
                                 }
                             }
                             if cancelconfirmed {
                                 ClearInterfaceAndSteering().
                                 set setting3:text to SavedInclination.
+                                set PreLaunchStuffDone to true.
                                 return.
                             }
                             Launch().
@@ -6731,8 +6742,8 @@ set launchbutton:ontoggle to {
         }
     }
 }.
-    
-    
+
+
 set landbutton:ontoggle to {
     parameter click.
     if not LandButtonIsRunning {
@@ -8044,6 +8055,7 @@ function InhibitButtons {
 
 function Launch {
     if not AbortLaunchInProgress and not LaunchComplete {
+        set PreLaunchStuffDone to true.
         set waitingTime to 4.5*Scale.
         set engNumber to 6.
         set runningEngines to list(0,1,2,3,4,5).
@@ -12631,14 +12643,16 @@ function ReEntrySteering {
         }
         if abs(LngLatErrorList[1]) > 8*Scale and yawctrl < min(40,abs(LngLatErrorList[1]))/2 set yawctrl to yawctrl * 2.
         set DesiredAoA to min(max(minAoA , aoa + pitchctrl), maxAoA).
-        //set DesiredAoA to min(max(42 , aoa + pitchctrl + TRJCorrection), 116).      * cos(yawctrl)
+        if yawctrl > YawPID:maxoutput set yawctrl to YawPID:maxoutput.
+        else if yawctrl < YawPID:minoutput set yawctrl to YawPID:minoutput.
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
 
         //SteeringCompensation
         set steeringOffset to vAng(vxcl(facing:starvector, GuidVec:vector),facing:forevector).
         set yawOffset to vAng(vxcl(facing:topvector, GuidVec:vector),facing:forevector).
-        set yawIncrease to min((max((yawOffset - 0.2) / 2, 0.05))^1.4, 1).
+        if currentAoA > 77 set yawIncrease to min((max((yawOffset - 0.2) / 2, 0.05))^1.4, 1).
+        else set yawIncrease to 0.
         set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.4, 1).
         set stabalizeDamp to min((max((0.2/steeringOffset), 0.8))^1.2, 5).
 
@@ -12675,6 +12689,7 @@ function ReEntrySteering {
         print "PitchCtrl: " + round(pitchctrl, 2).
         print "MaxOutput: " + round(PitchPID:maxoutput, 2).
         print "YawCtrl: " + round(yawctrl, 2).
+        print "MaxOutput: " + round(YawPID:maxoutput, 2).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
         print " ".
@@ -13101,8 +13116,8 @@ function ReEntryData {
             wait 0.001.
             lock throttle to 0.5.
             if RSS {lock throttle to 0.33.}
-            if GSVec:mag < 20 {
-                set throttleOffset to (20-GSVec:mag)/(10*Scale). 
+            if GSVec:mag < 15 {
+                set throttleOffset to (15-GSVec:mag)/(10*Scale). 
                 if RSS set throttleOffset to min(0.2,throttleOffset).
                 lock throttle to 0.4 + throttleOffset.
             }
@@ -13305,7 +13320,7 @@ function ReEntryData {
                             wait 0.1.
                             if not ShipLanded preserve.
                         }
-                            when RadarAlt <  0.1 * ShipHeight then {
+                            when RadarAlt <  0.07 * ShipHeight then {
                                 sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",8,24,false")).
                                 sendMessage(Vessel(TargetOLM), ("CloseArms")).
                             }
@@ -13447,7 +13462,8 @@ function ClosingAngle {
 }
 
 function ClosingSpeed {
-    set speed to min(max(10,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 12), 25).
+    //set speed to min(max(10,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 12), 25).
+    set speed to 10.
 
     return round(speed,1).
 }
@@ -13584,10 +13600,10 @@ function LandingVector {
                     if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(3*Scale),1)+TgtErrorStrength)/2.
-                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 and TgtErrorVector:mag > 1.6*Scale set TgtErrorStrength to TgtErrorStrength*1.5.
+                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 and TgtErrorVector:mag > 1.6*Scale set TgtErrorStrength to TgtErrorStrength*1.2.
                     set VelCancel to cancelPID:update(time:seconds, GSVec:mag)*2.
 
-                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.1.
+                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.08 * min(2,1/max(0.1,RadarRatio)).
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
