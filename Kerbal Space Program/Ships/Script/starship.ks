@@ -509,7 +509,7 @@ else {
     set FARValue to 0.
 }
 
-set aoa to 62.
+set aoa to 61.
 if RSS set aoa to 65.7.
 set currentAoA to aoa.
 set maxAoA to 90.
@@ -14020,7 +14020,7 @@ function CalculateDeOrbitBurn {
     set AngleAccuracy to 10.
     
     if DynamicBanking and not PlotAoAset {
-        set PlotAoA to PlotAoA + 2.4/(Scale^1.98) * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^0.8.
+        set PlotAoA to PlotAoA + 2.8/(Scale^2.3) * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)*1.1.
         SetPlanetData().
         set addons:tr:descentangles to DescentAngles.
         set PlotAoAset to true.
