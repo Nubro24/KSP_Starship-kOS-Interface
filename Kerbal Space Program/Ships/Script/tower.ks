@@ -83,7 +83,7 @@ for part in ship:parts {
     if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("BLOCK.3.AFT") or part:name:contains("FNB.BL3.BOOSTERAFT") {
         set BoosterCore to part.
         set onOLM to true.
-    } else if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
+    } else if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") or part:name:contains("SEP.25.SHIP.CORE") {
         set ShipTank to part.
         set shipOnOLM to true.
     }

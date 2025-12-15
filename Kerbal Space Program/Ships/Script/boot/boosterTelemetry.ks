@@ -840,6 +840,7 @@ function GUIupdate {
                 for uieng in BoosterSingleEnginesRB {
                     if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
                         if uieng:thrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/" + (z+13).
+                        else if uieng:maximumthrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster" + (z+13).
                         else set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/0".
                     }
                     else if uieng:hassuffix("activate") {
