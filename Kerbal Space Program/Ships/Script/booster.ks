@@ -415,7 +415,7 @@ else if ship:partsnamed("SEP.25.SHIP.CORE"):length > 0 {
 }
 else set ShipType to "None".
 for part in ship:parts {
-    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
+    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
         set ShipTank to part.
         set ShipConnectedToBooster to true.
         set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".

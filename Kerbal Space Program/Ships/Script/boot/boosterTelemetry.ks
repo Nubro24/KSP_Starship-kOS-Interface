@@ -226,9 +226,13 @@ else if ship:partsnamed("FNB.BL2.LOX"):length > 0 {
 else if ship:partsnamed("FNB.BL3.LOX"):length > 0 {
     set ShipType to "Block3".
 }
+else if ship:partsnamed("SEP.25.SHIP.CORE"):length > 0 {
+    set RandomFlip to false.
+    set ShipType to "Block2".
+}
 else set ShipType to "None".
 for part in ship:parts {
-    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
+    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
         set ShipTank to part.
         set ShipConnectedToBooster to true.
         set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
@@ -630,7 +634,7 @@ bTelemetry:show().
 set once to false.
 until False {
     GUIupdate().
-    if SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 {
+    if SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 and ship:partsnamed("FNB.BL2.LOX"):length = 0 and ship:partsnamed("FNB.BL3.LOX"):length = 0 and ship:partsnamed("SEP.25.SHIP.CORE"):length = 0 and not ConnectedMessage {
         set ShipConnectedToBooster to false.
         if not once {
             set ship:name to "Booster".
@@ -639,6 +643,7 @@ until False {
     }
     else {
         set ShipConnectedToBooster to true.
+        set ConnectedMessage to false.
     }
     if NOT CORE:MESSAGES:EMPTY {
         SET RECEIVED TO CORE:MESSAGES:POP.

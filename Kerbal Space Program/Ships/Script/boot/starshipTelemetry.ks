@@ -420,16 +420,16 @@ function FindParts {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
+                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.25.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
                     set ALflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
+                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.25.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.25.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.25.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
                     set FRflap to x.
                 }
                 else if x:name:contains("SEP.24.SHIP.PROTO.NOSE") {
@@ -462,37 +462,37 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO") and not x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 66000.
                     set ShipType to "Block1Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.NOSECONE.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 65000.
                     set ShipType to "Block1Exp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 69000.
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 65000.
                     set ShipType to "Block1PEZ".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.25.SHIP.PEZ") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set ShipType to "Block2PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 95000.
                     set ShipType to "Block2PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL3.NC") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 100000.
                     set ShipType to "Block3PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
@@ -505,7 +505,6 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 68000.
                     set ShipType to "Block1PEZExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
@@ -519,13 +518,6 @@ function FindParts {
                     set ShipType to "Tanker".
                     set CargoMassStep to CargoMassStep + x:mass - x:drymass.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
-                    if RSS {
-                        set MaxCargoToOrbit to 150000.
-                    } else if KSRSS {
-                        set MaxCargoToOrbit to 97000.
-                    } else {
-                        set MaxCargoToOrbit to 79000.
-                    }
                 }
                 else if x:name:contains("SEP.23.SHIP.CARGO.EXP") {
                     set Nose to x.
@@ -553,7 +545,7 @@ function FindParts {
         set SL2 to false.
         set SL3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") {
                     set partPos to x:position - Tank:position.
                     set compPos to Tank:facing:topvector.
@@ -601,7 +593,7 @@ function FindParts {
         set Vac2 to false.
         set Vac3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") {
                     set partPos to x:position - Tank:position.
                     set compPos to -Tank:facing:topvector.
@@ -646,7 +638,7 @@ function FindParts {
         set Vac5 to false.
         set Vac6 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") {
                     set partPos to vxcl(Tank:facing:forevector,x:position - Tank:position).
                     set compPos to -Tank:facing:starvector.
@@ -1060,7 +1052,7 @@ function SaveToSettings {
 
 
 function SetRadarAltitude {
-    if ship:rootpart = "SEP.23.SHIP.CREW" or ship:rootpart = "SEP.23.SHIP.CARGO" or ship:rootpart = "SEP.23.SHIP.TANKER" or ship:rootpart = "SEP.24.SHIP.NOSECONE" {
+    if ship:rootpart = "SEP.23.SHIP.CREW" or ship:rootpart = "SEP.23.SHIP.CARGO" or ship:rootpart = "SEP.23.SHIP.TANKER" or ship:rootpart = "SEP.24.SHIP.NOSECONE" or ship:rootpart = "SEP.24.SHIP.PEZ" or ship:rootpart = "SEP.25.SHIP.PEZ" {
         if RSS {
             set ShipBottomRadarHeight to 39.5167.
         }
