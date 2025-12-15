@@ -509,7 +509,7 @@ else {
     set FARValue to 0.
 }
 
-set aoa to 61.
+set aoa to 62.
 if RSS set aoa to 65.7.
 set currentAoA to aoa.
 set maxAoA to 90.
@@ -8660,7 +8660,7 @@ function Launch {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
                 set steeringManager:yawtorquefactor to 0.15*Scale.
-                set steeringManager:rolltorquefactor to 3.5*Scale.
+                set steeringManager:rolltorquefactor to 3.8*Scale.
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
@@ -12236,8 +12236,8 @@ function ReEntryAndLand {
                         if vAng(TowerHeadingVector, Vessel(TargetedOLM):north:vector) < 90 set bank to -1.
                         else set bank to 1.
                         //set TowerHeadDraw to vecDraw(HeaderTank:position,TowerHeadingVector,red,"Tower",2,true,0.2).
-                        if vAng(TowerHeadingVector, Vessel(TargetedOLM):north:vector) < 52 set TowerHeading to "North".
-                        else if vAng(TowerHeadingVector, Vessel(TargetedOLM):north:vector) > 128 set TowerHeading to "South".
+                        if vAng(TowerHeadingVector, Vessel(TargetedOLM):north:vector) < 46 set TowerHeading to "North".
+                        else if vAng(TowerHeadingVector, Vessel(TargetedOLM):north:vector) > 134 set TowerHeading to "South".
                         else if vAng(TowerHeadingVector, vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector)) < 42 set TowerHeading to "East".
                         else set TowerHeading to "West".
                         set dbactive to true.
@@ -13303,8 +13303,8 @@ function ReEntryData {
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
                     if (ShipType:contains("Block2") or ShipType:contains("Block3")) and not AFTONLY {
-                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 9.8.
-                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 15.8.
+                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 9.9.
+                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 16.1.
                     }
                     else if ShipSubType:contains("Block2") and not AFTONLY {
                         if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 8.4.
@@ -13349,7 +13349,7 @@ function ReEntryData {
                             wait 0.1.
                             if not ShipLanded preserve.
                         }
-                            when RadarAlt <  0.07 * ShipHeight then {
+                            when RadarAlt <  0.08 * ShipHeight then {
                                 sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + ",8,24,false")).
                                 sendMessage(Vessel(TargetOLM), ("CloseArms")).
                             }
@@ -13703,7 +13703,7 @@ function LandingVector {
     set result to result*1.2 + facing:forevector * steeringDamp + upDamp * up:vector.
 
     wait 0.001.
-    if TargetOLM and RadarAlt < 3*ShipHeight and not (LandSomewhereElse) and Vessel(TargetOLM):distance < 2000 {
+    if TargetOLM and RadarAlt < 4*ShipHeight and not (LandSomewhereElse) and Vessel(TargetOLM):distance < 2000 {
         set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Nose:position).
         return lookDirUp(result, RollVector).
     }

@@ -3537,7 +3537,7 @@ function LandingGuidance {
     //set lookUpDamp to lookUpDamp * min(1, 100/(max(10,airspeed-220)^2)).
 
     // === Final Vector ===
-    set FinalVec to GuidVec:normalized * min(1, (RadarRatio^1.2)/0.12) 
+    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.2) 
         + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp + HighAngleVec * haVstrength.
 
     // === Debug Draw ===
