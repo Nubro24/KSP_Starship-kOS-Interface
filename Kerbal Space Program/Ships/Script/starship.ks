@@ -7782,7 +7782,7 @@ if addons:tr:available and not startup {
                 set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
             }
             Watchdog:activate().
-        } else {
+        } else if ShipType = "Block2PEZ" {
             set cargo1text:text to "Closed".
             cargobutton:show().
             set Watchdog to SHIP:PARTSNAMED("FNB.BL2.NC").
