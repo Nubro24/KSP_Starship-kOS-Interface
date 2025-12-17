@@ -562,7 +562,7 @@ if RSS {         // Real Solar System
         set TRJCorrection to -2.
     }
     set trCompensation to -10000.
-    set maxLatChange to 0.09.
+    set maxLatChange to 0.085.
     set SLEThrust to 2130.
 }
 else if KSRSS {      // 2.5-2.7x scaled Kerbin
@@ -12105,10 +12105,10 @@ function ReEntryAndLand {
         set LastLZChange to time:seconds.
         set maxPitchPID to 38.
         when airspeed < 310 then set maxPitchPID to 24.
-        set SteeringManager:ROLLCONTROLANGLERANGE to 24.
+        set SteeringManager:ROLLCONTROLANGLERANGE to 42.
         set steeringManager:pitchpid:kd to 0.5.
-        set steeringManager:yawpid:kd to 0.7.
-        set steeringManager:rollpid:kd to 0.5.
+        set steeringManager:yawpid:kd to 0.69.
+        set steeringManager:rollpid:kd to 0.6.
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
@@ -12614,11 +12614,11 @@ function ReEntrySteering {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
             
             set bankLNG to min(max(-2*maxLatChange, maxLatChange * (min(80,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/75)^2 * 2/ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
-            if RSS set LngMove to min(max(0,DistanceToTarget-200/200)^1.5,1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/(1600 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/60)))^1.5, 1).
+            if RSS set LngMove to min(max(0,DistanceToTarget-200/200)^1.5,1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/(1600 * min(65/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5)))^1.5, 1).
             else set LngMove to min(max(0,DistanceToTarget-65/65),1) * bankLNG * min(max(0,150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/500), 1).
 
             set bankLAT to min(max(-2*maxLatChange, maxLatChange * (min(80,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/75)^2 * ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
-            if RSS set LatMove to min(max(0,DistanceToTarget-160/160)^1.5,1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/(1600 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/60)))^1.5, 1).
+            if RSS set LatMove to min(max(0,DistanceToTarget-160/160)^1.5,1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/(1600 * min(65/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5)))^1.5, 1).
             else set LatMove to min(max(0,DistanceToTarget-50/50),1) * bank * bankLAT * min(max(0, 150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/600), 1).
 
             set landingzone to latlng(TgtLandingzone:lat + LatMove, TgtLandingzone:lng + LngMove).
@@ -13141,14 +13141,14 @@ function ReEntryData {
             wait 0.001.
             lock throttle to 0.5.
             if RSS {lock throttle to 0.33.}
-            //if GSVec:mag < 16 {
-            //    set throttleOffset to (16-GSVec:mag)/(8*Scale). 
-            //    if RSS set throttleOffset to min(0.2,throttleOffset).
-            //    lock throttle to 0.4 + throttleOffset.
-            //}
+            if GSVec:mag < 12*Scale {
+                set throttleOffset to (12*Scale-GSVec:mag)/(8*Scale). 
+                if RSS set throttleOffset to min(0.2,throttleOffset).
+                lock throttle to 0.32*Scale + throttleOffset.
+            }
 
-            //set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0001).
-            //addons:tr:settarget(landingzone).
+            set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0001).
+            addons:tr:settarget(landingzone).
             SetRadarAltitude().
 
 
@@ -13279,7 +13279,7 @@ function ReEntryData {
                     } else {
                         set landingzone to ship:body:geoPositionOf(landingzone:position + (Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position)*0.06).
                         ADDONS:TR:SETTARGET(landingzone).
-                        when groundspeed < 2 then {
+                        when groundspeed < 3*Scale then {
                             HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
                             if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.4*ShipHeight {
                                 set LandSomewhereElse to true.
@@ -13304,7 +13304,7 @@ function ReEntryData {
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
                     if (ShipType:contains("Block2") or ShipType:contains("Block3")) and not AFTONLY {
                         if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 9.9.
-                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 16.1.
+                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 12.1.
                     }
                     else if ShipSubType:contains("Block2") and not AFTONLY {
                         if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 8.4.
@@ -13342,7 +13342,7 @@ function ReEntryData {
                             set steeringManager:maxstoppingtime to 0.6*Scale.
                         }
 
-                        when RadarAlt < 5 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
+                        when RadarAlt < 7 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
                             set angle to ClosingAngle().
                             set speed to ClosingSpeed().
                             sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + "," + speed + "," + angle + ",true")).
@@ -13480,8 +13480,8 @@ function ReEntryData {
 
 //------------------Landing Loop-----------------------///
 function ClosingAngle {
-    set angle1 to (60/(1+constant:e^(-2.2*((RadarRatio) - 2.8)))) + 30.
-    set angle2 to (1/(1+constant:e^(-8*((RadarRatio) - 0.5)))).
+    set angle1 to (60/(1+constant:e^(-1.8*((RadarRatio) - 3.2)))) + 25.
+    set angle2 to (1/(1+constant:e^(-6*((RadarRatio) - 0.6)))).
     set angle to angle1*angle2.
     if angle > 80 set angle to 80.
     
@@ -13492,7 +13492,7 @@ function ClosingAngle {
 
 function ClosingSpeed {
     //set speed to min(max(10,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 12), 25).
-    set speed to 10.
+    set speed to 12.
 
     return round(speed,1).
 }
@@ -13623,7 +13623,8 @@ function LandingVector {
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
                     set PredictGSVec to vxcl(up:vector, facing:forevector - up:vector).
-                    set TgtErrorVector to (landingzone:position + MZHeight*up:vector) - myFuturePos + PredictGSVec.
+                    set TargetPos to ((landingzone:position + MZHeight*up:vector) + vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - ship:position):normalized * 1.8*Scale).
+                    set TgtErrorVector to TargetPos - myFuturePos + PredictGSVec.
                     set closingPID:kd to 0.042*(Scale^0.7) * TgtErrorVector:mag/(4*Scale).
                     set cancelPID:kp to 0.14 * max(1,2/max(0.7,RadarRatio)).
                     
@@ -13703,7 +13704,7 @@ function LandingVector {
     set result to result*1.2 + facing:forevector * steeringDamp + upDamp * up:vector.
 
     wait 0.001.
-    if TargetOLM and RadarAlt < 4*ShipHeight and not (LandSomewhereElse) and Vessel(TargetOLM):distance < 2000 {
+    if TargetOLM and RadarAlt < 4*ShipHeight and not (LandSomewhereElse) and Vessel(TargetOLM):distance < 2000 and vAng(facing:forevector, up:vector) < 10 {
         set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Nose:position).
         return lookDirUp(result, RollVector).
     }
@@ -13946,11 +13947,11 @@ function LngLatError {
                 }
                 else {
                     if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
-                        if RadarAlt > 6000 set LngLatOffset to -65.
-                        else set LngLatOffset to -52 - vxcl(up:vector, velocity:surface):mag*0.82.
+                        if RadarAlt > 6000 set LngLatOffset to -50.
+                        else set LngLatOffset to -42 - vxcl(up:vector, velocity:surface):mag*0.75.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 6000 set LngLatOffset to -64.
-                        else set LngLatOffset to -54 - vxcl(up:vector, velocity:surface):mag*0.83.
+                        else set LngLatOffset to -54 - vxcl(up:vector, velocity:surface):mag*0.8.
                     } else {
                         if RadarAlt > 6000 set LngLatOffset to -66.
                         else set LngLatOffset to -50 - vxcl(up:vector, velocity:surface):mag*0.8.
@@ -16447,7 +16448,7 @@ function GetShipRotation {
         if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
         //print vang(TowerHeadingVector, heading(90,0):vector).
 
-        if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded {
+        if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded and vAng(Nose:position-Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,TowerHeadingVector) < 80 {
             set varVec to vxcl(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
             if defined myFuturePos set varVec to vxcl(up:vector, myFuturePos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
             set varR to vang(varVec, TowerHeadingVector).

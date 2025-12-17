@@ -3534,10 +3534,11 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-240)/50, 1).
     set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-280,20))/24.
-    //set lookUpDamp to lookUpDamp * min(1, 100/(max(10,airspeed-220)^2)).
+    if RadarAlt < 1 set lateBrake to min(0.1/RadarRatio,2).
+    else set lateBrake to 0.
 
     // === Final Vector ===
-    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.2) 
+    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.24)  - GSVec * lateBrake
         + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp + HighAngleVec * haVstrength.
 
     // === Debug Draw ===
@@ -4539,7 +4540,7 @@ function GUIupdate {
     } else {
         set bAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(boosterAltitude) + " <size=24>M</size>".
     }
-    set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
+    set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + max(0,min(round(throttle,2)*100,100)) + "%".
 
     set boosterLOX to boosterLOX*100/boosterLOXCap.
     set boosterCH4 to boosterCH4*100/boosterCH4Cap.

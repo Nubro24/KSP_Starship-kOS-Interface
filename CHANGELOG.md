@@ -1,19 +1,20 @@
-# V3.6.0 (2025-11-05)
+# V3.6.0 (2025-12-15)
 - **Reworked Catch Guidance for Booster and Ship** 
   - uses Catch position instead ground impact position
   - PID based (better adjustments in different situations + easier fine tuning)
 - **Improved Reentry Guidance for Ship**
+- **Added Support for SEP 25 Ship (Block 2)**
 - Added Support for a Booster with 3 Gridfins (V3 Layout)
 - Added Support for Questin's Block 3 Booster & Raptor 3 Engines
   - Added 13-5-3 Landing Burn Configuration
 - Added Support for flights without HSR
 - Added Support for Testflight
 - Added Booster Static Fire (Action Group 5, with ship-less Booster on OLM)
+- **Added High Altitude Flight Test** and Ship Static Fire
+  - recommended to use a Test Stand below the Ship
 - Improved Engine Health Checks for Booster
 - Fixed Booster not considering Engine ignition time in LandingBurnHeight calculation
-- Improved Chopstick Movement relative to Booster
-- **Added High Altitude Flight Test and Static Fire**
-  - recommended to use a Test Stand below the Ship
+- Improved Chopstick Movement
 - **UI Changes**
   - Added Flight Settings:
     - Hide Inteface during Flight Operations
@@ -30,7 +31,7 @@
   - Added Block 3 Booster Engine Diagram
 - multiple Bug-/Errorfixes
 
-# V3.5.2 (2025-06-25)
+# V3.5.2 (2025-06-25) - release skipped
 - **Ascent Changes**:
   - Improved Ascent Profile
   - Improved Hotstage Timings
