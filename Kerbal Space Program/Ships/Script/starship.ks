@@ -1028,12 +1028,14 @@ function FindParts {
                     set Nose to x.
                     set MaxCargoToOrbit to 95000.
                     set ShipType to "Block2PEZ".
+                    set FNBship to true.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL3.NC") and not x:name:contains("EXP") {
                     set Nose to x.
                     set MaxCargoToOrbit to 100000.
                     set ShipType to "Block3PEZ".
+                    set FNBship to true.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.CH4") or x:name:contains("FNB.BL3.CH4") {
@@ -1042,6 +1044,7 @@ function FindParts {
                 }
                 else if x:name:contains("FNB.BL2.CMN") or x:name:contains("FNB.BL3.CMN") {
                     set sCMNTank to x.
+                    set FNBship to true.
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ.EXP") {
                     set Nose to x.
