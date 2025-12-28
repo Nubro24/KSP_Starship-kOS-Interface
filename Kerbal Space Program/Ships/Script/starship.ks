@@ -13638,9 +13638,9 @@ function LandingThrottle {
     } else {
         set DesiredDecel to 0.65/Scale * maxDecel.
         set stopTime1 to (airspeed-5) / DesiredDecel.
-        set stopDist1 to 0.5 * (airspeed+5) * stopTime.
+        set stopDist1 to 0.5 * (airspeed+5) * stopTime1.
         set stopTime2 to min(airspeed,5) / DesiredDecel.
-        set stopDist2 to 0.5 * min(airspeed,5) * stopTime.
+        set stopDist2 to 0.5 * min(airspeed,5) * stopTime2.
         set stopTime to stopTime1+stopTime2.
         set stopDist to stopDist1+stopDist2.
     }
