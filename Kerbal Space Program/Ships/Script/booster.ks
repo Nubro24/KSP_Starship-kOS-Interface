@@ -4588,7 +4588,7 @@ function GUIupdate {
             } else if Mode = "2Inner" and ModeChanged {
                 set x to 1.
                 until x > 13 {
-                    if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    if x = 1 or x = 2 or x = 3 or x = 7 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
                     else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
