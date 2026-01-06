@@ -86,7 +86,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Keep the kOS CPUs open (right hand side) and screenshot any errors.
 - Either:
     - File an issue on github, or
-    - Write Nubro on: SEP Discord
+    - Write Nubro on: SEP Discord or private message (nubro._.)
 - Be sure to describe the problem as accurately as possible and add screenshots/videos.
 - Looking forward to your bugs!
 
