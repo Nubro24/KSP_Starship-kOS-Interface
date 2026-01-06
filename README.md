@@ -53,13 +53,6 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Atmospheric Autopilot
 - RSS Adapter
 
-
-## Demo Videos:
-#### Launch + Booster Landing (RSS)
-[![Demo Video](http://img.youtube.com/vi/w-loEI4gUKw/0.jpg)](http://www.youtube.com/watch?v=w-loEI4gUKw)
-#### Booster Landing Gridfin Cam (Stock)
-[![Demo Video 2](http://img.youtube.com/vi/XFetKa4sLSM/0.jpg)](http://www.youtube.com/watch?v=XFetKa4sLSM)
-
 ## Installation:
 - **Download and install all requirements listed below.**
 - Download the latest release .zip
@@ -97,6 +90,12 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Be sure to describe the problem as accurately as possible and add screenshots/videos.
 - Looking forward to your bugs!
 
+
+## Demo Videos:
+#### Launch + Booster Landing (RSS)
+[![Demo Video](http://img.youtube.com/vi/w-loEI4gUKw/0.jpg)](http://www.youtube.com/watch?v=w-loEI4gUKw)
+#### Booster Landing Gridfin Cam (Stock)
+[![Demo Video 2](http://img.youtube.com/vi/XFetKa4sLSM/0.jpg)](http://www.youtube.com/watch?v=XFetKa4sLSM)
 
 
 ## Planned Features:
