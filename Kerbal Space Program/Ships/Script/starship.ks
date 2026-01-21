@@ -919,6 +919,11 @@ function FindParts {
             else if x:name:contains("Block.3.CMN") {}
             else if x:name:contains("Block.3.CH4") {}
             else if x:name:contains("Block.3.FWD") {}
+            else if x:name:contains("FNB.BL1.BOOSTERLOX") {}
+            else if x:name:contains("FNB.BL1.BOOSTERCMN") {}
+            else if x:name:contains("FNB.BL1.BOOSTERCH4") {}
+            else if x:name:contains("FNB.BL1.BOOSTERHSR") {}
+            else if x:name:contains("FNB.BL1.BOOSTERCLUSTER") {}
             else if x:name:contains("FNB.BL3.BOOSTERAFT") {}
             else if x:name:contains("FNB.BL3.BOOSTERLOX") {}
             else if x:name:contains("FNB.BL3.BOOSTERCMN") {}
@@ -927,6 +932,7 @@ function FindParts {
             else if x:name:contains("FNB.BL3.BOOSTERHSR") {}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
+            else if x:name:contains("FNB.R3.CLUSTER") {}
             else {
                 if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER")) and (x:parent:name:contains("SHIP") or x:parent:name:contains("LOX")) {
                     set SL to true.
@@ -1074,6 +1080,7 @@ function FindParts {
             }
         }
     }
+    if defined HeaderTank {} else if ship:partsnamed("FNB.BL2.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL2.NC")[0].
 
     set SLStep to false.
     set VACStep to false.
@@ -6579,10 +6586,13 @@ set launchbutton:ontoggle to {
                         if confirm() {
                             set execute:text to "<b>EXECUTE</b>".
                             LogToFile("Starting Launch Function").
+                            print "1".
                             sendMessage(processor(volume("Booster")),"Countdown").
                             sendMessage(processor(volume("OrbitalLaunchMount")),"Countdown").
+                            print "2".
                             set MissionTimer to time:seconds-TMinusCountdown.
                             SaveToSettings("Launch Time", time:seconds+TMinusCountdown).
+                            print "3".
                             if TargetShip = 0 and not hastarget {}
                             else if not (TargetShip = 0) {
                                 if RSS {
@@ -6666,6 +6676,7 @@ set launchbutton:ontoggle to {
                                     return.
                                 }
                             }
+                            print "4".
                             if hastarget and TargetShip = 0 and LaunchToTargetOrbit {
                                 launchWindow(target, 0).
                                 if launchWindowList[0] = -1 or launchWindowList[0] = -2 {
@@ -6720,6 +6731,7 @@ set launchbutton:ontoggle to {
                                 set PreLaunchStuffDone to true.
                                 return.
                             }
+                            print "5".
                             Launch().
                         }
                         else {
@@ -8137,6 +8149,7 @@ function InhibitButtons {
 
 function Launch {
     if not AbortLaunchInProgress and not LaunchComplete {
+        print "Launch1".
         set PreLaunchStuffDone to true.
         set waitingTime to 4.5*Scale.
         set engNumber to 6.
@@ -8249,6 +8262,7 @@ function Launch {
             set BoosterThrottleDownAlt to 1600.
         }
         set OrbitBurnPitchCorrectionPID:setpoint to targetap.
+        print "2".
 
         set myAzimuth to LAZcalc(LaunchData).
         set LaunchRollVector to heading(mod(myAzimuth - 270, 360),0):vector.
@@ -8258,8 +8272,9 @@ function Launch {
         //set lv to vecdraw(v(0, 0, 0), LaunchRollVector, green, "LaunchRollVector", 35, true, 0.005, true, true).
 
         if OnOrbitalMount {
+            print "3".
             if not BoosterSingleEngines {
-                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" {
+                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     wait 0.01.
                 }
@@ -8286,6 +8301,7 @@ function Launch {
                 wait 0.01.
                 lock throttle to 0.5.
             }
+            print "4".
             until x < time:seconds or cancelconfirmed {
                 set message1:text to "<b>All Systems:               <color=green>GO</color></b>".
                 set message3:text to "<b>Time to Ignition:         </b>" + round(x - time:seconds) + "<b> seconds</b>".
@@ -8362,7 +8378,7 @@ function Launch {
                 }
                 ClearInterfaceAndSteering().
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -8470,7 +8486,7 @@ function Launch {
             if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
                 SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
             }
-            if not BoosterType:contains("Block3") BoosterCore[0]:activate.
+            if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:activate.
             wait 1.
 
             until time:seconds - EngineStartTime > 3.8 or cancelconfirmed {
@@ -8492,9 +8508,9 @@ function Launch {
                     for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:shutdown.
                 }
-                if not BoosterType:contains("Block3") BoosterCore[0]:shutdown.
+                if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -8574,9 +8590,9 @@ function Launch {
                     for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:shutdown.
                 }
-                if not BoosterType:contains("Block3") BoosterCore[0]:shutdown.
+                if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -8610,7 +8626,7 @@ function Launch {
             }
             if bLiftOffThrust/(StackMass * Planet1G) < 1.3 set lowTWR to true.
             unlock bLiftOffThrust.
-            if not BoosterType:contains("Block3") BoosterCore[0]:shutdown.
+            if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:shutdown.
             wait 0.01.
             set SteeringManager:rollts to 5.
             set steeringManager:rolltorquefactor to 2.
@@ -8802,7 +8818,7 @@ function Launch {
                 //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
                 //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
                 //}
-                if not BoosterSingleEngines and BoosterType:contains("Block3") BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                if not BoosterSingleEngines and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 wait 0.
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 else {

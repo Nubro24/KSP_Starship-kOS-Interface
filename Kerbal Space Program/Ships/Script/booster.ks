@@ -251,6 +251,7 @@ for part in ship:parts {
     }
     if part:name:contains("FNB.BL1.BOOSTERCH4") {
         set bCH4Tank to part.
+        set FWD to part.
     }
     if part:name:contains("FNB.BL1.BOOSTERLOX") {
         set bLOXTank to part.
@@ -525,7 +526,23 @@ function FindEngines {
 
 set ModulesFound to false.
 set x to 0.
-if not BoosterType:contains("Block3") 
+if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERCLUSTER"):length > 0
+    until x > BoosterEngines[0]:modules:length or ModulesFound {
+        if BoosterEngines[0]:getmodulebyindex(x):name = "ModuleGimbal" {
+            set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x).
+            if x < BoosterEngines[0]:modules:length {
+                if BoosterEngines[0]:getmodulebyindex(x+1):name = "ModuleGimbal" {
+                    set Mid2GimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
+                    if BoosterEngines[0]:getmodulebyindex(x+2):name = "ModuleGimbal" set MidGimbMod to BoosterEngines[0]:getmodulebyindex(x+2).
+                }
+            }
+            set ModulesFound to true.
+            break.
+        }
+        set x to x+1.
+        wait 0.
+    }
+else if not BoosterType:contains("Block3") 
     until x > BoosterEngines[0]:modules:length or ModulesFound {
         if BoosterEngines[0]:getmodulebyindex(x):name = "ModuleGimbal" {
             set MidGimbMod to BoosterEngines[0]:getmodulebyindex(x).
@@ -1705,7 +1722,7 @@ function Boostback {
     
     SteeringCorrections().
 
-    if not BoosterType:contains("Block3") BoosterCore:controlfrom().
+    if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:controlfrom().
     if BoosterType:contains("Block3") and ship:partsnamed("FNB.BL3.BOOSTERAFT"):length = 0 {
         CrossFeed:doaction("Enable Crossfeed", true).
     }
@@ -1766,7 +1783,7 @@ function Boostback {
         set kuniverse:timewarp:warp to 0.
         bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-        if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
         if not BoosterSingleEngines MidGimbMod:doaction("lock gimbal", true).
         if not BoosterSingleEngines CtrGimbMod:SetField("gimbal limit", 100).
         if not BoosterSingleEngines and Block3Cluster Mid2GimbMod:doaction("lock gimbal", true).
@@ -1887,13 +1904,13 @@ function Boostback {
                 if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
                     set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
                 }
-                if Mode = "Middle Inner" or Mode = "Raptor_3_Inner" {} else {
+                if Mode = "Middle Inner" or Mode = "Raptor_3_Inner" or Mode = "Inner" {} else {
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
                     wait 0.
                     if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
                         set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
                     }
-                    if Mode = "Raptor_3_2Inner" BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                    if Mode = "Raptor_3_2Inner" or Mode = "2Inner" BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
                 }
             }
         }
@@ -1979,7 +1996,7 @@ function Boostback {
 
         when time:seconds > flipStartTime + 30 then {
             if LFBooster > LFBoosterCap * 0.3 {
-                BoosterCore:activate.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
             }
             set steeringManager:showfacingvectors to false.
             set steeringManager:showangularvectors to false.
@@ -1987,7 +2004,7 @@ function Boostback {
         when ship:groundspeed < 50 then {
             set config:ipu to 1500.
             if LFBooster > LFBoosterCap * 0.16 {
-                BoosterCore:activate.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
             }
         }
         set changed to false.
@@ -2049,9 +2066,9 @@ function Boostback {
             }
         }
         if LFBooster > LFBoosterCap * 0.1 {
-            BoosterCore:activate.
+            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
         } else {
-            BoosterCore:shutdown.
+            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
         }
         set steeringManager:rolltorquefactor to 2.
 
@@ -2208,7 +2225,7 @@ function Boostback {
         
 
         if LFBooster > LFBoosterFuelCutOff {
-            BoosterCore:activate.
+            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
         }
 
         if HSRType:contains("Block3") set HSRJet to false.
@@ -2218,7 +2235,7 @@ function Boostback {
 
         bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
         FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
-        if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
+        if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
 
         if not Bl3LndProf {
             set LFBoosterFuelCutOff to LFBoosterFuelCutOff*1.07.
@@ -2256,13 +2273,13 @@ function Boostback {
         else set LeftVector to ship:facing:starvector.
 
         when time:seconds - turnTime > 1.8 then {
-            if BoosterCore:thrust > 0 {
+            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 if BoosterCore:thrust > 0 {
                 BoosterCore:shutdown.
                 set FuelDump to true.
             }
             wait 0.01.
             if FuelDump when vAng(facing:forevector, up:vector) < 64 and RSS or vAng(facing:forevector, up:vector) < 50 then {
-                BoosterCore:activate.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
             }
         }
         
@@ -2291,14 +2308,14 @@ function Boostback {
             if time:seconds - turnTime > 5 rcs on.
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             if LFBooster < LFBoosterFuelCutOff {
-                BoosterCore:shutdown.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
             }
             wait 0.067.
         }
         HUDTEXT("Booster Coast Phase - Timewarp available", 15, 2, 20, green, false).
         set config:ipu to 1600.
         FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-        if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+        if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
 
         
         set SteeringManager:yawtorquefactor to 0.1.
@@ -2347,7 +2364,7 @@ function Boostback {
 
         bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
         FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
-        if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
+        if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 15).
     }
     else {
         lock steering to facing:forevector.
@@ -2494,7 +2511,7 @@ function Boostback {
             SetBoosterActive().
             bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
             FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
-            if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
+            if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 60).
         }
         else if abs(steeringmanager:angleerror) < 0.25 and KUniverse:activevessel = ship {
             if TimeStabilized = "0" {
@@ -2506,7 +2523,7 @@ function Boostback {
                 //SetStarshipActive().
                 bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
                 FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
-                if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
+                if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
                 set TimeStabilized to 0.
                 set OneTime to false.
             }
@@ -2549,7 +2566,7 @@ function Boostback {
 
     bCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     FWD:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-    if BoosterType:contains("Block3") bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
+    if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 bCMNDome:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
     if BoosterType:contains("Block3") {
         lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), -ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     }
@@ -2688,7 +2705,7 @@ function Boostback {
     set tgtErrorPID to pidLoop(0.044, 0.00014, 0.07, -10, 10).
 
     if not BoosterSingleEngines {
-        until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Center Three" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_Core" {
+        until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Center Three" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_Core" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Core" {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             wait 0.01.
         }
@@ -3192,7 +3209,7 @@ function Boostback {
     if not BoosterSingleEngines CtrGimbMod:doaction("lock gimbal", true).
     CheckFuel().
 
-    when time:seconds > LandingTime + 3 then BoosterCore:activate.
+    when time:seconds > LandingTime + 3 then if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
 
     if not (LandSomewhereElse) {
         if not (TargetOLM = "false") {
@@ -3255,7 +3272,7 @@ function Boostback {
         wait 0.3.
     }
 
-    BoosterCore:shutdown.
+    if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
 
     HUDTEXT("Booster may now be recovered!", 10, 2, 20, green, false).
     clearscreen.
@@ -4035,14 +4052,14 @@ function CheckFuel {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") {
-                BoosterCore:shutdown.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
             } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and BoosterType:contains("Block3") DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3")  {
-                BoosterCore:shutdown.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
             } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and BoosterType:contains("Block3") DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
@@ -4493,7 +4510,7 @@ function GUIupdate {
             }
             if Mode = lastMode set ModeChanged to false. else set ModeChanged to true.
 
-            if Mode = "Center Three" and ModeChanged {
+            if Mode = "Center Three" or Mode = "Core" and ModeChanged {
                 set x to 1.
                 until x > 3 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -4503,7 +4520,18 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
-            } else if Mode = "Middle Inner" and ModeChanged {
+            } else if Mode = "2Inner" and ModeChanged {
+                set x to 1.
+                until x > 13 {
+                    if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                    set x to x+1.
+                }
+                until x > 33 {
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                    set x to x+1.
+                }
+            } else if Mode = "Middle Inner" or Mode = "Inner" and ModeChanged {
                 set x to 1.
                 until x > 13 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -4513,7 +4541,7 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
-            } else if Mode = "All Engines" and ModeChanged {
+            } else if Mode = "All Engines" or Mode = "All" and ModeChanged {
                 set x to 1.
                 until x > 33 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
