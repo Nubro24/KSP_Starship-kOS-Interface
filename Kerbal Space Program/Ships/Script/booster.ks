@@ -208,6 +208,29 @@ for part in ship:parts {
         set BTset to true.
         set RandomFlip to true.
     }
+    if part:name:contains("FNB.BL1.BOOSTERLOX") and not BTset {
+        set BoosterType to "Block1".
+        set Bl3LndProf to false.
+        set BoosterEngines to ship:partsnamed("FNB.BL1.BOOSTERLOX").
+        set BoosterCore to part.
+        set DumpVents to list().
+        set ModulesFound to false.
+        set x to 0.
+        set y to 0.
+        until x > part:modules:length-1 or ModulesFound {
+            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
+                DumpVents:add(part:getmodulebyindex(x)).
+                set y to y+1.
+                if y = 2 {
+                    set ModulesFound to true.
+                    break.
+                }
+            }
+            set x to x+1.
+        }
+        set BTset to true.
+        set RandomFlip to true.
+    }
     if part:name:contains("Block.3.CH4") {
         set bCH4Tank to part.
     }
@@ -226,6 +249,15 @@ for part in ship:parts {
     if part:name:contains("FNB.BL3.BOOSTERCMN") {
         set bCMNDome to part.
     }
+    if part:name:contains("FNB.BL1.BOOSTERCH4") {
+        set bCH4Tank to part.
+    }
+    if part:name:contains("FNB.BL1.BOOSTERLOX") {
+        set bLOXTank to part.
+    }
+    if part:name:contains("FNB.BL1.BOOSTERCMN") {
+        set bCMNDome to part.
+    }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
         set ECset to true.
@@ -236,6 +268,11 @@ for part in ship:parts {
     }
     if part:name:contains("Raptor.3Cluster") and not ECset {
         set BoosterEngines to ship:partsnamed("Raptor.3Cluster").
+        set ECset to true.
+        set Block3Cluster to true.
+    }
+    if part:name:contains("FNB.BL1.BOOSTERCLUSTER") and not ECset {
+        set BoosterEngines to ship:partsnamed("FNB.BL1.BOOSTERCLUSTER").
         set ECset to true.
         set Block3Cluster to true.
     }
@@ -262,6 +299,11 @@ for part in ship:parts {
     if part:name:contains("FNB.BL3.BOOSTERFIN") and not GFset {
         set GridfinsType to "Block3".
         set GridfinLength to ship:partsnamed("FNB.BL3.BOOSTERFIN"):length.
+        set GFset to true.
+    }
+    if part:name:contains("FNB.BL1.BOOSTERGRIDFIN") and not GFset {
+        set GridfinsType to "Block1".
+        set GridfinLength to ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length.
         set GFset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
@@ -296,6 +338,11 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
+    if part:name:contains("FNB.BL1.BOOSTERIHSR") and not HSset {
+        set HSRType to "Block1".
+        set HSR to part.
+        set HSset to true.
+    }
     if part:name:contains("frostbooster") {
         set Frost to true.
     }
@@ -319,6 +366,20 @@ if GridfinLength = 4 {
             set Gridfins[3] to fin.
         }
     } 
+    else if GridfinsType = "Block1" for fin in ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN") {
+        if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
+            set Gridfins[0] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
+            set Gridfins[1] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
+            set Gridfins[2] to fin.
+        }
+        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
+            set Gridfins[3] to fin.
+        }
+    }
     else for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {
         if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
             set Gridfins[0] to fin.
@@ -4255,6 +4316,12 @@ function PollUpdate {
         else set GG to true.
         if ship:partsnamed("Sep.Gridfin"):length < Gridfins:length and ship:partsnamed("Sep.Gridfin"):length > 0 
             set Gridfins to ship:partsnamed("Sep.Gridfin").
+    }
+    else if GridfinsType = "Block1" {
+        if ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length < GridfinLength set GG to false.
+        else set GG to true.
+        if ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length < Gridfins:length and ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length > 0 
+            set Gridfins to ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN").
     }
     else if GridfinsType = "Block3" {
         if ship:partsnamed("Block.3.Fin"):length < GridfinLength and ship:partsnamed("FNB.BL3.BOOSTERFIN"):length < GridfinLength set GG to false.

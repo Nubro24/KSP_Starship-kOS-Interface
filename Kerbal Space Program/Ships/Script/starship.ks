@@ -1007,6 +1007,13 @@ function FindParts {
                     set ShipType to "Block2PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
+                else if x:name:contains("SEP.25.SHIP.CARGO") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set MaxCargoToOrbit to 95000.
+                    set ShipType to "Block2Cargo".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
                 else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
                     set Nose to x.
                     set MaxCargoToOrbit to 95000.
@@ -1360,6 +1367,45 @@ function FindParts {
         set bLOXTank to SHIP:PARTSNAMED("Block.3.LOX").
         set bCH4Tank to SHIP:PARTSNAMED("Block.3.CH4").
         set bCMNDome to SHIP:PARTSNAMED("Block.3.CMN").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block1".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        if SHIP:PARTSNAMED("FNB.BL1.BOOSTERCLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCLUSTER").
+        else { 
+            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
+            set BoosterSingleEngines to true.
+        }
+        set GridFins to SHIP:PARTSNAMED("FNB.BL1.BOOSTERGRIDFIN").
+        set HSR to SHIP:PARTSNAMED("FNB.BL1.BOOSTERHSR").
+        set BoosterCore to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
+        set bLOXTank to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
+        set bCH4Tank to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCH4").
+        set bCMNDome to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCMN").
+        set bFWDDome to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCH4").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             //print(round(BoosterCore[0]:drymass)).
@@ -7788,6 +7834,18 @@ if addons:tr:available and not startup {
             set Watchdog to SHIP:PARTSNAMED("FNB.BL2.NC").
             if Watchdog:length = 0 {
                 set Watchdog to SHIP:PARTSNAMED(("FNB.BL2.NC (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+            }
+            else {
+                set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
+            }
+            Watchdog:activate().
+        }
+        if ShipType = "Block2Cargo" {
+            set cargo1text:text to "Closed".
+            cargobutton:show().
+            set Watchdog to SHIP:PARTSNAMED("SEP.25.SHIP.CARGO").
+            if Watchdog:length = 0 {
+                set Watchdog to SHIP:PARTSNAMED(("SEP.25.SHIP.CARGO (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
             }
             else {
                 set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
