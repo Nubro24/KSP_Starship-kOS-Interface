@@ -7177,6 +7177,7 @@ set landbutton:ontoggle to {
                                     set message2:text to "".
                                     set message3:text to "".
                                     set message3:style:textcolor to white.
+                                    set VentRateSet to false.
                                     until cancelconfirmed or LFShip < FuelVentCutOffValue and ship:body:atm:sealevelpressure > 0.5 or LFShip * FuelUnitsToKg < MaxFuel and ship:body:atm:sealevelpressure < 0.5 or runningprogram = "Input" {
                                         if not cancelconfirmed {
                                             if KUniverse:activevessel = vessel(ship:name) {}
@@ -7185,6 +7186,12 @@ set landbutton:ontoggle to {
                                                 LogToFile("Stop Venting").
                                                 ClearInterfaceAndSteering().
                                                 return.
+                                            }
+                                            if not VentRateSet {
+                                                set fuelVal1 to LFShip.
+                                                set stTime to time:seconds.
+                                                when stTime + 1 < time:seconds then {set fuelVal2 to LFShip. set VentRate to fuelVal1-fuelVal2.}
+                                                set VentRateSet to true.
                                             }
                                             if ship:body:atm:sealevelpressure > 0.5 {
                                                 set message2:text to round((((drainBegin - FuelVentCutOffValue) - (LFShip - FuelVentCutOffValue)) / (LFcap - (LFcap - drainBegin) - FuelVentCutOffValue)) * 100, 1):tostring + "% Complete".
@@ -8628,8 +8635,8 @@ function Launch {
             unlock bLiftOffThrust.
             if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:shutdown.
             wait 0.01.
-            set SteeringManager:rollts to 5.
-            set steeringManager:rolltorquefactor to 2.
+            if BoosterSingleEngines set SteeringManager:rollts to 5.
+            if BoosterSingleEngines set steeringManager:rolltorquefactor to 2.
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
                 InhibitButtons(1, 1, 1).
@@ -8717,6 +8724,7 @@ function Launch {
             lock throttle to LaunchThrottle().
         }
         lock steering to LaunchSteering().
+        set steeringManager:rollpid:kd to 0.6.
 
 
         when cancelconfirmed and not ClosingIsRunning and LaunchButtonIsRunning then {
@@ -8729,7 +8737,7 @@ function Launch {
 
         if Boosterconnected {
             set steeringManager:maxstoppingtime to 1.2*Scale.
-            set steeringManager:rollts to 4*Scale.
+            if BoosterSingleEngines set steeringManager:rollts to 4*Scale.
             when apoapsis > BoosterAp - 22000 * Scale then {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
@@ -9933,14 +9941,16 @@ function updatestatusbar {
                 set status1:text to status1:text + " (" + round(altitude/1000, 1) + "km)".
             }
         }
+        set LFStep to 0.
+        set LFCapStep to 0.
         for res in Tank:resources {
             if res:name = "LiquidFuel" {
-                set LFShip to res:amount.
-                set LFShipCap to res:capacity.
+                set LFStep to res:amount.
+                set LFCapStep to res:capacity.
             }
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane"  {
-                set LFShip to res:amount.
-                set LFShipCap to res:capacity.
+                set LFStep to res:amount.
+                set LFCapStep to res:capacity.
             }
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set OxShip to res:amount.
@@ -9950,15 +9960,15 @@ function updatestatusbar {
                 set res:enabled to true.
             }
         }
-        if (ship:partsnamed("FNB.BL2.LOX"):length > 0 and ShipType:contains("Block2")) or (ship:partsnamed("FNB.BL3.LOX"):length > 0 and ShipType:contains("Block3")) {
+        if FNBship {
             for res in sCMNTank:resources {
                 if res:name = "LiquidFuel" {
-                    set LFShip to LFShip + res:amount.
-                    set LFShipCap to LFShipCap + res:capacity.
+                    set LFStep to LFStep + res:amount.
+                    set LFCapStep to LFCapStep + res:capacity.
                 }
                 if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-                    set LFShip to LFShip + res:amount.
-                    set LFShipCap to LFShipCap + res:capacity.
+                    set LFStep to LFStep + res:amount.
+                    set LFCapStep to LFCapStep + res:capacity.
                 }
                 if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                     set OxShip to OxShip + res:amount.
@@ -9967,24 +9977,24 @@ function updatestatusbar {
             }
             for res in sCH4Tank:resources {
                 if res:name = "LiquidFuel" {
-                    set LFShip to LFShip + res:amount.
-                    set LFShipCap to LFShipCap + res:capacity.
+                    set LFStep to LFStep + res:amount.
+                    set LFCapStep to LFCapStep + res:capacity.
                 }
                 if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
-                    set LFShip to LFShip + res:amount.
-                    set LFShipCap to LFShipCap + res:capacity.
+                    set LFStep to LFStep + res:amount.
+                    set LFCapStep to LFCapStep + res:capacity.
                 }
             }
         }
         if defined HeaderTank {
             for res in HeaderTank:resources {
                 if res:name = "LiquidFuel" {
-                    set LFShip to LFShip + res:amount.
-                    set LFShipCap to LFShipCap + res:capacity.
+                    set LFStep to LFStep + res:amount.
+                    set LFCapStep to LFCapStep + res:capacity.
                 }
                 if res:name = "LqdMethane" or res:name = "CooledLqdMethane"  {
-                    set LFShip to LFShip + res:amount.
-                    set LFShipCap to LFShipCap + res:capacity.
+                    set LFStep to LFStep + res:amount.
+                    set LFCapStep to LFCapStep + res:capacity.
                 }
                 if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                     set OxShip to OxShip + res:amount.
@@ -10005,6 +10015,8 @@ function updatestatusbar {
                 set FuelMass to 0.001.
             }
         }
+        set LFShip to LFStep.
+        set LFShipCap to LFCapStep.
 
         if SLEngines[0]:hassuffix("activate") and VACEngines[0]:hassuffix("activate") { 
             if SLEngines[0]:ignition and not (VACEngines[0]:ignition) {
@@ -13705,7 +13717,7 @@ function LandingVector {
                     else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
-                    set PredictGSVec to vxcl(up:vector, facing:forevector - up:vector)*1.5.
+                    set PredictGSVec to vxcl(up:vector, facing:forevector)*vAng(up:vector, facing:forevector)/4.
                     set TargetPos to ((landingzone:position + MZHeight*up:vector) + vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - ship:position):normalized * 1.8*Scale).
                     set TgtErrorVector to TargetPos - myFuturePos + PredictGSVec.
                     set closingPID:kd to 0.042*(Scale^0.7) * TgtErrorVector:mag/(4*Scale).
@@ -13714,10 +13726,10 @@ function LandingVector {
                     if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(3*Scale),1)+TgtErrorStrength)/2.
-                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 and TgtErrorVector:mag > 1.6*Scale set TgtErrorStrength to TgtErrorStrength*1.2.
-                    set VelCancel to cancelPID:update(time:seconds, GSVec:mag)*2.
+                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 or TgtErrorVector:mag < 1*Scale set TgtErrorStrength to TgtErrorStrength*1.3.
+                    set VelCancel to cancelPID:update(time:seconds, GSVec:mag).
 
-                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.08 * min(2,1/max(0.1,RadarRatio)) + vxcl(up:vector, landingzone:position - ship:position)*0.1.
+                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.1 * min(2,1/max(0.1,RadarRatio)) + vxcl(up:vector, landingzone:position - ship:position)*0.1.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
@@ -16477,7 +16489,8 @@ function ToggleHeaderTank {
     parameter bool.
     if defined HeaderTank {
         for res in HeaderTank:resources {
-            set res:enabled to bool.
+            if not res:name = "ElectricCharge" set res:enabled to bool.
+            else set res:enabled to true.
         }
     }
 }

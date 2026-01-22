@@ -112,6 +112,9 @@ set inactiveCount to 0.
 set GridfinLength to 0.
 set RadarRatio to 5.
 set ApproachAngle to 0.
+set DumpVentNotCore to false.
+set ClusterSet to false.
+set CH4set to false.
 
 set GFset to false.
 set ECset to false.
@@ -162,29 +165,6 @@ for part in ship:parts {
         set BTset to true.
         set RandomFlip to true.
     }
-    if part:name:contains("Block.3.AFT") and not BTset {
-        set BoosterType to "Block3".
-        set Bl3LndProf to true.
-        set BoosterEngines to ship:partsnamed("Block.3.AFT").
-        set BoosterCore to part.
-        set DumpVents to list().
-        set ModulesFound to false.
-        set x to 0.
-        set y to 0.
-        until x > part:modules:length-1 or ModulesFound {
-            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
-                DumpVents:add(part:getmodulebyindex(x)).
-                set y to y+1.
-                if y = 2 {
-                    set ModulesFound to true.
-                    break.
-                }
-            }
-            set x to x+1.
-        }
-        set BTset to true.
-        set RandomFlip to true.
-    }
     if part:name:contains("FNB.BL3.BOOSTERAFT") and not BTset {
         set BoosterType to "Block3".
         set Bl3LndProf to true.
@@ -211,34 +191,20 @@ for part in ship:parts {
     if part:name:contains("FNB.BL1.BOOSTERLOX") and not BTset {
         set BoosterType to "Block1".
         set Bl3LndProf to false.
-        set BoosterEngines to ship:partsnamed("FNB.BL1.BOOSTERLOX").
         set BoosterCore to part.
-        set DumpVents to list().
-        set ModulesFound to false.
-        set x to 0.
-        set y to 0.
-        until x > part:modules:length-1 or ModulesFound {
-            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
-                DumpVents:add(part:getmodulebyindex(x)).
-                set y to y+1.
-                if y = 2 {
-                    set ModulesFound to true.
-                    break.
-                }
+        set DumpVentNotCore to true.
+        when ClusterSet and CH4set then {
+            set DumpVents to list(False,False).
+            set ModulesFound to false.
+            if BoosterEngines[0]:getmodulebyindex(14):name = "ModuleEnginesFX" {
+                set DumpVents[0] to BoosterEngines[0]:getmodulebyindex(14).
             }
-            set x to x+1.
+            if bCH4Tank:getmodulebyindex(14):name = "ModuleEnginesFX" {
+                set DumpVents[1] to bCH4Tank:getmodulebyindex(14).
+            }
         }
         set BTset to true.
         set RandomFlip to true.
-    }
-    if part:name:contains("Block.3.CH4") {
-        set bCH4Tank to part.
-    }
-    if part:name:contains("Block.3.LOX") {
-        set bLOXTank to part.
-    }
-    if part:name:contains("Block.3.CMN") {
-        set bCMNDome to part.
     }
     if part:name:contains("FNB.BL3.BOOSTERCH4") {
         set bCH4Tank to part.
@@ -252,6 +218,7 @@ for part in ship:parts {
     if part:name:contains("FNB.BL1.BOOSTERCH4") {
         set bCH4Tank to part.
         set FWD to part.
+        set CH4set to true.
     }
     if part:name:contains("FNB.BL1.BOOSTERLOX") {
         set bLOXTank to part.
@@ -267,13 +234,9 @@ for part in ship:parts {
         set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
         set ECset to true.
     }
-    if part:name:contains("Raptor.3Cluster") and not ECset {
-        set BoosterEngines to ship:partsnamed("Raptor.3Cluster").
-        set ECset to true.
-        set Block3Cluster to true.
-    }
     if part:name:contains("FNB.BL1.BOOSTERCLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("FNB.BL1.BOOSTERCLUSTER").
+        set ClusterSet to true.
         set ECset to true.
         set Block3Cluster to true.
     }
@@ -290,11 +253,6 @@ for part in ship:parts {
     if part:name:contains("SEP.25.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "25".
         set GridfinLength to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length.
-        set GFset to true.
-    }
-    if part:name:contains("Block.3.Fin") and not GFset {
-        set GridfinsType to "Block3".
-        set GridfinLength to ship:partsnamed("Block.3.Fin"):length.
         set GFset to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERFIN") and not GFset {
@@ -323,13 +281,6 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
-    if part:name:contains("Block.3.FWD") and not HSset {
-        set HSRType to "Block3".
-        set HSR to part.
-        set FWD to part.
-        set CrossFeed to part:getmodule("ModuleToggleCrossfeed").
-        set HSset to true.
-    }
     if part:name:contains("FNB.BL3.BOOSTERFWD") {
         set FWD to part.
     }
@@ -339,8 +290,8 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
-    if part:name:contains("FNB.BL1.BOOSTERIHSR") and not HSset {
-        set HSRType to "Block1".
+    if part:name:contains("FNB.BL1.BOOSTERHSR") and not HSset {
+        set HSRType to "Block1/2".
         set HSR to part.
         set HSset to true.
     }
@@ -348,6 +299,8 @@ for part in ship:parts {
         set Frost to true.
     }
 }
+
+if defined HSR set HSRpartname to HSR:name.
 
 print GridfinLength.
 
@@ -1215,11 +1168,11 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1000. 
-        else set BoosterGlideDistance to 1050. //1100
+        if oldBooster set BoosterGlideDistance to 1250. 
+        else set BoosterGlideDistance to 1350. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
-        set BoosterGlideFactor to 1.05.
+        set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
         set LngCtrlPID:setpoint to 50. //50
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.15, -5, 5).
@@ -1231,7 +1184,7 @@ else {
         if not BoosterType:contains("Block3") set BoosterRaptorThrust3 to 510.
         else set BoosterRaptorThrust3 to 672.
         set Scale to 1.
-        set CorrFactor to 0.8.
+        set CorrFactor to 0.95.
         set PIDFactor to 8.
         set CatchVS to -0.5.
         set FinalDeceleration to 7.
@@ -1340,13 +1293,13 @@ on ag5 {
 
 if BoosterSingleEngines {
     for gimbalEng in BoosterSingleEnginesRC {
-        if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 42).
+        if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 55).
     }
 }
 else {
-    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 65).
-    MidGimbMod:SetField("gimbal limit", 65).
-    CtrGimbMod:SetField("gimbal limit", 65).
+    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 55).
+    MidGimbMod:SetField("gimbal limit", 55).
+    CtrGimbMod:SetField("gimbal limit", 55).
 }
 set MaxQ to false.
 set Hotstaging to false.
@@ -1733,7 +1686,7 @@ function Boostback {
 
     if verticalspeed > 0 {
         set rebooted to false.
-        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 and ship:partsnamed("VS.25.HSR.BL3"):length = 0 and ship:partsnamed("Block.3.FWD"):length = 0 {
+        if ship:partsnamed(HSRpartname):length = 0 {
             set Block1HSR to true.
             set HSRJet to true.
         }
@@ -1850,7 +1803,7 @@ function Boostback {
             set ShipFound to true.
         }
 
-        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 and ship:partsnamed("VS.25.HSR.BL3"):length = 0 {
+        if ship:partsnamed(HSRpartname):length = 0 {
             set ship:name to "Booster".
             set Block1HSR to true.
         }
@@ -1963,7 +1916,7 @@ function Boostback {
 
         until vang(vxcl(up:vector, facing:forevector), vxcl(up:vector, -ErrorVector)) < 98 and AllSet or verticalspeed < -50 {
             SteeringCorrections().
-            if ship:partsnamed("SEP.23.BOOSTER.HSR"):length = 0 and ship:partsnamed("SEP.25.BOOSTER.HSR"):length = 0 {
+            if ship:partsnamed(HSRpartname):length = 0 {
                 set ship:name to "Booster".
                 set Block1HSR to true.
             }
@@ -1997,6 +1950,7 @@ function Boostback {
         when time:seconds > flipStartTime + 30 then {
             if LFBooster > LFBoosterCap * 0.3 {
                 if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+                else for vent in DumpVents vent:doaction("activate engine", true).
             }
             set steeringManager:showfacingvectors to false.
             set steeringManager:showangularvectors to false.
@@ -2005,6 +1959,7 @@ function Boostback {
             set config:ipu to 1500.
             if LFBooster > LFBoosterCap * 0.16 {
                 if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+                else for vent in DumpVents vent:doaction("activate engine", true).
             }
         }
         set changed to false.
@@ -2067,8 +2022,10 @@ function Boostback {
         }
         if LFBooster > LFBoosterCap * 0.1 {
             if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+            else for vent in DumpVents vent:doaction("activate engine", true).
         } else {
             if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
+            else for vent in DumpVents vent:doaction("shutdown engine", true).
         }
         set steeringManager:rolltorquefactor to 2.
 
@@ -2226,6 +2183,7 @@ function Boostback {
 
         if LFBooster > LFBoosterFuelCutOff {
             if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+            else for vent in DumpVents vent:doaction("activate engine", true).
         }
 
         if HSRType:contains("Block3") set HSRJet to false.
@@ -2244,19 +2202,20 @@ function Boostback {
         set FuelDump to false.
         if HSRJet and defined HSR {
             when time:seconds - turnTime > 2 then {
-                BoosterCore:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
+                FWD:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                 set RenameHSR to false.
-                wait 0.
-                if not Block1HSR and kuniverse:activevessel:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and kuniverse:activevessel:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 {
+                wait 0.1.
+                if not Block1HSR and kuniverse:activevessel:partsnamed("SEP.25.BOOSTER.CORE"):length = 0 and kuniverse:activevessel:partsnamed("SEP.23.BOOSTER.INTEGRATED"):length = 0 and kuniverse:activevessel:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 {
                     set RenameHSR to true.
                     kuniverse:forceactive(vessel("Booster Ship")).
+                    HUDTEXT("Switching focus back to Booster - " + Block1HSR, 16, 2, 20, yellow, false).
                 } 
                 HUDTEXT("HSR-Jettison confirmed.. Rotating Booster for re-entry and landing..", 20, 2, 20, green, false).
                 set Rotating to true.
                 if not Block1HSR and RenameHSR {
-                    set vessel("Booster"):name to "Booster HSR".
+                    if vessel("Booster"):partsnamed(HSRpartname):length > 0 set vessel("Booster"):name to "Booster HSR".
                 }
-                set kuniverse:activevessel:name to "Booster".
+                if kuniverse:activevessel:partsnamed(HSRpartname):length = 0 set kuniverse:activevessel:name to "Booster".
                 set ShortBurst to time:seconds.
                 rcs on.
                 when ShortBurst + 1.4 < time:seconds then rcs off.
@@ -2277,9 +2236,14 @@ function Boostback {
                 BoosterCore:shutdown.
                 set FuelDump to true.
             }
+            else if FWD:thrust > 0 {
+                for vent in DumpVents vent:doaction("shutdown engine", true).
+                set FuelDump to true.
+            }
             wait 0.01.
             if FuelDump when vAng(facing:forevector, up:vector) < 64 and RSS or vAng(facing:forevector, up:vector) < 50 then {
                 if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+                else for vent in DumpVents vent:doaction("activate engine", true).
             }
         }
         
@@ -2309,6 +2273,7 @@ function Boostback {
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             if LFBooster < LFBoosterFuelCutOff {
                 if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
+                else for vent in DumpVents vent:doaction("shutdown engine", true).
             }
             wait 0.067.
         }
@@ -2636,7 +2601,7 @@ function Boostback {
         set steeringManager:rolltorquefactor to 1.
         when RadarAlt < 8600*(Scale^0.55) then {
             if BoosterType:contains("Block3") set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24*Scale.
-            else  set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 32*Scale.
+            else  set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24*Scale.
             set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position).
             
             if not (TargetOLM = "false") {
@@ -2816,7 +2781,7 @@ function Boostback {
         }
     }
 
-    if ErrorVector:mag > 4 * BoosterHeight and not HSRJet and GfC and not cAbort {
+    if (ErrorVector:mag > 4 * BoosterHeight and RadarAlt < 1000) or (ErrorVector:mag > 6 * BoosterHeight and RadarAlt > 1000) and not HSRJet and GfC and not cAbort {
         HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
         HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
         set cAbort to true.
@@ -2850,7 +2815,7 @@ function Boostback {
             //setTowerHeadingVector().
             PollUpdate().
             addons:tr:settarget(landingzone).
-            when MiddleEnginesShutdown then if ErrorVector:mag > 1.2*BoosterHeight*max(1,(vAng(TheTowerHeadingVector, -OffsetPosVec)/32)^0.5) set cAbort to true.
+            when MiddleEnginesShutdown then if ErrorVector:mag > 1.8*BoosterHeight*max(1,(vAng(TheTowerHeadingVector, -OffsetPosVec)/32)^0.5) set cAbort to true.
             if GfC when Vessel(TargetOLM):distance < 2200 and Vessel(TargetOLM):loaded then {
                 PollUpdate().
                 set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
@@ -3209,7 +3174,10 @@ function Boostback {
     if not BoosterSingleEngines CtrGimbMod:doaction("lock gimbal", true).
     CheckFuel().
 
-    when time:seconds > LandingTime + 3 then if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+    when time:seconds > LandingTime + 3 then {
+        if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+        else for vent in DumpVents vent:doaction("activate engine", true).
+    }
 
     if not (LandSomewhereElse) {
         if not (TargetOLM = "false") {
@@ -3273,6 +3241,7 @@ function Boostback {
     }
 
     if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
+    else for vent in DumpVents vent:doaction("shutdown engine", true).
 
     HUDTEXT("Booster may now be recovered!", 10, 2, 20, green, false).
     clearscreen.
@@ -3445,15 +3414,15 @@ FUNCTION SteeringCorrections {
             set mach to airspeed/340.
             if not Bl3LndProf {
                 if mach < 1 set dragFactor to 1 - 0.07 * mach^2.
-                else set dragFactor to 1 - 0.08 * (1 + 0.55*(mach^2 - 1))/Scale.
+                else set dragFactor to 1 - 0.08 * (1 + 0.6*(mach^2 - 1))/Scale.
             }
             else if HSRJet {
                 if mach < 1 set dragFactor to 1 - 0.062 * mach^2.
-                else set dragFactor to 1 - 0.077 * (1 + 0.55*(mach^2 - 1))/Scale.
+                else set dragFactor to 1 - 0.077 * (1 + 0.6*(mach^2 - 1))/Scale.
             }
             else {
                 if mach < 1 set dragFactor to 1 - 0.06 * mach^2.
-                else set dragFactor to 1 - 0.075 * (1 + 0.55*(mach^2 - 1))/Scale.
+                else set dragFactor to 1 - 0.075 * (1 + 0.6*(mach^2 - 1))/Scale.
             }
             if not BoosterSingleEngines set dragFactor to dragFactor*1.1.
             
@@ -3610,13 +3579,15 @@ function LandingGuidance {
     set steeringOffset to vAng(GuidVec,facing:forevector).
     set streamOffset to vAng(GuidVec,-velocity:surface).
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
-    set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-240)/50, 1).
-    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-280,20))/24.
-    if RadarAlt < 1 set lateBrake to min(0.1/RadarRatio,2).
+    set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
+    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-200,20))/24.
+    if RadarRatio < 0.6 set lateBrake to min(0.15/RadarRatio,2).
     else set lateBrake to 0.
+    if not MiddleEnginesShutdown set OnStreamFactor to 0.2.
+    else set OnStreamFactor to 1.
 
     // === Final Vector ===
-    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.24)  - GSVec * lateBrake
+    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.36) * OnStreamFactor  - GSVec * lateBrake
         + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp + HighAngleVec * haVstrength.
 
     // === Debug Draw ===
@@ -4051,23 +4022,23 @@ function CheckFuel {
         if res:name = "LiquidFuel" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
-            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
-            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and BoosterType:contains("Block3") DumpVents[1]:doaction("shutdown engine", true).
+            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 {
+                BoosterCore:shutdown.
+            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
-            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3")  {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
-            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and BoosterType:contains("Block3") DumpVents[1]:doaction("shutdown engine", true).
+            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 {
+                BoosterCore:shutdown.
+            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
             set OxBooster to res:amount.
             set OxBoosterCap to res:capacity.
         }
     }
-    if BoosterType:contains("Block3") {
+    if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 {
         for res in bCMNDome:resources {
             if res:name = "LiquidFuel" {
                 set LFBooster to LFBooster + res:amount.
