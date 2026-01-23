@@ -13191,7 +13191,7 @@ function ReEntryData {
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
             set closingPID to pidLoop(0.01*(Scale^0.7), 0.002*(Scale^0.7), 0.008*(Scale^0.7),-3,3).
-            set cancelPID to pidLoop(0.14, 0.012, 0.1,-3,3).
+            set cancelPID to pidLoop(0.14, 0.002, 0.04,-3,3).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
@@ -13218,7 +13218,7 @@ function ReEntryData {
             }
             set ThrottleMin to 0.38.
             if STOCK {
-                set FlipAngleFactor to 0.7.
+                set FlipAngleFactor to 0.69.
                 set CatchVS to -0.4.
             }
             else if KSRSS {
@@ -13476,7 +13476,7 @@ function ReEntryData {
             when RadarAlt < 15*Scale then if LandSomewhereElse or cAbort SetRadarAltitude().
             when RadarAlt < 5*Scale then if LandSomewhereElse or cAbort SetRadarAltitude().
             
-            when (verticalspeed > -42 and throttle < ThrottleMin + 0.05 and ship:groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and RadarAlt < 2*ShipHeight) or (verticalSpeed > -30 and throttle < 0.58) then {
+            when (verticalspeed > -42 and throttle < ThrottleMin + 0.05 and ship:groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and RadarAlt < 2*ShipHeight) or (verticalSpeed > -40 and throttle < 0.58) then {
                 if SLActive > 2 and SLEngines[0]:hassuffix("activate") {
                     SLEngines[0]:shutdown.
                     SLEngines[0]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
@@ -13501,7 +13501,7 @@ function ReEntryData {
             set AngleAbort to false.
             when verticalspeed > CatchVS * 3 and RadarAlt < 12 * Scale and vAng(facing:forevector, up:vector) > 24 then set AngleAbort to true.
 
-            until verticalspeed > CatchVS and RadarAlt < 0.5 * Scale and ship:groundspeed < 2.5*Scale or AngleAbort {
+            until verticalspeed > CatchVS and RadarAlt < 0.5 * Scale and ship:groundspeed < 2.5*Scale or AngleAbort or ((ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.03) {
                 SendPing().
                 if config:ipu < 1300 set config:ipu to 1400.
                 if ship:body:atm:sealevelpressure > 0.5 {
@@ -13575,8 +13575,8 @@ function ReEntryData {
 
 //------------------Landing Loop-----------------------///
 function ClosingAngle {
-    set angle1 to (60/(1+constant:e^(-1.8*((RadarRatio) - 3.2)))) + 25.
-    set angle2 to (1/(1+constant:e^(-6*((RadarRatio) - 0.6)))).
+    set angle1 to (60/(1+constant:e^(-1.8*((RadarRatio) - 3)))) + 28.
+    set angle2 to (1/(1+constant:e^(-6*((RadarRatio) - 0.4)))).
     set angle to angle1*angle2.
     if angle > 80 set angle to 80.
     
@@ -13717,7 +13717,8 @@ function LandingVector {
                     else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
-                    set PredictGSVec to vxcl(up:vector, facing:forevector)*vAng(up:vector, facing:forevector)/4.
+                    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)/5.
+                    if not twoSL set PredictGSVec to PredictGSVec + vxcl(up:vector, facing:topvector)*2.4.
                     set TargetPos to ((landingzone:position + MZHeight*up:vector) + vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - ship:position):normalized * 1.8*Scale).
                     set TgtErrorVector to TargetPos - myFuturePos + PredictGSVec.
                     set closingPID:kd to 0.042*(Scale^0.7) * TgtErrorVector:mag/(4*Scale).
@@ -13727,9 +13728,11 @@ function LandingVector {
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(3*Scale),1)+TgtErrorStrength)/2.
                     if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 or TgtErrorVector:mag < 1*Scale set TgtErrorStrength to TgtErrorStrength*1.3.
-                    set VelCancel to cancelPID:update(time:seconds, GSVec:mag).
+                    set gsError to -tgtError/abs(tgtError) * GSVec:mag.
+                    if RadarRatio > 1 set VelCancel to cancelPID:update(time:seconds, gsError)*0.6.
+                    else set VelCancel to -GSVec:mag*0.4.
 
-                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.1 * min(2,1/max(0.1,RadarRatio)) + vxcl(up:vector, landingzone:position - ship:position)*0.1.
+                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.08 * ((1/max(0.25,RadarRatio))^1.2) + vxcl(up:vector, landingzone:position - ship:position)*0.1.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
@@ -13852,35 +13855,42 @@ function LandingVector {
                 sCMNTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
                 sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             }
-            SLEngines[0]:shutdown. SLEngines[1]:shutdown. SLEngines[2]:shutdown.
+            for eng in SLEngines {
+                if eng:hassuffx("activate") {
+                    eng:shutdown.
+                    if eng:getmodule("ModuleSEPRaptor"):GetField("actuate out") = true
+                        eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
+                    eng:getmodule("ModuleGimbal"):SetField("gimbal limit", 0).
+                }
+            }
             //if GEAR {
             //    Tank:getmodule("ModuleLevelingBase"):doaction("auto-level", true).
             //}
 
             if TargetOLM {
                 if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
-                    when time:seconds > ShutdownProcedureStart + 5 then {
+                    when time:seconds > ShutdownProcedureStart + 8 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(0.3 * Scale,2) + ",false")).
                         sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
                     }
-                    when time:seconds > ShutdownProcedureStart + 10 then {
+                    when time:seconds > ShutdownProcedureStart + 13 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.3 * Scale, 2) + ",false")).
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
                     }
-                    when time:seconds > ShutdownProcedureStart + 15 then {
+                    when time:seconds > ShutdownProcedureStart + 18 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.3 * Scale, 2) + ",false")).
                     }
                 } 
                 else {
-                    when time:seconds > ShutdownProcedureStart + 5 then {
+                    when time:seconds > ShutdownProcedureStart + 10 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(1.3 * Scale,2) + ",false")).
                         sendMessage(Vessel(TargetOLM), ("MechazillaStabilizers," + maxstabengage)).
                     }
-                    when time:seconds > ShutdownProcedureStart + 10 then {
+                    when time:seconds > ShutdownProcedureStart + 15 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(1.3 * Scale, 2) + ",false")).
                         sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
                     }
-                    when time:seconds > ShutdownProcedureStart + 15 then {
+                    when time:seconds > ShutdownProcedureStart + 20 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(1.3 * Scale, 2) + ",false")).
                     }
                 }
@@ -15042,6 +15052,7 @@ function SetRadarAltitude {
         }
     }
     if ShipType:contains("SN") set ShipBottomRadarHeight to ShipBottomRadarHeight + 0.75*Scale.
+    if ShipType:contains("Block2") set ShipBottomRadarHeight to ShipBottomRadarHeight + 1.1*Scale.
     if TargetOLM and not (LandSomewhereElse) {
         if RSS {
             lock RadarAlt to altitude - max(ship:geoposition:terrainheight, 0) - ArmsHeight + (39.5167 - ShipBottomRadarHeight) - 0.1.
@@ -16521,6 +16532,9 @@ function SetShipBGPage {
     if ShipType = "Block2PEZ" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block2PEZ".
     }
+    if ShipType = "Block2Cargo" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block2Cargo".
+    }
     if ShipType = "Block3PEZ" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block3PEZ".
     }
@@ -16548,7 +16562,7 @@ function GetShipRotation {
 
         if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded and vAng(shipPos-Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,TowerHeadingVector) < 80 {
             set varVec to vxcl(up:vector, shipPos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-            if defined myFuturePos set varVec to vxcl(up:vector, myFuturePos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
+            if defined myFuturePos set varVec to vxcl(up:vector, myFuturePos + shipPos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
             set varR to vang(varVec, TowerHeadingVector).
             if vAng(vCrs(TowerHeadingVector,up:vector),varVec) < 90 set varR to -varR.
         }

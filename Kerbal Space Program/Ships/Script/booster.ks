@@ -115,6 +115,7 @@ set ApproachAngle to 0.
 set DumpVentNotCore to false.
 set ClusterSet to false.
 set CH4set to false.
+set ResetNeeded to false.
 
 set GFset to false.
 set ECset to false.
@@ -1168,8 +1169,8 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1250. 
-        else set BoosterGlideDistance to 1350. //1100
+        if oldBooster set BoosterGlideDistance to 1200. 
+        else set BoosterGlideDistance to 1300. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
         set BoosterGlideFactor to 1.15.
@@ -1663,6 +1664,7 @@ function Boostback {
 
     if RandomFlip set targetAp to ship:apoapsis - 200*Scale.
     else set targetAp to ship:apoapsis + 800*Scale.
+    if Stock set targetAp to targetAp + 2000.
 
     if STOCK and not Bl3LndProf set BoosterGlideDistance to BoosterGlideDistance * 0.94.
 
@@ -1711,8 +1713,8 @@ function Boostback {
             else set FlipTime to 4.2.
             if oldBooster set FlipTime to FlipTime * 1.3.
         } else {
-            if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * PitchStrength.
-            else set ship:control:pitch to 2.4 * PitchStrength.
+            if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/Scale * PitchStrength.
+            else set ship:control:pitch to 2.4 * 1.6/Scale * PitchStrength.
             set ship:control:yaw to 0.
             if not RSS set FlipTime to 4.5.
             else set FlipTime to 4.
@@ -2815,7 +2817,6 @@ function Boostback {
             //setTowerHeadingVector().
             PollUpdate().
             addons:tr:settarget(landingzone).
-            when MiddleEnginesShutdown then if ErrorVector:mag > 1.8*BoosterHeight*max(1,(vAng(TheTowerHeadingVector, -OffsetPosVec)/32)^0.5) set cAbort to true.
             if GfC when Vessel(TargetOLM):distance < 2200 and Vessel(TargetOLM):loaded then {
                 PollUpdate().
                 set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
@@ -2905,12 +2906,12 @@ function Boostback {
         lock throttle to 1.
         set ShutdownTime to time:seconds.
 
-        if ErrorVector:mag > 2.4 * BoosterHeight and not HSRJet and GfC and not cAbort {
+        if ErrorVector:mag > 2.4 * BoosterHeight and GfC and not cAbort {
             HUDTEXT("Mechazilla out of range..", 10, 2, 20, red, false).
             HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
             set cAbort to true.
             lock steering to retrograde.
-            when airspeed < 30 then lock steering to up.
+            when airspeed < 30 then lock steering to up - GSVec*0.1.
         }
 
 
@@ -3027,7 +3028,7 @@ function Boostback {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             MidGimbMod:doaction("lock gimbal", true).
             if Block3Cluster { 
-                when time:seconds > ShutdownTime + 3 and airspeed < 12*Scale or verticalSpeed > -10*Scale and stopDist3 < RadarAlt then {
+                when time:seconds > ShutdownTime + 3 and airspeed < 12*Scale or verticalSpeed > -10*Scale and stopDist3 < RadarAlt or not Bl3LndProf then {
                     set downToThree to true.
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     Mid2GimbMod:doaction("lock gimbal", true).
@@ -3545,7 +3546,7 @@ function LandingGuidance {
     set CatchPos to landingzone:position + MZHeight*up:vector + TheTowerHeadingVector * angleAxis(ApproachAngle/2, up:vector) - TheTowerHeadingVector.
     if verticalSpeed < 0 set vSpeed to -verticalSpeed.
     else set vSpeed to max(verticalSpeed,0.001).
-    set PredictGSVec to GSVec + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*ActiveRC/15.
+    set PredictGSVec to GSVec:normalized*max(0,GSVec:mag-1)^1.3 + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*ActiveRC/10.
     set gsTime to max(PositionError:mag,2)*2/max(PredictGSVec:mag,0.01).
     set vertTime to RadarAlt*2/vSpeed.
     set speedRatio to vSpeed/max(0.1,PredictGSVec:mag).
@@ -3557,7 +3558,7 @@ function LandingGuidance {
         else set haVstrength to 0.
     }
     // === Future Offset from Target ===
-    if MiddleEnginesShutdown set TVCDamp to 0.69*PredictGSVec.
+    if MiddleEnginesShutdown set TVCDamp to 0.8*PredictGSVec.
     else set TVCDamp to 0.18*PredictGSVec.
     if addons:tr:hasimpact and RadarAlt > 3*Scale set myFuturePos to addons:tr:impactpos:position + MZHeight*(CatchPins-addons:tr:impactpos:position + velocity:surface/9.81):normalized*1/cos(vAng((CatchPins-addons:tr:impactpos:position + velocity:surface/9.81), up:vector)).
     else set myFuturePos to CatchPos.
@@ -3571,7 +3572,7 @@ function LandingGuidance {
     set predictValue to 6*min(1,max(RadarRatio,0.3))*tgtErrorPID:update(time:seconds, predictInput).
     if landDistance > BoosterHeight or RadarAlt > BoosterHeight*0.7 set PrVec to (CatchPins - CatchPos):normalized * landDistance/3 + up:vector * landDistance/9.
     else set PrVec to BoosterHeight*up:vector - GSVec*0.1.
-    set GuidVec to PrVec - TgtErrorVector * 20/max(airspeed-280,16) + TargetError * predictValue/6
+    set GuidVec to PrVec - TgtErrorVector * 20/max(airspeed-260,16) + TargetError * predictValue/6 * min(max(-0.5,340-airspeed/40),1)
             + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
     if cAbort and airspeed < 69 set GuidVec to 2*up:vector - velocity:surface:normalized.
 
@@ -3580,8 +3581,8 @@ function LandingGuidance {
     set streamOffset to vAng(GuidVec,-velocity:surface).
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
-    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-200,20))/24.
-    if RadarRatio < 0.6 set lateBrake to min(0.15/RadarRatio,2).
+    set lookUpDamp to min(1, 0.6/max(RadarRatio^1.6, 0.05)) + (max(0,vAng(up:vector,GuidVec)-7)*20/max(airspeed-150,20))/31.
+    if RadarRatio < 0.6 set lateBrake to min(0.15/RadarRatio,2)*0.
     else set lateBrake to 0.
     if not MiddleEnginesShutdown set OnStreamFactor to 0.2.
     else set OnStreamFactor to 1.
@@ -3589,6 +3590,33 @@ function LandingGuidance {
     // === Final Vector ===
     set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.36) * OnStreamFactor  - GSVec * lateBrake
         + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp + HighAngleVec * haVstrength.
+
+    // === Case wrong Thrust dir ===
+    if vAng(FinalVec,facing:forevector) < 5 and TgtErrorVector:mag > BoosterHeight {
+        set ResetNeeded to true.
+        if BoosterSingleEngines {
+            for gimbalEng in BoosterSingleEnginesRC {
+                if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", vAng(FinalVec,facing:forevector)).
+            }
+        }
+        else {
+            if Block3Cluster Mid2GimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)).
+            MidGimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)).
+            CtrGimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)).
+        }
+    } else if ResetNeeded {
+        set ResetNeeded to false.
+        if BoosterSingleEngines {
+            for gimbalEng in BoosterSingleEnginesRC {
+                if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
+            }
+        }
+        else {
+            if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 78).
+            MidGimbMod:SetField("gimbal limit", 78).
+            CtrGimbMod:SetField("gimbal limit", 78).
+        }
+    }
 
     // === Debug Draw ===
     //set tgtError to vecDraw(CatchPos, -TargetError, white, "TgtError", 1, true, 0.1).
