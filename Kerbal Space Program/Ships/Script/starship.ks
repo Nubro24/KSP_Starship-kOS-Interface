@@ -13717,7 +13717,7 @@ function LandingVector {
                     else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
-                    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)/5.
+                    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)/10.
                     if not twoSL set PredictGSVec to PredictGSVec + vxcl(up:vector, facing:topvector)*2.4.
                     set TargetPos to ((landingzone:position + MZHeight*up:vector) + vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - ship:position):normalized * 1.8*Scale).
                     set TgtErrorVector to TargetPos - myFuturePos + PredictGSVec.
