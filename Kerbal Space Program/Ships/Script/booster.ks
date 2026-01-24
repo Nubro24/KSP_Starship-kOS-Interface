@@ -1664,7 +1664,6 @@ function Boostback {
 
     if RandomFlip set targetAp to ship:apoapsis - 200*Scale.
     else set targetAp to ship:apoapsis + 800*Scale.
-    if Stock set targetAp to targetAp + 2000.
 
     if STOCK and not Bl3LndProf set BoosterGlideDistance to BoosterGlideDistance * 0.94.
 

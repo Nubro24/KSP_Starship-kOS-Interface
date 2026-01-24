@@ -13729,10 +13729,10 @@ function LandingVector {
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(3*Scale),1)+TgtErrorStrength)/2.
                     if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 or TgtErrorVector:mag < 1*Scale set TgtErrorStrength to TgtErrorStrength*1.3.
                     set gsError to -tgtError/abs(tgtError) * GSVec:mag.
-                    if RadarRatio > 1 set VelCancel to cancelPID:update(time:seconds, gsError)*0.6.
-                    else set VelCancel to -GSVec:mag*0.4.
+                    if RadarRatio > 1.5 set VelCancel to cancelPID:update(time:seconds, gsError)*0.6.
+                    else set VelCancel to -GSVec:mag*0.5.
 
-                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.12 - GSVec * 0.08 * ((1/max(0.25,RadarRatio))^1.2) + vxcl(up:vector, landingzone:position - ship:position)*0.1.
+                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.16 - GSVec * 0.1 * ((1/max(0.25,RadarRatio))^1.2) + vxcl(up:vector, landingzone:position - ship:position)*0.1.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
@@ -13856,7 +13856,7 @@ function LandingVector {
                 sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             }
             for eng in SLEngines {
-                if eng:hassuffx("activate") {
+                if eng:hassuffix("activate") {
                     eng:shutdown.
                     if eng:getmodule("ModuleSEPRaptor"):GetField("actuate out") = true
                         eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", false).
