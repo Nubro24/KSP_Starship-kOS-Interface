@@ -8436,18 +8436,6 @@ function Launch {
                 print "Time at Launch: " + timestamp(time:seconds + 2.5):full.
                 print "Actual Distance: " + round((target:position - ship:position):mag / 1000, 1).
             }
-            for fin in GridFins {
-                if fin:hasmodule("ModuleControlSurface") {
-                    fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 3).
-                    fin:getmodule("ModuleControlSurface"):DoAction("activate roll control", true).
-                    fin:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
-                }
-                if fin:hasmodule("SyncModuleControlSurface") {
-                    fin:getmodule("SyncModuleControlSurface"):SetField("authority limiter", 3).
-                    fin:getmodule("SyncModuleControlSurface"):DoAction("activate roll control", true).
-                    fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", true).
-                }
-            }
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
             wait 0.02. 
@@ -8476,7 +8464,7 @@ function Launch {
                 set inactiveEng to List(7,11,15,19,24).
             }
             set message2:text to "<b>Expected Engine Count:</b>    28".
-            wait 0.7.
+            wait 0.4.
             
             //last 5 outer ignition
             set message2:text to "<b>Expected Engine Count:</b>    33".
@@ -8496,10 +8484,10 @@ function Launch {
             if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:activate.
             wait 1.
 
-            until time:seconds - EngineStartTime > 3.8 or cancelconfirmed {
+            until time:seconds - EngineStartTime > 3.5 or cancelconfirmed {
                 set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-                set message1:text to "<b>Clamps Release in:   </b>" + round(-time:seconds + EngineStartTime + 4.2, 1) + "<b> seconds</b>".
-                lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 2.8) / 1.
+                set message1:text to "<b>Clamps Release in:   </b>" + round(-time:seconds + EngineStartTime + 3.9, 1) + "<b> seconds</b>".
+                lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 2.5) / 1.
                 
                 BackGroundUpdate().
             }
@@ -8635,8 +8623,8 @@ function Launch {
             unlock bLiftOffThrust.
             if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:shutdown.
             wait 0.01.
-            if BoosterSingleEngines set SteeringManager:rollts to 5.
-            if BoosterSingleEngines set steeringManager:rolltorquefactor to 2.
+            set SteeringManager:rollts to 5.   //if BoosterSingleEngines 
+            set steeringManager:rolltorquefactor to 2.   //if BoosterSingleEngines 
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
                 InhibitButtons(1, 1, 1).
@@ -13190,7 +13178,7 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
-            set closingPID to pidLoop(0.01*(Scale^0.7), 0.002*(Scale^0.7), 0.008*(Scale^0.7),-3,3).
+            set closingPID to pidLoop(0.008*(Scale), 0.002*(Scale^0.8), 0.006*(Scale^0.8),-3,3).
             set cancelPID to pidLoop(0.14, 0.002, 0.04,-3,3).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
@@ -13727,10 +13715,12 @@ function LandingVector {
                     if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(3*Scale),1)+TgtErrorStrength)/2.
-                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 or TgtErrorVector:mag < 1*Scale set TgtErrorStrength to TgtErrorStrength*1.3.
                     set gsError to -tgtError/abs(tgtError) * GSVec:mag.
                     if RadarRatio > 1.5 set VelCancel to cancelPID:update(time:seconds, gsError)*0.6.
                     else set VelCancel to -GSVec:mag*0.5.
+                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 and TgtErrorVector:mag > 1*Scale {
+                        set TgtErrorStrength to TgtErrorStrength*2.
+                    }
 
                     set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.16 - GSVec * 0.1 * ((1/max(0.25,RadarRatio))^1.2) + vxcl(up:vector, landingzone:position - ship:position)*0.1.
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
@@ -15052,7 +15042,7 @@ function SetRadarAltitude {
         }
     }
     if ShipType:contains("SN") set ShipBottomRadarHeight to ShipBottomRadarHeight + 0.75*Scale.
-    if ShipType:contains("Block2") set ShipBottomRadarHeight to ShipBottomRadarHeight + 1.1*Scale.
+    if ShipType:contains("Block2") set ShipBottomRadarHeight to ShipBottomRadarHeight + 1.2*Scale.
     if TargetOLM and not (LandSomewhereElse) {
         if RSS {
             lock RadarAlt to altitude - max(ship:geoposition:terrainheight, 0) - ArmsHeight + (39.5167 - ShipBottomRadarHeight) - 0.1.
@@ -15727,7 +15717,6 @@ function PerformBurn {
             sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
         }
         sas off.
-        rcs off.
         if SingleEngineDeOrbitBurn {
             set OffsetAngle to vang(ship:position - SLEngines[DeOrbitEngNr]:position, facing:forevector).
             lock BVec to nextnode:burnvector * AngleAxis(OffsetAngle, up:vector).
