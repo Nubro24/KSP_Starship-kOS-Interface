@@ -13748,7 +13748,7 @@ function LandingVector {
                         //+ PositionCorrection * min(RadarRatio, 0.75) * 0.5 * min(max(0, 3/RadarRatio), 1)
                         + TgtErrorVector:normalized * abs(TgtErrorStrength) * min(1,RadarRatio+0.5) 
                         - GSVec:normalized * TgtErrorStrength * min(1,RadarRatio+0.25) 
-                        - GSVec * 0.2 * ((2/max(0.14,RadarRatio^1.5))).
+                        - GSVec * 0.2 * ((2/max(0.16,RadarRatio^1.4))).
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (4*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
