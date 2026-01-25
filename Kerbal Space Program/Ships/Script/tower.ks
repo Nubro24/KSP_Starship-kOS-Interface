@@ -196,13 +196,13 @@ for x in range(0, Mechazilla:modules:length) {
 }
 print "Landing Rails: " + NrforLandingRails.
 
-for x in range(0, Mechazilla:modules:length) {
+if defined SQD for x in range(0, SQD:modules:length) {
     if SQD:getmodulebyindex(x):hasaction("Full Retraction") {
         set NRforSQD to x.
         break.
     }
 }
-print "SQD: " + NrforSQD.
+if defined NRforSQD print "SQD: " + NrforSQD.
 
 for x in range(0, OLM:modules:length) {
     if OLM:getmodulebyindex(x):hasaction("toggle fueling") {
@@ -571,7 +571,7 @@ function RetractMechazillaRails {
 }
 
 function RetractSQD {
-    for x in range(0, SQD:modules:length) {
+    if defined SQD for x in range(0, SQD:modules:length) {
         if SQD:getmodulebyindex(x):hasaction("Full Retraction") {
             SQD:getmodulebyindex(x):doaction("Full Retraction", false).
             break.
@@ -579,7 +579,7 @@ function RetractSQD {
     }
 }
 function RetractSQDArm {
-    for x in range(0, SQD:modules:length) {
+    if defined SQD for x in range(0, SQD:modules:length) {
         if SQD:getmodulebyindex(x):hasaction("Extend Arm") {
             SQD:getmodulebyindex(x):doaction("Extend Arm", false).
             break.

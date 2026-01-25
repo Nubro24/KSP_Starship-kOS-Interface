@@ -546,7 +546,7 @@ if RSS {         // Real Solar System
     set RCSBurnTimeLimit to 120.
     set VentRate to 183.55.
     when partsfound then if Methane {
-        set VentRate to 974.745.
+        set VentRate to 954.745.
         set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
     }
     set ArmsHeight to 138.16.
@@ -1981,9 +1981,15 @@ if ship:partsnamedpattern("VS.25.BL2"):length > 1 {
 }
 if ShipType:contains("Block1") {
     if RSS {
-        set VentRate to VentRate * 1.4.
+        set VentRate to VentRate * 1.3.
     }
-    else set VentRate to VentRate * 1.6.
+    else set VentRate to VentRate * 1.5.
+}
+if ShipType:contains("Block1") {
+    if RSS {
+        set VentRate to VentRate * 0.7.
+    }
+    else set VentRate to VentRate * 0.9.
 }
 print ShipType.
 print ShipSubType.
@@ -7190,7 +7196,7 @@ set landbutton:ontoggle to {
                                             if not VentRateSet {
                                                 set fuelVal1 to LFShip.
                                                 set stTime to time:seconds.
-                                                when stTime + 1 < time:seconds then {set fuelVal2 to LFShip. set VentRate to (fuelVal1-fuelVal2)/(time:seconds-stTime).}
+                                                when stTime + 3 < time:seconds then {set fuelVal2 to LFShip. set VentRate to (fuelVal1-fuelVal2)/(time:seconds-stTime).}
                                                 set VentRateSet to true.
                                             }
                                             if ship:body:atm:sealevelpressure > 0.5 {
@@ -12183,9 +12189,9 @@ function ReEntryAndLand {
         set maxPitchPID to 38.
         when airspeed < 310 then set maxPitchPID to 24.
         set SteeringManager:ROLLCONTROLANGLERANGE to 42.
-        set steeringManager:pitchpid:kd to 0.5.
+        set steeringManager:pitchpid:kd to 0.46.
         set steeringManager:yawpid:kd to 0.69.
-        set steeringManager:rollpid:kd to 0.6.
+        set steeringManager:rollpid:kd to 0.36.
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
@@ -12356,8 +12362,6 @@ function ReEntryAndLand {
                 ToggleHeaderTank(1).
             }
         }
-
-        SteeringManager:RESETTODEFAULT().
 
         set PitchPID to PIDLOOP(0.00005, 0.000001, 0.00001, -10, 10 - TRJCorrection).
         set ChangeOverSensitivity to ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)) * 1.1.
@@ -12679,7 +12683,7 @@ function ReEntrySteering {
         if steeringManager:angleerror > 2 or (airspeed < 124 and alt:radar > 7000) {
             rcs on.
         }
-        else {
+        else if angularVel:mag < 0.04 {
             rcs off.
         }
         set currentAoA to round(vAng(facing:forevector, velocity:surface),1).
@@ -13187,6 +13191,7 @@ function ReEntryData {
             set RadarRatio to 24.
             set LndGuidVec to facing:forevector.
             set TgtErrStrDiv to 1.
+            set TgtErrorVector to v(0,0,0).
 
             set steeringManager:pitchpid:kd to 0.6.
             set steeringManager:yawpid:kd to 0.62.
@@ -13432,11 +13437,17 @@ function ReEntryData {
                         }
 
                         set SentTime to time:seconds.
+                        set updateShipRot to time:seconds.
+                        set curShipRot to ShipRot.
                         when RadarAlt < 7 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
                             set angle to ClosingAngle().
                             set speed to ClosingSpeed().
+                            if updateShipRot + 1 < time:seconds {
+                                set curShipRot to ShipRot.
+                                set updateShipRot to time:seconds.
+                            }
                             if SentTime + 0.1 < time:seconds {
-                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(ShipRot, 1) + "," + speed + "," + angle + ",true")).
+                                sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(curShipRot, 1) + "," + speed + "," + angle + ",true")).
                                 set SentTime to time:seconds.
                             }
                             if not ShipLanded preserve.
@@ -13715,8 +13726,13 @@ function LandingVector {
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
                     set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)/5.
-                    if not twoSL set PredictGSVec to PredictGSVec - vxcl(up:vector, facing:topvector)*5.
                     set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 1.2*Scale).
+                    set PositionCorrection to vxcl(up:vector, TargetPos - Nose:position).
+                    if not twoSL {
+                        set PredictErrVec to TargetPos - myFuturePos.
+                        set GoDownFactor to 4 * vAng(facing:topvector, PredictErrVec)/90.
+                        set PredictGSVec to PredictGSVec - vxcl(up:vector, facing:topvector)*4.
+                    }
                     set TgtErrorVector to TargetPos - myFuturePos + PredictGSVec.
 
                     if vAng(GSVec,TgtErrorVector) > 90 set tgtError to -TgtErrorVector:mag.
@@ -13728,10 +13744,13 @@ function LandingVector {
                     } else 
                         set TgtErrStrDiv to 1.
 
-                    set LastGuidVec to LndGuidVec.
-                    set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) + TgtErrorVector:normalized * abs(TgtErrorStrength) - GSVec:normalized * TgtErrorStrength - GSVec * 0.1 * ((2.4/max(0.18,RadarRatio^1.5))).
+                    set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) 
+                        //+ PositionCorrection * min(RadarRatio, 0.75) * 0.5 * min(max(0, 3/RadarRatio), 1)
+                        + TgtErrorVector:normalized * abs(TgtErrorStrength) * min(1,RadarRatio+0.5) 
+                        - GSVec:normalized * TgtErrorStrength * min(1,RadarRatio+0.25) 
+                        - GSVec * 0.2 * ((2/max(0.14,RadarRatio^1.5))).
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (4*Scale)/max(0.3,TgtErrorVector:mag).
-                    set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag + LastGuidVec.
+                    set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
                     //set v2 to vecDraw(HeaderTank:position, TgtErrorVector:normalized * abs(TgtErrorStrength), blue, "2",2,true,0.05).
                     //set v3 to vecDraw(HeaderTank:position, -GSVec:normalized * TgtErrorStrength, red, "3",2,true,0.05).

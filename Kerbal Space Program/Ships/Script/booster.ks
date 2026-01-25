@@ -1073,7 +1073,7 @@ if bodyexists("Earth") {
         set CorrFactor to 0.7.
         set PIDFactor to 16.
         set CatchVS to -0.5.
-        set FinalDeceleration to 7.2.
+        set FinalDeceleration to 10.2.
     }
     else {
         set KSRSS to true.
@@ -2574,8 +2574,8 @@ function Boostback {
         CheckFuel().
         wait 0.05.
     }
-    set steeringManager:pitchpid:kd to 0.12.
-    set steeringManager:yawpid:kd to 0.14.
+    set steeringManager:pitchpid:kd to 0.12*Scale.
+    set steeringManager:yawpid:kd to 0.14*Scale.
     set maxRoll to 6.
 
 
@@ -2639,8 +2639,11 @@ function Boostback {
         }
     }
     
-    when RadarAlt < LandingBurnAlt * 1.25 then 
+    when RadarAlt < LandingBurnAlt * 1.25 then {
         set LngCtrlPID:setpoint to LngCtrlPID:setpoint+(LandingBurnAlt/(950*Scale))^2.
+        set steeringManager:pitchpid:kd to 0.4.
+        set steeringManager:yawpid:kd to 0.4.
+    }
 
     when RadarAlt < LandingBurnAlt * 1.15 then {
         if dbactive {
@@ -2688,7 +2691,7 @@ function Boostback {
         set LandSomewhereElse to true.
     } 
 
-    set tgtErrorPID to pidLoop(0.044, 0.00014, 0.07/(Scale), -10, 10).
+    set tgtErrorPID to pidLoop(0.044*(Scale^0.7), 0.00014*(Scale^0.5), 0.07/(Scale), -10, 10).
 
     if not BoosterSingleEngines {
         until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Center Three" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_Core" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Core" {
@@ -3129,7 +3132,7 @@ function Boostback {
     if BoosterType:contains("Block3") lock steering to lookDirUp(up:vector, -RollVector).
     else lock steering to lookDirUp(up:vector, RollVector).
     set throttleTime to time:seconds.
-    set startThrottle to throttle.
+    set startThrottle to max(minDecel,throttle).
     clearScreen.
     print ship:control:pilotmainthrottle.
     if not RSS lock throttle to max(startThrottle - (time:seconds-throttleTime)/4,0.4).
@@ -3139,7 +3142,7 @@ function Boostback {
         if not RSS lock throttle to 0.4 - (time:seconds-throttleTime)/4.
         else lock throttle to 0.2 - (time:seconds-throttleTime)/6.
     }
-    until (ship:control:pilotmainthrottle < 0.2 and vAng(up:vector,facing:forevector) < 0.6 and angularVel:mag < 0.01 and verticalSpeed > -0.5) or vAng(up:vector, facing:forevector) > 42 or (ship:control:pilotmainthrottle < 0.04 and verticalSpeed > -0.5) {
+    until (ship:control:pilotmainthrottle < 0.2 and vAng(up:vector,facing:forevector) < 0.6 and angularVel:mag < 0.01 and verticalSpeed > -0.5) or vAng(up:vector, facing:forevector) > 42 or (angularVel:mag < 0.03 and ship:control:pilotmainthrottle < 0.04 and verticalSpeed > -0.5) {
         clearScreen.
         print ship:control:pilotmainthrottle.
         print angularVel:mag.
@@ -3565,7 +3568,7 @@ function LandingGuidance {
     set CatchPos to landingzone:position + MZHeight*up:vector + TheTowerHeadingVector * angleAxis(ApproachAngle/2, up:vector) - TheTowerHeadingVector.
     if verticalSpeed < 0 set vSpeed to -verticalSpeed.
     else set vSpeed to max(verticalSpeed,0.001).
-    set PredictGSVec to GSVec:normalized*max(0,GSVec:mag-1)^1.3 + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*ActiveRC/10.
+    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*ActiveRC/(Scale*10).
     set gsTime to max(PositionError:mag,2)*2/max(PredictGSVec:mag,0.01).
     set vertTime to RadarAlt*2/vSpeed.
     set speedRatio to vSpeed/max(0.1,PredictGSVec:mag).
@@ -3582,7 +3585,7 @@ function LandingGuidance {
     if addons:tr:hasimpact and RadarAlt > 3*Scale set myFuturePos to addons:tr:impactpos:position + MZHeight*(CatchPins-addons:tr:impactpos:position + velocity:surface/9.81):normalized*1/cos(vAng((CatchPins-addons:tr:impactpos:position + velocity:surface/9.81), up:vector)).
     else set myFuturePos to CatchPos.
     set TargetError to CatchPos - myFuturePos - TVCDamp.
-    set TgtErrorVector to ErrorVector * min(max(0.1, (RadarRatio-2.5)/4), 0.6) - TargetError * min(max(0.3, 1.5/(RadarRatio-1.75)), 0.9).
+    set TgtErrorVector to ErrorVector * min(max(0.1, (RadarRatio-2.5)/4), 0.2) - TargetError * min(max(0.4, 1.5/(RadarRatio-1.75)), 0.9).
 
     // === Guidance ===
     set angleTgtError to vAng(TargetError, PositionError). 
@@ -3604,14 +3607,14 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
     set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-7)*20/max(airspeed-150,20))/31.
-    if RadarRatio < 0.6 set lateBrake to min(0.15/max(0.05,RadarRatio),2)*0.1/Scale.
+    if RadarRatio < 0.6 and RadarRatio > 0.13 set lateBrake to min(0.18/max(0.05,RadarRatio),2)*0.1/Scale.
     else set lateBrake to 0.
     if not MiddleEnginesShutdown set OnStreamFactor to 0.2.
     else set OnStreamFactor to 1.
 
     // === Final Vector ===
     set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.36) * OnStreamFactor  - GSVec * lateBrake
-        + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp + HighAngleVec * haVstrength.
+        + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp + HighAngleVec * haVstrength/Scale.
 
     // === Case wrong Thrust dir ===
     if vAng(FinalVec,facing:forevector) < 4 and TgtErrorVector:mag > BoosterHeight/Scale and MiddleEnginesShutdown {
