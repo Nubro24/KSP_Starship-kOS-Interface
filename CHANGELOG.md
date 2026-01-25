@@ -31,6 +31,13 @@
   - Added Block 3 Booster Engine Diagram
 - multiple Bug-/Errorfixes
 
+***Dev Update:***
+- Changed Time Label during Reentry
+- **Fixed Catch for both Stages** (RSS untested)
+- Fixed Booster Fuel  for Landing Burn with Cluster
+- Changed Boostback Ignition Timing
+->Ship Catch needs a tiny bit of fine tuning regarding neglation of swinging after catch and thrust vector flickering during landing burn
+
 # V3.5.2 (2025-06-25) - release skipped
 - **Ascent Changes**:
   - Improved Ascent Profile

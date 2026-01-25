@@ -7190,7 +7190,7 @@ set landbutton:ontoggle to {
                                             if not VentRateSet {
                                                 set fuelVal1 to LFShip.
                                                 set stTime to time:seconds.
-                                                when stTime + 1 < time:seconds then {set fuelVal2 to LFShip. set VentRate to fuelVal1-fuelVal2.}
+                                                when stTime + 1 < time:seconds then {set fuelVal2 to LFShip. set VentRate to (fuelVal1-fuelVal2)/(time:seconds-stTime).}
                                                 set VentRateSet to true.
                                             }
                                             if ship:body:atm:sealevelpressure > 0.5 {
@@ -13620,19 +13620,19 @@ function LandingThrottle {
 
     if ship:body:atm:sealevelpressure > 0.5 {
         set calcThr to max(max(min((landingRatio * (DesiredDecel + Planet1G)) / maxDecel, maxG * Planet1G / maxDecel), minDecel), ThrottleMin).
-        if verticalSpeed < 0 return calcThr * min((-verticalSpeed/12)^0.8,1).
+        if verticalSpeed < 0 {}
         else return calcThr * min((verticalSpeed/12)^0.8,1).
     }
     else {
         if not (CancelVelocityHasFinished) {
             set calcThr to max(CancelDist / (vxcl(up:vector, ship:position - landingzone:position):mag - 200) * CancelDist / (vxcl(up:vector, ship:position - landingzone:position):mag - 200) * 0.825 * maxDecel / maxDecel, ThrottleMin).
-            return calcThr * min((-verticalSpeed/12)^0.8,1).
         }
         else {
             set calcThr to  max(max(min((landingRatio * (DesiredDecel + Planet1G)) / maxDecel, maxG * Planet1G / maxDecel), minDecel), 0.5 * ThrottleMin).
-            return calcThr * min((-verticalSpeed/12)^0.8,1).
         }
     }
+    if airspeed < 55 and airspeed > 40 set calcThr to calcThr + 0.01*(55-airspeed).
+    return calcThr * min((-verticalSpeed/12)^0.8,1).
 }
 
 
