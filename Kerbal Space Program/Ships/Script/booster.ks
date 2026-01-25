@@ -1166,7 +1166,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 3100.
+        set LFBoosterFuelCutOff to 2696.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
@@ -1174,9 +1174,9 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1200. 
-        else set BoosterGlideDistance to 1300. //1100
+        else set BoosterGlideDistance to 1220. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.23.
         set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
         set LngCtrlPID:setpoint to 50. //50
@@ -1196,6 +1196,14 @@ else {
     }
 }
 
+for res in bCH4Tank:resources {
+    if res:name = "LqdMethane" {
+        set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 5.310536.
+    }
+}
+
+if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.15.
+
 if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.06.
 if BoosterType:contains("Block3") {
     set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
@@ -1204,8 +1212,9 @@ if BoosterType:contains("Block3") {
 }
 if FNBBooster {
     set BoosterGlideDistance to BoosterGlideDistance * 1.25.
-    set BoosterGlideFactor to BoosterGlideFactor * 0.9.
-}
+    set BoosterGlideFactor to BoosterGlideFactor * 0.85.
+} 
+if FNBBooster and not BoosterType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 0.9.
 
 set RadarAltOffset to BoosterHeight.
 lock RadarAlt to alt:radar - RadarAltOffset.
@@ -1247,13 +1256,8 @@ else set landingzone to ship:geoposition.
 
 set TgtLandingzone to landingzone.
 
-for res in bCH4Tank:resources {
-    if res:name = "LqdMethane" {
-        set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 5.310536.
-    }
-}
 
-SetGridFinAuthority(32).
+SetGridFinAuthority(36).
 DeactivateGridFins().
 
 if exists("0:/BoosterFlightData.csv") {
@@ -1303,13 +1307,18 @@ on ag5 {
 
 if BoosterSingleEngines {
     for gimbalEng in BoosterSingleEnginesRC {
-        if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 55).
+        if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 60).
     }
 }
-else {
+else if FNBBooster {
     if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 55).
     MidGimbMod:SetField("gimbal limit", 55).
     CtrGimbMod:SetField("gimbal limit", 55).
+}
+else {
+    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 80).
+    MidGimbMod:SetField("gimbal limit", 80).
+    CtrGimbMod:SetField("gimbal limit", 85).
 }
 set MaxQ to false.
 set Hotstaging to false.
@@ -2643,7 +2652,7 @@ function Boostback {
         else set ApproachAngle to 0.
 
         if BoosterType:contains("Block3") lock SteeringVector to lookdirup(-0.44 * velocity:surface * max(1,airspeed/340) + up:vector * max(1,airspeed/12), -ApproachVector).
-        else lock SteeringVector to lookdirup(-0.44 * velocity:surface * max(1,airspeed/340) + up:vector * max(1,airspeed/12), ApproachVector).
+        else lock SteeringVector to lookdirup(-0.47 * velocity:surface * max(1,airspeed/300) + up:vector * max(1,airspeed/12), ApproachVector).
         lock steering to SteeringVector.
     }
 
@@ -3585,10 +3594,10 @@ function LandingGuidance {
     if landDistance > BoosterHeight or RadarAlt > BoosterHeight*0.7 set PrVec to (CatchPins - CatchPos):normalized * landDistance/3 + up:vector * landDistance/9.
     else set PrVec to BoosterHeight*up:vector - GSVec*0.1.
 
-    set fwdErrorVec to vxcl(vCrs(up:vector, -PositionError), -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * predictValue/6 * min(max(-0.5,340-airspeed/40),1)).
+    set fwdErrorVec to vxcl(vCrs(up:vector, -PositionError), -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/6 * min(max(-0.5,340-airspeed/40),1)).
     set sideErrorVec to vxcl(-PositionError, -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/6 * min(max(-0.5,340-airspeed/40),1)).
 
-    set GuidVec to PrVec + fwdErrorVec + sideErrorVec + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
+    set GuidVec to PrVec + fwdErrorVec + sideErrorVec * min(1,RadarRatio/3) * min(1,(sideErrorVec:mag/(3*Scale))^2) + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
     if cAbort and airspeed < 69 set GuidVec to 4*up:vector - velocity:surface:normalized.
 
     // === TVC compensation ===
@@ -3647,8 +3656,10 @@ function LandingGuidance {
 
     // === Debug Draw ===
     //set tgtError to vecDraw(CatchPos, -TargetError, white, "TgtError", 1, true, 0.1).
-    //set TestVec to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, PredictGSVec:normalized*predictValue*20/max(airspeed-280,20)*min(1,max(RadarRatio-0.24/2,0.1))*min(1,max(GSVec:mag,2)/7*Scale), red, "Test", 1, true, 0.2).
-    //set Test2Vec to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, PrVec-TgtErrorVector*20/max(airspeed-280,16)+TargetError*predictValue/6, blue, "Test2", 1, true, 0.2).
+    //set TestVec to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, fwdErrorVec, red, "Test", 1, true, 0.2).
+    //set TestVec2 to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, sideErrorVec, magenta, "Test", 1, true, 0.2). 
+    //set TestVec3 to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, PrVec, green, "Test", 1, true, 0.2).
+    //set Test2Vec to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale), blue, "Test2", 1, true, 0.2).
     //set drawGuid to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, GuidVec, grey, "Guid", 1, true, 0.2).
     //set drawFin to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, FinalVec, white, "Final", 24, true, 0.008).
     print round(gsTime,3)+ " _ " +round(vertTime,3)+ " - " +round(closureRatio,3)+ " / " +round(RadarRatio,2). 
@@ -4106,17 +4117,17 @@ function CheckFuel {
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set OxBooster to res:amount.
                 set OxBoosterCap to res:capacity.
-                if LFBoosterFuelCutOff/LFBoosterCap > OxBooster/OxBoosterCap DumpVents[0]:doaction("shutdown engine", true).
+                if (LFBoosterFuelCutOff/LFBoosterCap)+0.006 > OxBooster/OxBoosterCap DumpVents[0]:doaction("shutdown engine", true).
             }
         }
         for res in BoosterCore:resources {
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set OxBooster to res:amount.
                 set OxBoosterCap to res:capacity.
-                if LFBoosterFuelCutOff/LFBoosterCap > OxBooster/OxBoosterCap DumpVents[0]:doaction("shutdown engine", true).
+                if (LFBoosterFuelCutOff/LFBoosterCap)+0.006 > OxBooster/OxBoosterCap DumpVents[0]:doaction("shutdown engine", true).
             }
         }
-        for res in FWD:resources {
+        if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 for res in FWD:resources {
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
                 set boosterCH4 to boosterCH4 + res:amount.
                 set boosterCH4Cap to boosterCH4Cap + res:capacity.

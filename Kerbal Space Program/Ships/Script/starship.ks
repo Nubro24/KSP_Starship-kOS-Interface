@@ -8623,8 +8623,10 @@ function Launch {
             unlock bLiftOffThrust.
             if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:shutdown.
             wait 0.01.
-            set SteeringManager:rollts to 5.   //if BoosterSingleEngines 
-            set steeringManager:rolltorquefactor to 2.   //if BoosterSingleEngines 
+            if BoosterSingleEngines set SteeringManager:rollts to 5.
+            else set SteeringManager:rollts to 4.
+            if BoosterSingleEngines set steeringManager:rolltorquefactor to 2. 
+            else set steeringManager:rolltorquefactor to 4.  
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
                 InhibitButtons(1, 1, 1).
@@ -8730,7 +8732,8 @@ function Launch {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
                 set steeringManager:yawtorquefactor to 0.15*Scale.
-                set steeringManager:rolltorquefactor to 3.8*Scale.
+                if BoosterSingleEngines set steeringManager:rolltorquefactor to 3.9*Scale. 
+                else set steeringManager:rolltorquefactor to 8.4*Scale.  
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
@@ -12066,7 +12069,7 @@ function LandwithoutAtmoSteering {
 function LandwithoutAtmoLabels {
     if CancelVelocityHasStarted {
         if RadarAlt > SafeAltOverLZ {
-            set message1:text to "<b>Remaining Flight Time:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT).
+            set message1:text to "<b>Time to Landing Burn:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT).
         }
         else {
             set message1:text to "<b>Radar Altimeter:</b>                " + round(RadarAlt) + "m".
@@ -12159,7 +12162,7 @@ function ReEntryAndLand {
     if addons:tr:hasimpact {
         SteeringManager:RESETTODEFAULT().
         set ProgramStartTime to time:seconds.
-        if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {set aoa to aoa. set LandingAoA to LandingAoA*0.99.}
+        if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {set aoa to aoa.}
         if not ShipType:contains("Block1") set aoa to 62.
         set LandButtonIsRunning to true.
         if fullAuto or HideGUI g:hide().
@@ -13093,18 +13096,18 @@ function ReEntryData {
     if not ClosingIsRunning {
         if FindNewTarget and addons:tr:hasimpact {
             if Slope < 2.5 {
-                set message1:text to "<b>Remaining Flight Time:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT) + "     <color=green><b>Slope:  </b>" + round(Slope, 1) + "°</color>".
+                set message1:text to "<b>Time to Landing Burn:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT) + "     <color=green><b>Slope:  </b>" + round(Slope, 1) + "°</color>".
             }
             else if Slope > 2.5 and Slope < 5 {
-                set message1:text to "<b>Remaining Flight Time:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT) + "     <color=yellow><b>Slope:  </b>" + round(Slope, 1) + "°</color>".
+                set message1:text to "<b>Time to Landing Burn:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT) + "     <color=yellow><b>Slope:  </b>" + round(Slope, 1) + "°</color>".
             }
             else {
-                set message1:text to "<b>Remaining Flight Time:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT) + "     <color=red><b>Slope:  </b>" + round(Slope, 1) + "°</color>".
+                set message1:text to "<b>Time to Landing Burn:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT) + "     <color=red><b>Slope:  </b>" + round(Slope, 1) + "°</color>".
             }
         }
         else if addons:tr:hasimpact {
             if ADDONS:TR:TIMETILLIMPACT > 15 {
-                set message1:text to "<b>Remaining Flight Time:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT).
+                set message1:text to "<b>Time to Landing Burn:</b>  " + timeSpanCalculator(ADDONS:TR:TIMETILLIMPACT).
             }
             else {
                 set message1:text to "<b>Radar / Flip Altitude:</b>        " + round(RadarAlt) + "m / " + round(FlipAltitude) + "m".
@@ -13178,11 +13181,16 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
-            set closingPID to pidLoop(0.008*(Scale), 0.002*(Scale^0.8), 0.006*(Scale^0.8),-3,3).
-            set cancelPID to pidLoop(0.14, 0.002, 0.04,-3,3).
+            set closingPID to pidLoop(0.16, 0.004, 0.14,-5,5).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
+            set LndGuidVec to facing:forevector.
+            set TgtErrStrDiv to 1.
+
+            set steeringManager:pitchpid:kd to 0.6.
+            set steeringManager:yawpid:kd to 0.62.
+            set steeringManager:rollpid:kd to 0.55.
 
             if abs(LngLatErrorList[0]) > 100*Scale or abs(LngLatErrorList[1]) > 30*Scale when addons:tr:hasimpact then {
                 set landingzone to ship:body:geopositionof(addons:tr:IMPACTPOS:position + facing:forevector:normalized*ShipHeight).
@@ -13206,7 +13214,7 @@ function ReEntryData {
             }
             set ThrottleMin to 0.38.
             if STOCK {
-                set FlipAngleFactor to 0.69.
+                set FlipAngleFactor to 0.72.
                 set CatchVS to -0.4.
             }
             else if KSRSS {
@@ -13227,7 +13235,6 @@ function ReEntryData {
                 lock throttle to 0.32*Scale + throttleOffset.
             }
 
-            set landingzone to latlng(landingzone:lat, landingzone:lng - 0.0001).
             addons:tr:settarget(landingzone).
             SetRadarAltitude().
 
@@ -13361,6 +13368,8 @@ function ReEntryData {
                         //ADDONS:TR:SETTARGET(landingzone).
                         when groundspeed < 3*Scale then {
                             HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
+                            set steeringManager:pitchpid:ki to 0.1.
+                            set steeringManager:pitchpid:kd to 0.4.
                             if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.4*ShipHeight {
                                 set LandSomewhereElse to true.
                                 set cAbort to true.
@@ -13383,8 +13392,8 @@ function ReEntryData {
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
                     if (ShipType:contains("Block2") or ShipType:contains("Block3")) and not AFTONLY {
-                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 9.9.
-                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 12.9.
+                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.1.
+                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 12.3.
                     }
                     else if ShipSubType:contains("Block2") and not AFTONLY {
                         if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 8.4.
@@ -13582,7 +13591,7 @@ function ClosingSpeed {
 
 
 function LandingThrottle {
-    set minDecel to max(min((Planet1G - 1.2) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/cos(vang(-velocity:surface, up:vector))),0.6), 0.2) - 0.03.
+    set minDecel to max(min((Planet1G - 0.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/max(min(1,0.5*5/(-verticalSpeed)),cos(vang(-velocity:surface, up:vector)))),0.6), 0.2) - 0.01.
     if verticalSpeed < 3*CatchVS and Hover {
         set Hover to false.
     }
@@ -13705,31 +13714,29 @@ function LandingVector {
                     else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
-                    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)/10.
-                    if not twoSL set PredictGSVec to PredictGSVec + vxcl(up:vector, facing:topvector)*2.4.
-                    set TargetPos to ((landingzone:position + MZHeight*up:vector) + vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - ship:position):normalized * 1.8*Scale).
+                    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)/5.
+                    if not twoSL set PredictGSVec to PredictGSVec - vxcl(up:vector, facing:topvector)*5.
+                    set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 1.2*Scale).
                     set TgtErrorVector to TargetPos - myFuturePos + PredictGSVec.
-                    set closingPID:kd to 0.042*(Scale^0.7) * TgtErrorVector:mag/(4*Scale).
-                    set cancelPID:kp to 0.14 * max(1,2/max(0.7,RadarRatio)).
-                    
-                    if vAng(GSVec,TgtErrorVector) < 90 set tgtError to -TgtErrorVector:mag.
+
+                    if vAng(GSVec,TgtErrorVector) > 90 set tgtError to -TgtErrorVector:mag.
                     else set tgtError to TgtErrorVector:mag.
-                    set TgtErrorStrength to (closingPID:update(time:seconds, tgtError) * max(0.5,2/max(1,GSVec:mag)) * min(TgtErrorVector:mag/(3*Scale),1)+TgtErrorStrength)/2.
-                    set gsError to -tgtError/abs(tgtError) * GSVec:mag.
-                    if RadarRatio > 1.5 set VelCancel to cancelPID:update(time:seconds, gsError)*0.6.
-                    else set VelCancel to -GSVec:mag*0.5.
-                    if vang(TgtErrorVector,vxcl(up:vector, facing:topvector)) < 80 and TgtErrorVector:mag > 1*Scale {
-                        set TgtErrorStrength to TgtErrorStrength*2.
-                    }
+                    set TgtErrorStrength to min(5,(closingPID:update(time:seconds, tgtError)*max(0.5,2/max(1,GSVec:mag^0.8)*min(TgtErrorVector:mag/(3*Scale),1)) + TgtErrorStrength/TgtErrStrDiv)/2).
+                    if vang(TgtErrorVector,TowerHeadingVector*angleAxis(8.5,up:vector)) < 90 {
+                        set TgtErrorStrength to TgtErrorStrength*1.
+                        set TgtErrStrDiv to 1.
+                    } else 
+                        set TgtErrStrDiv to 1.
 
-                    set LndGuidVec to up:vector * ShipHeight*0.65/min(max(0.2,RadarRatio^0.7), 1) - TgtErrorVector:normalized * TgtErrorStrength + GSVec:normalized * VelCancel + TgtErrorVector * 0.16 - GSVec * 0.1 * ((1/max(0.25,RadarRatio))^1.2) + vxcl(up:vector, landingzone:position - ship:position)*0.1.
-                    set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (5*Scale)/max(0.3,TgtErrorVector:mag).
-                    set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
+                    set LastGuidVec to LndGuidVec.
+                    set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) + TgtErrorVector:normalized * abs(TgtErrorStrength) - GSVec:normalized * TgtErrorStrength - GSVec * 0.1 * ((2.4/max(0.18,RadarRatio^1.5))).
+                    set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (4*Scale)/max(0.3,TgtErrorVector:mag).
+                    set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag + LastGuidVec.
 
-                    //set v2 to vecDraw(HeaderTank:position, -TgtErrorVector:normalized * TgtErrorStrength, blue, "2",2,true,0.05).
-                    //set v3 to vecDraw(HeaderTank:position, GSVec:normalized * VelCancel, red, "3",2,true,0.05).
+                    //set v2 to vecDraw(HeaderTank:position, TgtErrorVector:normalized * abs(TgtErrorStrength), blue, "2",2,true,0.05).
+                    //set v3 to vecDraw(HeaderTank:position, -GSVec:normalized * TgtErrorStrength, red, "3",2,true,0.05).
                     //set v1 to vecDraw(HeaderTank:position, LndGuidVec, green, "1",2,true,0.05).
-                    //set vT to vecDraw(myFuturePos, TgtErrorVector, yellow, "T",1,true,0.1).
+                    //set vT to vecDraw(TargetPos, -TgtErrorVector, yellow, "T",1,true,0.1).
                     //set vF to vecDraw(HeaderTank:position, result, white, "F",20,true,0.02).
                 }
 
