@@ -13377,7 +13377,7 @@ function ReEntryData {
                         //ADDONS:TR:SETTARGET(landingzone).
                         when groundspeed < 3*Scale then {
                             HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
-                            set steeringManager:pitchpid:kp to 1.25.
+                            set steeringManager:pitchpid:kp to 1.4.
                             set steeringManager:pitchpid:ki to 0.24.
                             set steeringManager:pitchpid:kd to 0.38.
                             if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.4*ShipHeight {

@@ -5,7 +5,7 @@
 - **Improved Reentry Guidance for Ship**
 - **Added Support for SEP 25 Ships (Block 2)**
 - Added Support for a Booster with 3 Gridfins (V3 Layout)
-- Added Support for Questin's Block 1&3 Booster & Raptor 3 Engines
+- Added Support for Flip'N'Burn
   - Added 13-5-3 Landing Burn Configuration
 - Added Support for flights without HSR
 - Added Support for Testflight

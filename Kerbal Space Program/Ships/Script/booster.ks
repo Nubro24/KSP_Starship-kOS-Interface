@@ -3415,6 +3415,12 @@ FUNCTION SteeringCorrections {
                 set landingRatio to max(0, TotalstopDist / (RadarAlt - 1)).
                 set LngCtrlPID:setpoint to 0.
             }
+            else if RadarRatio > 1 and not RSS {
+                set TotalstopTime to (airspeed-17) / min(maxDecel3, FinalDeceleration).
+                set TotalstopDist to ((airspeed+17) / 2) * TotalstopTime.
+                set landingRatio to max(0, TotalstopDist / (RadarAlt - 0.24)).
+                set LngCtrlPID:setpoint to 0.
+            }
             else {
                 set TotalstopTime to airspeed / min(maxDecel3, FinalDeceleration).
                 set TotalstopDist to (abs(verticalSpeed) / 2) * TotalstopTime.
