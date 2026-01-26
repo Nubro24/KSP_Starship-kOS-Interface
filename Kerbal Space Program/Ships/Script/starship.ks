@@ -13189,7 +13189,7 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
-            set closingPID to pidLoop(0.16, 0.004, 0.14,-5,5).
+            set closingPID to pidLoop(0.16, 0.004, 0.2,-5,5).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.

@@ -1174,7 +1174,7 @@ else {
         if oldBooster set BoosterGlideDistance to 1200. 
         else set BoosterGlideDistance to 1220. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.23.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
         set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
         set LngCtrlPID:setpoint to 50. //50
