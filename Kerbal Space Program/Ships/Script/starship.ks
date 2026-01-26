@@ -8052,11 +8052,12 @@ else if not startup {
 }
 
 
-if Boosterconnected {
+if Boosterconnected or RadarAlt > 100 or airspeed > 2 {
     sStaticFire:hide().
     sHAFT:hide().
     sHAFTAp:hide().
-} else {
+} 
+if not Boosterconnected {
     bStaticFire:hide().
 }
 
@@ -13373,8 +13374,9 @@ function ReEntryData {
                         //ADDONS:TR:SETTARGET(landingzone).
                         when groundspeed < 3*Scale then {
                             HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
-                            set steeringManager:pitchpid:ki to 0.1.
-                            set steeringManager:pitchpid:kd to 0.4.
+                            set steeringManager:pitchpid:kp to 1.4.
+                            set steeringManager:pitchpid:ki to 0.2.
+                            set steeringManager:pitchpid:kd to 0.5.
                             if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.4*ShipHeight {
                                 set LandSomewhereElse to true.
                                 set cAbort to true.
@@ -13725,13 +13727,14 @@ function LandingVector {
                     else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
-                    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)/5.
+                    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)*ActiveRC/(Scale*8).
                     set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 1.2*Scale).
                     set PositionCorrection to vxcl(up:vector, TargetPos - Nose:position).
                     if not twoSL {
                         set PredictErrVec to TargetPos - myFuturePos.
-                        set GoDownFactor to 4 * vAng(facing:topvector, PredictErrVec)/90.
-                        set PredictGSVec to PredictGSVec - vxcl(up:vector, facing:topvector)*4.
+                        set GoDownFactor to 4 * vAng(vxcl(up:vector, facing:topvector), PredictErrVec)/90.
+                        if PredictErrVec:mag < 1*Scale set GoDownFactor to 6.
+                        set PredictGSVec to PredictGSVec - vxcl(up:vector, facing:topvector)*GoDownFactor.
                     }
                     set TgtErrorVector to TargetPos - myFuturePos + PredictGSVec.
 
@@ -13747,16 +13750,16 @@ function LandingVector {
                     set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) 
                         //+ PositionCorrection * min(RadarRatio, 0.75) * 0.5 * min(max(0, 3/RadarRatio), 1)
                         + TgtErrorVector:normalized * abs(TgtErrorStrength) * min(1,RadarRatio+0.5) 
-                        - GSVec:normalized * TgtErrorStrength * min(1,RadarRatio+0.25) 
+                        - GSVec:normalized * TgtErrorStrength * min(1,RadarRatio+0.25) * min(1,GSVec:mag/2)
                         - GSVec * 0.2 * ((2/max(0.16,RadarRatio^1.4))).
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (4*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
-                    //set v2 to vecDraw(HeaderTank:position, TgtErrorVector:normalized * abs(TgtErrorStrength), blue, "2",2,true,0.05).
-                    //set v3 to vecDraw(HeaderTank:position, -GSVec:normalized * TgtErrorStrength, red, "3",2,true,0.05).
-                    //set v1 to vecDraw(HeaderTank:position, LndGuidVec, green, "1",2,true,0.05).
-                    //set vT to vecDraw(TargetPos, -TgtErrorVector, yellow, "T",1,true,0.1).
-                    //set vF to vecDraw(HeaderTank:position, result, white, "F",20,true,0.02).
+                    set v2 to vecDraw(HeaderTank:position, TgtErrorVector:normalized * abs(TgtErrorStrength), blue, "2",2,true,0.05).
+                    set v3 to vecDraw(HeaderTank:position, -GSVec:normalized * TgtErrorStrength, red, "3",2,true,0.05).
+                    set v1 to vecDraw(HeaderTank:position, LndGuidVec, green, "1",2,true,0.05).
+                    set vT to vecDraw(TargetPos, -TgtErrorVector, yellow, "T",1,true,0.1).
+                    set vF to vecDraw(HeaderTank:position, result, white, "F",20,true,0.02).
                 }
 
                 if ship:body:atm:sealevelpressure < 0.5 {
