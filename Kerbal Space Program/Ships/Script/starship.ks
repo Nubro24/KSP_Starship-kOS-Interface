@@ -13189,7 +13189,7 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
-            set closingPID to pidLoop(0.16, 0.004, 0.2,-5,5).
+            set closingPID to pidLoop(0.16, 0.004, 0.16,-5,5).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
@@ -13656,7 +13656,7 @@ function LandingThrottle {
     }
     if airspeed < 55 and airspeed > 40 set calcThr to calcThr + 0.01*(55-airspeed).
     //if RadarRatio < 0.75 and RadarRatio > 0.24 set calcThr to calcThr + 0.02*(airspeed-5).
-    return calcThr * min((-verticalSpeed/12)^0.8,1).
+    return calcThr * min(abs(-verticalSpeed/12)^0.8,1).
 }
 
 
@@ -13743,7 +13743,7 @@ function LandingVector {
                     set PositionCorrection to vxcl(up:vector, TargetPos - Nose:position).
                     if not twoSL {
                         set PredictErrVec to TargetPos - myFuturePos.
-                        set GoDownFactor to 4 * vAng(vxcl(up:vector, facing:topvector), PredictErrVec)/90.
+                        set GoDownFactor to 4 * min(1,vAng(vxcl(up:vector, facing:topvector), PredictErrVec)/90).
                         if PredictErrVec:mag < 1*Scale set GoDownFactor to 6.
                         set PredictGSVec to PredictGSVec - vxcl(up:vector, facing:topvector)*GoDownFactor.
                     }
