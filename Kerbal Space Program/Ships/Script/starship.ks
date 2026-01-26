@@ -13753,15 +13753,15 @@ function LandingVector {
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to min(5,(closingPID:update(time:seconds, tgtError)*max(0.5,2/max(1,GSVec:mag^0.8)*min(TgtErrorVector:mag/(3*Scale),1)) + TgtErrorStrength/TgtErrStrDiv)/2).
                     if vang(TgtErrorVector,TowerHeadingVector*angleAxis(8.5,up:vector)) < 90 {
-                        set TgtErrorStrength to TgtErrorStrength*1.
-                        set TgtErrStrDiv to 1.
+                        set TgtErrorStrength to TgtErrorStrength*2.
+                        set TgtErrStrDiv to 2.
                     } else 
                         set TgtErrStrDiv to 1.
 
                     set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) 
                         + PositionCorrection * min(RadarRatio, 0.75) * 0.2 * min(max(0, 3/RadarRatio), 1)
                         + TgtErrorVector:normalized * abs(TgtErrorStrength) * min(1,RadarRatio+0.5) 
-                        - GSVec:normalized * TgtErrorStrength * min(1,RadarRatio+0.25) * min(1,GSVec:mag/2)
+                        - GSVec:normalized * TgtErrorStrength/TgtErrStrDiv * min(1,RadarRatio+0.25) * min(1,GSVec:mag/2)
                         - GSVec * 0.2 * ((2/max(0.16,RadarRatio^1.4))).
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (4*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.

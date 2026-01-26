@@ -1190,7 +1190,7 @@ else {
         set CorrFactor to 0.95.
         set PIDFactor to 8.
         set CatchVS to -0.5.
-        set FinalDeceleration to 7.
+        set FinalDeceleration to 6.7.
     }
 }
 
