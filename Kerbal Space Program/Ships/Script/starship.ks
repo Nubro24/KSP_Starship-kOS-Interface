@@ -13757,11 +13757,11 @@ function LandingVector {
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (4*Scale)/max(0.3,TgtErrorVector:mag).
                     set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
 
-                    set v2 to vecDraw(HeaderTank:position, TgtErrorVector:normalized * abs(TgtErrorStrength), blue, "2",2,true,0.05).
-                    set v3 to vecDraw(HeaderTank:position, -GSVec:normalized * TgtErrorStrength, red, "3",2,true,0.05).
-                    set v1 to vecDraw(HeaderTank:position, LndGuidVec, green, "1",2,true,0.05).
-                    set vT to vecDraw(TargetPos, -TgtErrorVector, yellow, "T",1,true,0.1).
-                    set vF to vecDraw(HeaderTank:position, result, white, "F",20,true,0.02).
+                    //set v2 to vecDraw(HeaderTank:position, TgtErrorVector:normalized * abs(TgtErrorStrength), blue, "2",2,true,0.05).
+                    //set v3 to vecDraw(HeaderTank:position, -GSVec:normalized * TgtErrorStrength, red, "3",2,true,0.05).
+                    //set v1 to vecDraw(HeaderTank:position, LndGuidVec, green, "1",2,true,0.05).
+                    //set vT to vecDraw(TargetPos, -TgtErrorVector, yellow, "T",1,true,0.1).
+                    //set vF to vecDraw(HeaderTank:position, result, white, "F",20,true,0.02).
                 }
 
                 if ship:body:atm:sealevelpressure < 0.5 {
