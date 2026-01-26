@@ -43,17 +43,6 @@ for part in ship:parts {
         set bCH4Tank to part.
         set bCMNDome to part.
         set FWD to part.
-        set DumpVents to list().
-        set ModulesFound to false.
-        set x to 0.
-        until x > part:modules:length-1 or ModulesFound {
-            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
-                DumpVents:add(part:getmodulebyindex(x)).
-                set ModulesFound to true.
-                break.
-            }
-            set x to x+1.
-        }
         set oldBooster to true.
         set BTset to true.
     }
@@ -64,69 +53,18 @@ for part in ship:parts {
         set bCH4Tank to part.
         set bCMNDome to part.
         set FWD to part.
-        set DumpVents to list().
-        set ModulesFound to false.
-        set x to 0.
-        until x > part:modules:length-1 or ModulesFound {
-            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
-                DumpVents:add(part:getmodulebyindex(x)).
-                set ModulesFound to true.
-                break.
-            }
-            set x to x+1.
-        }
-        set BTset to true.
-    }
-    if part:name:contains("Block.3.AFT") and not BTset {
-        set BoosterType to "Block3".
-        set BoosterEngines to ship:partsnamed("Block.3.AFT").
-        set BoosterCore to part.
-        set DumpVents to list().
-        set ModulesFound to false.
-        set x to 0.
-        set y to 0.
-        until x > part:modules:length-1 or ModulesFound {
-            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
-                DumpVents:add(part:getmodulebyindex(x)).
-                set y to y+1.
-                if y = 2 {
-                    set ModulesFound to true.
-                    break.
-                }
-            }
-            set x to x+1.
-        }
         set BTset to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERAFT") and not BTset {
         set BoosterType to "Block3".
         set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERAFT").
         set BoosterCore to part.
-        set DumpVents to list().
-        set ModulesFound to false.
-        set x to 0.
-        set y to 0.
-        until x > part:modules:length-1 or ModulesFound {
-            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
-                DumpVents:add(part:getmodulebyindex(x)).
-                set y to y+1.
-                if y = 2 {
-                    set ModulesFound to true.
-                    break.
-                }
-            }
-            set x to x+1.
-        }
         set BTset to true.
     }
-    if part:name:contains("Block.3.CH4") {
-        set bCH4Tank to part.
-    }
-    if part:name:contains("Block.3.LOX") {
-        set bLOXTank to part.
-    }
-    if part:name:contains("Block.3.CMN") {
-        set bCMNDome to part.
+    if part:name:contains("FNB.BL1.BOOSTERLOX") and not BTset {
+        set BoosterType to "Block1".
+        set BoosterCore to part.
+        set BTset to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERCH4") {
         set bCH4Tank to part.
@@ -137,6 +75,16 @@ for part in ship:parts {
     if part:name:contains("FNB.BL3.BOOSTERCMN") {
         set bCMNDome to part.
     }
+    if part:name:contains("FNB.BL1.BOOSTERCH4") {
+        set bCH4Tank to part.
+        set FWD to part.
+    }
+    if part:name:contains("FNB.BL1.BOOSTERLOX") {
+        set bLOXTank to part.
+    }
+    if part:name:contains("FNB.BL1.BOOSTERCMN") {
+        set bCMNDome to part.
+    }
     if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
         set ECset to true.
@@ -145,8 +93,9 @@ for part in ship:parts {
         set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
         set ECset to true.
     }
-    if part:name:contains("Raptor.3Cluster") and not ECset {
-        set BoosterEngines to ship:partsnamed("Raptor.3Cluster").
+    if part:name:contains("FNB.BL1.BOOSTERCLUSTER") and not ECset {
+        set BoosterEngines to ship:partsnamed("FNB.BL1.BOOSTERCLUSTER").
+        set ClusterSet to true.
         set ECset to true.
     }
     if part:name:contains("FNB.R3.CLUSTER") and not ECset {
@@ -163,20 +112,19 @@ for part in ship:parts {
         set GridfinLength to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length.
         set GFset to true.
     }
-    if part:name:contains("Block.3.Fin") and not GFset {
-        set GridfinsType to "Block3".
-        set GridfinLength to ship:partsnamed("Block.3.Fin"):length.
-        set GFset to true.
-    }
     if part:name:contains("FNB.BL3.BOOSTERFIN") and not GFset {
         set GridfinsType to "Block3".
         set GridfinLength to ship:partsnamed("FNB.BL3.BOOSTERFIN"):length.
         set GFset to true.
     }
+    if part:name:contains("FNB.BL1.BOOSTERGRIDFIN") and not GFset {
+        set GridfinsType to "Block1".
+        set GridfinLength to ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length.
+        set GFset to true.
+    }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
         set HSRType to "Block0".
         set HSR to part.
-        set FWD to part.
         set HSset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
@@ -189,12 +137,6 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
-    if part:name:contains("Block.3.FWD") and not HSset {
-        set HSRType to "Block3".
-        set HSR to part.
-        set CrossFeed to part:getmodule("ModuleToggleCrossfeed").
-        set HSset to true.
-    }
     if part:name:contains("FNB.BL3.BOOSTERFWD") {
         set FWD to part.
     }
@@ -203,15 +145,23 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
+    if part:name:contains("FNB.BL1.BOOSTERHSR") and not HSset {
+        set HSRType to "Block1/2".
+        set HSR to part.
+        set HSset to true.
+    }
     if part:name:contains("frostbooster") {
         set Frost to true.
     }
+    if part:name:contains("FNB") and part:name:contains("BOOSTER") {
+        set FNBBooster to true.
+    }
 }
 
+if defined HSR set HSRpartname to HSR:name.
 
 
 if ship:partsnamedpattern("VS.25.BL2"):length > 1 {
-    set RandomFlip to false.
     set ShipType to "Block2".
 }
 else if ship:partsnamed("SEP.24.SHIP.FWD.RIGHT.FLAP"):length > 0 {
@@ -227,7 +177,6 @@ else if ship:partsnamed("FNB.BL3.LOX"):length > 0 {
     set ShipType to "Block3".
 }
 else if ship:partsnamed("SEP.25.SHIP.CORE"):length > 0 {
-    set RandomFlip to false.
     set ShipType to "Block2".
 }
 else set ShipType to "None".
@@ -399,59 +348,58 @@ function CreateTelemetry {
     set bTelemetry:style:padding:v to 0.
     set bTelemetry:style:padding:h to 0.
     set bTelemetry:x to 0.
-    set bTelemetry:y to 0.
-    set bTelemetry:y to -220*TScale.
-    
+    set bTelemetry:y to -200*TScale.
+
     set overflow to 0.
-    set EngBG:style:width to floor(200*TScale).
-    set EngBG:style:height to floor(200*TScale).
-    set EngBG:style:margin:top to ceiling(15*TScale).
+    set EngBG:style:width to floor(180*TScale).
+    set EngBG:style:height to floor(180*TScale).
+    set EngBG:style:margin:top to ceiling(12*TScale).
     set EngBG:style:margin:left to 19*TScale.
-    set EngBG:style:margin:right to ceiling(21*TScale).
+    set EngBG:style:margin:right to ceiling(20*TScale).
     set EngBG:style:overflow:top to overflow.
     set EngBG:style:overflow:bottom to -overflow.
-    set overflow to overflow + floor(215*TScale).
+    set overflow to overflow + floor(192*TScale).
     for engLbl in EngClusterDisplay {
-        set engLbl:style:width to floor(200*TScale).
-        set engLbl:style:height to floor(200*TScale).
-        set engLbl:style:margin:top to ceiling(15*TScale).
+        set engLbl:style:width to floor(180*TScale).
+        set engLbl:style:height to floor(180*TScale).
+        set engLbl:style:margin:top to ceiling(12*TScale).
         set engLbl:style:margin:left to 19*TScale.
-        set engLbl:style:margin:right to ceiling(21*TScale).
+        set engLbl:style:margin:right to ceiling(20*TScale).
         set engLbl:style:overflow:top to overflow.
         set engLbl:style:overflow:bottom to -overflow.
-        set overflow to overflow + floor(215*TScale).
+        set overflow to overflow + floor(192*TScale).
     }
 
     set bSpeed:style:margin:left to 10*TScale.
-    set bSpeed:style:margin:top to 20*TScale.
+    set bSpeed:style:margin:top to 14*TScale.
     set bSpeed:style:width to 296*TScale.
-    set bSpeed:style:fontsize to 30*TScale.
+    set bSpeed:style:fontsize to 28*TScale.
 
     set bAltitude:style:margin:left to 10*TScale.
     set bAltitude:style:margin:top to 2*TScale.
     set bAltitude:style:width to 296*TScale.
-    set bAltitude:style:fontsize to 30*TScale.
+    set bAltitude:style:fontsize to 28*TScale.
 
     set bLOXLabel:style:margin:left to 15*TScale.
     set bLOXLabel:style:margin:top to 10*TScale.
     set bLOXLabel:style:width to 60*TScale.
-    set bLOXLabel:style:fontsize to 20*TScale.
+    set bLOXLabel:style:fontsize to 18*TScale.
 
     set bLOXBorder:style:margin:left to 0*TScale.
-    set bLOXBorder:style:margin:top to 19*TScale.
+    set bLOXBorder:style:margin:top to 18*TScale.
     set bLOXBorder:style:width to 190*TScale.
     set bLOXBorder:style:height to 8*TScale.
-    set bLOXBorder:style:border:h to 4*TScale.
+    set bLOXBorder:style:border:h to 4*(TScale^0.6).
     set bLOXBorder:style:border:v to 0*TScale.
     set bLOXBorder:style:overflow:left to 0*TScale.
     set bLOXBorder:style:overflow:right to 8*TScale.
     set bLOXBorder:style:overflow:bottom to 1*TScale.
 
     set bLOXSlider:style:margin:left to 0*TScale.
-    set bLOXSlider:style:margin:top to 19*TScale.
+    set bLOXSlider:style:margin:top to 18*TScale.
     set bLOXSlider:style:width to 0*TScale.
     set bLOXSlider:style:height to 8*TScale.
-    set bLOXSlider:style:border:h to 4*TScale.
+    set bLOXSlider:style:border:h to 4*(TScale^0.6).
     set bLOXSlider:style:border:v to 0*TScale.
     set bLOXSlider:style:overflow:left to 200*TScale.
     set bLOXSlider:style:overflow:right to 0*TScale.
@@ -459,7 +407,7 @@ function CreateTelemetry {
 
     set bLOXNumber:style:padding:left to 0*TScale.
     set bLOXNumber:style:margin:left to 10*TScale.
-    set bLOXNumber:style:margin:top to 13*TScale.
+    set bLOXNumber:style:margin:top to 12*TScale.
     set bLOXNumber:style:width to 20*TScale.
     set bLOXNumber:style:fontsize to 12*TScale.
     set bLOXNumber:style:overflow:left to 80*TScale.
@@ -469,13 +417,13 @@ function CreateTelemetry {
     set bCH4Label:style:margin:left to 15*TScale.
     set bCH4Label:style:margin:top to 4*TScale.
     set bCH4Label:style:width to 60*TScale.
-    set bCH4Label:style:fontsize to 20*TScale.
+    set bCH4Label:style:fontsize to 18*TScale.
 
     set bCH4Border:style:margin:left to 0*TScale.
     set bCH4Border:style:margin:top to 13*TScale.
     set bCH4Border:style:width to 190*TScale.
     set bCH4Border:style:height to 8*TScale.
-    set bCH4Border:style:border:h to 4*TScale.
+    set bCH4Border:style:border:h to 4*(TScale^0.6).
     set bCH4Border:style:border:v to 0*TScale.
     set bCH4Border:style:overflow:left to 0*TScale.
     set bCH4Border:style:overflow:right to 8*TScale.
@@ -485,7 +433,7 @@ function CreateTelemetry {
     set bCH4Slider:style:margin:top to 13*TScale.
     set bCH4Slider:style:width to 0*TScale.
     set bCH4Slider:style:height to 8*TScale.
-    set bCH4Slider:style:border:h to 4*TScale.
+    set bCH4Slider:style:border:h to 4*(TScale^0.6).
     set bCH4Slider:style:border:v to 0*TScale.
     set bCH4Slider:style:overflow:left to 200*TScale.
     set bCH4Slider:style:overflow:right to 0*TScale.
@@ -502,20 +450,20 @@ function CreateTelemetry {
 
      set bThrust:style:wordwrap to false.
      set bThrust:style:margin:left to 10*TScale.
-     set bThrust:style:margin:top to 15*TScale.
+     set bThrust:style:margin:top to 10*TScale.
      set bThrust:style:width to 150*TScale.
-     set bThrust:style:fontsize to 16*TScale.
+     set bThrust:style:fontsize to 14*TScale.
 
     set bAttitude:style:margin:left to 20*TScale.
     set bAttitude:style:margin:right to 20*TScale.
-    set bAttitude:style:width to 180*TScale.
-    set bAttitude:style:height to 180*TScale.
-    set bAttitude:style:margin:top to 20*TScale.
+    set bAttitude:style:width to 170*TScale.
+    set bAttitude:style:height to 170*TScale.
+    set bAttitude:style:margin:top to 12*TScale.
 
     set missionTimeLabel:style:wordwrap to false.
-    set missionTimeLabel:style:margin:left to 100*TScale.
+    set missionTimeLabel:style:margin:left to 140*TScale.
     set missionTimeLabel:style:margin:right to 160*TScale.
-    set missionTimeLabel:style:margin:top to 80*TScale.
+    set missionTimeLabel:style:margin:top to 60*TScale.
     set missionTimeLabel:style:width to 160*TScale.
     set missionTimeLabel:style:fontsize to 42*TScale.
     set missionTimeLabel:style:align to "center".
@@ -534,7 +482,7 @@ function CreateTelemetry {
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
 
-    set shipBackground:style:width to 726*TScale.
+    set shipBackground:style:width to 944*TScale.
 }
 
 
@@ -647,6 +595,13 @@ until False {
     }
     if NOT CORE:MESSAGES:EMPTY {
         SET RECEIVED TO CORE:MESSAGES:POP.
+        if RECEIVED:CONTENT:contains(",") {
+            set message to RECEIVED:CONTENT:SPLIT(",").
+            set command to message[0].
+            if message:length > 1 {
+                if message:length = 2 set MesParameter to message[1].
+            }
+        }
         IF RECEIVED:CONTENT = "ShipDetected" {
             set ConnectedMessage to true.
         }
@@ -655,6 +610,13 @@ until False {
         }
         else if RECEIVED:CONTENT = "HotStage" {
             set ShipConnectedToBooster to false.
+        } else if command = "ScaleT" {
+            set TScale to MesParameter:toscalar.
+            bTelemetry:hide().
+            CreateTelemetry().
+            wait 0.1.
+            reboot.
+            bTelemetry:show().
         }
         ELSE {
             PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -772,7 +734,7 @@ function GUIupdate {
             }
             if Mode = lastMode set ModeChanged to false. else set ModeChanged to true.
 
-            if Mode = "Center Three" and ModeChanged {
+            if Mode = "Center Three" or Mode = "Core" and ModeChanged {
                 set x to 1.
                 until x > 3 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -782,7 +744,18 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
-            } else if Mode = "Middle Inner" and ModeChanged {
+            } else if Mode = "2Inner" and ModeChanged {
+                set x to 1.
+                until x > 13 {
+                    if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                    else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                    set x to x+1.
+                }
+                until x > 33 {
+                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                    set x to x+1.
+                }
+            } else if Mode = "Middle Inner" or Mode = "Inner" and ModeChanged {
                 set x to 1.
                 until x > 13 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -792,7 +765,7 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                     set x to x+1.
                 }
-            } else if Mode = "All Engines" and ModeChanged {
+            } else if Mode = "All Engines" or Mode = "All" and ModeChanged {
                 set x to 1.
                 until x > 33 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -887,7 +860,7 @@ function GUIupdate {
     } else {
         set bAltitude:text to "<b><size=24>ALTITUDE</size>      </b> " + round(boosterAltitude) + " <size=24>M</size>".
     }
-    set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + min(round(throttle,2)*100,100) + "%".
+    set bThrust:text to "<b>Thrust: </b> " + round(boosterThrust) + " kN" + "          Throttle: " + max(0,min(round(throttle,2)*100,100)) + "%".
 
     set boosterLOX to boosterLOX*100/boosterLOXCap.
     set boosterCH4 to boosterCH4*100/boosterCH4Cap.

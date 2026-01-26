@@ -1434,6 +1434,7 @@ until False {
         set TScale to MesParameter:toscalar.
         CreateTelemetry().
         wait 0.2.
+        reboot.
         bTelemetry:show().
     }
     else if command = "IgnChance" {

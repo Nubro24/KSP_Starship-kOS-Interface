@@ -2662,6 +2662,7 @@ local ScaleConfirm is ScaleLayout:addbutton().
                 }
                 SaveToSettings("TelemetryScale",TScale).
                 wait 0.2.
+                reboot.
                 sTelemetry:show().
             }
         }
@@ -12453,7 +12454,7 @@ function ReEntryAndLand {
                 }
                 when airspeed < 900 then {
                     if not DynamicBanking set trCompensation to trCompensation/1.5.
-                    set PlotAoA to (PlotAoA + aoa)/2.
+                    set PlotAoA to (currentAoA + PlotAoA + aoa)/3.
                 }
                 when airspeed < 600 then {
                     set trCompensation to trCompensation/1.6.
@@ -12686,7 +12687,7 @@ function ReEntrySteering {
         if steeringManager:angleerror > 2 or (airspeed < 124 and alt:radar > 7000) {
             rcs on.
         }
-        else if angularVel:mag < 0.02 {
+        else if angularVel:mag < 0.01 {
             rcs off.
         }
         set currentAoA to round(vAng(facing:forevector, velocity:surface),1).
@@ -12810,7 +12811,7 @@ function ReEntrySteering {
         print "LngLatOffset: " + round(LngLatOffset,1).
         print "DistanceToTarget: " + round(DistanceToTarget,1).
         print " ".
-        print "Angular Velocity: " + round(ship:angularvel:mag,1).
+        print "Angular Velocity: " + round(ship:angularvel:mag,3).
         if DynamicBanking and DBactive {
             print "Tower Rotation: " + TowerHeading.
             if defined bankLAT print "TgtMovLAT: " + bank*bankLAT.
@@ -13376,9 +13377,9 @@ function ReEntryData {
                         //ADDONS:TR:SETTARGET(landingzone).
                         when groundspeed < 3*Scale then {
                             HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
-                            set steeringManager:pitchpid:kp to 1.4.
-                            set steeringManager:pitchpid:ki to 0.2.
-                            set steeringManager:pitchpid:kd to 0.5.
+                            set steeringManager:pitchpid:kp to 1.25.
+                            set steeringManager:pitchpid:ki to 0.24.
+                            set steeringManager:pitchpid:kd to 0.38.
                             if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.4*ShipHeight {
                                 set LandSomewhereElse to true.
                                 set cAbort to true.
@@ -13446,7 +13447,7 @@ function ReEntryData {
                         when RadarAlt < 7 * ShipHeight and RadarAlt > 0.14 * ShipHeight then {
                             set angle to ClosingAngle().
                             set speed to ClosingSpeed().
-                            if updateShipRot + 1 < time:seconds {
+                            if updateShipRot + 0.5 < time:seconds {
                                 set curShipRot to ShipRot.
                                 set updateShipRot to time:seconds.
                             }
@@ -13513,7 +13514,7 @@ function ReEntryData {
             set AngleAbort to false.
             when verticalspeed > CatchVS * 3 and RadarAlt < 12 * Scale and vAng(facing:forevector, up:vector) > 24 then set AngleAbort to true.
 
-            until verticalspeed > CatchVS and RadarAlt < 0.5 * Scale and ship:groundspeed < 2.5*Scale or AngleAbort or ((ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.03) {
+            until verticalspeed > CatchVS and RadarAlt < 0.6 * Scale and ship:groundspeed < 2.5*Scale or AngleAbort or ((ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.03) {
                 SendPing().
                 if config:ipu < 1300 set config:ipu to 1400.
                 if ship:body:atm:sealevelpressure > 0.5 {
@@ -13546,12 +13547,13 @@ function ReEntryData {
             if not (TargetOLM = "False") {
                 wait 0.001.
                 set t to time:seconds.
-                until time:seconds > t + 8 or (ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.01 or RadarAlt < -1 or ShipLanded or AngleAbort {
+                until time:seconds > t + 3 and (verticalSpeed > -0.1 or RadarAlt < 1) or (ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.01 or RadarAlt < -1 or ShipLanded or AngleAbort {
                     SendPing().
                     BackGroundUpdate().
                     print "slowly lowering down ship..".
                     rcs on.
                     if alt:radar < 2 and verticalSpeed > -0.1 set ShipLanded to true.
+                    if time:seconds > t+3.5 set t to time:seconds.
                     wait 0.04.
                 }
                 set LngLatErrorList to LngLatError().
@@ -13606,7 +13608,7 @@ function ClosingSpeed {
 
 
 function LandingThrottle {
-    set minDecel to max(min((Planet1G - 0.5) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/max(min(1,0.5*5/(-verticalSpeed)),cos(vang(-velocity:surface, up:vector)))),0.6), 0.2) - 0.01.
+    set minDecel to max(min((Planet1G - 0.08) / (max(ship:availablethrust, 0.000001) / ship:mass * 1/max(min(1,0.5*5/(-verticalSpeed)),cos(vang(-velocity:surface, up:vector)))),0.6), 0.2) - 0.01.
     if verticalSpeed < 3*CatchVS and Hover {
         set Hover to false.
     }
@@ -13618,16 +13620,22 @@ function LandingThrottle {
         return minDecel.
     }
     set maxDecel to max(ship:availablethrust, 0.000001) / ship:mass - Planet1G.
-    set DesiredDecel to 0.65/Scale * maxDecel.
-    set stopTime to airspeed / DesiredDecel.
-    set stopDist to 0.5 * airspeed * stopTime.
+    if RadarRatio < 1 {
+        set DesiredDecel to 0.53/Scale * maxDecel.
+        set stopTime to airspeed / DesiredDecel.
+        set stopDist to 0.5 * airspeed * stopTime.
+    } else {
+        set DesiredDecel to 0.65/Scale * maxDecel.
+        set stopTime to (airspeed-5) / DesiredDecel.
+        set stopDist to 0.5 * (airspeed+5) * stopTime.
+    }
     
     if (verticalspeed > 5*CatchVS and RadarAlt < 5) or Slow {
         set Slow to true.
         return ((minDecel+2*DesiredDecel)/3)* min((-verticalSpeed/10)^0.8,1).
     }
     if not (TargetOLM = "False") {
-        set landingRatio to stopDist / (RadarAlt - 0.8).
+        set landingRatio to stopDist / (RadarAlt - 0.5*Scale).
     }
     else {
         set landingRatio to stopDist / RadarAlt.
@@ -13647,6 +13655,7 @@ function LandingThrottle {
         }
     }
     if airspeed < 55 and airspeed > 40 set calcThr to calcThr + 0.01*(55-airspeed).
+    //if RadarRatio < 0.75 and RadarRatio > 0.24 set calcThr to calcThr + 0.02*(airspeed-5).
     return calcThr * min((-verticalSpeed/12)^0.8,1).
 }
 
@@ -13730,7 +13739,7 @@ function LandingVector {
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
                     set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)*ActiveRC/(Scale*8).
-                    set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 2*Scale).
+                    set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 2*(Scale^1.2)).
                     set PositionCorrection to vxcl(up:vector, TargetPos - Nose:position).
                     if not twoSL {
                         set PredictErrVec to TargetPos - myFuturePos.
@@ -13750,7 +13759,7 @@ function LandingVector {
                         set TgtErrStrDiv to 1.
 
                     set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) 
-                        //+ PositionCorrection * min(RadarRatio, 0.75) * 0.5 * min(max(0, 3/RadarRatio), 1)
+                        + PositionCorrection * min(RadarRatio, 0.75) * 0.2 * min(max(0, 3/RadarRatio), 1)
                         + TgtErrorVector:normalized * abs(TgtErrorStrength) * min(1,RadarRatio+0.5) 
                         - GSVec:normalized * TgtErrorStrength * min(1,RadarRatio+0.25) * min(1,GSVec:mag/2)
                         - GSVec * 0.2 * ((2/max(0.16,RadarRatio^1.4))).
@@ -14050,10 +14059,10 @@ function LngLatError {
                 if STOCK {
                     if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                         if RadarAlt > 5500 set LngLatOffset to -5.
-                        else set LngLatOffset to 14 - vxcl(up:vector, velocity:surface):mag*0.55.
+                        else set LngLatOffset to 16 - vxcl(up:vector, velocity:surface):mag*0.55.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 5500 set LngLatOffset to -15.
-                        else set LngLatOffset to -5 - vxcl(up:vector, velocity:surface):mag*0.55.
+                        else set LngLatOffset to 0 - vxcl(up:vector, velocity:surface):mag*0.55.
                     } else {
                         if RadarAlt > 5500 set LngLatOffset to -15.
                         else set LngLatOffset to -5 - vxcl(up:vector, velocity:surface):mag*0.55.
@@ -14074,7 +14083,7 @@ function LngLatError {
                 else {
                     if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                         if RadarAlt > 6500 set LngLatOffset to -50.
-                        else set LngLatOffset to -42 - vxcl(up:vector, velocity:surface):mag*0.75.
+                        else set LngLatOffset to -48 - vxcl(up:vector, velocity:surface):mag*0.75.
                     } else if ShipType:contains("Block1"){
                         if RadarAlt > 6500 set LngLatOffset to -64.
                         else set LngLatOffset to -54 - vxcl(up:vector, velocity:surface):mag*0.8.
@@ -16582,7 +16591,7 @@ function GetShipRotation {
 
         if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded and vAng(shipPos-Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,TowerHeadingVector) < 80 {
             set varVec to vxcl(up:vector, shipPos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-            if defined myFuturePos set varVec to vxcl(up:vector, myFuturePos + shipPos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
+            if defined myFuturePos set varVec to vxcl(up:vector, myFuturePos*0.5 + shipPos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
             set varR to vang(varVec, TowerHeadingVector).
             if vAng(vCrs(TowerHeadingVector,up:vector),varVec) < 90 set varR to -varR.
         }

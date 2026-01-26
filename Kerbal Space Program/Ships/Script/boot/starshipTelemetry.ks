@@ -17,6 +17,7 @@ set TScale to 1.
 // 2160p    -   2
 // --> (verticalRes)/1080 = x
 //_________________________________________
+set ScreenRatioH to 1.
 
 
 // if set to true, hides Telemetry on F2
@@ -75,8 +76,14 @@ local VersionDisplay is GUI(100).
         set VersionDisplayLabel:style:align to "center".
         set VersionDisplayLabel:text to Scriptversion.
 VersionDisplay:show().
-local sAttitude is ShipAttitude:addlabel().
-    set sAttitude:style:bg to "starship_img/ship".
+local scalebutton is ShipAttitude:addbutton("").
+    set scalebutton:style:bg to "starship_img/ship".
+    set scalebutton:style:hover:bg to scalebutton:style:normal:bg.
+    set scalebutton:style:hover_on:bg to scalebutton:style:normal:bg.
+    set scalebutton:style:active:bg to scalebutton:style:normal:bg.
+    set scalebutton:style:active_on:bg to scalebutton:style:normal:bg.
+    set scalebutton:style:focused:bg to scalebutton:style:normal:bg.
+    set scalebutton:style:focused_on:bg to scalebutton:style:normal:bg.
 local sSpeed is ShipStatus:addbutton("<b>SPEED  </b>").
     set sSpeed:style:wordwrap to false.
     set sSpeed:style:bg to "".
@@ -122,17 +129,117 @@ local sEngines is ShipRaptors:addlabel().
     set sEngines:style:bg to "starship_img/ship0".
 set sTelemetry:draggable to false.
 
+
+local ScaleUI is GUI(300).
+    set ScaleUI:style:bg to "starship_img/starship_background".
+    set ScaleUI:style:border:h to 10.
+    set ScaleUI:style:border:v to 10.
+    set ScaleUI:style:padding:v to 0.
+    set ScaleUI:style:padding:h to 0.
+    set ScaleUI:x to 240.
+    set ScaleUI:y to 240.
+    set ScaleUI:skin:button:bg to "starship_img/starship_background".
+    set ScaleUI:skin:button:on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:hover:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:hover_on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:active:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:active_on:bg to "starship_img/starship_background_light".
+    set ScaleUI:skin:button:border:v to 10.
+    set ScaleUI:skin:button:border:h to 10.
+    set ScaleUI:skin:button:textcolor to white.
+    set ScaleUI:skin:label:textcolor to white.
+local ScaleLayout is ScaleUI:addvlayout().
+local ScaleQuest is ScaleLayout:addlabel().
+    set ScaleQuest:text to "Enter your Horizontal & Vertical Resolution:".
+    set ScaleQuest:style:margin:top to 12.
+    set ScaleQuest:style:margin:bottom to 6.
+    set ScaleQuest:style:margin:left to 12.
+    set ScaleQuest:style:fontsize to 18.
+local ScaleQuestTT is ScaleLayout:addlabel().
+    set ScaleQuestTT:text to "(f.e. '1920' and '1080' for 1080p-16:9)".
+    set ScaleQuestTT:style:margin:top to 6.
+    set ScaleQuestTT:style:margin:bottom to 6.
+    set ScaleQuestTT:style:margin:left to 12.
+    set ScaleQuestTT:style:fontsize to 12.
+local ScaleSelectH is ScaleLayout:addtextfield().
+    set ScaleSelectH:tooltip to "Horizontal Resolution".
+    set ScaleSelectH:style:margin:bottom to 12.
+    set ScaleSelectH:style:margin:left to 12.
+local ScaleSelectV is ScaleLayout:addtextfield().
+    set ScaleSelectV:tooltip to "Vertical Resolution".
+    set ScaleSelectV:style:margin:bottom to 12.
+    set ScaleSelectV:style:margin:left to 12.
+local ScaleConfirm is ScaleLayout:addbutton().
+    set ScaleConfirm:text to "<b><color=green>Confirm</color></b>".
+set ScaleConfirm:onclick to {
+        sTelemetry:hide().
+        if ScaleSelectH:text = "" or ScaleSelectV:text = "" {
+            set ScaleQuestTT:text to "Please enter both resolutions!".
+            ScaleConfirm:hide().
+            wait 3.
+            ScaleConfirm:show().
+            set ScaleQuestTT:text to "(f.e. '1920' and '1080' for 1080p-16:9)".
+        }
+        else {
+            set Resol to list(1920,1080).
+            set Resol[0] to ScaleSelectH:text:tonumber(-99).
+            set Resol[1] to ScaleSelectV:text:tonumber(-99).
+            if Resol[0] = -99 or Resol[1] = -99 {
+                set ScaleQuestTT:text to "Please enter Numbers only for both resolutions!".
+                ScaleConfirm:hide().
+                wait 3.
+                ScaleConfirm:show().
+                set ScaleQuestTT:text to "(f.e. '1920' and '1080' for 1080p-16:9)".
+            }
+            else {
+                set ScreenRatio to Resol[0]/Resol[1].
+                if ScreenRatio > 16/9 {
+                    set setResol to Resol[1].
+                    set ScaleResol to 1080.
+                }
+                else {
+                    set setResol to Resol[0].
+                    set ScaleResol to 1920.
+                }
+                set TScale to round(setResol/ScaleResol,12).
+                set ScreenRatioH to ScreenRatio*(9/16).
+                CreateTelemetry().
+                if Boosterconnected {
+                    sendMessage(processor(Volume("Booster")),"ScaleT,"+TScale:tostring).
+                    set sTelemetry:style:bg to "".
+                }
+                SaveToSettings("TelemetryScale",TScale).
+                wait 0.2.
+                set scalebutton:pressed to false.
+                ScaleUI:hide().
+                reboot.
+                sTelemetry:show().
+            }
+        }
+        set scalebutton:pressed to false.
+        ScaleUI:hide().
+    }.
+
+
+
+
+
 CreateTelemetry().
 
 function CreateTelemetry {
+    set VersionDisplay:x to 0.
+    set VersionDisplay:y to 36*TScale.
+        set VersionDisplayLabel:style:width to 100*TScale.
+        set VersionDisplayLabel:style:fontsize to 12*TScale.
+
     set sTelemetry:style:border:h to 10*TScale.
     set sTelemetry:style:border:v to 10*TScale.
     set sTelemetry:style:padding:v to 0.
     set sTelemetry:style:padding:h to 0.
     set sTelemetry:x to 0.
-    set sTelemetry:y to -220*TScale.
+    set sTelemetry:y to -200*TScale.
 
-    set bSpace:style:width to 860*TScale.
+    set bSpace:style:width to ScreenRatioH*860*TScale.
 
     set missionTimeLabel:style:margin:left to 0.
     set missionTimeLabel:style:margin:right to 120*TScale.
@@ -147,16 +254,11 @@ function CreateTelemetry {
     set ClockHeader:style:width to 160*TScale.
     set ClockHeader:style:fontsize to 24*TScale.
 
-    set VersionDisplay:x to 0.
-    set VersionDisplay:y to 36*TScale.
-        set VersionDisplayLabel:style:width to 100*TScale.
-        set VersionDisplayLabel:style:fontsize to 12*TScale.
-
-    set sAttitude:style:margin:left to 20*TScale.
-    set sAttitude:style:margin:right to 20*TScale.
-    set sAttitude:style:margin:top to 20*TScale.
-    set sAttitude:style:width to 180*TScale.
-    set sAttitude:style:height to 180*TScale.
+    set scalebutton:style:margin:left to 25*TScale.
+    set scalebutton:style:margin:right to 25*TScale.
+    set scalebutton:style:margin:top to 12*TScale.
+    set scalebutton:style:width to 170*TScale.
+    set scalebutton:style:height to 170*TScale.
 
     set sSpeed:style:margin:left to 43*TScale.
     set sSpeed:style:margin:top to 12*TScale.
@@ -166,28 +268,28 @@ function CreateTelemetry {
     set sAltitude:style:margin:left to 45*TScale.
     set sAltitude:style:margin:top to 2*TScale.
     set sAltitude:style:width to 296*TScale.
-    set sAltitude:style:fontsize to 30*TScale.
+    set sAltitude:style:fontsize to 28*TScale.
 
     set sLOXLabel:style:margin:left to 50*TScale.
-    set sLOXLabel:style:margin:top to 10*TScale.
+    set sLOXLabel:style:margin:top to 8*TScale.
     set sLOXLabel:style:width to 60*TScale.
-    set sLOXLabel:style:fontsize to 20*TScale.
+    set sLOXLabel:style:fontsize to 18*TScale.
 
     set sLOXBorder:style:margin:left to 0*TScale.
-    set sLOXBorder:style:margin:top to 19*TScale.
+    set sLOXBorder:style:margin:top to 18*TScale.
     set sLOXBorder:style:width to 190*TScale.
     set sLOXBorder:style:height to 8*TScale.
-    set sLOXBorder:style:border:h to 4*TScale.
+    set sLOXBorder:style:border:h to 4*(TScale^0.6).
     set sLOXBorder:style:border:v to 0*TScale.
     set sLOXBorder:style:overflow:left to 0*TScale.
     set sLOXBorder:style:overflow:right to 8*TScale.
     set sLOXBorder:style:overflow:bottom to 1*TScale.
 
     set sLOXSlider:style:margin:left to 0*TScale.
-    set sLOXSlider:style:margin:top to 19*TScale.
+    set sLOXSlider:style:margin:top to 18*TScale.
     set sLOXSlider:style:width to 0*TScale.
     set sLOXSlider:style:height to 8*TScale.
-    set sLOXSlider:style:border:h to 4*TScale.
+    set sLOXSlider:style:border:h to 4*(TScale^0.6).
     set sLOXSlider:style:border:v to 0*TScale.
     set sLOXSlider:style:overflow:left to 200*TScale.
     set sLOXSlider:style:overflow:right to 0*TScale.
@@ -195,7 +297,7 @@ function CreateTelemetry {
 
     set sLOXNumber:style:padding:left to 0*TScale.
     set sLOXNumber:style:margin:left to 10*TScale.
-    set sLOXNumber:style:margin:top to 13*TScale.
+    set sLOXNumber:style:margin:top to 12*TScale.
     set sLOXNumber:style:width to 20*TScale.
     set sLOXNumber:style:fontsize to 12*TScale.
     set sLOXNumber:style:overflow:left to 80*TScale.
@@ -205,13 +307,13 @@ function CreateTelemetry {
     set sCH4Label:style:margin:left to 50*TScale.
     set sCH4Label:style:margin:top to 4*TScale.
     set sCH4Label:style:width to 60*TScale.
-    set sCH4Label:style:fontsize to 20*TScale.
+    set sCH4Label:style:fontsize to 18*TScale.
 
     set sCH4Border:style:margin:left to 0*TScale.
     set sCH4Border:style:margin:top to 12*TScale.
     set sCH4Border:style:width to 190*TScale.
     set sCH4Border:style:height to 8*TScale.
-    set sCH4Border:style:border:h to 4*TScale.
+    set sCH4Border:style:border:h to 4*(TScale^0.6).
     set sCH4Border:style:border:v to 0*TScale.
     set sCH4Border:style:overflow:left to 0*TScale.
     set sCH4Border:style:overflow:right to 8*TScale.
@@ -221,7 +323,7 @@ function CreateTelemetry {
     set sCH4Slider:style:margin:top to 12*TScale.
     set sCH4Slider:style:width to 0*TScale.
     set sCH4Slider:style:height to 8*TScale.
-    set sCH4Slider:style:border:h to 4*TScale.
+    set sCH4Slider:style:border:h to 4*(TScale^0.6).
     set sCH4Slider:style:border:v to 0*TScale.
     set sCH4Slider:style:overflow:left to 200*TScale.
     set sCH4Slider:style:overflow:right to 0*TScale.
@@ -237,20 +339,28 @@ function CreateTelemetry {
     set sCH4Number:style:overflow:bottom to 0*TScale.
 
     set sThrust:style:margin:left to 45*TScale.
-    set sThrust:style:margin:top to 15*TScale.
+    set sThrust:style:margin:top to 10*TScale.
     set sThrust:style:width to 150*TScale.
-    set sThrust:style:fontsize to 16*TScale.
+    set sThrust:style:fontsize to 14*TScale.
 
     set sEngines:style:width to 180*TScale.
     set sEngines:style:height to 180*TScale.
-    set sEngines:style:margin:top to 20*TScale.
-    set sEngines:style:margin:left to 25*TScale.
-    set sEngines:style:margin:right to 5*TScale.
+    set sEngines:style:margin:top to 10*TScale.
+    set sEngines:style:margin:left to 22*TScale.
+    set sEngines:style:margin:right to 10*TScale.
     set sEngines:style:margin:bottom to 20*TScale.
-
 
 }
 
+set scalebutton:ontoggle to {
+    parameter toggle.
+    if toggle {
+        set ScaleSelectH:text to "".
+        set ScaleSelectV:text to "".
+        ScaleUI:show().
+    }
+    else ScaleUI:hide().
+}.
 set partsfound to false.
 
 
@@ -403,6 +513,11 @@ function FindParts {
             else if x:name:contains("Block.3.CMN") {}
             else if x:name:contains("Block.3.CH4") {}
             else if x:name:contains("Block.3.FWD") {}
+            else if x:name:contains("FNB.BL1.BOOSTERLOX") {}
+            else if x:name:contains("FNB.BL1.BOOSTERCMN") {}
+            else if x:name:contains("FNB.BL1.BOOSTERCH4") {}
+            else if x:name:contains("FNB.BL1.BOOSTERHSR") {}
+            else if x:name:contains("FNB.BL1.BOOSTERCLUSTER") {}
             else if x:name:contains("FNB.BL3.BOOSTERAFT") {}
             else if x:name:contains("FNB.BL3.BOOSTERLOX") {}
             else if x:name:contains("FNB.BL3.BOOSTERCMN") {}
@@ -411,6 +526,7 @@ function FindParts {
             else if x:name:contains("FNB.BL3.BOOSTERHSR") {}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
+            else if x:name:contains("FNB.R3.CLUSTER") {}
             else {
                 if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER")) and (x:parent:name:contains("SHIP") or x:parent:name:contains("LOX")) {
                     set SL to true.
@@ -462,37 +578,51 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO") and not x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 66000.
                     set ShipType to "Block1Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.NOSECONE.EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 65000.
                     set ShipType to "Block1Exp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 69000.
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 65000.
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.25.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
                     set HeaderTank to x.
+                    set MaxCargoToOrbit to 95000.
                     set ShipType to "Block2PEZ".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.25.SHIP.CARGO") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set MaxCargoToOrbit to 95000.
+                    set ShipType to "Block2Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 95000.
                     set ShipType to "Block2PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL3.NC") and not x:name:contains("EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 100000.
                     set ShipType to "Block3PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
@@ -505,6 +635,7 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ.EXP") {
                     set Nose to x.
+                    set MaxCargoToOrbit to 68000.
                     set ShipType to "Block1PEZExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
@@ -518,6 +649,13 @@ function FindParts {
                     set ShipType to "Tanker".
                     set CargoMassStep to CargoMassStep + x:mass - x:drymass.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                    if RSS {
+                        set MaxCargoToOrbit to 150000.
+                    } else if KSRSS {
+                        set MaxCargoToOrbit to 97000.
+                    } else {
+                        set MaxCargoToOrbit to 79000.
+                    }
                 }
                 else if x:name:contains("SEP.23.SHIP.CARGO.EXP") {
                     set Nose to x.
@@ -536,6 +674,7 @@ function FindParts {
             }
         }
     }
+    if defined HeaderTank {} else if ship:partsnamed("FNB.BL2.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL2.NC")[0].
 
     set SLStep to false.
     set VACStep to false.
@@ -844,6 +983,45 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block1".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        if SHIP:PARTSNAMED("FNB.BL1.BOOSTERCLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCLUSTER").
+        else { 
+            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
+            set BoosterSingleEngines to true.
+        }
+        set GridFins to SHIP:PARTSNAMED("FNB.BL1.BOOSTERGRIDFIN").
+        set HSR to SHIP:PARTSNAMED("FNB.BL1.BOOSTERHSR").
+        set BoosterCore to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
+        set bLOXTank to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
+        set bCH4Tank to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCH4").
+        set bCMNDome to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCMN").
+        set bFWDDome to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCH4").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
     } else if ship:partsnamed("FNB.BL3.BOOSTERAFT"):length > 0 {
         set Boosterconnected to true.
         set BoosterType to "Block3".
@@ -1100,13 +1278,13 @@ function updateTelemetry {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
-            set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(abs(currentPitch)):tostring.
+            set scalebutton:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(abs(currentPitch)):tostring.
         }
         else {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
             else set currentPitch to vang(facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
-            set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
+            set scalebutton:style:bg to "starship_img/ShipAttitude/Block2/"+round(currentPitch):tostring.
         }
     } 
     else {
@@ -1114,13 +1292,13 @@ function updateTelemetry {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
-            set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(abs(currentPitch)):tostring.
+            set scalebutton:style:bg to "starship_img/ShipStackAttitude/"+round(abs(currentPitch)):tostring.
         }
         else {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
             else set currentPitch to vang(facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
-            set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
+            set scalebutton:style:bg to "starship_img/ShipAttitude/"+round(currentPitch):tostring.
         }
     }
 
