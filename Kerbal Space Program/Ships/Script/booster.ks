@@ -198,8 +198,11 @@ for part in ship:parts {
             if BoosterEngines[0]:getmodulebyindex(14):name = "ModuleEnginesFX" {
                 set DumpVents[0] to BoosterEngines[0]:getmodulebyindex(14).
             }
-            if bCH4Tank:getmodulebyindex(14):name = "ModuleEnginesFX" {
-                set DumpVents[1] to bCH4Tank:getmodulebyindex(14).
+            if bCH4Tank:getmodulebyindex(13):name = "ModuleEnginesFX" {
+                set DumpVents[1] to bCH4Tank:getmodulebyindex(13).
+            }
+            if DumpVents:contains(False) {
+                print BoosterEngines[0]:getmodulebyindex(14).
             }
         }
         set BTset to true.
@@ -1047,6 +1050,7 @@ if bodyexists("Earth") {
         if oldBooster set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
         set LFBoosterFuelCutOff to 12000.
+        if not BoosterSingleEngines set LFBoosterFuelCutOff to 15000.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.45, 0.27, -10, 10).
         }
@@ -3613,7 +3617,7 @@ function LandingGuidance {
     set streamOffset to vAng(GuidVec,-velocity:surface).
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
-    set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-150,20))/28.
+    set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-150,20))/26.
     if RadarRatio < 0.6 and RadarRatio > 0.13 set lateBrake to min(0.18/max(0.05,RadarRatio),2)*0.16/(Scale^2).
     else set lateBrake to 0.
     if not MiddleEnginesShutdown set OnStreamFactor to 0.2.

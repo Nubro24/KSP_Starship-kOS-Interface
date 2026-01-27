@@ -460,8 +460,8 @@ else {
 set WaitTime to false.
 
 set FuelUnitsToKg to 11 + (1/9).
-when partsfound then if defined HeaderTank {
-    for res in HeaderTank:resources {
+when partsfound then 
+    for res in sCMNTank:resources {
         if res:name = "LqdMethane" {
             set Methane to true.
             set FuelUnitsToKg to 2.09227666666667.
@@ -470,17 +470,6 @@ when partsfound then if defined HeaderTank {
             set LF to true.
         }
     }
-} else {
-    for res in Core:part:resources {
-        if res:name = "LqdMethane" {
-            set Methane to true.
-            set FuelUnitsToKg to 2.09227666666667.
-        }
-        if res:name = "LiquidFuel" {
-            set LF to true.
-        }
-    }
-}
 
 
 if ship:name:contains(" Real Size") and (RSS) {
@@ -1080,7 +1069,9 @@ function FindParts {
             }
         }
     }
-    if defined HeaderTank {} else if ship:partsnamed("FNB.BL2.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL2.NC")[0].
+    if defined HeaderTank {} 
+    else if ship:partsnamed("FNB.BL2.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL2.NC")[0].
+    else if ship:partsnamed("FNB.BL3.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL3.NC")[0].
 
     set SLStep to false.
     set VACStep to false.
@@ -8855,12 +8846,13 @@ function Launch {
                 }
                 updateTelemetry().
                 wait 0.02.
-                if defined HSR and ship:partsnamed("FNB.BL3.BOOSTERIHSR"):length = 0 {
+                if defined HSR {
                     for x in range(0, HSR[0]:modules:length) {
-                        if HSR[0]:getmodulebyindex(x):hasfield("% rated thrust") {
+                        if HSR[0]:getmodulebyindex(x):name = "ModuleEnginesFX" {
                             if HSR[0]:getmodulebyindex(x):hasevent("activate engine") {
                                 HSR[0]:getmodulebyindex(x):DoEvent("activate engine").
                             }
+                            break.
                         }
                     }
                 }
@@ -13189,7 +13181,7 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
-            set closingPID to pidLoop(0.16, 0.004, 0.16,-5,5).
+            set closingPID to pidLoop(0.12, 0.006, 0.16,-5,5).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
