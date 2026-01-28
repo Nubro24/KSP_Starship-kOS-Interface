@@ -3390,7 +3390,7 @@ FUNCTION SteeringCorrections {
             }
 
             if not (MiddleEnginesShutdown) and Bl3LndProf and BoosterSingleEngines {
-                set stopTime9 to (airspeed - 75) / min(maxDecel, 50*Scale).
+                set stopTime9 to (airspeed - 75) / min(maxDecel, 50*(Scale^0.5)).
                 set stopDist9 to ((airspeed + 75) / 2) * stopTime9.
                 set stopTime5 to min(75-12*Scale, airspeed - 12*Scale) / min(maxDecel5, 18*Scale).
                 set stopDist5 to (min(75+12*Scale, airspeed + 12*Scale) / 2) * stopTime5.
@@ -3401,7 +3401,7 @@ FUNCTION SteeringCorrections {
                 set landingRatio to max(0, TotalstopDist / (RadarAlt - 5)).
             }
             else if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 69) / min(maxDecel, 50*Scale).
+                set stopTime9 to (airspeed - 69) / min(maxDecel, 50*(Scale^0.5)).
                 set stopDist9 to ((airspeed + 69) / 2) * stopTime9.
                 set stopTime3 to min(69, airspeed) / min(maxDecel3, FinalDeceleration).
                 set stopDist3 to (min(69, airspeed) / 2) * stopTime3.
