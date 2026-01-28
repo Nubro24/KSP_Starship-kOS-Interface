@@ -1077,7 +1077,7 @@ if bodyexists("Earth") {
         set CorrFactor to 0.7.
         set PIDFactor to 16.
         set CatchVS to -0.5.
-        set FinalDeceleration to 10.2.
+        set FinalDeceleration to 9.
     }
     else {
         set KSRSS to true.
@@ -1194,7 +1194,7 @@ else {
         set CorrFactor to 0.95.
         set PIDFactor to 8.
         set CatchVS to -0.5.
-        set FinalDeceleration to 6.7.
+        set FinalDeceleration to 6.5.
     }
 }
 
