@@ -1058,9 +1058,9 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 2540. 
-        else set BoosterGlideDistance to 2550. //1640 
+        else set BoosterGlideDistance to 2400. //1640 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.16.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 1.
         set LngCtrlPID:setpoint to 42. //84
