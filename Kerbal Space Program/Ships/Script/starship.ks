@@ -13637,14 +13637,14 @@ function LandingThrottle {
         set stopDist to 0.5 * airspeed * stopTime.
     } else {
         set DesiredDecel to 0.65/Scale * maxDecel.
-        set stopTime to (airspeed-5) / DesiredDecel.
-        set stopDist to 0.5 * (airspeed+5) * stopTime.
+        set stopTime1 to (airspeed-5) / DesiredDecel.
+        set stopDist1 to 0.5 * (airspeed+5) * stopTime.
+        set stopTime2 to min(airspeed,5) / DesiredDecel.
+        set stopDist2 to 0.5 * min(airspeed,5) * stopTime.
+        set stopTime to stopTime1+stopTime2.
+        set stopDist to stopDist1+stopDist2.
     }
     
-    if (verticalspeed > 5*CatchVS and RadarAlt < 5) or Slow {
-        set Slow to true.
-        return ((minDecel+2*DesiredDecel)/3)* min((-verticalSpeed/10)^0.8,1).
-    }
     if not (TargetOLM = "False") {
         set landingRatio to stopDist / (RadarAlt - 0.5*Scale).
     }

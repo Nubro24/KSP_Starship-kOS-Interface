@@ -3450,7 +3450,7 @@ FUNCTION SteeringCorrections {
                 set LngCtrlPID:setpoint to CorrFactor * groundspeed.
             }
             if dbactive and not LandingBurnStarted {
-                set LatCtrlPID:setpoint to vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90.
+                set LatCtrlPID:setpoint to (vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90)/2.
             }
         } 
 
