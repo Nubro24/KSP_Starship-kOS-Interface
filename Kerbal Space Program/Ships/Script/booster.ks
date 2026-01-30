@@ -1168,7 +1168,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2696.
+        set LFBoosterFuelCutOff to 2720.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
@@ -1182,7 +1182,7 @@ else {
         set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
         set LngCtrlPID:setpoint to 50. //50
-        set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.15, -5, 5).
+        set LatCtrlPID to PIDLOOP(0.25, 0.15, 0.15, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 125.
         if not BoosterType:contains("Block3") set BoosterRaptorThrust to 555.
@@ -2930,6 +2930,7 @@ function Boostback {
 
     when MiddleRingShutdown(velocity:surface:mag,RadarAlt) then {
         set MiddleEnginesShutdown to true.
+        set MidShutSpeed to airspeed.
         lock throttle to 1.
         set ShutdownTime to time:seconds.
 
@@ -2977,71 +2978,62 @@ function Boostback {
                     set BoosterSingleEnginesRC[NrCounterEngine[0]-1]:gimbal:lock to true.
                     if not BoosterType:contains("Block3") BoosterSingleEnginesRC[NrCounterEngine[0]-1]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                 } 
+                set MidShutSpeed to MidShutSpeed - 10.
             }
             wait 0.
-            if Bl3LndProf {
-                if BoosterType:contains("Block2") set Block2Offset to 1.
-                else set Block2Offset to 0.
-                if BoosterSingleEnginesRC[4]:hassuffix("activate") and not NrCounterEngine:contains(5) BoosterSingleEnginesRC[4]:shutdown. wait 0.
-                if BoosterSingleEnginesRC[9]:hassuffix("activate") and not NrCounterEngine:contains(10) BoosterSingleEnginesRC[9]:shutdown. wait 0.
-                if BoosterSingleEnginesRC[11]:hassuffix("activate") and not NrCounterEngine:contains(12) BoosterSingleEnginesRC[11]:shutdown. wait 0.
-                if BoosterSingleEnginesRC[6-Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(7-Block2Offset) BoosterSingleEnginesRC[6-Block2Offset]:shutdown.
-                BoosterSingleEnginesRC[5+Block2Offset]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
-                BoosterSingleEnginesRC[10]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
-                set x to 1.
-                for eng in BoosterSingleEnginesRC {
-                    if x = 1 or x = 2 or x = 3 or x = 4 or x = 6+Block2Offset or x = 8 or x = 10 or x = 11 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
-                    else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
-                        set eng:gimbal:lock to true.
-                        //eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                    }
-                    set x to x + 1.
-                }
-                set x to 1.
-                when time:seconds > ShutdownTime + 0.08 then {
-                    if BoosterSingleEnginesRC[3]:hassuffix("activate") and not NrCounterEngine:contains(4) BoosterSingleEnginesRC[3]:shutdown. wait 0.
-                    if BoosterSingleEnginesRC[8]:hassuffix("activate") and not NrCounterEngine:contains(9) BoosterSingleEnginesRC[8]:shutdown. wait 0.
-                    if BoosterSingleEnginesRC[12]:hassuffix("activate") and not NrCounterEngine:contains(13) BoosterSingleEnginesRC[12]:shutdown. wait 0.
-                    if BoosterSingleEnginesRC[7]:hassuffix("activate") and not NrCounterEngine:contains(8) BoosterSingleEnginesRC[7]:shutdown.
+            when airspeed < MidShutSpeed then {
+                if Bl3LndProf {
+                    if BoosterType:contains("Block2") set Block2Offset to 1.
+                    else set Block2Offset to 0.
+                    if BoosterSingleEnginesRC[4]:hassuffix("activate") and not NrCounterEngine:contains(5) BoosterSingleEnginesRC[4]:shutdown. wait 0.
+                    if BoosterSingleEnginesRC[9]:hassuffix("activate") and not NrCounterEngine:contains(10) BoosterSingleEnginesRC[9]:shutdown. wait 0.
+                    if BoosterSingleEnginesRC[11]:hassuffix("activate") and not NrCounterEngine:contains(12) BoosterSingleEnginesRC[11]:shutdown. wait 0.
+                    if BoosterSingleEnginesRC[6-Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(7-Block2Offset) BoosterSingleEnginesRC[6-Block2Offset]:shutdown.
+                    BoosterSingleEnginesRC[5+Block2Offset]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
+                    BoosterSingleEnginesRC[10]:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
+                    set x to 1.
                     for eng in BoosterSingleEnginesRC {
-                        if x = 1 or x = 2 or x = 3 or x = 5 or x = 6 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
+                        if x = 1 or x = 2 or x = 3 or x = 4 or x = 6+Block2Offset or x = 8 or x = 10 or x = 11 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
                         else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
                             set eng:gimbal:lock to true.
                             //eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
                         }
                         set x to x + 1.
                     }
+                    set x to 1.
+                    when time:seconds > ShutdownTime + 0.08 then {
+                        if BoosterSingleEnginesRC[3]:hassuffix("activate") and not NrCounterEngine:contains(4) BoosterSingleEnginesRC[3]:shutdown. wait 0.
+                        if BoosterSingleEnginesRC[8]:hassuffix("activate") and not NrCounterEngine:contains(9) BoosterSingleEnginesRC[8]:shutdown. wait 0.
+                        if BoosterSingleEnginesRC[12]:hassuffix("activate") and not NrCounterEngine:contains(13) BoosterSingleEnginesRC[12]:shutdown. wait 0.
+                        if BoosterSingleEnginesRC[7]:hassuffix("activate") and not NrCounterEngine:contains(8) BoosterSingleEnginesRC[7]:shutdown.
+                        for eng in BoosterSingleEnginesRC {
+                            if x = 1 or x = 2 or x = 3 or x = 5 or x = 6 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
+                            else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
+                                set eng:gimbal:lock to true.
+                                //eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                            }
+                            set x to x + 1.
+                        }
+                    }
+                    when time:seconds > ShutdownTime + 3.08 and airspeed < 12*Scale or verticalSpeed > -10*Scale and stopDist3 < RadarAlt then {
+                        set downToThree to true.
+                        if BoosterSingleEnginesRC[5+Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(6+Block2Offset) {
+                            BoosterSingleEnginesRC[5+Block2Offset]:shutdown.
+                            set BoosterSingleEnginesRC[5+Block2Offset]:gimbal:lock to true.
+                            //BoosterSingleEnginesRC[5+Block2Offset]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                        }
+                        if BoosterSingleEnginesRC[10]:hassuffix("activate") and not NrCounterEngine:contains(11) {
+                            BoosterSingleEnginesRC[10]:shutdown.
+                            set BoosterSingleEnginesRC[10]:gimbal:lock to true.
+                            //BoosterSingleEnginesRC[10]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                        }
+                    }
                 }
-                when time:seconds > ShutdownTime + 3.08 and airspeed < 12*Scale or verticalSpeed > -10*Scale and stopDist3 < RadarAlt then {
+                else {
                     set downToThree to true.
-                    if BoosterSingleEnginesRC[5+Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(6+Block2Offset) {
-                        BoosterSingleEnginesRC[5+Block2Offset]:shutdown.
-                        set BoosterSingleEnginesRC[5+Block2Offset]:gimbal:lock to true.
-                        //BoosterSingleEnginesRC[5+Block2Offset]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                    }
-                    if BoosterSingleEnginesRC[10]:hassuffix("activate") and not NrCounterEngine:contains(11) {
-                        BoosterSingleEnginesRC[10]:shutdown.
-                        set BoosterSingleEnginesRC[10]:gimbal:lock to true.
-                        //BoosterSingleEnginesRC[10]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                    }
-                }
-            }
-            else {
-                set downToThree to true.
-                set x to 1.
-                for eng in BoosterSingleEnginesRC {
-                    if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
-                    else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
-                        eng:shutdown.
-                        set eng:gimbal:lock to true.
-                        eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                    }
-                    set x to x + 1.
-                }
-                set x to 1.
-                when time:seconds > ShutdownTime + 0.08 then 
+                    set x to 1.
                     for eng in BoosterSingleEnginesRC {
-                        if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
+                        if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or (NrCounterEngine:contains(x) and CounterEngine) {} 
                         else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
                             eng:shutdown.
                             set eng:gimbal:lock to true.
@@ -3049,6 +3041,18 @@ function Boostback {
                         }
                         set x to x + 1.
                     }
+                    set x to 1.
+                    when time:seconds > ShutdownTime + 0.08 then 
+                        for eng in BoosterSingleEnginesRC {
+                            if x = 1 or x = 2 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or (NrCounterEngine:contains(x) and CounterEngine) {}
+                            else if eng:hassuffix("activate") and not NrCounterEngine:contains(x) {
+                                eng:shutdown.
+                                set eng:gimbal:lock to true.
+                                eng:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
+                            }
+                            set x to x + 1.
+                        }
+                }
             }
         }
         else {
@@ -3304,20 +3308,21 @@ function Boostback {
         if not MiddleEnginesShutdown {
             if Bl3LndProf and BoosterSingleEngines
                 if stopDist3 + stopDist5 < RadarAlt*0.95 and vel < 80 or throttle < 0.38 
-                    return true.
+                    set retBool to true.
             if not Bl3LndProf and BoosterSingleEngines 
                 if stopDist3 < RadarAlt*0.95 and vel < 70 or throttle < 0.33 
-                    return true.
+                    set retBool to true.
             if (vel < 69 and h > 540) or (vel < 52 and h > 460) or vel < 12 or (vel < 75 and h > 299 and Bl3LndProf) or (vel < 60 and h > 450 and Bl3LndProf)
-                return true.
+                set retBool to true.
             if STOCK 
-                return (vel < 36 and h > 160) or (vel < 24 and h > 90) or (vel < 32 and h > 85 and Bl3LndProf).
+                set retBool to (vel < 36 and h > 160) or (vel < 24 and h > 90) or (vel < 32 and h > 85 and Bl3LndProf).
             else if KSRSS 
-                return vel < 32 and h > 100.
+                set retBool to vel < 32 and h > 100.
             else if RSS 
-                return (vel < 69 and h > 200) or (vel < 42 and h > 140) or (vel < 24 and h > 80).
-        }
-        return false.
+                set retBool to (vel < 69 and h > 200) or (vel < 42 and h > 140) or (vel < 24 and h > 80).
+        } 
+        else set retBool to false.
+        return retBool.
     }
 }
 
@@ -3399,6 +3404,7 @@ FUNCTION SteeringCorrections {
                 set TotalstopTime to stopTime9 + stopTime5 + stopTime3.
                 set TotalstopDist to (stopDist9 + stopDist5 + stopDist3) * 1/cos(vang(-velocity:surface, up:vector)).
                 set landingRatio to max(0, TotalstopDist / (RadarAlt - 5)).
+                set LatCtrlPID:setpoint to 0.
             }
             else if not (MiddleEnginesShutdown) {
                 set stopTime9 to (airspeed - 69) / min(maxDecel, 50*(Scale^0.5)).
@@ -3408,6 +3414,7 @@ FUNCTION SteeringCorrections {
                 set TotalstopTime to stopTime9 + stopTime3.
                 set TotalstopDist to (stopDist9 + stopDist3) * 1/cos(vang(-velocity:surface, up:vector)).
                 set landingRatio to max(0, TotalstopDist / (RadarAlt - 2)).
+                set LatCtrlPID:setpoint to 0.
             }
             else if Bl3LndProf and not downToThree {
                 set stopTime5 to (airspeed - 12*Scale) / min(maxDecel5, 18*Scale).
@@ -3418,45 +3425,54 @@ FUNCTION SteeringCorrections {
                 set TotalstopDist to (stopDist5 + stopDist3*1.1) * 1/cos(vang(-velocity:surface, up:vector)).
                 set landingRatio to max(0, TotalstopDist / (RadarAlt - 1)).
                 set LngCtrlPID:setpoint to 0.
+                set LatCtrlPID:setpoint to 0.
             }
             else if RadarRatio > 1 and not RSS {
-                set TotalstopTime to (airspeed - 17) / min(maxDecel3, FinalDeceleration).
-                set TotalstopDist to ((airspeed + 17) / 2) * TotalstopTime.
+                set stopTime3 to (airspeed - 17) / min(maxDecel3, FinalDeceleration).
+                set stopDist3 to ((airspeed + 17) / 2) * stopTime3.
+                set FinstopTime to min(17, airspeed) / min(maxDecel3, FinalDeceleration - 2).
+                set FinstopDist to (min(17, airspeed) / 2) * FinstopTime.
+                set TotalstopTime to stopTime3 + FinstopTime.
+                set TotalstopDist to FinstopDist + stopDist3.
                 set landingRatio to max(0, TotalstopDist / (RadarAlt - 0.24)).
                 set LngCtrlPID:setpoint to 0.
+                set LatCtrlPID:setpoint to 0.
             }
             else {
-                set TotalstopTime to airspeed / min(maxDecel3, FinalDeceleration).
+                set TotalstopTime to airspeed / min(maxDecel3, FinalDeceleration - 2).
                 set TotalstopDist to (abs(verticalSpeed) / 2) * TotalstopTime.
                 set landingRatio to max(0, TotalstopDist / (RadarAlt - 0.24)).
                 set LngCtrlPID:setpoint to 0.
+                set LatCtrlPID:setpoint to 0.
             }
 
             if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 8000 {
                 set LngCtrlPID:setpoint to CorrFactor * groundspeed.
-
+            }
+            if dbactive and not LandingBurnStarted {
+                set LatCtrlPID:setpoint to vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90.
             }
         } 
 
         clearscreen.
         print "Lng Error: " + round(LngError) + " / " + round(LngCtrlPID:setpoint).
-        print "Lat Error: " + round(LatError).
+        print "Lat Error: " + round(LatError) + " / " + round(LatCtrlPID:setpoint).
         print "Radar Alt: " + round(RadarAlt) + "m".
         //print " ".
 
         if not LandingBurnStarted {
             set mach to airspeed/340.
-            if not Bl3LndProf {
+            if not Bl3LndProf and HSRJet {
                 if mach < 1 set dragFactor to 1 - 0.07 * mach^2.
                 else set dragFactor to 1 - 0.08 * (1 + 0.6*(mach^2 - 1))/Scale.
             }
             else if HSRJet {
-                if mach < 1 set dragFactor to 1 - 0.062 * mach^2.
+                if mach < 1 set dragFactor to 1 - 0.065 * mach^2.
                 else set dragFactor to 1 - 0.077 * (1 + 0.6*(mach^2 - 1))/Scale.
             }
             else {
-                if mach < 1 set dragFactor to 1 - 0.06 * mach^2.
-                else set dragFactor to 1 - 0.075 * (1 + 0.6*(mach^2 - 1))/Scale.
+                if mach < 1 set dragFactor to 1 - 0.062 * mach^2.
+                else set dragFactor to 1 - 0.074 * (1 + 0.6*(mach^2 - 1))/Scale.
             }
             if not BoosterSingleEngines set dragFactor to dragFactor*1.1.
             

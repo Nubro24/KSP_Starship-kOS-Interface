@@ -534,9 +534,12 @@ if RSS {         // Real Solar System
     set RCSThrust to 100.
     set RCSBurnTimeLimit to 120.
     set VentRate to 183.55.
-    when partsfound then if Methane {
-        set VentRate to 954.745.
-        set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
+    when partsfound then {
+        if Methane {
+            set VentRate to 954.745.
+            set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
+        }
+        if core:part:name:contains("FNB") set FuelVentCutOffValue to FuelVentCutOffValue * 1.1.
     }
     set ArmsHeight to 138.16.
     set OrbitPrecision to 250.
@@ -585,9 +588,12 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set RCSThrust to 70.
     set RCSBurnTimeLimit to 180.
     set VentRate to 91.775.
-    when partsfound then if Methane {
-        set VentRate to 487.3725.
-        set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
+    when partsfound then {
+        if Methane {
+            set VentRate to 487.3725.
+            set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
+        }
+        if core:part:name:contains("FNB") set FuelVentCutOffValue to FuelVentCutOffValue * 1.1.
     }
     set ArmsHeight to 86.35.
     set OrbitPrecision to 150.
@@ -627,9 +633,12 @@ else {       // Stock Kerbin
     set RCSThrust to 40.
     set RCSBurnTimeLimit to 120.
     set VentRate to 36.71.
-    when partsfound then if Methane {
-        set VentRate to 194.949.
-        set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
+    when partsfound then {
+        if Methane {
+            set VentRate to 194.949.
+            set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
+        }
+        if core:part:name:contains("FNB") set FuelVentCutOffValue to FuelVentCutOffValue * 1.1.
     }
     set ArmsHeight to 86.35.
     set OrbitPrecision to 100.
@@ -656,6 +665,12 @@ set maxstabengage to 0.  // Defines max closing of the stabilizers after landing
 set CPUSPEED to 800.  // Defines cpu speed in lines per second.
 set FWDFlapDefault to 67.
 set AFTFlapDefault to 75.
+when partsfound then {
+    if FNBship {
+        set FWDFlapDefault to 57.
+        set AFTFlapDefault to 65.
+    }
+}
 set rcsRaptorBoundary to 80.  // Defines the custom burn boundary velocity where the ship will burn either RCS/Single Raptor below it or VAC Raptors above it.
 set CoGFuelBalancing to true.  // Disable this to stop constant fuel transfers during re-entry.
 set DynamicPitch to true.   // Change the flap defaults dynamically during re-entry.
@@ -1072,6 +1087,10 @@ function FindParts {
     if defined HeaderTank {} 
     else if ship:partsnamed("FNB.BL2.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL2.NC")[0].
     else if ship:partsnamed("FNB.BL3.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL3.NC")[0].
+    else if ship:partsnamed("SEP.25.SHIP.CARGO"):length > 0 set HeaderTank to ship:partsnamed("SEP.25.SHIP.CARGO")[0].
+    else if ship:partsnamed("SEP.25.SHIP.PEZ"):length > 0 set HeaderTank to ship:partsnamed("SEP.25.SHIP.PEZ")[0].
+    else if ship:partsnamed("SEP.24.SHIP.CARGO"):length > 0 set HeaderTank to ship:partsnamed("SEP.24.SHIP.CARGO")[0].
+    else if ship:partsnamed("SEP.24.SHIP.PEZ"):length > 0 set HeaderTank to ship:partsnamed("SEP.24.SHIP.PEZ")[0].
 
     set SLStep to false.
     set VACStep to false.
@@ -13181,7 +13200,7 @@ function ReEntryData {
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
 
-            set closingPID to pidLoop(0.12, 0.006, 0.16,-5,5).
+            set closingPID to pidLoop(0.12, 0.004, 0.18,-5,5).
             set TgtErrorStrength to 0.5.
             set VelCancel to 0.5.
             set RadarRatio to 24.
@@ -13369,9 +13388,9 @@ function ReEntryData {
                         //ADDONS:TR:SETTARGET(landingzone).
                         when groundspeed < 3*Scale then {
                             HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
-                            set steeringManager:pitchpid:kp to 1.4.
-                            set steeringManager:pitchpid:ki to 0.24.
-                            set steeringManager:pitchpid:kd to 0.38.
+                            set steeringManager:pitchpid:kp to 1.2.
+                            set steeringManager:pitchpid:ki to 0.2.
+                            set steeringManager:pitchpid:kd to 0.5.
                             if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.4*ShipHeight {
                                 set LandSomewhereElse to true.
                                 set cAbort to true.
@@ -13731,7 +13750,7 @@ function LandingVector {
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
                     set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(up:vector, facing:forevector)*ActiveRC/(Scale*8).
-                    set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 2*(Scale^1.2)).
+                    set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 1.5*(Scale^1.2)).
                     set PositionCorrection to vxcl(up:vector, TargetPos - Nose:position).
                     if not twoSL {
                         set PredictErrVec to TargetPos - myFuturePos.
@@ -13746,7 +13765,8 @@ function LandingVector {
                     set TgtErrorStrength to min(5,(closingPID:update(time:seconds, tgtError)*max(0.5,2/max(1,GSVec:mag^0.8)*min(TgtErrorVector:mag/(3*Scale),1)) + TgtErrorStrength/TgtErrStrDiv)/2).
                     if vang(TgtErrorVector,TowerHeadingVector*angleAxis(8.5,up:vector)) < 90 {
                         set TgtErrorStrength to TgtErrorStrength*2.
-                        set TgtErrStrDiv to 2.
+                        if TgtErrorStrength > 0 set TgtErrStrDiv to 0.7.
+                        else set TgtErrStrDiv to -2.
                     } else 
                         set TgtErrStrDiv to 1.
 
@@ -15075,6 +15095,7 @@ function SetRadarAltitude {
     }
     if ShipType:contains("SN") set ShipBottomRadarHeight to ShipBottomRadarHeight + 0.75*Scale.
     if ShipType:contains("Block2") set ShipBottomRadarHeight to ShipBottomRadarHeight + 1.2*Scale.
+    if FNBship set ShipBottomRadarHeight to ShipBottomRadarHeight + 2*Scale.
     if TargetOLM and not (LandSomewhereElse) {
         if RSS {
             lock RadarAlt to altitude - max(ship:geoposition:terrainheight, 0) - ArmsHeight + (39.5167 - ShipBottomRadarHeight) - 0.1.
