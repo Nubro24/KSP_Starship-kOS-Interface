@@ -13766,7 +13766,7 @@ function LandingVector {
                     if vang(TgtErrorVector,TowerHeadingVector*angleAxis(8.5,up:vector)) < 90 {
                         set TgtErrorStrength to TgtErrorStrength*1.3.
                         if TgtErrorStrength > 0 set TgtErrStrDiv to 0.7.
-                        else set TgtErrStrDiv to -2.
+                        else set TgtErrStrDiv to -3.
                     } else 
                         set TgtErrStrDiv to 1.
 
