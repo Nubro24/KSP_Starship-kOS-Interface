@@ -3305,6 +3305,7 @@ function Boostback {
 
     function MiddleRingShutdown {
         parameter vel, h.
+        set retBool to false.
         if not MiddleEnginesShutdown {
             if Bl3LndProf and BoosterSingleEngines
                 if stopDist3 + stopDist5 < RadarAlt*0.95 and vel < 80 or throttle < 0.38 
@@ -3314,14 +3315,13 @@ function Boostback {
                     set retBool to true.
             if (vel < 69 and h > 540) or (vel < 52 and h > 460) or vel < 12 or (vel < 75 and h > 299 and Bl3LndProf) or (vel < 60 and h > 450 and Bl3LndProf)
                 set retBool to true.
-            if STOCK 
-                set retBool to (vel < 36 and h > 160) or (vel < 24 and h > 90) or (vel < 32 and h > 85 and Bl3LndProf).
-            else if KSRSS 
-                set retBool to vel < 32 and h > 100.
-            else if RSS 
-                set retBool to (vel < 69 and h > 200) or (vel < 42 and h > 140) or (vel < 24 and h > 80).
+            if STOCK if (vel < 36 and h > 160) or (vel < 24 and h > 90) or (vel < 32 and h > 85 and Bl3LndProf)
+                set retBool to true.
+            else if KSRSS if vel < 32 and h > 100
+                set retBool to true.
+            else if RSS if (vel < 69 and h > 200) or (vel < 42 and h > 140) or (vel < 24 and h > 80)
+                set retBool to true.
         } 
-        else set retBool to false.
         return retBool.
     }
 }
@@ -3634,7 +3634,7 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
     set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-150,20))/26.
-    if RadarRatio < 0.6 and RadarRatio > 0.13 set lateBrake to min(0.18/max(0.05,RadarRatio),2)*0.16/(Scale^2).
+    if RadarRatio < 0.85 and RadarRatio > 0.13 set lateBrake to min(0.18/max(0.05,RadarRatio),2)*0.16/(Scale^2).
     else set lateBrake to 0.
     if not MiddleEnginesShutdown set OnStreamFactor to 0.2.
     else set OnStreamFactor to 1.

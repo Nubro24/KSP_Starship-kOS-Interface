@@ -12753,7 +12753,7 @@ function ReEntrySteering {
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (60 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 40).
-        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 40), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
+        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
@@ -13421,7 +13421,7 @@ function ReEntryData {
                         else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 13.8.
                     }
                     else if not AFTONLY {
-                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 6.4.
+                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 7.2.
                         else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.8.
                     }
                     else {
@@ -13764,7 +13764,7 @@ function LandingVector {
                     else set tgtError to TgtErrorVector:mag.
                     set TgtErrorStrength to min(5,(closingPID:update(time:seconds, tgtError)*max(0.5,2/max(1,GSVec:mag^0.8)*min(TgtErrorVector:mag/(3*Scale),1)) + TgtErrorStrength/TgtErrStrDiv)/2).
                     if vang(TgtErrorVector,TowerHeadingVector*angleAxis(8.5,up:vector)) < 90 {
-                        set TgtErrorStrength to TgtErrorStrength*2.
+                        set TgtErrorStrength to TgtErrorStrength*1.3.
                         if TgtErrorStrength > 0 set TgtErrStrDiv to 0.7.
                         else set TgtErrStrDiv to -2.
                     } else 
@@ -16705,7 +16705,7 @@ function updateTelemetry {
             set mlox to mlox + res:capacity.
         }
     }
-    if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
+    if FNBship {
         for res in sCMNTank:resources {
             if res:name = "LiquidFuel" {
                 set ch4 to ch4 + res:amount.
