@@ -476,7 +476,7 @@ set PostLaunch to false.
 //---------------Finding Parts-----------------//
 
 function FindParts {
-    if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
+    if ship:dockingports:length > 0 if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
         set ShipIsDocked to true.
     }
     else {

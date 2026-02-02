@@ -1063,7 +1063,7 @@ if bodyexists("Earth") {
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 1.
-        set LngCtrlPID:setpoint to 42. //84
+        set LngCtrlPID:setpoint to 50. //84
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.15, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -1684,7 +1684,7 @@ function Boostback {
     set HighLandingBurn to false.
 
     if RandomFlip set targetAp to ship:apoapsis - 200*Scale.
-    else set targetAp to ship:apoapsis + 800*Scale.
+    else set targetAp to ship:apoapsis + 800*(Scale^1.5).
 
     if STOCK and not Bl3LndProf set BoosterGlideDistance to BoosterGlideDistance * 0.94.
 
