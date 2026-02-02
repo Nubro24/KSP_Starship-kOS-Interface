@@ -3395,7 +3395,7 @@ FUNCTION SteeringCorrections {
             }
 
             if not (MiddleEnginesShutdown) and Bl3LndProf and BoosterSingleEngines {
-                set stopTime9 to (airspeed - 75) / min(maxDecel, 50*(Scale^0.5)).
+                set stopTime9 to (airspeed - 75) / min(maxDecel, 50*(Scale^min(1,airspeed/550))).
                 set stopDist9 to ((airspeed + 75) / 2) * stopTime9.
                 set stopTime5 to min(75-12*Scale, airspeed - 12*Scale) / min(maxDecel5, 18*Scale).
                 set stopDist5 to (min(75+12*Scale, airspeed + 12*Scale) / 2) * stopTime5.
@@ -3407,7 +3407,7 @@ FUNCTION SteeringCorrections {
                 set LatCtrlPID:setpoint to 0.
             }
             else if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 69) / min(maxDecel, 50*(Scale^0.5)).
+                set stopTime9 to (airspeed - 69) / min(maxDecel, 50*(Scale^min(1,airspeed/550))).
                 set stopDist9 to ((airspeed + 69) / 2) * stopTime9.
                 set stopTime3 to min(69, airspeed) / min(maxDecel3, FinalDeceleration).
                 set stopDist3 to (min(69, airspeed) / 2) * stopTime3.
@@ -3634,7 +3634,7 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
     set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-150,20))/26.
-    if RadarRatio < 0.85 and RadarRatio > 0.13 set lateBrake to min(0.18/max(0.05,RadarRatio),2)*0.12/(Scale^2).
+    if RadarRatio < 0.95 and RadarRatio > 0.13 set lateBrake to min(0.24/max(0.05,RadarRatio),2)*0.1/(Scale^1.75).
     else set lateBrake to 0.
     if not MiddleEnginesShutdown set OnStreamFactor to 0.2.
     else set OnStreamFactor to 1.
