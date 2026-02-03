@@ -8297,6 +8297,7 @@ function Launch {
         if vang(north:vector, LaunchRollVector) > 270 {
             set LaunchRollVector to -LaunchRollVector.
         }
+        set saveLRV to LaunchRollVector.
         //set lv to vecdraw(v(0, 0, 0), LaunchRollVector, green, "LaunchRollVector", 35, true, 0.005, true, true).
 
         if OnOrbitalMount {
@@ -8649,6 +8650,7 @@ function Launch {
             if BoosterSingleEngines set steeringManager:rolltorquefactor to 2. 
             else set steeringManager:rolltorquefactor to 4.  
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
+            set LaunchRollVector to facing:topvector.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
                 InhibitButtons(1, 1, 1).
             }
@@ -8733,6 +8735,9 @@ function Launch {
 
         when altitude-LaunchElev > 243 then {
             lock throttle to LaunchThrottle().
+        }
+        when altitude-LaunchElev > 420 then {
+            set LaunchRollVector to saveLRV.
         }
         lock steering to LaunchSteering().
         set steeringManager:rollpid:kd to 0.6.
