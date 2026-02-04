@@ -13757,7 +13757,7 @@ function LandingVector {
                     else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
-                    set PredictGSVec to GSVec*0.5 + vxcl((up:vector* angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector), facing:forevector):normalized*vAng((up:vector* angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector), facing:forevector)*ActiveRC/((Scale^1.48)*5).
+                    set PredictGSVec to GSVec*0.6 + vxcl((up:vector* angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector), facing:forevector):normalized*vAng((up:vector* angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector), facing:forevector)*ActiveRC/((Scale^1.48)*5).
                     set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 1.5*(Scale^1.2)).
                     set PositionCorrection to vxcl(up:vector, TargetPos - Nose:position).
                     if not twoSL {
@@ -13774,7 +13774,7 @@ function LandingVector {
                     if vang(TgtErrorVector,TowerHeadingVector*angleAxis(8.5,up:vector)) < 90 {
                         set TgtErrorStrength to TgtErrorStrength*1.2.
                         if TgtErrorStrength > 0 set TgtErrStrDiv to 0.7.
-                        else set TgtErrStrDiv to -4.
+                        else set TgtErrStrDiv to -2.5*Scale.
                     } else 
                         set TgtErrStrDiv to 1.
 

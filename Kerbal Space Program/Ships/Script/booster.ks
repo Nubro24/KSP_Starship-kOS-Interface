@@ -4308,10 +4308,10 @@ function GetBoosterRotation {
 
         if RadarAlt < 0.9*BoosterHeight {
             set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-            set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + TotalstopTime*GSVec*0.5).
+            set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + min(3,TotalstopTime)*GSVec*0.5).
         } else {
             set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-            set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + TotalstopTime*GSVec*0.8).
+            set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + TotalstopTime*GSVec*0.65).
         }
         set varVecFinal to varVec + varPredctVec/2.
         set varFinal to vang(varVecFinal, TowerHeadingVector).
