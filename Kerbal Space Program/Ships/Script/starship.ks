@@ -853,6 +853,7 @@ set ActiveRC to 0.
 set LFShip to 0.
 set LFShipCap to 0.
 set PlotAoAset to false.
+set yawctrl to 0.
 
 
 //---------------Finding Parts-----------------//
@@ -12482,7 +12483,7 @@ function ReEntryAndLand {
                     else set YawBank to 1.
                     if RSS {
                         set PitchPID to PIDLOOP(0.005, 0.0001, 0.001, -25, 26 - TRJCorrection).
-                        set YawPID to PIDLOOP(0.0032*YawBank, 0.00014*YawBank, 0.0008*YawBank, -50, 50).
+                        set YawPID to PIDLOOP(0.0042*YawBank, 0.00018*YawBank, 0.001*YawBank, -50, 50).
                     }
                     else if KSRSS {
                         set PitchPID to PIDLOOP(0.005, 0, 0, -25, 26 + TRJCorrection).
@@ -12714,6 +12715,7 @@ function ReEntrySteering {
         if RadarAlt > FlipAltitude + 100 {
             lock throttle to 0.
         }
+        set lastYaw to yawctrl.
 
         if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 320 {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
@@ -12761,7 +12763,7 @@ function ReEntrySteering {
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (60 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 40).
-        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)).
+        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to max(min(5,LngLatErrorList[1] / 10),min(abs(LngLatErrorList[1] / 30), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90))).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
@@ -12776,6 +12778,7 @@ function ReEntrySteering {
         }
         if abs(LngLatErrorList[1]) > 8*Scale and yawctrl < min(40,abs(LngLatErrorList[1]))/2 set yawctrl to yawctrl * 2.
         set DesiredAoA to min(max(minAoA , aoa + pitchctrl), maxAoA).
+        set yawctrl to (yawctrl+lastYaw)/2.
         if yawctrl > YawPID:maxoutput set yawctrl to YawPID:maxoutput.
         else if yawctrl < YawPID:minoutput set yawctrl to YawPID:minoutput.
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
@@ -13784,7 +13787,7 @@ function LandingVector {
                         - GSVec:normalized * TgtErrorStrength/TgtErrStrDiv * min(1,RadarRatio+0.25) * min(1,GSVec:mag/2) * min(1,TgtErrorVector:mag/(3*Scale))
                         - GSVec * 0.2 * ((2/max(0.16,RadarRatio^1.4))).
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (4*Scale)/max(0.3,TgtErrorVector:mag).
-                    set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/LndGuidVec:mag.
+                    set result to (LndGuidVec:normalized * angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector) + facing:forevector * LndsteerDamp/(LndGuidVec:mag*0.4).
 
                     //set v2 to vecDraw(HeaderTank:position, TgtErrorVector:normalized * abs(TgtErrorStrength), blue, "2",2,true,0.05).
                     //set v3 to vecDraw(HeaderTank:position, -GSVec:normalized * TgtErrorStrength, red, "3",2,true,0.05).
