@@ -12592,7 +12592,7 @@ function ReEntryAndLand {
                                 if (currentdeltav > maxDeltaV*1.1 or LFShip > 0.65*FuelVentCutOffValue) and ship:body:atm:sealevelpressure > 0.5 {
                                     sCMNTank:activate.
                                     if not ShipType:contains("SN") Nose:activate.
-                                    when currentdeltav < maxDeltaV then {
+                                    when currentdeltav < maxDeltaV and LFShip < 0.5*FuelVentCutOffValue then {
                                         sCMNTank:shutdown.
                                         if not ShipType:contains("SN") Nose:shutdown.
                                     }
