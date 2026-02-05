@@ -12372,13 +12372,13 @@ function ReEntryAndLand {
 
         if LFShip > max(FuelVentCutOffValue, MaxFuel) and ship:body:atm:sealevelpressure > 0.5 and not ShipType:contains("SN") {
             ToggleHeaderTank(0).
-            if not ShipType:contains("Block1") and not ShipType:contains("SN") {
+            if not ShipType:contains("SN") {
                 Nose:activate.
             }
             sCMNTank:activate.
             when LFShip < max(FuelVentCutOffValue, MaxFuel) then {
                 sCMNTank:shutdown.
-                if not ShipType:contains("Block1") and not ShipType:contains("SN") {
+                if not ShipType:contains("SN") {
                     Nose:shutdown.
                 }
                 ToggleHeaderTank(1).
@@ -12588,13 +12588,13 @@ function ReEntryAndLand {
                             }
                         }
                         if ship:body:atm:sealevelpressure > 0.5 {
-                            when RadarAlt < 1500 then {
-                                if currentdeltav > maxDeltaV*1.1 and ship:body:atm:sealevelpressure > 0.5 {
+                            when RadarAlt < 1800 then {
+                                if (currentdeltav > maxDeltaV*1.1 or LFShip > FuelVentCutOffValue) and ship:body:atm:sealevelpressure > 0.5 {
                                     sCMNTank:activate.
-                                    //Nose:activate.
+                                    if not ShipType:contains("SN") Nose:activate.
                                     when currentdeltav < maxDeltaV then {
                                         sCMNTank:shutdown.
-                                        //Nose:shutdown.
+                                        if not ShipType:contains("SN") Nose:shutdown.
                                     }
                                 }
                             }
