@@ -12589,7 +12589,7 @@ function ReEntryAndLand {
                         }
                         if ship:body:atm:sealevelpressure > 0.5 {
                             when RadarAlt < 1800 then {
-                                if (currentdeltav > maxDeltaV*1.1 or LFShip > FuelVentCutOffValue) and ship:body:atm:sealevelpressure > 0.5 {
+                                if (currentdeltav > maxDeltaV*1.1 or LFShip > 0.65*FuelVentCutOffValue) and ship:body:atm:sealevelpressure > 0.5 {
                                     sCMNTank:activate.
                                     if not ShipType:contains("SN") Nose:activate.
                                     when currentdeltav < maxDeltaV then {
