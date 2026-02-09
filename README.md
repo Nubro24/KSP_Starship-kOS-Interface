@@ -40,7 +40,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Of Course I Still Love You (for multiple Camera Views on your Screen *using HullcamVDS*) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 ### Supported:
 - Vista's SEP Addon (VSEPM) - [github](https://github.com/vistastudios1/VistasKSPMods/releases)
-- Questin's Block 3 Booster - [github](https://github.com/Quest-in/Questins-Block-3/releases/tag/Current)
+- Flip'N'Burn - [github](https://github.com/Quest-in/FlipNBurn/releases)
 
 ### Incompatible:
 - TweakableEverything
