@@ -27,7 +27,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 ## Requirements:
 - **Stock**-size Kerbin or **Real Solar System** or KSRSS or SigmaDimensions (2.5-2.7x)
 - KSP language set to **English**
-- Starship Expansion Project - [github](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with beta7*
+- Starship Expansion Project - [github](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with v3.1.0*
     - with ***all*** dependencies
 - Starship Launch Expansion - [github](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Experimental) - *Experimental branch recommended*
 - kOS - [github](https://github.com/KSP-KOS/KOS/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/165628-ksp-1101-and-111-kos-v1310-kos-scriptable-autopilot-system/)
