@@ -39,8 +39,8 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - HullcamVDS - [github](https://github.com/linuxgurugamer/HullcamVDSContinued/releases)
 - Of Course I Still Love You (for multiple Camera Views on your Screen *using HullcamVDS*) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 ### Supported:
-- Vista's SEP Addon (VSEPM) - [github](https://github.com/vistastudios1/VistasKSPMods/releases)
 - Flip'N'Burn - [github](https://github.com/Quest-in/FlipNBurn/releases)
+- Vista's SEP Addon (VSEPM) - [github](https://github.com/vistastudios1/VistasKSPMods/releases)
 
 ### Incompatible:
 - TweakableEverything
