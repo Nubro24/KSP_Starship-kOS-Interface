@@ -12,7 +12,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ## Current State:
-- Ship landings/catches and Booster might be inconsistent
+- Ship and Booster landings/catches might be inconsistent
 - This fork is currently worked on by Nubro.
 
 ### Known Issues:
