@@ -638,7 +638,7 @@ else {       // Stock Kerbin
             set VentRate to 194.949.
             set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
         }
-        if core:part:name:contains("FNB") set FuelVentCutOffValue to FuelVentCutOffValue * 1.1.
+        if core:part:name:contains("FNB") set FuelVentCutOffValue to FuelVentCutOffValue * 1.2.
     }
     set ArmsHeight to 86.35.
     set OrbitPrecision to 100.
@@ -1366,45 +1366,6 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
-    } else if ship:partsnamed("Block.3.AFT"):length > 0 {
-        set Boosterconnected to true.
-        set BoosterType to "Block3".
-        set sAltitude:style:textcolor to grey.
-        set sSpeed:style:textcolor to grey.
-        set sLOXLabel:style:textcolor to grey.
-        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
-        set sCH4Label:style:textcolor to grey.
-        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
-        set sThrust:style:textcolor to grey.
-        if SHIP:PARTSNAMED("Raptor.3Cluster"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("Raptor.3Cluster").
-        else {
-            set BoosterEngines to SHIP:PARTSNAMED("Block.3.AFT").
-            set BoosterSingleEngines to true.
-        }
-        if SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN"):length > 0 set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
-        else if SHIP:PARTSNAMED("Block.3.Fin"):length > 0 set GridFins to SHIP:PARTSNAMED("Block.3.Fin").
-        set HSR to SHIP:PARTSNAMED("Block.3.FWD").
-        set BoosterCore to SHIP:PARTSNAMED("Block.3.AFT").
-        set bLOXTank to SHIP:PARTSNAMED("Block.3.LOX").
-        set bCH4Tank to SHIP:PARTSNAMED("Block.3.CH4").
-        set bCMNDome to SHIP:PARTSNAMED("Block.3.CMN").
-        if BoosterCore:length > 0 {
-            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
-            //print(round(BoosterCore[0]:drymass)).
-            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
-                set BoosterCorrectVariant to true.
-            }
-            else {
-                set BoosterCorrectVariant to true.
-            }
-            if ShipType = "Depot" {
-                sendMessage(processor(volume("Booster")),"Depot").
-            }
-            sendMessage(processor(volume("Booster")), "ShipDetected").
-        }
-        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
-        set missionTimeLabel:text to "".
-        print(BoosterCore[0]:mass).
     } else if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 {
         set Boosterconnected to true.
         set BoosterType to "Block1".
@@ -1444,7 +1405,7 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
-    } else if ship:partsnamed("FNB.BL3.BOOSTERAFT"):length > 0 {
+    } else if ship:partsnamed("FNB.BL3.BOOSTERLOX"):length > 0 {
         set Boosterconnected to true.
         set BoosterType to "Block3".
         set sAltitude:style:textcolor to grey.
@@ -1456,12 +1417,12 @@ function FindParts {
         set sThrust:style:textcolor to grey.
         if SHIP:PARTSNAMED("FNB.R3.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.R3.CLUSTER").
         else { 
-            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT").
+            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX").
             set BoosterSingleEngines to true.
         }
         set GridFins to SHIP:PARTSNAMED("FNB.BL3.BOOSTERFIN").
         set HSR to SHIP:PARTSNAMED("FNB.BL3.BOOSTERIHSR").
-        set BoosterCore to SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT").
+        set BoosterCore to SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX").
         set bLOXTank to SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX").
         set bCH4Tank to SHIP:PARTSNAMED("FNB.BL3.BOOSTERCH4").
         set bCMNDome to SHIP:PARTSNAMED("FNB.BL3.BOOSTERCMN").
@@ -4685,7 +4646,7 @@ set quickengine1:onclick to {
     for eng in SLEngines {if eng:hassuffix("activate") eng:shutdown.}.
     if not ShipType:contains("SN") for eng in VACEngines {if eng:hassuffix("activate") eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not ShipType:contains("SN") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not FNBship and not ShipType:contains("SN") {
         Nose:shutdown.
     } else if (ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ") {
         HeaderTank:shutdown.
@@ -7185,11 +7146,11 @@ set landbutton:ontoggle to {
                                     set runningprogram to "Venting Fuel..".
                                     HideEngineToggles(1).
                                     ToggleHeaderTank(0).
-                                    if not ShipType:contains("Block1") and not ShipType:contains("SN")  {
+                                    if not ShipType:contains("Block1") and not ShipType:contains("SN") and not FNBship {
                                         Nose:activate.
                                     } else if ShipType:contains("Block1") and not ShipType:contains("Exp") and not ShipType:contains("SN")  {
                                         HeaderTank:activate.
-                                    } else if ShipType:contains("Exp") and ShipType:contains("Block1") and not ShipType:contains("SN")  {
+                                    } else if ShipType:contains("Exp") and ShipType:contains("Block1") and not ShipType:contains("SN") and not FNBship {
                                         Nose:activate.
                                     }
                                     sCMNTank:activate.
@@ -7393,7 +7354,7 @@ set landbutton:ontoggle to {
                         set runningprogram to "Venting Fuel..".
                         ToggleHeaderTank(0).
                         HideEngineToggles(1).
-                        if not ShipType:contains("SN") Nose:activate.
+                        if not ShipType:contains("SN") and not FNBship Nose:activate.
                         sCMNTank:activate.
                         lock throttle to 0.
                         set message1:text to "<b>Fuel Vent Progress:</b>".
@@ -8304,7 +8265,7 @@ function Launch {
         if OnOrbitalMount {
             print "3".
             if not BoosterSingleEngines {
-                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
+                until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Outer Twenty" {
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     wait 0.01.
                 }
@@ -8408,7 +8369,7 @@ function Launch {
                 }
                 ClearInterfaceAndSteering().
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Outer Twenty" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -8528,7 +8489,7 @@ function Launch {
                 }
                 if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Outer Twenty" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -8610,7 +8571,7 @@ function Launch {
                 }
                 if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:shutdown.
                 if not BoosterSingleEngines {
-                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_All" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
+                    until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All Engines" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Outer Twenty" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "All" {
                         BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                         wait 0.01.
                     }
@@ -9731,7 +9692,7 @@ Function AbortLaunch {
                 Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
             }
         }
-        if ShipType:contains("Block1") or ShipType:contains("SN") {} else Nose:activate.
+        if ShipType:contains("Block1") or ShipType:contains("SN") or FNBship {} else Nose:activate.
         sCMNTank:activate.
         if apoapsis < 2500 {
             set AbortLaunchMode to "Early AbortLaunch".
@@ -9759,7 +9720,7 @@ Function AbortLaunch {
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
             if ShipType:contains("Block1") HeaderTank:activate.
-            else if not ShipType:contains("EXP") and not ShipType:contains("SN") Nose:activate.
+            else if not ShipType:contains("EXP") and not ShipType:contains("SN") and not FNBship Nose:activate.
             sCMNTank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
@@ -9795,7 +9756,7 @@ Function AbortLaunch {
             lock throttle to 0.
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
-            if not ShipType:contains("SN") Nose:activate.
+            if not ShipType:contains("SN") and not FNBship Nose:activate.
             sCMNTank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
@@ -9831,7 +9792,7 @@ Function AbortLaunch {
             lock throttle to 0.
             set message1:text to "<b>Venting until Main Tanks empty..</b>".
             wait 0.1.
-            if not ShipType:contains("SN") Nose:activate.
+            if not ShipType:contains("SN") and not FNBship Nose:activate.
             sCMNTank:activate.
             until LFShip < FuelVentCutOffValue {}
             ShutDownAllEngines().
@@ -12373,13 +12334,13 @@ function ReEntryAndLand {
 
         if LFShip > max(FuelVentCutOffValue, MaxFuel) and ship:body:atm:sealevelpressure > 0.5 and not ShipType:contains("SN") {
             ToggleHeaderTank(0).
-            if not ShipType:contains("SN") {
+            if not ShipType:contains("SN") and not FNBship {
                 Nose:activate.
             }
             sCMNTank:activate.
             when LFShip < max(FuelVentCutOffValue, MaxFuel) then {
                 sCMNTank:shutdown.
-                if not ShipType:contains("SN") {
+                if not ShipType:contains("SN") and not FNBship {
                     Nose:shutdown.
                 }
                 ToggleHeaderTank(1).
@@ -12411,7 +12372,7 @@ function ReEntryAndLand {
             when airspeed < ChangeOverSensitivity then {
                 set PitchPID to PIDLOOP(0.0005, 0.000001, 0.00003, -25, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
             }
-            set YawPID to PIDLOOP(0.0036, 0.0000012, 0.0001, -50, 50).
+            set YawPID to PIDLOOP(0.004, 0.0000012, 0.002, -50, 50).
         }
         if AFTONLY {
             set PitchPID:kp to PitchPID:kp * 0.95.
@@ -12592,10 +12553,10 @@ function ReEntryAndLand {
                             when RadarAlt < 1800 then {
                                 if (currentdeltav > maxDeltaV*1.1 or LFShip > 0.65*FuelVentCutOffValue) and ship:body:atm:sealevelpressure > 0.5 {
                                     sCMNTank:activate.
-                                    if not ShipType:contains("SN") Nose:activate.
+                                    if not ShipType:contains("SN") and not FNBship Nose:activate.
                                     when currentdeltav < maxDeltaV and LFShip < 0.5*FuelVentCutOffValue then {
                                         sCMNTank:shutdown.
-                                        if not ShipType:contains("SN") Nose:shutdown.
+                                        if not ShipType:contains("SN") and not FNBship Nose:shutdown.
                                     }
                                 }
                             }
@@ -12763,7 +12724,7 @@ function ReEntrySteering {
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (60 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 40).
-        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to max(min(5,LngLatErrorList[1] / 10),min(abs(LngLatErrorList[1] / 30), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90))).
+        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to max(min(15,LngLatErrorList[1] / 10),min(abs(LngLatErrorList[1] / 30), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90))).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
@@ -14640,7 +14601,7 @@ function ActivateEngines {
         }
         LogToFile("VAC Engine Start Successful!").
     }
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not ShipType:contains("SN") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not FNBship and not ShipType:contains("SN") {
         Nose:shutdown.
     } else if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
         HeaderTank:shutdown.
@@ -15106,7 +15067,8 @@ function SetRadarAltitude {
     }
     if ShipType:contains("SN") set ShipBottomRadarHeight to ShipBottomRadarHeight + 0.75*Scale.
     if ShipType:contains("Block2") set ShipBottomRadarHeight to ShipBottomRadarHeight + 1.2*Scale.
-    if FNBship set ShipBottomRadarHeight to ShipBottomRadarHeight + 2*Scale.
+    if FNBship and ShipType:contains("Block2") set ShipBottomRadarHeight to ShipBottomRadarHeight + 2*Scale.
+    else set ShipBottomRadarHeight to ShipBottomRadarHeight - 1*Scale.
     if TargetOLM and not (LandSomewhereElse) {
         if RSS {
             lock RadarAlt to altitude - max(ship:geoposition:terrainheight, 0) - ArmsHeight + (39.5167 - ShipBottomRadarHeight) - 0.1.

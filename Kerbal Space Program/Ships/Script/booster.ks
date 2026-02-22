@@ -165,25 +165,23 @@ for part in ship:parts {
         }
         set BTset to true.
     }
-    if part:name:contains("FNB.BL3.BOOSTERAFT") and not BTset {
+    if part:name:contains("FNB.BL3.BOOSTERLOX") and not BTset {
         set BoosterType to "Block3".
         set Bl3LndProf to true.
-        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERAFT").
+        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERLOX").
         set BoosterCore to part.
         set DumpVents to list().
         set ModulesFound to false.
         set x to 0.
-        set y to 0.
-        until x > part:modules:length-1 or ModulesFound {
-            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
-                DumpVents:add(part:getmodulebyindex(x)).
-                set y to y+1.
-                if y = 2 {
+        when defined bCMNDome then {
+            until x > bCMNDome:modules:length-1 or ModulesFound {
+                if bCMNDome:getmodulebyindex(x):name = "ModuleEnginesFX" {
+                    DumpVents:add(bCMNDome:getmodulebyindex(x)).
                     set ModulesFound to true.
                     break.
                 }
+                set x to x+1.
             }
-            set x to x+1.
         }
         set BTset to true.
     }
@@ -209,6 +207,7 @@ for part in ship:parts {
     }
     if part:name:contains("FNB.BL3.BOOSTERCH4") {
         set bCH4Tank to part.
+        set FWD to part.
     }
     if part:name:contains("FNB.BL3.BOOSTERLOX") {
         set bLOXTank to part.
@@ -281,9 +280,6 @@ for part in ship:parts {
         set Bl3LndProf to true.
         set HSR to part.
         set HSset to true.
-    }
-    if part:name:contains("FNB.BL3.BOOSTERFWD") {
-        set FWD to part.
     }
     if part:name:contains("FNB.BL3.BOOSTERIHSR") and not HSset {
         set HSRType to "Block3".
@@ -410,37 +406,44 @@ else if GridfinLength = 3 {
 }
 else set Gridfins to list("","").
 
-if ship:partsnamedpattern("VS.25.BL2"):length > 1 {
-    set RandomFlip to false.
-    set ShipType to "Block2".
-}
-else if ship:partsnamed("SEP.24.SHIP.FWD.RIGHT.FLAP"):length > 0 {
-    set ShipType to "Block1".
-    set RandomFlip to true.
-}
-else if ship:partsnamed("SEP.23.SHIP.FWD.RIGHT"):length > 0 {
-    set ShipType to "Block0".
-    set RandomFlip to true.
-}
-else if ship:partsnamed("FNB.BL2.LOX"):length > 0 {
-    set RandomFlip to false.
-    set ShipType to "Block2".
-}
-else if ship:partsnamed("FNB.BL3.LOX"):length > 0 {
-    set RandomFlip to false.
-    set ShipType to "Block3".
-}
-else if ship:partsnamed("SEP.25.SHIP.CORE"):length > 0 {
-    set RandomFlip to false.
-    set ShipType to "Block2".
-}
-else set ShipType to "None".
+set ShipTypeFound to false.
 for part in ship:parts {
     if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
         set ShipTank to part.
         set ShipConnectedToBooster to true.
         set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
     }
+    if part:name:contains("VS.25.BL2") {
+        set RandomFlip to false.
+        set ShipType to "Block2".
+        set ShipTypeFound to true.
+    }
+    else if part:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") {
+        set ShipType to "Block1".
+        set RandomFlip to true.
+        set ShipTypeFound to true.
+    }
+    else if part:name:contains("SEP.23.SHIP.FWD.RIGHT") {
+        set ShipType to "Block0".
+        set RandomFlip to true.
+        set ShipTypeFound to true.
+    }
+    else if part:name:contains("FNB.BL2.LOX") {
+        set RandomFlip to false.
+        set ShipType to "Block2".
+        set ShipTypeFound to true.
+    }
+    else if part:name:contains("FNB.BL3.LOX") {
+        set RandomFlip to false.
+        set ShipType to "Block3".
+        set ShipTypeFound to true.
+    }
+    else if part:name:contains("SEP.25.SHIP.CORE") {
+        set RandomFlip to false.
+        set ShipType to "Block2".
+        set ShipTypeFound to true.
+    }
+    else if not ShipTypeFound set ShipType to "None".
 }
 
 FindEngines().
@@ -1176,9 +1179,9 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1200. 
-        else set BoosterGlideDistance to 1220. //1100
+        else set BoosterGlideDistance to 1100. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
-        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
+        if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
         set LngCtrlPID:setpoint to 50. //50
@@ -1334,11 +1337,6 @@ when time:seconds > TelemetryTimer + 0.03 then {
 }
 
 
-
-
-if BoosterType:contains("Block3") and ship:partsnamed("FNB.BL3.BOOSTERAFT"):length = 0 {
-    CrossFeed:doaction("Disable Crossfeed", true).
-}
 if BoosterType:contains("Block3") {
     set maxAoA to 18.
     set BoosterGlideDistance to BoosterGlideDistance * 1.2.
@@ -1698,9 +1696,6 @@ function Boostback {
     SteeringCorrections().
 
     if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:controlfrom().
-    if BoosterType:contains("Block3") and ship:partsnamed("FNB.BL3.BOOSTERAFT"):length = 0 {
-        CrossFeed:doaction("Enable Crossfeed", true).
-    }
     if BoosterType:contains("Block3")
         set Bl3LndProf to true.
     if HSRJet set RadarAltOffset to BoosterHeight * 0.6.
@@ -1971,7 +1966,7 @@ function Boostback {
 
         when time:seconds > flipStartTime + 30 then {
             if LFBooster > LFBoosterCap * 0.3 {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
                 else for vent in DumpVents vent:doaction("activate engine", true).
             }
             set steeringManager:showfacingvectors to false.
@@ -1980,7 +1975,7 @@ function Boostback {
         when ship:groundspeed < 50 then {
             set config:ipu to 1500.
             if LFBooster > LFBoosterCap * 0.16 {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
                 else for vent in DumpVents vent:doaction("activate engine", true).
             }
         }
@@ -2043,10 +2038,10 @@ function Boostback {
             }
         }
         if LFBooster > LFBoosterCap * 0.1 {
-            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
             else for vent in DumpVents vent:doaction("activate engine", true).
         } else {
-            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
+            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
             else for vent in DumpVents vent:doaction("shutdown engine", true).
         }
         set steeringManager:rolltorquefactor to 2.
@@ -2204,7 +2199,7 @@ function Boostback {
         
 
         if LFBooster > LFBoosterFuelCutOff {
-            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
             else for vent in DumpVents vent:doaction("activate engine", true).
         }
 
@@ -2254,7 +2249,7 @@ function Boostback {
         else set LeftVector to ship:facing:starvector.
 
         when time:seconds - turnTime > 1.8 then {
-            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 if BoosterCore:thrust > 0 {
+            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 if BoosterCore:thrust > 0 {
                 BoosterCore:shutdown.
                 set FuelDump to true.
             }
@@ -2264,7 +2259,7 @@ function Boostback {
             }
             wait 0.01.
             if FuelDump when vAng(facing:forevector, up:vector) < 64 and RSS or vAng(facing:forevector, up:vector) < 50 then {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
                 else for vent in DumpVents vent:doaction("activate engine", true).
             }
         }
@@ -2294,7 +2289,7 @@ function Boostback {
             if time:seconds - turnTime > 5 rcs on.
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             if LFBooster < LFBoosterFuelCutOff {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
+                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
                 else for vent in DumpVents vent:doaction("shutdown engine", true).
             }
             wait 0.067.
@@ -3207,7 +3202,7 @@ function Boostback {
     CheckFuel().
 
     when time:seconds > LandingTime + 3 then {
-        if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:activate.
+        if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
         else for vent in DumpVents vent:doaction("activate engine", true).
     }
 
@@ -3272,7 +3267,7 @@ function Boostback {
         wait 0.3.
     }
 
-    if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
+    if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
     else for vent in DumpVents vent:doaction("shutdown engine", true).
 
     HUDTEXT("Booster may now be recovered!", 10, 2, 20, green, false).
@@ -4118,14 +4113,14 @@ function CheckFuel {
             set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 {
                 BoosterCore:shutdown.
-            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) DumpVents[1]:doaction("shutdown engine", true).
+            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and (ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
             if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 {
                 BoosterCore:shutdown.
-            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) DumpVents[1]:doaction("shutdown engine", true).
+            } else if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and (ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
             set OxBooster to res:amount.
@@ -4155,7 +4150,7 @@ function CheckFuel {
                 if (LFBoosterFuelCutOff/LFBoosterCap)+0.006 > OxBooster/OxBoosterCap DumpVents[0]:doaction("shutdown engine", true).
             }
         }
-        if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 for res in FWD:resources {
+        if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 for res in FWD:resources {
             if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
                 set boosterCH4 to boosterCH4 + res:amount.
                 set boosterCH4Cap to boosterCH4Cap + res:capacity.
@@ -4472,7 +4467,7 @@ function GUIupdate {
     else set currentPitch to vAng(facing:forevector,up:vector).
     if round(currentPitch) = 360 set currentPitch to 0.
 
-    if ShipConnectedToBooster and ShipType:contains("Block2") set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
+    if ShipConnectedToBooster and (ShipType:contains("Block2") or ShipType:contains("Block3")) set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
     else if ShipConnectedToBooster set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
     else set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
 
@@ -4575,44 +4570,46 @@ function GUIupdate {
             }
             if Mode = lastMode set ModeChanged to false. else set ModeChanged to true.
 
-            if Mode = "Center Three" or Mode = "Core" and ModeChanged {
-                set x to 1.
-                until x > 3 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
-                    set x to x+1.
+            if not BoosterType:contains("Block3") {
+                if (Mode = "Center Three" or Mode = "Core") and ModeChanged {
+                    set x to 1.
+                    until x > 3 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                        set x to x+1.
+                    }
+                } else if Mode = "2Inner" and ModeChanged {
+                    set x to 1.
+                    until x > 13 {
+                        if x = 1 or x = 2 or x = 3 or x = 7 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                        else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                        set x to x+1.
+                    }
+                } else if (Mode = "Middle Inner" or Mode = "Inner" or Mode = "Middle Ten") and ModeChanged {
+                    set x to 1.
+                    until x > 13 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
+                        set x to x+1.
+                    }
+                } else if (Mode = "All Engines" or Mode = "All" or Mode = "Outer Twenty") and ModeChanged {
+                    set x to 1.
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
+                        set x to x+1.
+                    }
                 }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
-                    set x to x+1.
-                }
-            } else if Mode = "2Inner" and ModeChanged {
-                set x to 1.
-                until x > 13 {
-                    if x = 1 or x = 2 or x = 3 or x = 7 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
-                    else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
-                    set x to x+1.
-                }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
-                    set x to x+1.
-                }
-            } else if Mode = "Middle Inner" or Mode = "Inner" and ModeChanged {
-                set x to 1.
-                until x > 13 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
-                    set x to x+1.
-                }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
-                    set x to x+1.
-                }
-            } else if Mode = "All Engines" or Mode = "All" and ModeChanged {
-                set x to 1.
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
-                    set x to x+1.
-                }
-            } else if Mode = "Raptor_3_Core" and ModeChanged {
+            } else if Mode = "Core" and ModeChanged {
                 set x to 1.
                 until x > 3 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
@@ -4622,7 +4619,7 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
                     set x to x+1.
                 }
-            } else if Mode = "Raptor_3_2Inner" and ModeChanged {
+            } else if Mode = "2Inner" and ModeChanged {
                 set x to 1.
                 until x > 13 {
                     if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
@@ -4633,7 +4630,7 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
                     set x to x+1.
                 }
-            } else if Mode = "Raptor_3_Inner" and ModeChanged {
+            } else if Mode = "Inner" and ModeChanged {
                 set x to 1.
                 until x > 13 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
@@ -4643,7 +4640,7 @@ function GUIupdate {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
                     set x to x+1.
                 }
-            } else if Mode = "Raptor_3_All" and ModeChanged {
+            } else if Mode = "All" and ModeChanged {
                 set x to 1.
                 until x > 33 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
