@@ -768,6 +768,10 @@ set Refueling to false.
 set NewTargetSet to false.
 set BurnComplete to false.
 set Logging to false.
+set LogTimestamp to 0.
+set FlightDataPath to "".
+set LandingDataPath to "".
+set LaunchDataPath to "".
 set fan to false.
 set FlapsYawEngaged to true.
 set CargoBay to false.
@@ -852,6 +856,8 @@ set HAFTAp to 10000.
 set ActiveRC to 0.
 set LFShip to 0.
 set LFShipCap to 0.
+set LFNose to 0.
+set LFNoseCap to 0.
 set PlotAoAset to false.
 set yawctrl to 0.
 
@@ -3343,7 +3349,7 @@ local quicksetting3 is settingscheckboxes:addcheckbox("<b>Log Data</b>").
     set quicksetting3:style:overflow:left to -3.
     set quicksetting3:style:overflow:top to -4.
     set quicksetting3:style:overflow:bottom to -9.
-    set quicksetting3:tooltip to "Flight Data Recorder. Saves data in 'KSP folder'/Ships/Script".
+    set quicksetting3:tooltip to "Flight Data Recorder. Saves data to 'KSP folder'/Ships/Script/Logs/".
 local quicksetting4 is settingscheckboxes:addcheckbox("<b>Hide on F2</b>").
     set quicksetting4:toggle to true.
     set quicksetting4:style:fontsize to 14.
@@ -3638,23 +3644,19 @@ set quicksetting3:ontoggle to {
     parameter pressed.
     if pressed {
         if homeconnection:isconnected {
-            if exists("0:/LaunchData.csv") {
-                if ship:status = "PRELAUNCH" {
-                    deletepath("0:/LaunchData.csv").
-                }
-            }
-            if exists("0:/LandingData.csv") {
-                deletepath("0:/LandingData.csv").
-            }
-            if exists("0:/FlightData.txt") {
-                deletepath("0:/FlightData.txt").
-            }
+            if not exists("0:/Logs") createdir("0:/Logs").
+            set LogTimestamp to round(time:seconds).
+            set FlightDataPath to "0:/Logs/FlightData_" + LogTimestamp + ".txt".
+            set LandingDataPath to "0:/Logs/LandingData_" + LogTimestamp + ".csv".
+            set LaunchDataPath to "0:/Logs/LaunchData_" + LogTimestamp + ".csv".
             if defined PrevLogTime {
                 unset PrevLogTime.
             }
             SaveToSettings("Log Data", "true").
             set Logging to true.
             LogToFile("Flight Data Recorder Started").
+            if Boosterconnected sendMessage(processor(Volume("Booster")),"LogData,true").
+            if OnOrbitalMount sendMessage(processor(Volume("OrbitalLaunchMount")),"LogData,true").
         }
         else {
             set quicksetting3:text to "<b><color=red>Log Data</color></b>".
@@ -3666,6 +3668,8 @@ set quicksetting3:ontoggle to {
     if not pressed {
         SaveToSettings("Log Data", "false").
         set Logging to false.
+        if Boosterconnected sendMessage(processor(Volume("Booster")),"LogData,false").
+        if OnOrbitalMount sendMessage(processor(Volume("OrbitalLaunchMount")),"LogData,false").
     }
 }.
 set quicksetting4:ontoggle to {
@@ -6571,6 +6575,10 @@ set launchbutton:ontoggle to {
                             print "1".
                             sendMessage(processor(volume("Booster")),"Countdown").
                             sendMessage(processor(volume("OrbitalLaunchMount")),"Countdown").
+                            if quicksetting3:pressed {
+                                sendMessage(processor(volume("Booster")),"LogData,true").
+                                sendMessage(processor(volume("OrbitalLaunchMount")),"LogData,true").
+                            }
                             print "2".
                             set MissionTimer to time:seconds-TMinusCountdown.
                             SaveToSettings("Launch Time", time:seconds+TMinusCountdown).
@@ -7638,6 +7646,11 @@ if addons:tr:available and not startup {
                 }
                 if L:haskey("Log Data") {
                     if L["Log Data"] = true {
+                        if not exists("0:/Logs") createdir("0:/Logs").
+                        set LogTimestamp to round(time:seconds).
+                        set FlightDataPath to "0:/Logs/FlightData_" + LogTimestamp + ".txt".
+                        set LandingDataPath to "0:/Logs/LandingData_" + LogTimestamp + ".csv".
+                        set LaunchDataPath to "0:/Logs/LaunchData_" + LogTimestamp + ".csv".
                         set quicksetting3:pressed to true.
                     }
                 }
@@ -9966,15 +9979,21 @@ function updatestatusbar {
                 }
             }
         }
+        set LFNose to 0.
+        set LFNoseCap to 0.
         if defined HeaderTank {
             for res in HeaderTank:resources {
                 if res:name = "LiquidFuel" {
                     set LFStep to LFStep + res:amount.
                     set LFCapStep to LFCapStep + res:capacity.
+                    set LFNose to LFNose + res:amount.
+                    set LFNoseCap to LFNoseCap + res:capacity.
                 }
                 if res:name = "LqdMethane" or res:name = "CooledLqdMethane"  {
                     set LFStep to LFStep + res:amount.
                     set LFCapStep to LFCapStep + res:capacity.
+                    set LFNose to LFNose + res:amount.
+                    set LFNoseCap to LFNoseCap + res:capacity.
                 }
                 if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                     set OxShip to OxShip + res:amount.
@@ -14698,29 +14717,39 @@ function LogToFile {
                             if LatDistanceToTarget < 0 {set LatDistanceToTarget to -1 * LatDistanceToTarget.}
                             set DistanceToTarget to sqrt(LngDistanceToTarget * LngDistanceToTarget + LatDistanceToTarget * LatDistanceToTarget).
                         }
+                        set LogFuelBatt to 0.
+                        if alt:radar > 1500 {
+                            set LogFuelBatt to (100 * (LFShip / LFShipCap)).
+                        } else {
+                            set LogFuelBatt to (100 * (ship:electriccharge / ELECcap)).
+                        }
+                        set LogVenting to false.
+                        if defined Venting { set LogVenting to Venting. }
                         if alt:radar > 1500 {
                             if homeconnection:isconnected {
-                                LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + round((LngLatErrorList[0] + LngLatOffset) / 1000, 3) + "km  " + round((LngLatErrorList[1] / 1000), 3) + "km") to "0:/FlightData.txt".
+                                LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + round((LngLatErrorList[0] + LngLatOffset) / 1000, 3) + "km  " + round((LngLatErrorList[1] / 1000), 3) + "km") to FlightDataPath.
                             }
                             if homeconnection:isconnected {
-                                LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to "0:/FlightData.txt".
+                                LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Fuel: " + round(100 * (LFShip / LFShipCap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to FlightDataPath.
                             }
                             if homeconnection:isconnected {
-                                LOG ("                 Radar Altitude: " + round(RadarAlt, 1) + "m") to "0:/FlightData.txt".
+                                LOG ("                 Radar Altitude: " + round(RadarAlt, 1) + "m") to FlightDataPath.
                             }
                             if homeconnection:isconnected {
-                                LOG "" to "0:/FlightData.txt".
-                            }
-                            if homeconnection:isconnected {
-                                LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + (LngLatErrorList[0] + LngLatOffset) + "," + LngLatErrorList[1] + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + (100 * (LFShip / LFShipCap)) + "," + (ship:mass * 1000) + "," + RadarAlt) to "0:/LandingData.csv".
+                                LOG "" to FlightDataPath.
                             }
                         }
                         else {
-                            LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + round((LngLatErrorList[0] + LngLatOffset) / 1000, 3) + "km  " + round((LngLatErrorList[1] / 1000), 3) + "km") to "0:/FlightData.txt".
-                            LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to "0:/FlightData.txt".
-                            LOG ("                 Radar Altitude: " + round(RadarAlt, 1) + "m   Groundspeed: " + round(groundspeed,1) + "m/s") to "0:/FlightData.txt".
-                            LOG "" to "0:/FlightData.txt".
-                            LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + (LngLatErrorList[0] + LngLatOffset) + "," + LngLatErrorList[1] + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + (100 * (ship:electriccharge / ELECcap)) + "," + (ship:mass * 1000) + "," + RadarAlt) to "0:/LandingData.csv".
+                            LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + round((LngLatErrorList[0] + LngLatOffset) / 1000, 3) + "km  " + round((LngLatErrorList[1] / 1000), 3) + "km") to FlightDataPath.
+                            LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to FlightDataPath.
+                            LOG ("                 Radar Altitude: " + round(RadarAlt, 1) + "m   Groundspeed: " + round(groundspeed,1) + "m/s") to FlightDataPath.
+                            LOG "" to FlightDataPath.
+                        }
+                        if homeconnection:isconnected {
+                            set LogPitch to 90 - vang(ship:up:forevector, ship:facing:forevector).
+                            set LogHeading to ship:facing:yaw.
+                            set LogTWR to ship:availablethrust / max(ship:mass * constant:g0, 0.001).
+                            LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + (LngLatErrorList[0] + LngLatOffset) + "," + LngLatErrorList[1] + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + LogFuelBatt + "," + (ship:mass * 1000) + "," + RadarAlt + "," + (ship:dynamicpressure * 101.325) + "," + (ship:angularvel:mag * constant:radtodeg) + "," + SteeringManager:angleerror + "," + (LFShip - LFNose) + "," + (LFShipCap - LFNoseCap) + "," + LFNose + "," + LFNoseCap + "," + LogVenting + "," + groundspeed + "," + ship:geoposition:lat + "," + ship:geoposition:lng + "," + LogPitch + "," + LogHeading + "," + LogTWR + "," + ship:orbit:apoapsis) to LandingDataPath.
                         }
                         set PrevLogTimeLanding to timestamp(time:seconds).
                     }
@@ -14728,7 +14757,7 @@ function LogToFile {
                 else {
                     set PrevLogTimeLanding to timestamp(time:seconds).
                     if homeconnection:isconnected {
-                        LOG "Time, Distance to Target (km), Altitude (m), Vertical Speed (m/s), Airspeed (m/s), Track Error (m), Cross-Track Error (m), Actual AoA (°), Throttle (%), Battery (%), Mass (kg), Radar Altitude" to "0:/LandingData.csv".
+                        LOG "Time,Distance (km),Alt (m),VS (m/s),Airspeed (m/s),Trk Err (m),X-Trk Err (m),AoA (°),Throttle (%),Fuel/Batt (%),Mass (kg),RadarAlt,Q (kPa),AngVel (°/s),SteerErr (°),Tank LF,Tank LF Cap,Nose LF,Nose LF Cap,FuelVenting,Groundspeed (m/s),Lat,Lng,Pitch (°),Heading (°),TWR,Apoapsis (m)" to LandingDataPath.
                     }
                 }
             }
@@ -14737,31 +14766,31 @@ function LogToFile {
                     set TimeStep to 1.
                     if timestamp(time:seconds) > PrevLogTimeLaunch + TimeStep {
                         set DistanceToTarget to ((landingzone:lng - ship:geoposition:lng) * Planet1Degree).
-                        LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + 0 + "km  " + 0 + "km") to "0:/FlightData.txt".
-                        LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to "0:/FlightData.txt".
-                        LOG ("                 Radar Altitude: " + round(RadarAlt,1) + "m") to "0:/FlightData.txt".
-                        LOG "" to "0:/FlightData.txt".
-                        LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + 0 + "," + 0 + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + (100 * (ship:electriccharge / ELECcap)) + "," + (ship:mass * 1000) + "," + RadarAlt) to "0:/LaunchData.csv".
+                        LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + 0 + "km  " + 0 + "km") to FlightDataPath.
+                        LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to FlightDataPath.
+                        LOG ("                 Radar Altitude: " + round(RadarAlt,1) + "m") to FlightDataPath.
+                        LOG "" to FlightDataPath.
+                        LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + 0 + "," + 0 + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + (100 * (ship:electriccharge / ELECcap)) + "," + (ship:mass * 1000) + "," + RadarAlt) to LaunchDataPath.
                         set PrevLogTimeLaunch to timestamp(time:seconds).
                     }
                 }
                 else {
                     set PrevLogTimeLaunch to timestamp(time:seconds).
-                    LOG "Time, Distance to Target (km), Altitude (m), Vertical Speed (m/s), Airspeed (m/s), Track Error (m), Cross-Track Error (m), Actual AoA (°), Throttle (%), Battery (%), Mass (kg), Radar Altitude" to "0:/LaunchData.csv".
+                    LOG "Time, Distance to Target (km), Altitude (m), Vertical Speed (m/s), Airspeed (m/s), Track Error (m), Cross-Track Error (m), Actual AoA (°), Throttle (%), Battery (%), Mass (kg), Radar Altitude" to LaunchDataPath.
                 }
             }
             else {
                 if homeconnection:isconnected {
-                    LOG "" to "0:/FlightData.txt".
+                    LOG "" to FlightDataPath.
                 }
                 if homeconnection:isconnected {
-                    LOG "Time: " + timestamp():clock + "   " + msg to "0:/FlightData.txt".
+                    LOG "Time: " + timestamp():clock + "   " + msg to FlightDataPath.
                 }
                 if homeconnection:isconnected {
-                    LOG "" to "0:/FlightData.txt".
+                    LOG "" to FlightDataPath.
                 }
                 if homeconnection:isconnected {
-                    LOG "" to "0:/FlightData.txt".
+                    LOG "" to FlightDataPath.
                 }
             }
         }
@@ -16615,7 +16644,7 @@ function updateTelemetry {
             }
             set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(abs(currentPitch)):tostring.
         }
-    } 
+    }
     else {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
