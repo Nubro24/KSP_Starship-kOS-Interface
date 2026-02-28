@@ -4488,11 +4488,11 @@ function GUIupdate {
 
     if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position)) < 90 set currentPitch to 360-vAng(facing:forevector,up:vector).
     else set currentPitch to vAng(facing:forevector,up:vector).
-    if round(currentPitch) = 360 set currentPitch to 0.
+    if round(currentPitch, 1) = 360 set currentPitch to 0.
 
-    if ShipConnectedToBooster and (ShipType:contains("Block2") or ShipType:contains("Block3")) set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
-    else if ShipConnectedToBooster set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
-    else set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
+    if ShipConnectedToBooster and (ShipType:contains("Block2") or ShipType:contains("Block3")) set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch, 1):tostring.
+    else if ShipConnectedToBooster set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch, 1):tostring.
+    else set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch, 1):tostring.
 
     if cAbort set GDlamp:style:bg to "starship_img/telemetry_red".
 

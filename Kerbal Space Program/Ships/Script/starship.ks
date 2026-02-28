@@ -16628,42 +16628,42 @@ function updateTelemetry {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
-            if round(currentPitch) = 360 set currentPitch to 0.
-            set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(abs(currentPitch)):tostring.
+            if round(currentPitch, 1) = 360 set currentPitch to 0.
+            set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(abs(currentPitch), 1):tostring.
         }
         else {
             if not LandingBurnStarted {
-                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
-                if round(currentPitch) = 360 set currentPitch to 0.
+                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+                else set currentPitch to 360-vAng(facing:forevector,up:vector).
+                if round(currentPitch, 1) = 360 set currentPitch to 0.
             }
             else {
-                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
-                if round(currentPitch) = 360 set currentPitch to 0.
+                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+                else set currentPitch to 360-vAng(facing:forevector,up:vector).
+                if round(currentPitch, 1) = 360 set currentPitch to 0.
             }
-            set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(abs(currentPitch)):tostring.
+            set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(abs(currentPitch), 1):tostring.
         }
     }
     else {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
-            if round(currentPitch) = 360 set currentPitch to 0.
-            set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(abs(currentPitch)):tostring.
+            if round(currentPitch, 1) = 360 set currentPitch to 0.
+            set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(abs(currentPitch), 1):tostring.
         }
         else {
             if not LandingBurnStarted {
-                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
-                if round(currentPitch) = 360 set currentPitch to 0.
+                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+                else set currentPitch to 360-vAng(facing:forevector,up:vector).
+                if round(currentPitch, 1) = 360 set currentPitch to 0.
             }
             else {
-                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
-                if round(currentPitch) = 360 set currentPitch to 0.
+                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+                else set currentPitch to 360-vAng(facing:forevector,up:vector).
+                if round(currentPitch, 1) = 360 set currentPitch to 0.
             }
-            set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(abs(currentPitch)):tostring.
+            set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(abs(currentPitch), 1):tostring.
         }
     }
 
