@@ -123,7 +123,7 @@ if homeconnection:isconnected if exists("0:/settings.json") {
     if L:haskey("Launch Coordinates") {
         set LSCoords to L["Launch Coordinates"].
     }
-} 
+}
 set TgtLandingzone to latlng(LSCoords:split(",")[0]:toscalar,LSCoords:split(",")[1]:toscalar).
 
 if homeconnection:isconnected if exists("0:/settings.json") {
@@ -131,21 +131,21 @@ if homeconnection:isconnected if exists("0:/settings.json") {
     if L:haskey("HideGUI") {
         set HideGUI to L["HideGUI"].
     }
-} 
+}
 
 if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("fullAuto") {
         set fullAuto to L["fullAuto"].
     }
-} 
+}
 
 if homeconnection:isconnected if exists("0:/settings.json") {
     set L to readjson("0:/settings.json").
     if L:haskey("HSRJetQuest") {
         set HSRJetQuest to L["HSRJetQuest"].
     }
-} 
+}
 
 set RadarAlt to 0.
 set Hotstaging to false.
@@ -279,7 +279,7 @@ function CreateTelemetry {
     set VersionDisplay:y to 36*TScale.
         set VersionDisplayLabel:style:width to 100*TScale.
         set VersionDisplayLabel:style:fontsize to 12*TScale.
-    
+
     set IgnitionChancesOpen:x to 340*TScale.
     set IgnitionChancesOpen:y to 0.
 
@@ -460,7 +460,7 @@ else {
 set WaitTime to false.
 
 set FuelUnitsToKg to 11 + (1/9).
-when partsfound then 
+when partsfound then
     for res in sCMNTank:resources {
         if res:name = "LqdMethane" {
             set Methane to true.
@@ -768,6 +768,10 @@ set Refueling to false.
 set NewTargetSet to false.
 set BurnComplete to false.
 set Logging to false.
+set LogTimestamp to 0.
+set FlightDataPath to "".
+set LandingDataPath to "".
+set LaunchDataPath to "".
 set fan to false.
 set FlapsYawEngaged to true.
 set CargoBay to false.
@@ -852,6 +856,8 @@ set HAFTAp to 10000.
 set ActiveRC to 0.
 set LFShip to 0.
 set LFShipCap to 0.
+set LFNose to 0.
+set LFNoseCap to 0.
 set PlotAoAset to false.
 set yawctrl to 0.
 
@@ -874,7 +880,7 @@ when NOT CORE:MESSAGES:EMPTY then {
 
 function FindParts {
     wait 0.
-    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 or ship:partsnamed("SEP.24.SHIP.CORE"):length > 0) if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
+    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.24.SHIP.CORE"):length > 0) if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
         set ShipIsDocked to true.
     }
     else {
@@ -917,8 +923,7 @@ function FindParts {
     function TreeWalking {
         parameter StartPart.
         for x in StartPart:children {
-            if x:name:contains("SEP.23.BOOSTER.INTEGRATED") {}
-            else if x:name:contains("SEP.25.BOOSTER.CORE") {}
+            if x:name:contains("SEP.25.BOOSTER.CORE") {}
             else if x:name:contains("Block.3.AFT") {}
             else if x:name:contains("Block.3.LOX") {}
             else if x:name:contains("Block.3.CMN") {}
@@ -935,7 +940,6 @@ function FindParts {
             else if x:name:contains("FNB.BL3.BOOSTERCH4") {}
             else if x:name:contains("FNB.BL3.BOOSTERFWD") {}
             else if x:name:contains("FNB.BL3.BOOSTERHSR") {}
-            else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else if x:name:contains("FNB.R3.CLUSTER") {}
             else {
@@ -947,16 +951,16 @@ function FindParts {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.25.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
+                else if x:name:contains("SEP.25.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
                     set ALflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.25.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
+                else if x:name:contains("SEP.25.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.25.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
+                else if x:name:contains("SEP.25.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.25.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
+                else if x:name:contains("SEP.25.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
                     set FRflap to x.
                 }
                 else if x:name:contains("SEP.24.SHIP.PROTO.NOSE") {
@@ -1081,14 +1085,14 @@ function FindParts {
                     set CargoItems to CargoItems + 1.
                     set CargoCoG to CargoCoG + vdot(x:position - Tank:position, facing:forevector) * x:mass.
                 }
-                
+
                 set ShipMassStep to ShipMassStep + (x:mass).
                 PartListStep:add(x).
                 Treewalking(x).
             }
         }
     }
-    if defined HeaderTank {} 
+    if defined HeaderTank {}
     else if ship:partsnamed("FNB.BL2.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL2.NC")[0].
     else if ship:partsnamed("FNB.BL3.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL3.NC")[0].
     else if ship:partsnamed("SEP.25.SHIP.CARGO"):length > 0 set HeaderTank to ship:partsnamed("SEP.25.SHIP.CARGO")[0].
@@ -1111,13 +1115,13 @@ function FindParts {
                     if vAng(partPos, compPos) < 89 {
                         set SLEnginesStep[0] to x.
                         set SL1 to true.
-                    }  
+                    }
                     else {
                         set compPos to -Tank:facing:starvector.
                         if vAng(partPos, compPos) < 89 {
                             set SLEnginesStep[1] to x.
                             set SL2 to true.
-                        } 
+                        }
                         else {
                             set compPos to Tank:facing:starvector.
                             if vAng(partPos, compPos) < 89 {
@@ -1140,7 +1144,7 @@ function FindParts {
             if not SL3 set SLEnginesStep[2] to False.
             set SLStep to true.
         }
-    } 
+    }
     else if not sEngSet {
         print("SLEngine count is wrong!").
         hudtext("SLEngine count is wrong! (" + SLcount + "/3)",10,2,18,red,false).
@@ -1159,13 +1163,13 @@ function FindParts {
                     if vAng(partPos, compPos) < 89 {
                         set VACEnginesStep[0] to x.
                         set Vac1 to true.
-                    }  
+                    }
                     else {
                         set compPos to Tank:facing:starvector.
                         if vAng(partPos, compPos) < 89 {
                             set VACEnginesStep[1] to x.
                             set Vac2 to true.
-                        } 
+                        }
                         else {
                             set compPos to -Tank:facing:starvector.
                             if vAng(partPos, compPos) < 89 {
@@ -1188,7 +1192,7 @@ function FindParts {
             if not Vac3 set VACEnginesStep[2] to False.
             set VACStep to true.
         }
-    } 
+    }
     else if Vac and Vaccount = 6 and not sEngSetVac {
         set Vac1 to false.
         set Vac2 to false.
@@ -1204,13 +1208,13 @@ function FindParts {
                     if vAng(partPos, compPos) < 10 {
                         set VACEnginesStep[0] to x.
                         set Vac1 to true.
-                    }  
+                    }
                     else {
                         set compPos to -Tank:facing:starvector - 2*Tank:facing:topvector.
                         if vAng(partPos, compPos) < 10 {
                             set VACEnginesStep[1] to x.
                             set Vac2 to true.
-                        } 
+                        }
                         else {
                             set compPos to Tank:facing:starvector - 2*Tank:facing:topvector.
                             if vAng(partPos, compPos) < 10 {
@@ -1257,7 +1261,7 @@ function FindParts {
             if not Vac6 set VACEnginesStep[5] to False.
             set VACStep to true.
         }
-    } 
+    }
     else if not sEngSetVac and ship:partsnamed("SEP.24.SHIP.PROTO.NOSE"):length = 0 and ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length = 0 {
         print("VACEngine count is wrong!").
         hudtext("VACEngine count is wrong! (" + Vaccount + "; needs 3 or 6)",10,2,18,red,false).
@@ -1266,11 +1270,11 @@ function FindParts {
     if SLStep {
         set SLEngines to SLEnginesStep.
         set SLStep to false.
-    } 
+    }
     if VACStep {
         set VACEngines to VACEnginesStep.
         set VACStep to false.
-    } 
+    }
     if defined VACEngines {} else {set VACEngines to list(False,False,False).}
     set NrOfVacEngines to VACEngines:length.
     set ShipMass to ShipMassStep * 1000.
@@ -1377,7 +1381,7 @@ function FindParts {
         set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         if SHIP:PARTSNAMED("FNB.BL1.BOOSTERCLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCLUSTER").
-        else { 
+        else {
             set BoosterEngines to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
             set BoosterSingleEngines to true.
         }
@@ -1416,7 +1420,7 @@ function FindParts {
         set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
         set sThrust:style:textcolor to grey.
         if SHIP:PARTSNAMED("FNB.R3.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.R3.CLUSTER").
-        else { 
+        else {
             set BoosterEngines to SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX").
             set BoosterSingleEngines to true.
         }
@@ -1454,10 +1458,10 @@ function FindParts {
     }
 
     if Boosterconnected and not Hotstaging and not bEngSet {
-        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
-            or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
-            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER") 
+        if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C")
+            or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB")
+            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB")
+            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER")
             or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
             or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB")
             or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") )  {
@@ -1471,12 +1475,12 @@ function FindParts {
                     else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
                 }
                 else {
-                    if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
+                    if x < 14 BoosterSingleEnginesRC:insert(x-1, False).
                     else BoosterSingleEnginesRB:insert(x-14, False).
                 }
                 set x to x + 1.
             }
-        } 
+        }
         else {
             set BoosterSingleEngines to false.
         }
@@ -1611,22 +1615,22 @@ function EngineTest {
     if not SHipType:contains("SN") for eng in VACEngines {
         eng:activate.
         wait 0.1.
-    } 
+    }
     wait 0.2.
     for eng in SLEngines {
         eng:activate.
         wait 0.1.
-    } 
+    }
     wait 5.
     if not SHipType:contains("SN") for eng in VACEngines {
         eng:shutdown.
         wait 0.2.
-    } 
+    }
     wait 2.
     for eng in SLEngines {
         eng:shutdown.
         wait 0.2.
-    } 
+    }
     lock throttle to 0.
     unlock throttle.
     hudtext("Static Fire Test complete..",5,2,18,green,false).
@@ -1687,7 +1691,7 @@ function HighAltitudeFlightTest {
     if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
     if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-    
+
     if ship:partsnamed("SLE.SS.OLM"):length > 0 {
         set tgtVec to v(0,0,0).
         if ship:PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and ship:PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  {
@@ -1712,7 +1716,7 @@ function HighAltitudeFlightTest {
                     set vessel(tgt:name):loaddistance:landed:unpack to vessel(tgt:name):distance * 1.1.
                 }
                 when vessel(tgt:name):loaded then {
-                    if Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  
+                    if Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0
                         set TowerHeadingVector to vxcl(Vessel(tgt:name):up:vector, Vessel(tgt:name):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(tgt:name):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                     else {
                         set TowerHeadingVector to vCrs(Vessel(tgt:name):up:vector, Vessel(tgt:name):north:vector).
@@ -1791,7 +1795,7 @@ function HighAltitudeFlightTest {
         eng:activate.
         set message3:text to "Active Engines: " + SLactive.
         wait 0.3.
-    } 
+    }
     wait 0.5.
     if LaunchClamp LaunchStand:getmodule("LaunchClamp"):doaction("release clamp", true).
     else if LaunchDock LaunchStand:getmodule("ModuleDockingNode"):doaction("undock node", true).
@@ -1817,8 +1821,8 @@ function HighAltitudeFlightTest {
         lock throttle to HAFTthrPID:update(time:seconds, apoapsis).
         lock steering to lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector).
         wait 0.
-        if tgtVec:mag < 1000 
-            when vAng(facing:forevector, lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector):forevector) < 1 and angularVel:mag < 0.02 then 
+        if tgtVec:mag < 1000
+            when vAng(facing:forevector, lookDirUp(facing:forevector*10+up:vector*10+tgtVec*2/HAFTAp-0.01*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector):forevector) < 1 and angularVel:mag < 0.02 then
                 lock steering to lookDirUp(facing:forevector*10+up:vector*10+tgtVec*1.4/HAFTAp-0.02*GSVec-0.03*vxcl(TowerHeadingVector, GSVec), -TowerHeadingVector) * angleAxis(vAng(up:vector, ship:position + facing:topvector:normalized*1*Scale/1.6 + up:vector:normalized*(SLEngines[0]:position - ship:position):mag),-ship:facing:starvector).
     }
     when alt:radar > 123 then lock steering to lookDirUp(up:vector*10+tgtVec*1.2/HAFTAp, -TowerHeadingVector*0.2 + facing:topvector).
@@ -1944,7 +1948,7 @@ if OnOrbitalMount {
 }
 set ship:type to "Ship".
 ShipsInOrbit().
-if not ShipType:contains("SN") and ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 or ship:partsnamed("SEP.24.SHIP.CORE"):length > 0) Tank:getmodule("ModuleDockingNode"):SETFIELD("docking acquire force", 0).
+if not ShipType:contains("SN") and ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.24.SHIP.CORE"):length > 0) Tank:getmodule("ModuleDockingNode"):SETFIELD("docking acquire force", 0).
 FindParts().
 
 if ship:name:contains("OrbitalLaunchMount") {
@@ -2544,7 +2548,7 @@ set IgnitionChances:ontoggle to {
                 set ifIgnCha2 to L["IgnChances8"].
                 set IFSelect2:text to ifIgnCha2:tostring.
             }
-        } 
+        }
         IgnitionChancesGUI:show().
     }
     else IgnitionChancesGUI:hide().
@@ -2644,7 +2648,7 @@ local ScaleConfirm is ScaleLayout:addbutton().
         set scalebutton:pressed to false.
         ScaleUI:hide().
     }.
-    
+
 
 
 
@@ -2989,7 +2993,7 @@ set g_close:onclick to {
     }
 }.
 
-    
+
 local mainbox is box_all:addvlayout().
 local flightstack is mainbox:addstack().
 local settingsstack is mainbox:addstack().
@@ -3045,7 +3049,7 @@ set cargobutton:ontoggle to {
     }
     else {mainbox:showonly(flightstack).}
 }.
-    
+
 set attitudebutton:ontoggle to {
     parameter toggle.
     if toggle {
@@ -3093,7 +3097,7 @@ set statusbutton:ontoggle to {
     }
     else {mainbox:showonly(flightstack).}
 }.
-    
+
 set orbitbutton:ontoggle to {
     parameter toggle.
     if toggle {
@@ -3109,7 +3113,7 @@ set orbitbutton:ontoggle to {
     }
     else {mainbox:showonly(flightstack).}
 }.
-    
+
 set enginebutton:ontoggle to {
     parameter toggle.
     if toggle {
@@ -3230,7 +3234,7 @@ local message32 is textboxvlayout2:addlabel("          NO COM").
     set message32:style:bg to "starship_img/starship_signal_grey".
     set message32:tooltip to "COM1 (signal with KSC) / DLK (Downlink) or TLM (Telemetry, logging enabled)".
 
-    
+
 
 local settingsstackhlayout is settingsstack:addhlayout().
     set settingsstackhlayout:style:bg to "starship_img/starship_main_square_bg".
@@ -3343,7 +3347,7 @@ local quicksetting3 is settingscheckboxes:addcheckbox("<b>Log Data</b>").
     set quicksetting3:style:overflow:left to -3.
     set quicksetting3:style:overflow:top to -4.
     set quicksetting3:style:overflow:bottom to -9.
-    set quicksetting3:tooltip to "Flight Data Recorder. Saves data in 'KSP folder'/Ships/Script".
+    set quicksetting3:tooltip to "Flight Data Recorder. Saves data to 'KSP folder'/Ships/Script/Logs/".
 local quicksetting4 is settingscheckboxes:addcheckbox("<b>Hide on F2</b>").
     set quicksetting4:toggle to true.
     set quicksetting4:style:fontsize to 14.
@@ -3638,23 +3642,19 @@ set quicksetting3:ontoggle to {
     parameter pressed.
     if pressed {
         if homeconnection:isconnected {
-            if exists("0:/LaunchData.csv") {
-                if ship:status = "PRELAUNCH" {
-                    deletepath("0:/LaunchData.csv").
-                }
-            }
-            if exists("0:/LandingData.csv") {
-                deletepath("0:/LandingData.csv").
-            }
-            if exists("0:/FlightData.txt") {
-                deletepath("0:/FlightData.txt").
-            }
+            if not exists("0:/Logs") createdir("0:/Logs").
+            set LogTimestamp to round(time:seconds).
+            set FlightDataPath to "0:/Logs/FlightData_" + LogTimestamp + ".txt".
+            set LandingDataPath to "0:/Logs/LandingData_" + LogTimestamp + ".csv".
+            set LaunchDataPath to "0:/Logs/LaunchData_" + LogTimestamp + ".csv".
             if defined PrevLogTime {
                 unset PrevLogTime.
             }
             SaveToSettings("Log Data", "true").
             set Logging to true.
             LogToFile("Flight Data Recorder Started").
+            if Boosterconnected sendMessage(processor(Volume("Booster")),"LogData,true").
+            if OnOrbitalMount sendMessage(processor(Volume("OrbitalLaunchMount")),"LogData,true").
         }
         else {
             set quicksetting3:text to "<b><color=red>Log Data</color></b>".
@@ -3666,6 +3666,8 @@ set quicksetting3:ontoggle to {
     if not pressed {
         SaveToSettings("Log Data", "false").
         set Logging to false.
+        if Boosterconnected sendMessage(processor(Volume("Booster")),"LogData,false").
+        if OnOrbitalMount sendMessage(processor(Volume("OrbitalLaunchMount")),"LogData,false").
     }
 }.
 set quicksetting4:ontoggle to {
@@ -3766,7 +3768,7 @@ local cargo3label2 is cargostackvlayout5:addlabel("-").
     set cargo3label2:style:margin:top to 7.
     set cargo3label2:style:textcolor to grey.
     set cargo3label2:tooltip to "index units define the Center of Gravity of the Ship (max " + MaxIU + " i.u. for re-entry)".
-    
+
 local cargocheckboxes is cargostackvlayout6:addvbox().
     set cargocheckboxes:style:margin:right to 0.
     set cargocheckboxes:style:vstretch to 1.
@@ -3874,7 +3876,7 @@ set cargo1button:onclick to {
     }
     LogToFile("Cargo Door Operation Requested").
 }.
-    
+
 
 local attitudestackhlayout to attitudestack:addhlayout().
     set attitudestackhlayout:style:bg to "starship_img/starship_main_square_bg".
@@ -4238,7 +4240,7 @@ local statusstackvlayout4 is statusstackhlayout:addvlayout().
 local statusstackvlayout5 is statusstackhlayout:addvlayout().
 local statusstackvlayout6 is statusstackhlayout:addvlayout().
 
-    
+
 local status1label1 is statusstackvlayout1:addlabel().
     set status1label1:style:margin:left to 10.
     set status1label1:style:margin:top to 25.
@@ -4278,7 +4280,7 @@ local status1label5 is statusstackvlayout5:addlabel().
     set status1label5:style:width to 105.
     set status1label5:style:wordwrap to false.
     set status1label5:tooltip to "Current Ship Mass in metric tons".
-    
+
 local status2label1 is statusstackvlayout1:addlabel("").
     set status2label1:style:textcolor to grey.
     set status2label1:style:margin:left to 5.
@@ -4297,7 +4299,7 @@ local status2label2 is statusstackvlayout2:addlabel().
     set status2label2:style:overflow:left to 1.
     set status2label2:style:overflow:right to -19.
     set status2label2:tooltip to "Visual Representation of the Hull".
-    
+
 local status2label3 is statusstackvlayout3:addlabel(" ").
     set status2label3:style:textcolor to grey.
     set status2label3:style:width to 50.
@@ -4328,7 +4330,7 @@ local status2label5 is statusstackvlayout5:addlabel().
     set status2label5:style:border:h to 10.
     set status2label5:style:border:v to 10.
     set status2label5:tooltip to "% Methane Fuel Remaining".
-    
+
 local status3label1 is statusstackvlayout1:addlabel().
     set status3label1:style:margin:left to 10.
     set status3label1:style:width to 50.
@@ -4365,7 +4367,7 @@ local status3label5 is statusstackvlayout5:addlabel().
     set status3label5:style:border:h to 10.
     set status3label5:style:border:v to 10.
     set status3label5:tooltip to "% Liquid Oxygen Fuel Remaining".
-    
+
 local status4label4 is statusstackvlayout4:addlabel().
     set status4label4:style:fontsize to 16.
     set status4label4:style:align to "LEFT".
@@ -4419,7 +4421,7 @@ local quickstatus3 is statuscheckboxes:addcheckbox("<b>Gear</b>").
     set quickstatus3:style:overflow:top to -4.
     set quickstatus3:style:overflow:bottom to -9.
     set quickstatus3:tooltip to "Extend/Retract Gear".
-    
+
 
 set quickstatus1:ontoggle to {
     parameter click.
@@ -4485,7 +4487,7 @@ local enginestackvlayout3 is enginestackhlayout:addvlayout().
 local enginestackvlayout4 is enginestackhlayout:addvlayout().
 local enginestackvlayout5 is enginestackhlayout:addvlayout().
 local enginestackvlayout6 is enginestackhlayout:addvlayout().
-    
+
 local engine1label1 is enginestackvlayout1:addlabel("<b> SL Raptors</b>").
     set engine1label1:style:margin:left to 5.
     set engine1label1:style:margin:top to 10.
@@ -4514,7 +4516,7 @@ local engine1label5 is enginestackvlayout5:addlabel("<b>VAC Raptors</b>").
     set engine1label5:style:fontsize to 18.
     set engine1label5:style:wordwrap to false.
     set engine1label5:style:align to "LEFT".
-    
+
 local engine2label1 is enginestackvlayout1:addlabel("-").
     set engine2label1:style:textcolor to grey.
     set engine2label1:style:margin:top to 8.
@@ -4570,7 +4572,7 @@ local engine2label5 is enginestackvlayout5:addlabel("-").
     set engine2label5:style:border:h to 10.
     set engine2label5:style:border:v to 10.
     set engine2label5:style:overflow:bottom to 1.
-    
+
 local engine3label1 is enginestackvlayout1:addlabel("Pitch Gimbal").
     set engine3label1:style:margin:top to 2.
     set engine3label1:style:margin:left to 8.
@@ -4641,7 +4643,7 @@ local quickengine3 is enginecheckboxes:addcheckbox("<b>VAC Raptors</b>").
     set quickengine3:style:overflow:top to -4.
     set quickengine3:style:overflow:bottom to -9.
     set quickengine3:tooltip to "Turn on vacuum Raptors".
-    
+
 set quickengine1:onclick to {
     for eng in SLEngines {if eng:hassuffix("activate") eng:shutdown.}.
     if not ShipType:contains("SN") for eng in VACEngines {if eng:hassuffix("activate") eng:shutdown.}.
@@ -4682,7 +4684,7 @@ set quickengine2:ontoggle to {
         }
     }
 }.
-    
+
 set quickengine3:ontoggle to {
     parameter click.
     if click {
@@ -4715,7 +4717,7 @@ local orbitstackvlayout1 is orbitstackhlayout:addvlayout().
     set orbitstackvlayout1:style:vstretch to true.
 local orbitstackvlayout2 is orbitstackhlayout:addvlayout().
 local orbitstackvlayout3 is orbitstackhlayout:addvlayout().
-    
+
 local orbit1label1 is orbitstackvlayout1:addlabel().
     set orbit1label1:style:wordwrap to false.
     set orbit1label1:style:margin:left to 10.
@@ -4747,7 +4749,7 @@ local orbit1label3 is orbitstackvlayout3:addlabel().
     set orbit1label3:style:height to 25.
     set orbit1label3:style:overflow:right to -100.
     set orbit1label3:tooltip to "No Maneuver Node = Grey / Maneuver Node = Magenta".
-    
+
 local orbit2label1 is orbitstackvlayout1:addlabel().
     set orbit2label1:style:wordwrap to false.
     set orbit2label1:style:margin:left to 10.
@@ -4770,7 +4772,7 @@ local orbit2label3 is orbitstackvlayout3:addlabel().
     set orbit2label3:style:width to 125.
     set orbit2label3:style:align to "LEFT".
     set orbit2label3:tooltip to "Required Delta-V for Maneuver".
-    
+
 local orbit3label1 is orbitstackvlayout1:addlabel().
     set orbit3label1:style:margin:left to 10.
     set orbit3label1:style:margin:bottom to 9.
@@ -4798,7 +4800,7 @@ local orbit3label3 is orbitstackvlayout3:addlabel().
     set orbit3label3:style:height to 25.
     set orbit3label3:style:overflow:right to -100.
     set orbit3label3:tooltip to "Navigational Capability: GPS (Satellite), IRS (Inertial) or CBN (Celestial)".
-    
+
 
 local crewstackhlayout to crewstack:addhlayout().
     set crewstackhlayout:style:bg to "starship_img/starship_main_square_bg".
@@ -6352,7 +6354,7 @@ set cancel:onclick to {
     }
 }.
 
-    
+
 set launchbutton:ontoggle to {
     parameter click.
     if not LaunchButtonIsRunning and not LaunchComplete {
@@ -6437,7 +6439,7 @@ set launchbutton:ontoggle to {
                         ClearInterfaceAndSteering().
                         return.
                     }
-                    
+
                     if CargoMass < MaxCargoToOrbit + 1 and cargo1text:text = "Closed" {
                         ShowHomePage().
                         InhibitButtons(0, 0, 0).
@@ -6509,7 +6511,7 @@ set launchbutton:ontoggle to {
                             }
                         }
 
-                        if oldBooster or HSRJetQuest {   
+                        if oldBooster or HSRJetQuest {
                             set message1:text to "<b>HSR Jettison after Boostback?</b>".
                             set message2:text to "".
                             set message3:text to "<b><color=green>Confirm</color> <color=white>or</color> <color=red>Deny</color> ?</b>".
@@ -6571,6 +6573,10 @@ set launchbutton:ontoggle to {
                             print "1".
                             sendMessage(processor(volume("Booster")),"Countdown").
                             sendMessage(processor(volume("OrbitalLaunchMount")),"Countdown").
+                            if quicksetting3:pressed {
+                                sendMessage(processor(volume("Booster")),"LogData,true").
+                                sendMessage(processor(volume("OrbitalLaunchMount")),"LogData,true").
+                            }
                             print "2".
                             set MissionTimer to time:seconds-TMinusCountdown.
                             SaveToSettings("Launch Time", time:seconds+TMinusCountdown).
@@ -7278,7 +7284,7 @@ set landbutton:ontoggle to {
                                         return.
                                     }.
                                 }
-                                
+
                                 PerformBurn(deorbitburnstarttime, ProgradeVelocity, 0, 0, "DeOrbit").
                                 ReEntryAndLand().
                             }
@@ -7638,6 +7644,11 @@ if addons:tr:available and not startup {
                 }
                 if L:haskey("Log Data") {
                     if L["Log Data"] = true {
+                        if not exists("0:/Logs") createdir("0:/Logs").
+                        set LogTimestamp to round(time:seconds).
+                        set FlightDataPath to "0:/Logs/FlightData_" + LogTimestamp + ".txt".
+                        set LandingDataPath to "0:/Logs/LandingData_" + LogTimestamp + ".csv".
+                        set LaunchDataPath to "0:/Logs/LaunchData_" + LogTimestamp + ".csv".
                         set quicksetting3:pressed to true.
                     }
                 }
@@ -7739,7 +7750,7 @@ if addons:tr:available and not startup {
         else {
             ShutDownAllEngines().
         }
-        
+
         if Boosterconnected {
             HideEngineToggles(1).
         }
@@ -7961,7 +7972,7 @@ if addons:tr:available and not startup {
             LandwithoutAtmo().
         }
     }
-    if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and alt:radar < 1000 and ship:mass - ship:drymass < 5 and quicksetting1:pressed and not (RSS) {
+    if SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and alt:radar < 1000 and ship:mass - ship:drymass < 5 and quicksetting1:pressed and not (RSS) {
         LandAtOLM().
         if not (TargetOLM = "False") {
             if Vessel(TargetOLM):PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0  and Vessel(TargetOLM):PARTSNAMED("SEP.25.BOOSTER.CORE"):length > 0 {
@@ -7971,10 +7982,10 @@ if addons:tr:available and not startup {
                 wait 3.
                 Tank:getmodule("ModuleDockingNode"):SETFIELD("docking acquire force", 200).
                 HUDTEXT("Stacking Starship and Booster..", 15, 2, 20, green, false).
-                when alt:radar < 1000 and ship:mass - ship:drymass < 50 and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 then {
+                when alt:radar < 1000 and ship:mass - ship:drymass < 50 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 then {
                     sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (4 * Scale) + ",0.25")).
                     wait 4 * Scale.
-                    if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
+                    if SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
                         sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + (3 * Scale) + ",0.25")).
                         wait 4 * Scale.
                         preserve.
@@ -7998,7 +8009,7 @@ if addons:tr:available and not startup {
                         SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
                     }
                 }
-                
+
                 HUDTEXT("Starship Re-stacked! Rebooting..", 5, 2, 20, green, false).
                 wait 1.
                 reboot.
@@ -8032,7 +8043,7 @@ if Boosterconnected or RadarAlt > 100 or airspeed > 2 {
     sStaticFire:hide().
     sHAFT:hide().
     sHAFTAp:hide().
-} 
+}
 if not Boosterconnected {
     bStaticFire:hide().
 }
@@ -8053,7 +8064,7 @@ function InhibitButtons {
     parameter pagebuttons.
     parameter executebutton.
     parameter cancelbutton.
-    
+
     if pagebuttons {
         set attitudebutton:style:bg to "starship_img/starship_attitude_inhibited".
         set attitudebutton:style:on:bg to "starship_img/starship_attitude_inhibited".
@@ -8101,7 +8112,7 @@ function InhibitButtons {
         set settingsbutton:tooltip to "Settings Page".
         set InhibitPages to 0.}
 
-    if executebutton {   
+    if executebutton {
         set execute:style:textcolor to grey.
         set execute:style:hover:bg to "starship_img/starship_background".
         set execute:style:active:bg to "starship_img/starship_background".
@@ -8194,7 +8205,7 @@ function Launch {
             }
         }
         print "Target Inc: " + round(setting3:text:split("°")[0]:toscalar(0)).
-        
+
 
         if RSS {
             set LaunchElev to altitude - 108.384.
@@ -8318,7 +8329,7 @@ function Launch {
                             }
                         }
                     }
-                    
+
                 }
                 if x - time:seconds < 3 {
                     for p in list(SteelPlate) {
@@ -8333,8 +8344,8 @@ function Launch {
                             }
                         }
                     }
-                    
-                    
+
+
                 }
             }
             if cancelconfirmed {
@@ -8391,13 +8402,13 @@ function Launch {
                         set resBooster:enabled to true.
                     }
                 }
-                if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 
+                if SHIP:PARTSNAMED("Block.3.AFT"):length > 0
                     for resBooster in HSR[0]:resources {
                         if resBooster:name = "LqdMethane" or resBooster:name = "LiquidFuel" {
                             set resBooster:enabled to true.
                         }
                     }
-                else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 
+                else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0
                     for resBooster in bFWDDome[0]:resources {
                         if resBooster:name = "LqdMethane" or resBooster:name = "LiquidFuel" {
                             set resBooster:enabled to true.
@@ -8422,8 +8433,8 @@ function Launch {
             }
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
-            wait 0.02. 
-            
+            wait 0.02.
+
             if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
             else {
                 for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") {
@@ -8437,7 +8448,7 @@ function Launch {
             set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
             wait 1.
 
-            if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
+            if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
             else {
                 set x to 0.
                 for eng in BoosterSingleEnginesRB {
@@ -8449,7 +8460,7 @@ function Launch {
             }
             set message2:text to "<b>Expected Engine Count:</b>    28".
             wait 0.4.
-            
+
             //last 5 outer ignition
             set message2:text to "<b>Expected Engine Count:</b>    33".
             if BoosterSingleEngines {
@@ -8459,7 +8470,7 @@ function Launch {
                     set x to x + 1.
                 }
             }
-            
+
 
             wait 0.1.
             if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
@@ -8472,12 +8483,12 @@ function Launch {
                 set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
                 set message1:text to "<b>Clamps Release in:   </b>" + round(-time:seconds + EngineStartTime + 3.9, 1) + "<b> seconds</b>".
                 lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 2.5) / 1.
-                
+
                 BackGroundUpdate().
             }
 
             if HideGUI g:hide().
-            
+
             set message1:text to "".
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
             set message2:text to "<b>Clamps Releasing..</b>".
@@ -8521,36 +8532,36 @@ function Launch {
             set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass.
             lock throttle to 0.77.
             wait 0.1.
-            
+
             if BoosterSingleEngines {
                 set ActiveRC to 0. set ActiveRB to 0.
                 for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") if eng:thrust > 85 set ActiveRC to ActiveRC + 1.
                 for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") if eng:thrust > 85 set ActiveRB to ActiveRB + 1.
                 lock bLiftOffThrust to ActiveRB * BoosterSingleEnginesRB[0]:thrust  + ActiveRC * BoosterSingleEnginesRC[0]:thrust.
-            } 
+            }
             else lock bLiftOffThrust to BoosterEngines[0]:thrust.
             wait 0.1.
             if bLiftOffThrust > StackMass * Planet1G * 1.4 and bLiftOffThrust < StackMass * Planet1G * 2 {}
             else {
-                lock throttle to 0.85. 
+                lock throttle to 0.85.
                 print(round(bLiftOffThrust, 2) + "<" + round(StackMass * Planet1G * 1.4, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
             if bLiftOffThrust > StackMass * Planet1G * 1.37 and bLiftOffThrust < StackMass * Planet1G * 2 {}
             else {
-                lock throttle to 0.9. 
+                lock throttle to 0.9.
                 print(round(bLiftOffThrust, 2) + "<" + round(StackMass * Planet1G * 1.37, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
             if bLiftOffThrust > StackMass * Planet1G * 1.34 and bLiftOffThrust < StackMass * Planet1G * 2 {}
             else {
-                lock throttle to 0.95. 
+                lock throttle to 0.95.
                 print(round(bLiftOffThrust, 2) + "<" + round(StackMass * Planet1G * 1.34, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
             if bLiftOffThrust > StackMass * Planet1G * 1.3 and bLiftOffThrust < StackMass * Planet1G * 2 {}
             else {
-                lock throttle to 1. 
+                lock throttle to 1.
                 print(round(bLiftOffThrust, 2) + "<" + round(StackMass * Planet1G * 1.3, 2)).
                 wait 0.01.}
             set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
@@ -8609,8 +8620,8 @@ function Launch {
             wait 0.01.
             if BoosterSingleEngines set SteeringManager:rollts to 5.
             else set SteeringManager:rollts to 4.
-            if BoosterSingleEngines set steeringManager:rolltorquefactor to 2. 
-            else set steeringManager:rolltorquefactor to 4.  
+            if BoosterSingleEngines set steeringManager:rolltorquefactor to 2.
+            else set steeringManager:rolltorquefactor to 4.
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
             set LaunchRollVector to facing:topvector.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
@@ -8627,7 +8638,7 @@ function Launch {
             else {
                 OLM:getmodule("LaunchClamp"):DoEvent("release clamp").
             }
-            if SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER"):length > 0 or SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER"):length > 0 {
+            if SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER"):length > 0 {
                 if BoosterEngines[0]:getmodule("ModuleDockingNode"):hasevent("undock") {
                     BoosterEngines[0]:getmodule("ModuleDockingNode"):doevent("undock").
                 }
@@ -8720,20 +8731,20 @@ function Launch {
                 set steeringManager:maxstoppingtime to 0.6*Scale.
                 set steeringManager:pitchtorquefactor to 0.15*Scale.
                 set steeringManager:yawtorquefactor to 0.15*Scale.
-                if BoosterSingleEngines set steeringManager:rolltorquefactor to 3.9*Scale. 
-                else set steeringManager:rolltorquefactor to 8.4*Scale.  
+                if BoosterSingleEngines set steeringManager:rolltorquefactor to 3.9*Scale.
+                else set steeringManager:rolltorquefactor to 8.4*Scale.
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                     if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
                     set LaunchRollVector to up:vector.
-                } 
+                }
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
-                } 
+                }
                 else {
                     sendMessage(processor(volume("Booster")), "NoHSRJet").
-                } 
+                }
             }
             when apoapsis > BoosterAp - 7500 * Scale and ShipType = "Crew" then {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
@@ -8764,7 +8775,7 @@ function Launch {
                 }
                 updateTelemetry().
                 wait 0.08.
-                
+
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
@@ -8791,7 +8802,7 @@ function Launch {
                 ShowHomePage().
                 updateTelemetry().
                 wait 0.08.
-                
+
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
@@ -8869,7 +8880,7 @@ function Launch {
                         HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
                     }
                     wait 0.1.
-                } 
+                }
                 else if BoosterType:contains("Block3") {
                     print "Block 3".
                     if defined HSR {
@@ -8880,7 +8891,7 @@ function Launch {
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
-                } 
+                }
                 else if ShipType:contains("Block1") {
                     print "Block 1".
                     if defined HSR {
@@ -8895,7 +8906,7 @@ function Launch {
                     if Tank:getmodule("ModuleDockingNode"):hasaction("undock node") {
                         Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     }
-                } 
+                }
                 else {
                     if defined HSR {
                         HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
@@ -8915,7 +8926,7 @@ function Launch {
                 }
                 updateTelemetry().
 
-                wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("Block.3.AFT"):LENGTH = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):LENGTH = 0.
+                wait until SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("Block.3.AFT"):LENGTH = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):LENGTH = 0.
                 updateTelemetry().
                 if not IFT1SEI set HotStageTime to time:seconds.
                 else set HotStageTime to time:seconds + 2.
@@ -9062,7 +9073,7 @@ function Launch {
             //print "OPCodes left    until: " + opcodesleft.
             wait 0.1.
         }
-        
+
         if not fullAuto g:show().
 
         unlock steering.
@@ -9135,8 +9146,8 @@ function LaunchThrottle {
             set thr to 1 - 0.0033 * 32/max(1,CargoMass/1000).
         }
         if apoapsis > BoosterAp {
-            set thr to max((1 - 0.0033 * 32/max(1,CargoMass/1000) - 0.12 * (gLoad - 2.2))/2 
-                        + min((1 - 0.0033 * 32/max(1,CargoMass/1000) - 0.12 * (gLoad - 2.2))/2 
+            set thr to max((1 - 0.0033 * 32/max(1,CargoMass/1000) - 0.12 * (gLoad - 2.2))/2
+                        + min((1 - 0.0033 * 32/max(1,CargoMass/1000) - 0.12 * (gLoad - 2.2))/2
                         - ((apoapsis - BoosterAp) / BoosterThrottleDownAlt),0.5),0.5).
         }
     }
@@ -9260,7 +9271,7 @@ Function LaunchSteering {
 
     if altitude - LaunchElev < 120 {
         set result to heading(myAzimuth + TargetError, 90).
-    } 
+    }
     else if altitude - LaunchElev < 1000 {
         if RSS {
             set targetpitch to 90 - (7.3 * SQRT(max((altitude - 120 - LaunchElev), 0)/1600)).
@@ -9277,7 +9288,7 @@ Function LaunchSteering {
             set targetpitch to 90 - (10 * SQRT(max((altitude - 120 - LaunchElev), 0)/1650)).
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
-    } 
+    }
     else if apoapsis > BoosterAp - 21000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
             set steeringManager:pitchtorquefactor to 0.14*Scale.
@@ -9683,7 +9694,7 @@ Function AbortLaunch {
         wait 0.001.
         set quickengine2:pressed to true.
         set quickengine3:pressed to true.
-        if ship:partsnamed("SEP.23.BOOSTER.HSR"):length > 0 or ship:partsnamed("SEP.25.BOOSTER.HSR"):length > 0 {
+        if ship:partsnamed("SEP.25.BOOSTER.HSR"):length > 0 {
             HSR[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
             HSR[0]:getmodule("ModuleDecouple"):doaction("Decouple", true).
             Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
@@ -9861,7 +9872,7 @@ Function AbortLaunchSteering {
 
 
 
-    
+
 function sendMessage {
     parameter ves, msg.
     set cnx to ves:connection.
@@ -9966,15 +9977,21 @@ function updatestatusbar {
                 }
             }
         }
+        set LFNose to 0.
+        set LFNoseCap to 0.
         if defined HeaderTank {
             for res in HeaderTank:resources {
                 if res:name = "LiquidFuel" {
                     set LFStep to LFStep + res:amount.
                     set LFCapStep to LFCapStep + res:capacity.
+                    set LFNose to LFNose + res:amount.
+                    set LFNoseCap to LFNoseCap + res:capacity.
                 }
                 if res:name = "LqdMethane" or res:name = "CooledLqdMethane"  {
                     set LFStep to LFStep + res:amount.
                     set LFCapStep to LFCapStep + res:capacity.
+                    set LFNose to LFNose + res:amount.
+                    set LFNoseCap to LFNoseCap + res:capacity.
                 }
                 if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                     set OxShip to OxShip + res:amount.
@@ -9998,7 +10015,7 @@ function updatestatusbar {
         set LFShip to LFStep.
         set LFShipCap to LFCapStep.
 
-        if SLEngines[0]:hassuffix("activate") and VACEngines[0]:hassuffix("activate") { 
+        if SLEngines[0]:hassuffix("activate") and VACEngines[0]:hassuffix("activate") {
             if SLEngines[0]:ignition and not (VACEngines[0]:ignition) {
                 set EngineISP to 327.
             }
@@ -10016,16 +10033,16 @@ function updatestatusbar {
             //print "2 ENGINES NOT SET CORRECTLY".
             set EngineISP to 327.
         }
-        
+
         if FuelMass = 0 {
             set FuelMass to 0.001.
         }
-        if DeltaVCheck and not docked and (ShipMass - FuelMass*1000 > 0) {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).} 
+        if DeltaVCheck and not docked and (ShipMass - FuelMass*1000 > 0) {set currentdeltav to round(9.81 * EngineISP * ln(ShipMass / (ShipMass - (FuelMass * 1000)))).}
         if currentdeltav > 275 {set status2:style:textcolor to white.}
         else if currentdeltav < 250 {set status2:style:textcolor to red.}
         else {set status2:style:textcolor to yellow.}
 
-        if SLEngines[0]:hassuffix("activate") and VACEngines[0]:hassuffix("activate") { 
+        if SLEngines[0]:hassuffix("activate") and VACEngines[0]:hassuffix("activate") {
             if SLEngines[0]:ignition and not (VACEngines[0]:ignition) {
                 set status2:text to "<b>ΔV: </b>" + currentdeltav + "m/s <b><size=12>@SL</size></b>".
             }
@@ -10301,7 +10318,7 @@ function updateStatus {
         if altitude > 0.75 * body:atm:height {
             set status4label4:text to "<b>OSPD:</b>  " + round(ship:velocity:orbit:mag) + "m/s".
         }
-        
+
         set currVel to SHIP:VELOCITY:ORBIT.
         local timeDelta to time:seconds - prevACCTime.
         if timeDelta <> 0 {
@@ -12210,7 +12227,7 @@ function ReEntryAndLand {
         for res in HeaderTank:resources {
             if not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") {
                 set res:enabled to true.
-            } 
+            }
         }
         ShowButtons(0).
         InhibitButtons(1, 1, 0).
@@ -12256,7 +12273,7 @@ function ReEntryAndLand {
         }
             set RebalanceCoGox to TRANSFER("OXIDIZER", HeaderTank, Tank, 0).
             set RebalanceCoGlf to TRANSFER("LiquidFuel", HeaderTank, Tank, 0).
-        
+
         sas off.
         rcs off.
         ActivateEngines(0).
@@ -12274,7 +12291,7 @@ function ReEntryAndLand {
         if not AFTONLY ALflap:getmodule("ModuleSEPControlSurface"):DoAction("deactivate yaw control", true).
         if not AFTONLY ARflap:getmodule("ModuleSEPControlSurface"):DoAction("deactivate yaw control", true).
 
-        
+
         if DynamicBanking {
             set trCompensation to trCompensation + 7000*(Scale^1.2).
             when alt:radar < 64000 * Scale then {
@@ -12293,7 +12310,7 @@ function ReEntryAndLand {
                     set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to DistanceToTarget*1200.
                     when Vessel(TargetedOLM):loaded then {
                         set TgtLandingzone to landingzone.
-                        if Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  
+                        if Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0
                             set TowerHeadingVector to vxcl(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                         else {
                             set TowerHeadingVector to vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector).
@@ -12354,7 +12371,7 @@ function ReEntryAndLand {
 
         if RSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00005, 0.000001, 0.00001, -15, 17 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.00005, 0.000001, 0.00001, -15, 17 - TRJCorrection). // 0.000025, 0, 0, -25, 30 -
             }
             set YawPID to PIDLOOP(0.001, 0.000001, 0.000001, -42, 42).
             when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
@@ -12364,13 +12381,13 @@ function ReEntryAndLand {
         }
         else if KSRSS {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 27 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
+                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 27 + TRJCorrection). // 0.0025, 0, 0, -25, 30 +
             }
             set YawPID to PIDLOOP(0.0035, 0, 0.00002, -50, 50).
         }
         else {
             when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.0005, 0.000001, 0.00003, -25, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
+                set PitchPID to PIDLOOP(0.0005, 0.000001, 0.00003, -25, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 -
             }
             set YawPID to PIDLOOP(0.004, 0.0000012, 0.002, -50, 50).
         }
@@ -12408,7 +12425,7 @@ function ReEntryAndLand {
                     else set PitchPID:kp to 0.00005.
                 }
 
-                if RSS and DynamicBanking when airspeed < 2435 then 
+                if RSS and DynamicBanking when airspeed < 2435 then
                         set trCompensation to trCompensation + 6000 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
                 if STOCK and DynamicBanking when airspeed < 1300 then
                     set trCompensation to trCompensation + 4200 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
@@ -12429,7 +12446,7 @@ function ReEntryAndLand {
                     }
                     else {
                         set trCompensation to trCompensation + 3600 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-                        set PitchPID to PIDLOOP(0.0008, 0.0001, 0.001, -25, 26 - TRJCorrection). 
+                        set PitchPID to PIDLOOP(0.0008, 0.0001, 0.001, -25, 26 - TRJCorrection).
                         set YawPID to PIDLOOP(0.0028*YawBank, 0.0002*YawBank, 0.0006*YawBank, -50, 50).
                     }
                 }
@@ -12451,7 +12468,7 @@ function ReEntryAndLand {
                         set YawPID to PIDLOOP(0.00085*YawBank, 0, 0.0002*YawBank, -50, 50).
                     }
                     else {
-                        set PitchPID to PIDLOOP(0.001, 0.0001, 0.001, -25, 26 - TRJCorrection). 
+                        set PitchPID to PIDLOOP(0.001, 0.0001, 0.001, -25, 26 - TRJCorrection).
                         set YawPID to PIDLOOP(0.0069*YawBank, 0.0002*YawBank, 0.0006*YawBank, -50, 50).
                     }
                     if AFTONLY {
@@ -12565,7 +12582,7 @@ function ReEntryAndLand {
                 }
             }
         }
-        when RadarAlt < FlipAltitude + abs(verticalSpeed) then 
+        when RadarAlt < FlipAltitude + abs(verticalSpeed) then
             for res in tank:resources {
                 if res:name = "Oxidizer" {
                     set RepositionOxidizer to TRANSFERALL("Oxidizer", HeaderTank, Tank).
@@ -12580,7 +12597,7 @@ function ReEntryAndLand {
                     set RepositionLF:ACTIVE to TRUE.
                 }
             }
-        
+
         if ship:body:atm:sealevelpressure > 0.5 {
             until RadarAlt < FlipAltitude or altitude - AvailableLandingSpots[4] < FlipAltitude or cancelconfirmed and not ClosingIsRunning or vAng(facing:forevector,up:vector) < 45 and RadarAlt < 2*FlipAltitude {
                 ReEntryData().
@@ -12655,8 +12672,8 @@ function ReEntryAndLand {
             sas on.
             ClearInterfaceAndSteering().
         }
-        
-    
+
+
 //------------------Re-Entry Loop-----------------------///
 
 
@@ -12680,7 +12697,7 @@ function ReEntrySteering {
 
         if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 320 {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
-            
+
             if STOCK set OvershootFactor to ApproachRatio * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90).
             else set OvershootFactor to 2 * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90).
             set bankLNG to min(max(-2.6*maxLatChange, maxLatChange * (min(80,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/75)^2 * OvershootFactor/ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2.6*maxLatChange).
@@ -12716,7 +12733,7 @@ function ReEntrySteering {
         else set Bellyflop to false.
         if Bellyflop {
             set PitchPID:kp to PitchPID_kp * max(0.5,(abs(LngLatErrorList[0])/50)^0.3) * max(1,5/max(1,abs(LngLatErrorList[0]))).
-            if abs(pitchctrl) > 0.5 * PitchPID:maxoutput and abs(yawctrl) > 0.5 * YawPID:maxoutput or abs(yawctrl) > 0.75 * YawPID:maxoutput or abs(pitchctrl) > 0.75 * PitchPID:maxoutput 
+            if abs(pitchctrl) > 0.5 * PitchPID:maxoutput and abs(yawctrl) > 0.5 * YawPID:maxoutput or abs(yawctrl) > 0.75 * YawPID:maxoutput or abs(pitchctrl) > 0.75 * PitchPID:maxoutput
                 setflaps(FWDFlapDefault, AFTFlapDefault, 1, 40).
             set minAoA to 70 - min(5,abs(LngLatErrorList[0])/50).
         } else set minAoA to 42.
@@ -12770,7 +12787,7 @@ function ReEntrySteering {
 
         if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + (resultVec:normalized - facing:forevector).
         else set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) + (resultVec:normalized - facing:forevector).
-        
+
         //set ReentryRollVec to vecDraw(Tank:position, 1 * ReentryRoll, green, "Re-Entry Vector", 25, true, 0.005, true, true).
         set result to lookdirup(resultVec, ReentryRoll).
         set steeringOffsetFinal to vang(result:forevector, facing:forevector).
@@ -12865,9 +12882,9 @@ function ReEntryData {
     }
     if altitude < ship:body:atm:height - 5000 and vang(facing:forevector, result:vector) > 30 or CargoMass > 25000 * Scale {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 70).
-            else 
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 70).
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 80).
             if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
@@ -12876,7 +12893,7 @@ function ReEntryData {
             }
         }
         else {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 30).
             else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 30).
@@ -12890,9 +12907,9 @@ function ReEntryData {
     }
     if time:seconds > tt + 24 and not AFTONLY {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
-            else 
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
             if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
@@ -12901,9 +12918,9 @@ function ReEntryData {
             }
         }
         else {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).
-            else 
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 3).
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 2).
             if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
@@ -12914,7 +12931,7 @@ function ReEntryData {
     }
     else if time:seconds > tt + 24 {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
             else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
@@ -12925,7 +12942,7 @@ function ReEntryData {
             }
         }
         else {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 6).
             else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 6).
@@ -13069,8 +13086,8 @@ function ReEntryData {
                 set RebalanceCoGlf:ACTIVE to true.
             }
         }
-    } 
-    
+    }
+
     set LngDistanceToTarget to 0.
     SetPlanetData().
     if (TgtLandingzone:lng - ship:geoposition:lng) < -180 {
@@ -13160,14 +13177,14 @@ function ReEntryData {
 }
 
 
-    
+
 //-----------------------Landing---------------------------///
 
 
 
         if LandButtonIsRunning and not LaunchButtonIsRunning and not cancelconfirmed {
             set config:ipu to 2000.
-            
+
             unlock throttle.
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
@@ -13217,12 +13234,12 @@ function ReEntryData {
                 set FlipAngleFactor to 0.5.
                 set CatchVS to -0.5.
             }
-            
+
             wait 0.001.
             lock throttle to 0.5.
             if RSS {lock throttle to 0.33.}
             if GSVec:mag < 12*Scale {
-                set throttleOffset to (12*Scale-GSVec:mag)/(8*Scale). 
+                set throttleOffset to (12*Scale-GSVec:mag)/(8*Scale).
                 if RSS set throttleOffset to min(0.2,throttleOffset).
                 lock throttle to 0.32*Scale + throttleOffset.
             }
@@ -13262,7 +13279,7 @@ function ReEntryData {
                         if RSS {lock throttle to 0.33.}
                     }
                 }
-            } 
+            }
             else if ship:body:atm:sealevelpressure > 0.5 and airspeed > 130 {
                 sCMNTank:shutdown.
                 if not (TargetOLM = "False") when Vessel(TargetOLM):distance < 2000 then {
@@ -13328,11 +13345,11 @@ function ReEntryData {
             set Hover to false.
             set Slow to false.
             wait 0.
-            
+
 
             when cAbort then {
                 set LandSomewhereElse to true.
-                if addons:tr:hasimpact if (addons:tr:impactpos:position - landingzone:position):mag < 2* ShipHeight 
+                if addons:tr:hasimpact if (addons:tr:impactpos:position - landingzone:position):mag < 2* ShipHeight
                     set landingzone to ship:body:geoPositionOf(landingzone:position + vxcl(up:vector, velocity:surface)*10*Scale + vxcl(up:vector, ship:position - landingzone:position)).
                 ADDONS:TR:SETTARGET(landingzone).
                 SetRadarAltitude().
@@ -13344,7 +13361,7 @@ function ReEntryData {
             when RadarAlt < ShipHeight then if not LandSomewhereElse if TgtErrorVector:mag > 0.7*ShipHeight set cAbort to true.
 
             if not (TargetOLM = "false") and GfC and TargetOLM when LandSomewhereElse then set cAbort to true.
-            
+
             when time:seconds > LandingFlipStart + 1.2 then if (SLactive < 3 and not RSS) or (SLactive < 2) set cAbort to true.
 
             if not (TargetOLM = "false") {
@@ -13378,7 +13395,7 @@ function ReEntryData {
                 Watchdog:deactivate().
             }
             LogToFile("Landing Procedure started. Starting Landing Flip Now!").
-            
+
             when vang(-velocity:surface, ship:facing:forevector) < FlipAngleFactor * FlipAngle then {
                 set config:ipu to CPUSPEED.
                 setflaps(80, 80, 1, 0).
@@ -13402,10 +13419,10 @@ function ReEntryData {
                     }
                 }
                 set ship:control:neutralize to true.
-                
+
                 set LandingBurnStarted to true.
                 lock throttle to max(min(LandingThrottle(),1),0).
-                
+
 
                 if TargetOLM and not cAbort {
                     when RadarAlt < 24 * ShipHeight then {
@@ -13471,7 +13488,7 @@ function ReEntryData {
             when RadarAlt < 30*Scale then if LandSomewhereElse or cAbort SetRadarAltitude().
             when RadarAlt < 15*Scale then if LandSomewhereElse or cAbort SetRadarAltitude().
             when RadarAlt < 5*Scale then if LandSomewhereElse or cAbort SetRadarAltitude().
-            
+
             when (verticalspeed > -42 and throttle < ThrottleMin + 0.05 and ship:groundspeed < 6 and ThrottleMin * 3 * max(SLEngines[0]:availablethrust, 0.000001) / ship:mass > Planet1G and RadarAlt < 2*ShipHeight) or (verticalSpeed > -40 and throttle < 0.58) then {
                 if SLActive > 2 and SLEngines[0]:hassuffix("activate") {
                     SLEngines[0]:shutdown.
@@ -13565,7 +13582,7 @@ function ReEntryData {
             print "Ship Landing Confirmed!".
             set ShipLanded to true.
             LogToFile("Ship Landing Confirmed!").
-            if not (TargetOLM = "false") 
+            if not (TargetOLM = "false")
                 if Vessel(TargetOLM):distance < 1800 unlock PositionError.
 
 
@@ -13576,7 +13593,7 @@ function ClosingAngle {
     set angle2 to (1/(1+constant:e^(-6*((RadarRatio) - 0.4)))).
     set angle to angle1*angle2.
     if angle > 80 set angle to 80.
-    
+
     if time:seconds > lastAngleTime + 0.2 set lastAngle to angle.
     set lastAngleTime to time:seconds.
     return round(angle,1).
@@ -13616,7 +13633,7 @@ function LandingThrottle {
         set stopTime to stopTime1+stopTime2.
         set stopDist to stopDist1+stopDist2.
     }
-    
+
     if not (TargetOLM = "False") {
         set landingRatio to stopDist / (RadarAlt - 0.5*Scale).
     }
@@ -13739,12 +13756,12 @@ function LandingVector {
                         set TgtErrorStrength to TgtErrorStrength*1.2.
                         if TgtErrorStrength > 0 set TgtErrStrDiv to 0.7.
                         else set TgtErrStrDiv to -2.5*Scale.
-                    } else 
+                    } else
                         set TgtErrStrDiv to 1.
 
-                    set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) 
+                    set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1)
                         + PositionCorrection * min(RadarRatio, 0.75) * 0.2 * min(max(0, 3/RadarRatio), 1)
-                        + TgtErrorVector:normalized * abs(TgtErrorStrength) * min(1,RadarRatio+0.5) 
+                        + TgtErrorVector:normalized * abs(TgtErrorStrength) * min(1,RadarRatio+0.5)
                         - GSVec:normalized * TgtErrorStrength/TgtErrStrDiv * min(1,RadarRatio+0.25) * min(1,GSVec:mag/2) * min(1,TgtErrorVector:mag/(3*Scale))
                         - GSVec * 0.2 * ((2/max(0.16,RadarRatio^1.4))).
                     set LndSteerDamp to vAng(LndGuidVec,facing:forevector)/4 * (4*Scale)/max(0.3,TgtErrorVector:mag).
@@ -13860,9 +13877,9 @@ function LandingVector {
             set FWDFlapDefault to 60.
             set AFTFlapDefault to 60.
             set FlapsYawEngaged to true.
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
-            else 
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
@@ -13894,7 +13911,7 @@ function LandingVector {
                     when time:seconds > ShutdownProcedureStart + 18 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.3 * Scale, 2) + ",false")).
                     }
-                } 
+                }
                 else {
                     when time:seconds > ShutdownProcedureStart + 10 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.5," + round(1.3 * Scale,2) + ",false")).
@@ -13928,9 +13945,9 @@ function LandingVector {
             else {
                 setflaps(80, 85, 1, 0).
             }
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
-            else 
+            else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
             Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 0).
             if ship:partsnamed("FNB.BL2.LOX"):length > 0 or ship:partsnamed("FNB.BL3.LOX"):length > 0 {
@@ -13942,7 +13959,7 @@ function LandingVector {
             set message2:text to "<b>Re-Entry & Land Program completed..</b>".
             set message3:text to "<b>Hatches may now be opened..</b>".
             set runningprogram to "None".
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
             else
             Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 100).
@@ -14086,8 +14103,8 @@ function LngLatError {
                 }
                 else {
                     set LngLatOffset to -70.
-                    
-                    
+
+
                 }
             }
             if ShipType = "Crew" {
@@ -14138,7 +14155,7 @@ function CalculateDeOrbitBurn {
     set idealLng to 0.
     set lngPredict to 9999.
     set AngleAccuracy to 10.
-    
+
     if DynamicBanking and not PlotAoAset {
         set PlotAoA to PlotAoA + 2.8/(Scale^2.3) * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)*1.1.
         SetPlanetData().
@@ -14605,7 +14622,7 @@ function ActivateEngines {
         Nose:shutdown.
     } else if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
         HeaderTank:shutdown.
-    } 
+    }
     sCMNTank:shutdown.
 }
 
@@ -14698,29 +14715,39 @@ function LogToFile {
                             if LatDistanceToTarget < 0 {set LatDistanceToTarget to -1 * LatDistanceToTarget.}
                             set DistanceToTarget to sqrt(LngDistanceToTarget * LngDistanceToTarget + LatDistanceToTarget * LatDistanceToTarget).
                         }
+                        set LogFuelBatt to 0.
+                        if alt:radar > 1500 {
+                            set LogFuelBatt to (100 * (LFShip / LFShipCap)).
+                        } else {
+                            set LogFuelBatt to (100 * (ship:electriccharge / ELECcap)).
+                        }
+                        set LogVenting to false.
+                        if defined Venting { set LogVenting to Venting. }
                         if alt:radar > 1500 {
                             if homeconnection:isconnected {
-                                LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + round((LngLatErrorList[0] + LngLatOffset) / 1000, 3) + "km  " + round((LngLatErrorList[1] / 1000), 3) + "km") to "0:/FlightData.txt".
+                                LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + round((LngLatErrorList[0] + LngLatOffset) / 1000, 3) + "km  " + round((LngLatErrorList[1] / 1000), 3) + "km") to FlightDataPath.
                             }
                             if homeconnection:isconnected {
-                                LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to "0:/FlightData.txt".
+                                LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Fuel: " + round(100 * (LFShip / LFShipCap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to FlightDataPath.
                             }
                             if homeconnection:isconnected {
-                                LOG ("                 Radar Altitude: " + round(RadarAlt, 1) + "m") to "0:/FlightData.txt".
+                                LOG ("                 Radar Altitude: " + round(RadarAlt, 1) + "m") to FlightDataPath.
                             }
                             if homeconnection:isconnected {
-                                LOG "" to "0:/FlightData.txt".
-                            }
-                            if homeconnection:isconnected {
-                                LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + (LngLatErrorList[0] + LngLatOffset) + "," + LngLatErrorList[1] + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + (100 * (LFShip / LFShipCap)) + "," + (ship:mass * 1000) + "," + RadarAlt) to "0:/LandingData.csv".
+                                LOG "" to FlightDataPath.
                             }
                         }
                         else {
-                            LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + round((LngLatErrorList[0] + LngLatOffset) / 1000, 3) + "km  " + round((LngLatErrorList[1] / 1000), 3) + "km") to "0:/FlightData.txt".
-                            LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to "0:/FlightData.txt".
-                            LOG ("                 Radar Altitude: " + round(RadarAlt, 1) + "m   Groundspeed: " + round(groundspeed,1) + "m/s") to "0:/FlightData.txt".
-                            LOG "" to "0:/FlightData.txt".
-                            LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + (LngLatErrorList[0] + LngLatOffset) + "," + LngLatErrorList[1] + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + (100 * (ship:electriccharge / ELECcap)) + "," + (ship:mass * 1000) + "," + RadarAlt) to "0:/LandingData.csv".
+                            LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + round((LngLatErrorList[0] + LngLatOffset) / 1000, 3) + "km  " + round((LngLatErrorList[1] / 1000), 3) + "km") to FlightDataPath.
+                            LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to FlightDataPath.
+                            LOG ("                 Radar Altitude: " + round(RadarAlt, 1) + "m   Groundspeed: " + round(groundspeed,1) + "m/s") to FlightDataPath.
+                            LOG "" to FlightDataPath.
+                        }
+                        if homeconnection:isconnected {
+                            set LogPitch to 90 - vang(ship:up:forevector, ship:facing:forevector).
+                            set LogHeading to ship:facing:yaw.
+                            set LogTWR to ship:availablethrust / max(ship:mass * constant:g0, 0.001).
+                            LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + (LngLatErrorList[0] + LngLatOffset) + "," + LngLatErrorList[1] + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + LogFuelBatt + "," + (ship:mass * 1000) + "," + RadarAlt + "," + (ship:dynamicpressure * 101.325) + "," + (ship:angularvel:mag * constant:radtodeg) + "," + SteeringManager:angleerror + "," + (LFShip - LFNose) + "," + (LFShipCap - LFNoseCap) + "," + LFNose + "," + LFNoseCap + "," + LogVenting + "," + groundspeed + "," + ship:geoposition:lat + "," + ship:geoposition:lng + "," + LogPitch + "," + LogHeading + "," + LogTWR + "," + ship:orbit:apoapsis) to LandingDataPath.
                         }
                         set PrevLogTimeLanding to timestamp(time:seconds).
                     }
@@ -14728,7 +14755,7 @@ function LogToFile {
                 else {
                     set PrevLogTimeLanding to timestamp(time:seconds).
                     if homeconnection:isconnected {
-                        LOG "Time, Distance to Target (km), Altitude (m), Vertical Speed (m/s), Airspeed (m/s), Track Error (m), Cross-Track Error (m), Actual AoA (°), Throttle (%), Battery (%), Mass (kg), Radar Altitude" to "0:/LandingData.csv".
+                        LOG "Time,Distance (km),Alt (m),VS (m/s),Airspeed (m/s),Trk Err (m),X-Trk Err (m),AoA (°),Throttle (%),Fuel/Batt (%),Mass (kg),RadarAlt,Q (kPa),AngVel (°/s),SteerErr (°),Tank LF,Tank LF Cap,Nose LF,Nose LF Cap,FuelVenting,Groundspeed (m/s),Lat,Lng,Pitch (°),Heading (°),TWR,Apoapsis (m)" to LandingDataPath.
                     }
                 }
             }
@@ -14737,31 +14764,31 @@ function LogToFile {
                     set TimeStep to 1.
                     if timestamp(time:seconds) > PrevLogTimeLaunch + TimeStep {
                         set DistanceToTarget to ((landingzone:lng - ship:geoposition:lng) * Planet1Degree).
-                        LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + 0 + "km  " + 0 + "km") to "0:/FlightData.txt".
-                        LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to "0:/FlightData.txt".
-                        LOG ("                 Radar Altitude: " + round(RadarAlt,1) + "m") to "0:/FlightData.txt".
-                        LOG "" to "0:/FlightData.txt".
-                        LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + 0 + "," + 0 + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + (100 * (ship:electriccharge / ELECcap)) + "," + (ship:mass * 1000) + "," + RadarAlt) to "0:/LaunchData.csv".
+                        LOG ("Time: " + timestamp():clock + "   Dist: " + round(DistanceToTarget, 3) + "km   Alt: " + round(altitude) + "m   Vert Speed: " + round(ship:verticalspeed,1) + "m/s   Airspeed: " + round(airspeed, 1) + "m/s   Trk/X-Trk Error: " + 0 + "km  " + 0 + "km") to FlightDataPath.
+                        LOG ("                 Actual AoA: " + round(vang(ship:facing:forevector, velocity:surface), 1) + "°   Throttle: " + (100 * throttle) + "%   Battery: " + round(100 * (ship:electriccharge / ELECcap), 2) + "%   Mass: " + round(ship:mass * 1000, 3) + "kg") to FlightDataPath.
+                        LOG ("                 Radar Altitude: " + round(RadarAlt,1) + "m") to FlightDataPath.
+                        LOG "" to FlightDataPath.
+                        LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + 0 + "," + 0 + "," + vang(ship:facing:forevector, velocity:surface) + "," + (100 * throttle) + "," + (100 * (ship:electriccharge / ELECcap)) + "," + (ship:mass * 1000) + "," + RadarAlt) to LaunchDataPath.
                         set PrevLogTimeLaunch to timestamp(time:seconds).
                     }
                 }
                 else {
                     set PrevLogTimeLaunch to timestamp(time:seconds).
-                    LOG "Time, Distance to Target (km), Altitude (m), Vertical Speed (m/s), Airspeed (m/s), Track Error (m), Cross-Track Error (m), Actual AoA (°), Throttle (%), Battery (%), Mass (kg), Radar Altitude" to "0:/LaunchData.csv".
+                    LOG "Time, Distance to Target (km), Altitude (m), Vertical Speed (m/s), Airspeed (m/s), Track Error (m), Cross-Track Error (m), Actual AoA (°), Throttle (%), Battery (%), Mass (kg), Radar Altitude" to LaunchDataPath.
                 }
             }
             else {
                 if homeconnection:isconnected {
-                    LOG "" to "0:/FlightData.txt".
+                    LOG "" to FlightDataPath.
                 }
                 if homeconnection:isconnected {
-                    LOG "Time: " + timestamp():clock + "   " + msg to "0:/FlightData.txt".
+                    LOG "Time: " + timestamp():clock + "   " + msg to FlightDataPath.
                 }
                 if homeconnection:isconnected {
-                    LOG "" to "0:/FlightData.txt".
+                    LOG "" to FlightDataPath.
                 }
                 if homeconnection:isconnected {
-                    LOG "" to "0:/FlightData.txt".
+                    LOG "" to FlightDataPath.
                 }
             }
         }
@@ -14921,8 +14948,8 @@ function updateCargoPage {
                             set cargoimage:style:bg to "starship_img/starship_cargobay_open".
                             set cargo1text:style:textcolor to green.
                             set cargo1text:text to "Open".
-                        } 
-                        
+                        }
+
                         else if DockingHatchStatus = "Locked" and Nose:getmodulebyindex(x):hasevent("open pez door") {
                             set cargoimage:style:bg to "starship_img/starship_cargobay_closed".
                             set cargo1text:style:textcolor to green.
@@ -15094,7 +15121,7 @@ function SetPlanetData {
             set DescentAngles to list(PlotAoA, PlotAoA, PlotAoA, PlotAoA).
         }
         else {
-            set DescentAngles to list(PlotAoA, PlotAoA - 1*Scale, PlotAoA, LandingAoA). 
+            set DescentAngles to list(PlotAoA, PlotAoA - 1*Scale, PlotAoA, LandingAoA).
         }
         if RSS {
             set LongitudinalAcceptanceLimit to 420000.
@@ -15296,7 +15323,7 @@ function LandAtOLM {
         set LandAtOLMisrunning to true.
         set TargetOLM to false.
         if STOCK {
-            if ShipType:contains("SN") 
+            if ShipType:contains("SN")
                 set FlipAltitude to 620.
             else if ShipType:contains("Block1") {
                 set FlipAltitude to 642.
@@ -15312,7 +15339,7 @@ function LandAtOLM {
             }
         }
         else {
-            if ShipType:contains("SN") 
+            if ShipType:contains("SN")
                 set FlipAltitude to 530.
             else if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
                 set FlipAltitude to 660.
@@ -15732,7 +15759,7 @@ function PerformBurn {
         set runningprogram to "Standby for Burn".
         HideEngineToggles(1).
         if defined Nose {
-            if ShipType:contains("Block1") and not ShipType:contains("EXP") 
+            if ShipType:contains("Block1") and not ShipType:contains("EXP")
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
             else
                 Nose:getmodule("ModuleRCSFX"):SetField("thrust limiter", 75).
@@ -16115,7 +16142,7 @@ function SetLoadDistances {
 
 
 function VehicleSelfCheck {
-    
+
 }
 
 
@@ -16275,24 +16302,24 @@ function CheckFullTanks {
                             set res2:enabled to true.
                         }
                     }
-                    if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 
+                    if SHIP:PARTSNAMED("Block.3.AFT"):length > 0
                         for res2 in HSR[0]:resources {
                             if res2:name = "LqdMethane" {
                                 set res2:enabled to true.
                             }
                         }
-                    else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 
+                    else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0
                         for res2 in bFWDDome[0]:resources {
                             if res2:name = "LqdMethane" {
                                 set res2:enabled to true.
                             }
                         }
-                    
+
                 }
             }
         }
 
-        
+
 
         if SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length > 0 and FullTanks {
             for res in BoosterCore[0]:resources {
@@ -16394,7 +16421,7 @@ function CheckFullTanks {
 
         if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 or SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 and FullTanks {
             set BoosterResourcesSTEP to BoosterCore[0]:resources.
-            BoosterResourcesSTEP:add(bLOXTank[0]:resources). 
+            BoosterResourcesSTEP:add(bLOXTank[0]:resources).
             BoosterResourcesSTEP:add(bCH4Tank[0]:resources).
             if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 BoosterResourcesSTEP:add(HSR[0]:resources).
             else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 BoosterResourcesSTEP:add(bFWDDome[0]:resources).
@@ -16482,7 +16509,7 @@ function Refuel {
                 if CargoMass < 24 {
                     set message3:text to "Low Cargo mass detected, Loading to 90%...".
                 }
-                
+
                 BackGroundUpdate().
             }
             set Refueling to false.
@@ -16599,49 +16626,49 @@ function updateTelemetry {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
-            if round(currentPitch) = 360 set currentPitch to 0.
-            set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(abs(currentPitch)):tostring.
+            if round(currentPitch, 1) = 360 set currentPitch to 0.
+            set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(abs(currentPitch), 1):tostring.
         }
         else {
             if not LandingBurnStarted {
-                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
-                if round(currentPitch) = 360 set currentPitch to 0.
+                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+                else set currentPitch to 360-vAng(facing:forevector,up:vector).
+                if round(currentPitch, 1) = 360 set currentPitch to 0.
             }
             else {
-                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
-                if round(currentPitch) = 360 set currentPitch to 0.
+                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+                else set currentPitch to 360-vAng(facing:forevector,up:vector).
+                if round(currentPitch, 1) = 360 set currentPitch to 0.
             }
-            set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(abs(currentPitch)):tostring.
+            set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(abs(currentPitch), 1):tostring.
         }
-    } 
+    }
     else {
         if Boosterconnected {
             if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
             else set currentPitch to 360-vAng(facing:forevector,up:vector).
-            if round(currentPitch) = 360 set currentPitch to 0.
-            set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(abs(currentPitch)):tostring.
+            if round(currentPitch, 1) = 360 set currentPitch to 0.
+            set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(abs(currentPitch), 1):tostring.
         }
         else {
             if not LandingBurnStarted {
-                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
-                if round(currentPitch) = 360 set currentPitch to 0.
+                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+                else set currentPitch to 360-vAng(facing:forevector,up:vector).
+                if round(currentPitch, 1) = 360 set currentPitch to 0.
             }
             else {
-                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
-                if round(currentPitch) = 360 set currentPitch to 0.
+                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to vAng(facing:forevector,up:vector).
+                else set currentPitch to 360-vAng(facing:forevector,up:vector).
+                if round(currentPitch, 1) = 360 set currentPitch to 0.
             }
-            set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(abs(currentPitch)):tostring.
+            set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(abs(currentPitch), 1):tostring.
         }
     }
 
 
     set shipAltitude to RadarAlt.
     set shipSpeed to ship:airspeed.
-    
+
     set ch4 to 0.
     set mch4 to 0.
     set lox to 0.
@@ -16730,7 +16757,7 @@ function updateTelemetry {
     if SLEngines[0]:hassuffix("activate") if SLEngines[0]:thrust < 60 set SL0Off to true.
     else set SL0Off to false. else set SL0Off to false.
 
-    
+
     if shipSpeed < 9999 set sSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
     else set sSpeed:text to "<b><size=24>SPEED</size>       </b> " + round(shipSpeed*3.6) + " <size=24>KM/H</size>".
     if shipAltitude > 99999 {
@@ -16772,7 +16799,7 @@ function updateTelemetry {
     if missionTimerNow < 0 {
         set missionTimerNow to -missionTimerNow.
         set TMinus to true.
-    } 
+    }
     else set TMinus to false.
 
     set hoursV to missionTimerNow/60/60.
@@ -16786,7 +16813,7 @@ function updateTelemetry {
     if minV < Tminutes {
         set Tminutes to Tminutes - 1.
     }
-    
+
     set Tseconds to missionTimerNow - Thours*60*60 - Tminutes*60.
     set Tseconds to round(Tseconds).
 
@@ -16812,6 +16839,6 @@ function updateTelemetry {
         set ClockHeader:text to MissionName.
         VersionDisplay:show().
     }
-    
+
 }
 

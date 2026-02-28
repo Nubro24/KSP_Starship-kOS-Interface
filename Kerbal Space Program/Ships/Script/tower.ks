@@ -40,6 +40,8 @@ set onOLM to false.
 set shipOnOLM to false.
 set LiftOffTime to -999.
 set TMinusCountdown to 17.
+set TowerLogData to false.
+set TowerLogPath to "".
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
@@ -80,10 +82,10 @@ if ship:partstitled("Water Cooled Steel Plate"):length > 0 set SteelPlate to shi
 
 
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("BLOCK.3.AFT") or part:name:contains("FNB.BL3.BOOSTERAFT") {
+    if part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("BLOCK.3.AFT") or part:name:contains("FNB.BL3.BOOSTERAFT") {
         set BoosterCore to part.
         set onOLM to true.
-    } else if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") or part:name:contains("SEP.25.SHIP.CORE") {
+    } else if part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") or part:name:contains("SEP.25.SHIP.CORE") {
         set ShipTank to part.
         set shipOnOLM to true.
     }
@@ -254,6 +256,7 @@ until False {
         }
         print timestamp(time:seconds):full + "   " + received:content.
         print command.
+        TowerLog("CMD: " + received:content).
         if command = "MechazillaHeight" {
             MechazillaHeight(parameter1, parameter2).
         }
@@ -314,12 +317,25 @@ until False {
         else if command = "TMinusCountdown" {
             set TMinusCountdown to parameter1.
         }
+        else if command = "LogData" {
+            if parameter1 = "true" {
+                set TowerLogData to true.
+                set TowerLogTimestamp to round(time:seconds).
+                if homeconnection:isconnected {
+                    if not exists("0:/Logs") createdir("0:/Logs").
+                }
+                set TowerLogPath to "0:/Logs/TowerLog_" + TowerLogTimestamp + ".txt".
+                TowerLog("Tower logging initialized. onOLM=" + onOLM + " shipOnOLM=" + shipOnOLM).
+            } else {
+                set TowerLogData to false.
+            }
+        }
         else {
             PRINT "Unexpected message: " + RECEIVED:CONTENT.
         }
     }
     if time:seconds > PrevTime + 0.25 {
-        if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0 {
+        if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0 {
             RenameOLM().
         }
         set PrevTime to time:seconds.
@@ -330,11 +346,12 @@ until False {
 // <--------------> Functions <--------------> //
 
 function LiftOff {
+    TowerLog("LiftOff sequence started").
     //OLM:getmodule("LaunchClamp"):DoAction("release clamp", true).
     if OLM:getmodule("ModuleAnimateGeneric"):hasevent("close clamps + qd") {
         OLM:getmodule("ModuleAnimateGeneric"):doevent("close clamps + qd").
     }
-    wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0.
+    wait until SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0.
     RetractSQDArm().
     wait 3.
     RenameOLM().
@@ -356,10 +373,12 @@ function LiftOff {
         }
     }
     set AfterLaunch to true.
+    TowerLog("LiftOff sequence complete, AfterLaunch=true").
 }
 
 function StaticFireDeluge {
     parameter T0.
+    TowerLog("StaticFireDeluge started").
     set T0 to T0:toscalar.
     wait until time:seconds - T0 > -10.
         if OLM:hasmodule("ModuleEnginesFX") {
@@ -408,6 +427,7 @@ function StaticFireDeluge {
 }
 
 function LandingDeluge {
+    TowerLog("LandingDeluge activated").
         if SteelPlate:hasmodule("ModuleEnginesFX") {
             if SteelPlate:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
                 SteelPlate:getmodule("ModuleEnginesFX"):doevent("activate engine").
@@ -461,6 +481,7 @@ function ReDock {
 
 
 function MechazillaHeight {
+    TowerLog("MechazillaHeight called").
     parameter targetheight.
     parameter targetspeed.
     Mechazilla:getmodulebyindex(NrforVertMoveMent):SetField("target extension", targetheight:toscalar).
@@ -469,6 +490,7 @@ function MechazillaHeight {
 
 
 function MechazillaArms {
+    TowerLog("MechazillaArms called").
     parameter targetangle. set targetangle to targetangle:toscalar.
     parameter targetspeed. set targetspeed to targetspeed:toscalar.
     parameter armsopenangle. set armsopenangle to armsopenangle:toscalar.
@@ -504,6 +526,7 @@ function MechazillaArms {
 
 
 function CloseArms {
+    TowerLog("CloseArms called").
     if Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("close arms") {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
     }
@@ -556,7 +579,7 @@ function ExtendMechazillaRails {
                 break.
             }
         }
-    }  
+    }
 }
 
 function RetractMechazillaRails {
@@ -571,6 +594,7 @@ function RetractMechazillaRails {
 }
 
 function RetractSQD {
+    TowerLog("SQD retracted").
     if defined SQD for x in range(0, SQD:modules:length) {
         if SQD:getmodulebyindex(x):hasaction("Full Retraction") {
             SQD:getmodulebyindex(x):doaction("Full Retraction", false).
@@ -579,6 +603,7 @@ function RetractSQD {
     }
 }
 function RetractSQDArm {
+    TowerLog("SQD arm retracted").
     if defined SQD for x in range(0, SQD:modules:length) {
         if SQD:getmodulebyindex(x):hasaction("Extend Arm") {
             SQD:getmodulebyindex(x):doaction("Extend Arm", false).
@@ -589,6 +614,7 @@ function RetractSQDArm {
 
 
 function EmergencyStop {
+    TowerLog("EMERGENCY STOP activated!").
     Mechazilla:getmodulebyindex(NrforVertMoveMent):SetField("target extension", Mechazilla:getmodulebyindex(NrforVertMoveMent):GetField("current extension")).
     Mechazilla:getmodulebyindex(NrforStopArm1):DoAction("stop arm", true).
     Mechazilla:getmodulebyindex(NrforStopArm2):DoAction("stop arm", true).
@@ -600,6 +626,7 @@ function EmergencyStop {
 
 function ToggleReFueling {
     parameter ReFueling.
+    TowerLog("Refueling " + ReFueling).
     if Refueling = "true" {
         if OLM:getmodulebyindex(NrforFueling):HasEvent("Start Fueling") {
             OLM:getmodulebyindex(NrforFueling):DoEvent("Start Fueling").
@@ -628,9 +655,19 @@ function SetDockingForce {
 
 
 
+function TowerLog {
+    parameter msg.
+    if TowerLogData {
+        if homeconnection:isconnected {
+            LOG (timestamp(time:seconds):clock + " [TOWER] " + msg) to TowerLogPath.
+        }
+    }
+}
+
 function RenameOLM {
     if LiftOffTime + 2 < time:seconds set shipOnOLM to false.
     if not shipOnOLM {
+        TowerLog("OLM renamed to " + ship:name).
         print "No Ship currently occupying the tower..".
         for var in LaunchSites:keys {
             if round(LaunchSites[var]:split(",")[0]:toscalar(9999), 2) = round(ship:geoposition:lat, 2) and round(LaunchSites[var]:split(",")[1]:toscalar(9999), 2) = round(ship:geoposition:lng, 2) {
