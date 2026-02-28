@@ -85,10 +85,6 @@ for part in ship:parts {
     if part:name:contains("FNB.BL1.BOOSTERCMN") {
         set bCMNDome to part.
     }
-    if part:name:contains("SEP.23.BOOSTER.CLUSTER") and not ECset {
-        set BoosterEngines to ship:partsnamed("SEP.23.BOOSTER.CLUSTER").
-        set ECset to true.
-    }
     if part:name:contains("SEP.25.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
         set ECset to true.
@@ -101,11 +97,6 @@ for part in ship:parts {
     if part:name:contains("FNB.R3.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("FNB.R3.CLUSTER").
         set ECset to true.
-    }
-    if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
-        set GridfinsType to "23".
-        set GridfinLength to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length.
-        set GFset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "25".
@@ -121,11 +112,6 @@ for part in ship:parts {
         set GridfinsType to "Block1".
         set GridfinLength to ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length.
         set GFset to true.
-    }
-    if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
-        set HSRType to "Block0".
-        set HSR to part.
-        set HSset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.HSR") and not HSset {
         set HSRType to "Block1/2".
@@ -181,7 +167,7 @@ else if ship:partsnamed("SEP.25.SHIP.CORE"):length > 0 {
 }
 else set ShipType to "None".
 for part in ship:parts {
-    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
+    if part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
         set ShipTank to part.
         set ShipConnectedToBooster to true.
         set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
@@ -192,10 +178,10 @@ FindEngines().
 
 function FindEngines {
     set findingEngines to true.
-    if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
-            or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
-            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER") 
+    if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C")
+            or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB")
+            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB")
+            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER")
             or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
             or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB")
             or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") ) {
@@ -210,7 +196,7 @@ function FindEngines {
                 else BoosterSingleEnginesRB:insert(x-14,ship:partstagged(x:tostring)[0]).
             }
             else {
-                if x < 14 BoosterSingleEnginesRC:insert(x-1, False). 
+                if x < 14 BoosterSingleEnginesRC:insert(x-1, False).
                 else BoosterSingleEnginesRB:insert(x-14, False).
                 MissingList:add(x).
             }
@@ -220,7 +206,7 @@ function FindEngines {
             print("The Booster is missing " + MissingList:length + " Engines!").
             if MissingList:length > 0 print MissingList.
         }
-    } 
+    }
     else {
         set BoosterSingleEngines to false.
     }
@@ -248,7 +234,7 @@ local boosterStatus is bAttitudeTelemetry:addvlayout().
 local boosterAttitude is bAttitudeTelemetry:addvlayout().
 local missionTimeDisplay is bAttitudeTelemetry:addvlayout().
 local shipSpace is bAttitudeTelemetry:addvlayout().
-local EngBG is boosterCluster:addlabel(). 
+local EngBG is boosterCluster:addlabel().
     set EngBG:style:bg to "starship_img/EngPicBooster/zero".
     if BoosterType:contains("Block3") set EngBG:style:bg to "starship_img/EngPicBooster3/zero".
 local Eng1 is boosterCluster:addlabel().
@@ -284,7 +270,7 @@ local Eng30 is boosterCluster:addlabel().
 local Eng31 is boosterCluster:addlabel().
 local Eng32 is boosterCluster:addlabel().
 local Eng33 is boosterCluster:addlabel().
-set EngClusterDisplay to List(Eng1, Eng2, Eng3, Eng4, Eng5, Eng6, Eng7, Eng8, Eng9, Eng10, Eng11, Eng12, Eng13, 
+set EngClusterDisplay to List(Eng1, Eng2, Eng3, Eng4, Eng5, Eng6, Eng7, Eng8, Eng9, Eng10, Eng11, Eng12, Eng13,
             Eng14, Eng15, Eng16, Eng17, Eng18, Eng19, Eng20, Eng21, Eng22, Eng23, Eng24, Eng25, Eng26, Eng27, Eng28, Eng29, Eng30, Eng31, Eng32, Eng33).
 for lbl in EngClusterDisplay {
     set lbl:style:bg to "starship_img/EngPicBooster/0".
@@ -531,16 +517,16 @@ lock RadarAlt to alt:radar - BoosterHeight*0.5.
 lock GSVec to vxcl(up:vector,velocity:surface).
 
 if not ship:status = "FLYING" and not ship:status = "SUB_ORBITAL" or ship:status = "PRELAUNCH" set landingzone to ship:geoposition.
-else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to 
+else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to
     latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius),
             addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius)).
-else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 and addons:tr:hasimpact set landingzone to 
+else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) > 90 and addons:tr:hasimpact set landingzone to
     latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius),
             addons:tr:impactpos:lng - min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius)).
-else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to 
+else if vAng(GSVec,vCrs(north:vector,up:vector)) > 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to
     latlng(addons:tr:impactpos:lat - min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius),
             addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius)).
-else if addons:tr:hasimpact set landingzone to 
+else if addons:tr:hasimpact set landingzone to
     latlng(addons:tr:impactpos:lat + min(ship:altitude/(33000*Scale),1) * vxcl(vCrs(north:vector,up:vector),GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius),
             addons:tr:impactpos:lng + min(ship:altitude/(33000*Scale),1) * vxcl(north:vector,GSVec):mag/GSVec:mag * 1600*Scale * 360 / (2* constant:pi * ship:body:radius)).
 else set landingzone to ship:geoposition.
@@ -568,12 +554,12 @@ when Hotstaging then {
     set ClockHeader:text to "Hotstaging".
     set HotstagingTime to time:seconds.
     when HotstagingTime + 5 < time:seconds then set ClockHeader:text to MissionName.
-} 
+}
 when SECO then {
     set ClockHeader:text to "SECO".
     set SECOTime to time:seconds.
     when SECOTime + 4 < time:seconds then set ClockHeader:text to MissionName.
-} 
+}
 
 
 bTelemetry:show().
@@ -582,7 +568,7 @@ bTelemetry:show().
 set once to false.
 until False {
     GUIupdate().
-    if SHIP:PARTSNAMED("SEP.23.SHIP.BODY"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.BODY.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.23.SHIP.DEPOT"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 and ship:partsnamed("FNB.BL2.LOX"):length = 0 and ship:partsnamed("FNB.BL3.LOX"):length = 0 and ship:partsnamed("SEP.25.SHIP.CORE"):length = 0 and not ConnectedMessage {
+    if SHIP:PARTSNAMED("SEP.24.SHIP.CORE"):LENGTH = 0 and SHIP:PARTSNAMED("SEP.24.SHIP.CORE.EXP"):LENGTH = 0 and SHIP:PARTSNAMED("BLOCK-2.MAIN.TANK"):LENGTH = 0 and ship:partsnamed("FNB.BL2.LOX"):length = 0 and ship:partsnamed("FNB.BL3.LOX"):length = 0 and ship:partsnamed("SEP.25.SHIP.CORE"):length = 0 and not ConnectedMessage {
         set ShipConnectedToBooster to false.
         if not once {
             set ship:name to "Booster".
@@ -622,7 +608,7 @@ until False {
             PRINT "Unexpected message: " + RECEIVED:CONTENT.
         }
     }
-    
+
     wait 0.02.
 }
 
@@ -667,7 +653,7 @@ function GUIupdate {
                 set boosterThrust to boosterThrust + eng:thrust.
             }
         }
-    } 
+    }
     else set boosterThrust to BoosterEngines[0]:thrust.
 
     for res in bLOXTank:resources {
@@ -811,10 +797,10 @@ function GUIupdate {
             } else if Mode = "NaN" {
                 print("Mode not found").
             }
-        } 
+        }
         else if boosterThrust > 60*Scale and not findingEngines {
             set z to 1.
-            if ShipConnectedToBooster { 
+            if ShipConnectedToBooster {
                 for uieng in BoosterSingleEnginesRB {
                     if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
                         if uieng:thrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/" + (z+13).
@@ -840,8 +826,8 @@ function GUIupdate {
                 }
                 set z to z+1.
             }
-        } 
-        else 
+        }
+        else
             for EngLbl in EngClusterDisplay {
                 set EngLbl:style:bg to "starship_img/EngPicBooster/0".
             }
@@ -851,7 +837,7 @@ function GUIupdate {
             set EngLbl:style:bg to "starship_img/EngPicBooster/0".
         }
     }
-    
+
     set bSpeed:text to "<b><size=24>SPEED</size>          </b> " + round(boosterSpeed*3.6) + " <size=24>KM/H</size>".
     if boosterAltitude > 99999 {
         set bAltitude:text to "<b><size=24>ALTITUDE</size>       </b> " + round(boosterAltitude/1000) + " <size=24>KM</size>".
@@ -890,7 +876,7 @@ function GUIupdate {
     if missionTimerNow < 0 {
         set missionTimerNow to -missionTimerNow.
         set TMinus to true.
-    } 
+    }
     else set TMinus to false.
 
     set hoursV to missionTimerNow/60/60.
@@ -900,7 +886,7 @@ function GUIupdate {
     set minV to missionTimerNow/60 - Thours*60.
     set Tminutes to round(minV).
     if minV < Tminutes set Tminutes to Tminutes - 1.
-    
+
     set Tseconds to missionTimerNow - Thours*60*60 - Tminutes*60.
     set Tseconds to floor(Tseconds).
 
@@ -910,5 +896,5 @@ function GUIupdate {
 
     if TMinus set missionTimeLabel:text to "T- "+Thours+":"+Tminutes+":"+Tseconds.
     else set missionTimeLabel:text to "T+ "+Thours+":"+Tminutes+":"+Tseconds.
-    
+
 }

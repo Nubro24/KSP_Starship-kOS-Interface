@@ -82,10 +82,10 @@ if ship:partstitled("Water Cooled Steel Plate"):length > 0 set SteelPlate to shi
 
 
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("BLOCK.3.AFT") or part:name:contains("FNB.BL3.BOOSTERAFT") {
+    if part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("BLOCK.3.AFT") or part:name:contains("FNB.BL3.BOOSTERAFT") {
         set BoosterCore to part.
         set onOLM to true.
-    } else if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") or part:name:contains("SEP.25.SHIP.CORE") {
+    } else if part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") or part:name:contains("SEP.25.SHIP.CORE") {
         set ShipTank to part.
         set shipOnOLM to true.
     }
@@ -335,7 +335,7 @@ until False {
         }
     }
     if time:seconds > PrevTime + 0.25 {
-        if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0 {
+        if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0 {
             RenameOLM().
         }
         set PrevTime to time:seconds.
@@ -351,7 +351,7 @@ function LiftOff {
     if OLM:getmodule("ModuleAnimateGeneric"):hasevent("close clamps + qd") {
         OLM:getmodule("ModuleAnimateGeneric"):doevent("close clamps + qd").
     }
-    wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0.
+    wait until SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0.
     RetractSQDArm().
     wait 3.
     RenameOLM().
@@ -579,7 +579,7 @@ function ExtendMechazillaRails {
                 break.
             }
         }
-    }  
+    }
 }
 
 function RetractMechazillaRails {
