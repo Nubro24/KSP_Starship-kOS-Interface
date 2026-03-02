@@ -34,12 +34,31 @@ def detect_horizon(img):
 
 
 def make_vehicle_only(img, horizon_rows):
-    """Return a copy of img with horizon rows made transparent."""
+    """Return a copy of img with horizon pixels made transparent, keeping vehicle pixels.
+
+    Uses adjacent non-horizon rows to build a mask of which X positions have vehicle
+    pixels. On horizon rows, only those positions are kept; the rest are erased.
+    """
     vehicle = img.copy()
-    w = vehicle.size[0]
+    w, h = vehicle.size
+    horizon_set = set(horizon_rows.keys())
     for row in horizon_rows:
+        # Find nearest non-horizon rows above and below
+        vehicle_xs = set()
+        for direction in (-1, 1):
+            adj = row + direction
+            while 0 <= adj < h and adj in horizon_set:
+                adj += direction
+            if 0 <= adj < h:
+                for x in range(w):
+                    if img.getpixel((x, adj))[3] > 0:
+                        vehicle_xs.add(x)
+        # Erase all pixels NOT in the vehicle mask
+        # Use transparent white so BICUBIC interpolation doesn't create dark
+        # anti-aliasing artifacts at the boundary with the white horizon
         for x in range(w):
-            vehicle.putpixel((x, row), (0, 0, 0, 0))
+            if x not in vehicle_xs:
+                vehicle.putpixel((x, row), (255, 255, 255, 0))
     return vehicle
 
 
@@ -74,16 +93,12 @@ def generate_rotations(folder_path, ref_image_path, max_deg, label):
         rotated_vehicle = vehicle.rotate(-angle, resample=Image.BICUBIC, expand=False, center=(w//2, h//2))
 
         if horizon_rows:
-            # Create canvas, draw fixed horizon, composite vehicle on top
-            canvas = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-
-            # Draw the fixed horizon rows
+            # Start with rotated vehicle, then draw fixed horizon ON TOP
+            # This ensures horizon pixels are never corrupted by rotation anti-aliasing
+            canvas = rotated_vehicle.copy()
             for row, pixels in horizon_rows.items():
                 for x in range(w):
                     canvas.putpixel((x, row), pixels[x])
-
-            # Composite rotated vehicle on top of horizon
-            canvas = Image.alpha_composite(canvas, rotated_vehicle)
         else:
             canvas = rotated_vehicle
 
