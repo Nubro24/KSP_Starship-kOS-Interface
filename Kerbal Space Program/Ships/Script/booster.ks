@@ -87,6 +87,7 @@ set config:ipu to 800.
 
 set devMode to true. // Disables switching to ship for easy quicksaving (@<0 vertical speed)
 set LogData to false.
+set BoosterDataPath to "".
 set ShipType to "".
 set BoosterType to "".
 set Block3Cluster to false.
@@ -1265,10 +1266,6 @@ set TgtLandingzone to landingzone.
 SetGridFinAuthority(36).
 DeactivateGridFins().
 
-if exists("0:/BoosterFlightData.csv") {
-    deletepath("0:/BoosterFlightData.csv").
-}
-
 clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
@@ -1476,6 +1473,18 @@ until False {
             BoosterStaticFire().
         }
         sendMessage(processor(volume("Starship")),"bStaticFireFinished").
+    }
+    else if command = "LogData" {
+        if MesParameter = "true" {
+            set LogData to true.
+            set LogTimestamp to round(time:seconds).
+            if homeconnection:isconnected {
+                if not exists("0:/Logs") createdir("0:/Logs").
+            }
+            set BoosterDataPath to "0:/Logs/BoosterFlightData_" + LogTimestamp + ".csv".
+        } else {
+            set LogData to false.
+        }
     }
     ELSE {
         PRINT "Unexpected message: " + RECEIVED:CONTENT.
@@ -3525,7 +3534,7 @@ FUNCTION SteeringCorrections {
     //print "CPU operations: " + (config:ipu-unusedLines):tostring +"/"+config:ipu + " (unused: "+opcodesleft+")".
     //print "CPU speed: " + config:ipu.
 
-    //LogBoosterFlightData().
+    LogBoosterFlightData().
 }
 
 
@@ -3971,13 +3980,24 @@ function LogBoosterFlightData {
                 set TimeStep to 1.
                 if timestamp(time:seconds) > PrevLogTime + TimeStep {
                     set DistanceToTarget to (vxcl(up:vector, landingzone:position - ship:position):mag * (ship:body:radius / 1000 * 2 * constant:pi) / 360).
-                    LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + LngError + "," + LatError + "," + vang(ship:facing:forevector, -velocity:surface) + "," + throttle + "," + (ship:mass * 1000)) to "0:/BoosterFlightData.csv".
+                    set LogBattery to 0.
+                    if ship:resources:length > 0 {
+                        for LogRes in ship:resources {
+                            if LogRes:name = "ElectricCharge" {
+                                if LogRes:capacity > 0 set LogBattery to round(100 * (LogRes:amount / LogRes:capacity), 2).
+                                break.
+                            }
+                        }
+                    }
+                    set LogPitch to 90 - vang(ship:up:forevector, ship:facing:forevector).
+                    set LogTWR to ship:availablethrust / max(ship:mass * constant:g0, 0.001).
+                    LOG (timestamp():clock + "," + DistanceToTarget + "," + altitude + "," + ship:verticalspeed + "," + airspeed + "," + LngError + "," + LatError + "," + vang(ship:facing:forevector, -velocity:surface) + "," + (100 * throttle) + "," + (ship:mass * 1000) + "," + RadarAlt + "," + LogBattery + "," + (ship:dynamicpressure * 101.325) + "," + (ship:angularvel:mag * constant:radtodeg) + "," + SteeringManager:angleerror + "," + groundspeed + "," + ship:geoposition:lat + "," + ship:geoposition:lng + "," + LogPitch + "," + ship:facing:yaw + "," + LogTWR + "," + ship:orbit:apoapsis) to BoosterDataPath.
                     set PrevLogTime to timestamp(time:seconds).
                 }
             }
             else {
                 set PrevLogTime to timestamp(time:seconds).
-                LOG "Time, Distance to Target (km), Altitude (m), Vertical Speed (m/s), Airspeed (m/s), Longitude Error (m), Latitude Error (m), Actual AoA (°), Throttle (%), Mass (kg)" to "0:/BoosterFlightData.csv".
+                LOG "Time,Distance (km),Alt (m),VS (m/s),Airspeed (m/s),Lng Err (m),Lat Err (m),AoA (°),Throttle (%),Mass (kg),RadarAlt,Battery (%),Q (kPa),AngVel (°/s),SteerErr (°),Groundspeed (m/s),Lat,Lng,Pitch (°),Heading (°),TWR,Apoapsis (m)" to BoosterDataPath.
             }
         }
     }
@@ -4173,6 +4193,9 @@ function setLandingZone {
             if L:haskey("Log Data") {
                 if L["Log Data"] = "true" {
                     set LogData to true.
+                    set LogTimestamp to round(time:seconds).
+                    if not exists("0:/Logs") createdir("0:/Logs").
+                    set BoosterDataPath to "0:/Logs/BoosterFlightData_" + LogTimestamp + ".csv".
                 }
             }
             if L:haskey("Launch Coordinates") {
@@ -4465,11 +4488,11 @@ function GUIupdate {
 
     if vAng(facing:forevector, vxcl(up:vector, landingzone:position - BoosterCore:position)) < 90 set currentPitch to 360-vAng(facing:forevector,up:vector).
     else set currentPitch to vAng(facing:forevector,up:vector).
-    if round(currentPitch) = 360 set currentPitch to 0.
+    if round(currentPitch, 1) = 360 set currentPitch to 0.
 
-    if ShipConnectedToBooster and (ShipType:contains("Block2") or ShipType:contains("Block3")) set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
-    else if ShipConnectedToBooster set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
-    else set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
+    if ShipConnectedToBooster and (ShipType:contains("Block2") or ShipType:contains("Block3")) set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch, 1):tostring.
+    else if ShipConnectedToBooster set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch, 1):tostring.
+    else set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch, 1):tostring.
 
     if cAbort set GDlamp:style:bg to "starship_img/telemetry_red".
 
