@@ -944,45 +944,6 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
-    } else if ship:partsnamed("Block.3.AFT"):length > 0 {
-        set Boosterconnected to true.
-        set BoosterType to "Block3".
-        set sAltitude:style:textcolor to grey.
-        set sSpeed:style:textcolor to grey.
-        set sLOXLabel:style:textcolor to grey.
-        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
-        set sCH4Label:style:textcolor to grey.
-        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
-        set sThrust:style:textcolor to grey.
-        if SHIP:PARTSNAMED("Raptor.3Cluster"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("Raptor.3Cluster").
-        else {
-            set BoosterEngines to SHIP:PARTSNAMED("Block.3.AFT").
-            set BoosterSingleEngines to true.
-        }
-        if SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN"):length > 0 set GridFins to SHIP:PARTSNAMED("SEP.25.BOOSTER.GRIDFIN").
-        else if SHIP:PARTSNAMED("Block.3.Fin"):length > 0 set GridFins to SHIP:PARTSNAMED("Block.3.Fin").
-        set HSR to SHIP:PARTSNAMED("Block.3.FWD").
-        set BoosterCore to SHIP:PARTSNAMED("Block.3.AFT").
-        set bLOXTank to SHIP:PARTSNAMED("Block.3.LOX").
-        set bCH4Tank to SHIP:PARTSNAMED("Block.3.CH4").
-        set bCMNDome to SHIP:PARTSNAMED("Block.3.CMN").
-        if BoosterCore:length > 0 {
-            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
-            //print(round(BoosterCore[0]:drymass)).
-            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
-                set BoosterCorrectVariant to true.
-            }
-            else {
-                set BoosterCorrectVariant to true.
-            }
-            if ShipType = "Depot" {
-                sendMessage(processor(volume("Booster")),"Depot").
-            }
-            sendMessage(processor(volume("Booster")), "ShipDetected").
-        }
-        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
-        set missionTimeLabel:text to "".
-        print(BoosterCore[0]:mass).
     } else if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 {
         set Boosterconnected to true.
         set BoosterType to "Block1".
@@ -1022,7 +983,7 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
-    } else if ship:partsnamed("FNB.BL3.BOOSTERAFT"):length > 0 {
+    } else if ship:partsnamed("FNB.BL3.BOOSTERLOX"):length > 0 {
         set Boosterconnected to true.
         set BoosterType to "Block3".
         set sAltitude:style:textcolor to grey.
@@ -1034,12 +995,12 @@ function FindParts {
         set sThrust:style:textcolor to grey.
         if SHIP:PARTSNAMED("FNB.R3.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.R3.CLUSTER").
         else { 
-            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT").
+            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX").
             set BoosterSingleEngines to true.
         }
         set GridFins to SHIP:PARTSNAMED("FNB.BL3.BOOSTERFIN").
         set HSR to SHIP:PARTSNAMED("FNB.BL3.BOOSTERIHSR").
-        set BoosterCore to SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT").
+        set BoosterCore to SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX").
         set bLOXTank to SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX").
         set bCH4Tank to SHIP:PARTSNAMED("FNB.BL3.BOOSTERCH4").
         set bCMNDome to SHIP:PARTSNAMED("FNB.BL3.BOOSTERCMN").
