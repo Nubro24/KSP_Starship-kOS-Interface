@@ -1,7 +1,7 @@
 Here I describe the steps required to make a .craft file for the Interface:
 
 
-- Build up a complete stack of ship, booster and tower
+- Build up a complete stack of ship *(dont forget the engines)*, booster *(both the cluster and 33 Single Engines are fine)* and tower
     - **The Ship Tank needs to be the root part**
     - dont forget the *SQD*
 - Select the boot files for kOS and configure the parts:
