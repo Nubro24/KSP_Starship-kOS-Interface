@@ -3706,9 +3706,11 @@ function AfterLandingTowerOperations {
     set stable to false.
     set PreDockPos to false.
     set procceed to false.
+    set BoosterDockingActive to false.
     set stableTime to time:seconds*10.
     set lastMessage to time:seconds-12.
     set ALTOTime to time:seconds.
+    when time:seconds - ALTOTime > 20 and airspeed < 0.1 then {StabReset().}
     set PreDockPosTime to time:seconds+280.
     set CenterTime to time:seconds+120.
     set steeringManager:maxstoppingtime to 0.1.
@@ -3751,8 +3753,8 @@ function AfterLandingTowerOperations {
         set CenterTime to time:seconds.
     }
 
-    if PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and (RadarAlt > 20 and not RSS or RadarAlt > 45 and RSS) and time:seconds < stableTime + 24 {
-        if RollAngle > 4 or PosDiff > 0.12 * Scale {
+    if PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and (RadarAlt > 30 and not RSS or RadarAlt > 45 and RSS) and time:seconds < stableTime + 24 {
+        if RollAngle > 4 or PosDiff > 0.14 * Scale {
             StabReset().
             wait until not stabResetRunning.
         }
@@ -3768,7 +3770,8 @@ function AfterLandingTowerOperations {
         clearScreen.
         print PosDiff.
         if vAng(up:vector, facing:forevector) > 0.6 and airspeed < 0.1 StabReset().
-        if CenterTime + 30 < time:seconds and PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and (RadarAlt > 20 and not RSS or RadarAlt > 45 and RSS) {
+        if RadarAlt < 30 and PosDiff < 0.14*Scale and RollAngle < 4 {HUDTEXT("Docking Operations starting..", 7, 2, 20, green, false). BoosterDocking(). return.}
+        if CenterTime + 30 < time:seconds and PosDiff < 0.4 * Scale and velocity:surface:mag < 0.15 and (RadarAlt > 30 and not RSS or RadarAlt > 45 and RSS) {
             set PreDockPosTime to time:seconds.
             set PreDockPos to true.
             SetBoosterActive().
@@ -3801,6 +3804,10 @@ function AfterLandingTowerOperations {
         set stabResetRunning to true.
         sendMessage(Vessel(TargetOLM), "MechazillaStabilizers," + 0.2*maxstabengage).
         sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",true").
+        if RadarAlt < 32 {
+            if RadarAlt > 20 sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + round(BoosterDockingHeight - 10*Scale, 2) + ",0.4")).
+            else sendMessage(Vessel(TargetOLM), ("MechazillaHeight," + round(BoosterDockingHeight - 4*Scale, 2) + ",0.4")).
+        }
         HUDTEXT("RollAngle exceeded! re-aligning..", 7, 2, 20, yellow, false).
         wait 5.
         sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,0.2," + maxpusherengage + ",false").
@@ -3837,6 +3844,7 @@ function AfterLandingTowerOperations {
 
 
 function BoosterDocking {
+    set BoosterDockingActive to true.
     wait 1.
     set ship:control:pitch to 0.1.
     wait 0.3.
@@ -3850,8 +3858,9 @@ function BoosterDocking {
     lock PosDiff to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):dockingports[0]:nodeposition):mag.
     when ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 then {
         clearscreen.
-        print "Roll Angle: " + round(RollAngle,1) + "".
+        print "Roll Angle: " + round(RollAngle,1) + "°".
         print "Position Error: " + round(PosDiff, 2) + "m".
+        print "AngleUp: " + round(vAng(up:vector,facing:forevector))+"°".
         wait 0.001.
         if ship:partstitled("Starship Orbital Launch Integration Tower Base"):length = 0 {
             return true.
