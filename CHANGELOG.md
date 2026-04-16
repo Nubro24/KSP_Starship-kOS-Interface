@@ -1,9 +1,10 @@
-# V3.6.0 (2026-01-22)
+# V3.6.0 (2026-04-16)
 - **Reworked Catch Guidance for Booster and Ship** 
   - uses Catch position instead ground impact position
   - PID based (better adjustments in different situations + easier fine tuning)
 - **Improved Reentry Guidance for Ship**
 - **Added Support for SEP 25 Ships (Block 2)**
+- Added Support for Raptor 3
 - Added Support for a Booster with 3 Gridfins (V3 Layout)
 - Added Support for Flip'N'Burn
   - Added 13-5-3 Landing Burn Configuration
