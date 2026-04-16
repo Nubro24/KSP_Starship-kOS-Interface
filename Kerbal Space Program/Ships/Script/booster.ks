@@ -168,6 +168,7 @@ for part in ship:parts {
     if part:name:contains("FNB.BL3.BOOSTERLOX") and not BTset {
         set BoosterType to "Block3".
         set Bl3LndProf to true.
+        set bLOXTank to part.
         set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERLOX").
         set BoosterCore to part.
         set DumpVents to list().
@@ -208,9 +209,6 @@ for part in ship:parts {
     if part:name:contains("FNB.BL3.BOOSTERCH4") {
         set bCH4Tank to part.
         set FWD to part.
-    }
-    if part:name:contains("FNB.BL3.BOOSTERLOX") {
-        set bLOXTank to part.
     }
     if part:name:contains("FNB.BL3.BOOSTERCMN") {
         set bCMNDome to part.
@@ -452,11 +450,11 @@ function FindEngines {
     set findingEngines to true.
     if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
             or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
-            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER") 
+            or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
+            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.B") 
             or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
-            or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB")
-            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") ) {
+            or BoosterEngines[0]:children[1]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[1]:name:contains("SEP.26.R3.SL.B")
+            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") or BoosterEngines[0]:children[0]:title:contains("Nagata") ) {
         set BoosterSingleEngines to true.
         set BoosterSingleEnginesRB to list().
         set BoosterSingleEnginesRC to list().
@@ -472,6 +470,7 @@ function FindEngines {
                 else BoosterSingleEnginesRB:insert(x-14, False).
                 MissingList:add(x).
             }
+            print x.
             set x to x + 1.
         }
         if MissingList:length > 0 {
@@ -480,6 +479,15 @@ function FindEngines {
         }
     } 
     else {
+        print "No Single Engines Found".
+        print BoosterEngines[0]:children:length.
+        if BoosterEngines[0]:children:length > 1 print ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
+            or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
+            or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.B") 
+            or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER") 
+            or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
+            or BoosterEngines[0]:children[1]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[1]:name:contains("SEP.26.R3.SL.B")
+            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") ).
         set BoosterSingleEngines to false.
     }
     set findingEngines to false.
@@ -1171,7 +1179,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2720.
+        set LFBoosterFuelCutOff to 2520.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
@@ -1179,7 +1187,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1200. 
-        else set BoosterGlideDistance to 1100. //1100
+        else set BoosterGlideDistance to 1080. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set BoosterGlideFactor to 1.15.
@@ -1207,7 +1215,7 @@ for res in bCH4Tank:resources {
     }
 }
 
-if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.15.
+if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
 
 if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.06.
 if BoosterType:contains("Block3") {

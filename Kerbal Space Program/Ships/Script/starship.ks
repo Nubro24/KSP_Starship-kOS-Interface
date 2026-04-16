@@ -939,11 +939,11 @@ function FindParts {
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else if x:name:contains("FNB.R3.CLUSTER") {}
             else {
-                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER")) and (x:parent:name:contains("SHIP") or x:parent:name:contains("LOX")) {
+                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") or x:name:contains("SEP.26.R3.SL.C")) and (x:parent:name:contains("SHIP") or x:parent:name:contains("LOX")) {
                     set SL to true.
                     set SLcount to SLcount + 1.
                 }
-                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") or x:name:contains("FNB.R3.VAC") {
+                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
@@ -1105,7 +1105,7 @@ function FindParts {
         set SL3 to false.
         for x in Tank:children {
             if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
-                if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") {
+                if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") or x:name:contains("SEP.26.R3.SL.C") {
                     set partPos to x:position - Tank:position.
                     set compPos to Tank:facing:topvector.
                     if vAng(partPos, compPos) < 89 {
@@ -1153,7 +1153,7 @@ function FindParts {
         set Vac3 to false.
         for x in Tank:children {
             if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
-                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set partPos to x:position - Tank:position.
                     set compPos to -Tank:facing:topvector.
                     if vAng(partPos, compPos) < 89 {
@@ -1198,7 +1198,7 @@ function FindParts {
         set Vac6 to false.
         for x in Tank:children {
             if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
-                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set partPos to vxcl(Tank:facing:forevector,x:position - Tank:position).
                     set compPos to -Tank:facing:starvector.
                     if vAng(partPos, compPos) < 10 {
@@ -1456,11 +1456,11 @@ function FindParts {
     if Boosterconnected and not Hotstaging and not bEngSet {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
             or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
+            or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.B") 
             or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER") 
             or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
-            or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB")
-            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") )  {
+            or BoosterEngines[0]:children[1]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[1]:name:contains("SEP.26.R3.SL.B")
+            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") or BoosterEngines[0]:children[0]:title:contains("Nagata") )  {
             set BoosterSingleEngines to true.
             set BoosterSingleEnginesRB to list().
             set BoosterSingleEnginesRC to list().
