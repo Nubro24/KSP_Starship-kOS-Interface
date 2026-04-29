@@ -2942,7 +2942,7 @@ function Boostback {
             HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
             set cAbort to true.
             lock steering to retrograde.
-            when airspeed < 30 then lock steering to up - GSVec*0.1.
+            when airspeed < 30 then lock steering to lookDirUp(up:vector - GSVec*0.1,facing:topvector).
         }
 
 
@@ -3595,7 +3595,7 @@ function LandingGuidance {
     set RadarRatio to max(RadarAlt/BoosterHeight,0.001).
     set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
     set CatchPins to BoosterCore:position + BoosterHeight*0.4 * facing:forevector.
-    set CatchPos to landingzone:position + MZHeight*up:vector + TheTowerHeadingVector * angleAxis(ApproachAngle/2, up:vector) - TheTowerHeadingVector.
+    set CatchPos to landingzone:position + MZHeight*up:vector + TheTowerHeadingVector:normalized * angleAxis(ApproachAngle/2, up:vector) - 1.2*Scale*TheTowerHeadingVector:normalized.
     if verticalSpeed < 0 set vSpeed to -verticalSpeed.
     else set vSpeed to max(verticalSpeed,0.001).
     set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*ActiveRC/(Scale*10).

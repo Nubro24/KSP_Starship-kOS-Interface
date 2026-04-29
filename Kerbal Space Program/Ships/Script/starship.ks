@@ -6366,6 +6366,7 @@ set launchbutton:ontoggle to {
         set landlabel:style:textcolor to grey.
         set landlabel:style:bg to "starship_img/starship_background".
         set textbox:style:bg to "starship_img/starship_main_square_bg".
+        set tgtspeed to ship:body:radius * sqrt(Planet1G / (ship:body:radius + TargetAp)).
         if click {
             if ship:body:atm:exists and Boosterconnected {
                 if not (CheckFullTanks()) {
@@ -8209,7 +8210,7 @@ function Launch {
                 set turnAltitude to 280.
             }
             set PitchIncrement to 0 + 2.4 * CargoMass / MaxCargoToOrbit.
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0, 0.0015, -30, PitchIncrement).
+            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0.0001, 0.005, -30, PitchIncrement).
             set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 20.
             set BoosterThrottleDownAlt to 1800.
         }
@@ -8228,7 +8229,7 @@ function Launch {
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 10.
             }
             set PitchIncrement to 0 + 2.5 * CargoMass / MaxCargoToOrbit.
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0, 0.004, -30, PitchIncrement).
+            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0.0001, 0.02, -30, PitchIncrement).
             set BoosterThrottleDownAlt to 1700.
         }
         else {
@@ -8248,10 +8249,12 @@ function Launch {
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 10.
                 set PitchIncrement to 0.
             }
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0, 0.004, -30, PitchIncrement).
+            set PitchIncrement to 0 + 2.5 * CargoMass / MaxCargoToOrbit.
+            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0.0001, 0.02, -30, PitchIncrement).
             set BoosterThrottleDownAlt to 1600.
         }
-        set OrbitBurnPitchCorrectionPID:setpoint to targetap.
+        //set OrbitBurnPitchCorrectionPID:setpoint to targetap.
+        set OrbitBurnPitchCorrectionPID:setpoint to 0.
         print "2".
 
         set myAzimuth to LAZcalc(LaunchData).
@@ -8788,6 +8791,7 @@ function Launch {
                 set message1:text to "<b>Hot staging..</b>".
                 set message2:text to "".
                 set message3:text to "".
+                set tgtspeed to ship:body:radius * sqrt(Planet1G / (ship:body:radius + TargetAp)).
                 ShowHomePage().
                 updateTelemetry().
                 wait 0.08.
@@ -8986,6 +8990,20 @@ function Launch {
                 for eng in SLEngines {
                     eng:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
                 }
+                //set MJcore to addons:mj.
+                //set MJasc to MJcore:ascent.
+                //set MJasc:DSRALT to TargetAp.
+                //set MJasc:INC to targetincl.
+                //set MJasc:FROLL to true.
+                //set MJasc:TROLL to 90.
+                //if ShipType:contains("Block2") or ShipType:contains("Block3") or ShipSubType:contains("Block2") set MJasc:VROLL to 0.
+                //else set MJasc:VROLL to 90.
+                //set MJasc:ROLLALT to TargetAp*0.72.
+                //set MJasc:LIMAOA to false.
+                //set MJasc:LIMQAEN to false.
+                //set MJasc:LIMOVHT to false.
+                //unlock steering.
+                //set MJasc:ENABLED to true.
             }
             when time:seconds > HotStageTime + 2 then {
                 KUniverse:forceactive(vessel("Booster")).
@@ -9011,16 +9029,21 @@ function Launch {
             if STOCK {
                 set steeringmanager:pitchtorquefactor to 0.5.
             }
+            when apoapsis > TargetAp * 0.97 then {
+                set OrbitBurnPitchCorrectionPID:kp to OrbitBurnPitchCorrectionPID:kp*2.43.
+                set OrbitBurnPitchCorrectionPID:ki to OrbitBurnPitchCorrectionPID:ki*3.
+                set OrbitBurnPitchCorrectionPID:kd to OrbitBurnPitchCorrectionPID:kd*4.
+            }
             if RSS {
                 when TargetAp < apoapsis and altitude > TargetAp*0.9 or altitude > targetap - 500 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 750 then {
                     if ShipType = "Depot" {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0, -7.5, 20).
+                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.2, -9, 20).
                     }
                     else if NrOfVacEngines = 6 {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0, -7.5, 15).
+                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.2, -9, 15).
                     }
                     else {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0, -7.5, 15).
+                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.2, -9, 15).
                     }
                     set MaintainVS to true.
                 }
@@ -9031,7 +9054,7 @@ function Launch {
                     //    set quickengine2:pressed to false.
                     //}
                     when altitude > targetap - 100 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 400 then {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(1.5, 0, 0, -10, 17.5).
+                        set OrbitBurnPitchCorrectionPID to PIDLOOP(1.5, 0, 0.3, -12, 17.5).
                         set MaintainVS to true.
                     }
                 }
@@ -9043,10 +9066,10 @@ function Launch {
                     //}
                     when altitude > targetap - 1000 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 100 then {
                         if ShipType = "Depot" {
-                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 0, -10, 12.5).
+                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 0.5, -12, 12.5).
                         }
                         else {
-                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 0, -10, 7.5).
+                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 0.5, -12, 7.5).
                         }
                         set MaintainVS to true.
                     }
@@ -9065,7 +9088,8 @@ function Launch {
         
         if not fullAuto g:show().
 
-        unlock steering.
+        //set MJasc:ENABLED to false.
+        unlock steering. 
         SteeringManager:RESETTODEFAULT().
         set steeringmanager:pitchtorquefactor to 0.75.
         set steeringmanager:yawtorquefactor to 0.75.
@@ -9405,33 +9429,41 @@ Function LaunchSteering {
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
     else {
-        set ProgradeAngle to 90 - vang(velocity:surface, up:vector)*1.02.
-        if RSS {
-            if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
-            if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.92.
-            else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.86.
-        }
-        if MaintainVS {
-            if deltaV > 500*Scale {
-                set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 100.
-                if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,28),-36).
-            }
-            else {
-                set OrbitBurnPitchCorrectionPID:setpoint to 0.
-            }
-            set OrbitBurnPitchCorrection to OrbitBurnPitchCorrectionPID:UPDATE(TIME:SECONDS, verticalspeed).
-        }
-        else {
-            set OrbitBurnPitchCorrection to OrbitBurnPitchCorrectionPID:UPDATE(TIME:SECONDS, apoapsis).
-        }
+        set ProgradeAngle to (90 - vang(velocity:surface, up:vector))*min(max(0,(TargetAp-apoapsis)/(TargetAp-TargetAp*0.969)),1).
+        //if RSS {
+        //    if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
+        //    if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.92.
+        //    else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.86.
+        //}
+        //if MaintainVS {
+        //    if deltaV > 500*Scale {
+        //        set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 100.
+        //        if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,28),-36).
+        //    }
+        //    else {
+        //        set OrbitBurnPitchCorrectionPID:setpoint to 0.
+        //    }
+        //    set OrbitBurnPitchCorrection to OrbitBurnPitchCorrectionPID:UPDATE(TIME:SECONDS, verticalspeed).
+        //}
+        //else {
+        //    set OrbitBurnPitchCorrection to OrbitBurnPitchCorrectionPID:UPDATE(TIME:SECONDS, apoapsis).
+        //}
+        set OrbitBurnPitchCorrectionPID:setpoint to 0.
+
+        set OrbitBurnPitchCorrection to max(-14, min(OrbitBurnPitchCorrectionPID:UPDATE(time:seconds, min(max(0, (apoapsis-alt:radar)/TargetAp),1)*verticalSpeed*0.5 + min(max(0, (alt:radar/TargetAp)^4),1)*verticalSpeed*0.6), 20)).
 
 
+        print " ".
         print "Target Pitch: " + round(ProgradeAngle + OrbitBurnPitchCorrection, 1) + "°".
+        print "Prograde: " + round(ProgradeAngle,1)  + "°  " + "Corr: " + round(OrbitBurnPitchCorrection,1)  + "°".
+        print "vSpeed: " + round(verticalSpeed,1) + " m/s".
+        print "Ap: " + round(apoapsis/1000,3). 
+        print "Alt: " + round(alt:radar/1000,3).
+        print "Pe: " + round(periapsis/1000,3).
         print "Desired Accel: " + round(DesiredAccel / 9.81, 2) + "G".
         print "Ratio: " + round(DesiredAccel / MaxAccel, 2).
         print "Time to Orbit Completion: " + round(TimeToOrbitCompletion) + "s".
         print " ".
-        print "Pitch: " + round(ship:facing:pitch).
 
         if not Boosterconnected rcs on.
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, ProgradeAngle + OrbitBurnPitchCorrection):vector, LaunchRollVector).
