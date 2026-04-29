@@ -1317,6 +1317,7 @@ on ag5 {
     return true.
 }
 
+wait 0.
 
 if BoosterSingleEngines {
     for gimbalEng in BoosterSingleEnginesRC {
