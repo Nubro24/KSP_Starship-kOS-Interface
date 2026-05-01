@@ -8199,62 +8199,46 @@ function Launch {
 
         if RSS {
             set LaunchElev to altitude - 108.384.
-            if ShipType = "Depot" or CargoMass > 64000 {
+            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 42 * CargoMass / MaxCargoToOrbit.
+            set BoosterAp to 94000 + (cos(targetincl) * 3000) + 12000 * CargoMass / MaxCargoToOrbit.
+            set PitchIncrement to 1 + 2.4 * CargoMass / MaxCargoToOrbit.
+            set turnAltitude to 280.
+            if ShipType = "Depot" {
                 set BoosterAp to 106000 + (cos(targetincl) * 3000).
                 set turnAltitude to 750.
-            } else if CargoMass > 32000 {
-                set BoosterAp to 99000 + (cos(targetincl) * 3000).
-                set turnAltitude to 280.
-            } else {
-                set BoosterAp to 94000 + (cos(targetincl) * 3000).
-                set turnAltitude to 280.
+                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 45.
             }
-            set PitchIncrement to 0 + 2.4 * CargoMass / MaxCargoToOrbit.
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0.0001, 0.005, -30, PitchIncrement).
-            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 20.
+            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0.0001, 0.01, -30, PitchIncrement).
             set BoosterThrottleDownAlt to 1800.
         }
         else if KSRSS {
             set LaunchElev to altitude - 67.74.
+            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 36 * CargoMass / MaxCargoToOrbit.
+            set BoosterAp to 65000 + (cos(targetincl) * 1500) + 4000 * CargoMass / MaxCargoToOrbit.
+            set PitchIncrement to 1 + 2.5 * CargoMass / MaxCargoToOrbit.
             if ShipType = "Depot" or CargoMass > 64000 {
                 set BoosterAp to 69000 + (cos(targetincl) * 1500).
-                set TimeFromLaunchToOrbit to 360.
+                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 38.
+                set PitchIncrement to 5.
             }
-            else if CargoMass > 32000 {
-                set BoosterAp to 67000 + (cos(targetincl) * 1500).
-                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 20.
-            }
-            else {
-                set BoosterAp to 65000 + (cos(targetincl) * 1500).
-                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 10.
-            }
-            set PitchIncrement to 0 + 2.5 * CargoMass / MaxCargoToOrbit.
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0.0001, 0.02, -30, PitchIncrement).
+            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0.0001, 0.025, -30, PitchIncrement).
             set BoosterThrottleDownAlt to 1700.
         }
         else {
             set LaunchElev to altitude - 67.74.
-            if ShipType = "Depot" or CargoMass > 64000 {
-                set BoosterAp to 52000 + (cos(targetincl) * 1000).
-                set TimeFromLaunchToOrbit to 285.
+            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 24 * CargoMass / MaxCargoToOrbit.
+            set BoosterAp to 48000 + (cos(targetincl) * 1000) + 4000 * CargoMass / MaxCargoToOrbit.
+            set PitchIncrement to 1 + 2.5 * CargoMass / MaxCargoToOrbit.
+            if ShipType = "Depot" {
+                set BoosterAp to 52200 + (cos(targetincl) * 1000).
+                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 30.
                 set PitchIncrement to 5.
             }
-            else if CargoMass > 32000 {
-                set BoosterAp to 50000 + (cos(targetincl) * 1000).
-                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 10.
-                set PitchIncrement to 0.
-            }
-            else {
-                set BoosterAp to 48000 + (cos(targetincl) * 1000).
-                set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds - 10.
-                set PitchIncrement to 0.
-            }
-            set PitchIncrement to 0 + 2.5 * CargoMass / MaxCargoToOrbit.
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0.0001, 0.02, -30, PitchIncrement).
+            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0.0001, 0.03, -30, PitchIncrement).
             set BoosterThrottleDownAlt to 1600.
         }
         //set OrbitBurnPitchCorrectionPID:setpoint to targetap.
-        set OrbitBurnPitchCorrectionPID:setpoint to 0.
+        set OrbitBurnPitchCorrectionPID:setpoint to 2.
         print "2".
 
         set myAzimuth to LAZcalc(LaunchData).
@@ -9037,13 +9021,13 @@ function Launch {
             if RSS {
                 when TargetAp < apoapsis and altitude > TargetAp*0.9 or altitude > targetap - 500 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 750 then {
                     if ShipType = "Depot" {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.2, -9, 20).
+                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.4, -12, 20).
                     }
                     else if NrOfVacEngines = 6 {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.2, -9, 15).
+                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.4, -12, 16 + 2.5 * CargoMass/MaxCargoToOrbit).
                     }
                     else {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.2, -9, 15).
+                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.4, -12, 16 + 3.5 * CargoMass/MaxCargoToOrbit).
                     }
                     set MaintainVS to true.
                 }
@@ -9054,7 +9038,7 @@ function Launch {
                     //    set quickengine2:pressed to false.
                     //}
                     when altitude > targetap - 100 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 400 then {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(1.5, 0, 0.3, -12, 17.5).
+                        set OrbitBurnPitchCorrectionPID to PIDLOOP(1.5, 0, 0.6, -12, 17.5).
                         set MaintainVS to true.
                     }
                 }
@@ -9066,10 +9050,10 @@ function Launch {
                     //}
                     when altitude > targetap - 1000 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 100 then {
                         if ShipType = "Depot" {
-                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 0.5, -12, 12.5).
+                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 1.5, -14, 12.5).
                         }
                         else {
-                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 0.5, -12, 7.5).
+                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 1.5, -14, 9 + 3.5 * CargoMass/MaxCargoToOrbit).
                         }
                         set MaintainVS to true.
                     }
@@ -9429,26 +9413,9 @@ Function LaunchSteering {
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
     else {
-        set ProgradeAngle to (90 - vang(velocity:surface, up:vector))*min(max(0,(TargetAp-apoapsis)/(TargetAp-TargetAp*0.969)),1).
-        //if RSS {
-        //    if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((-altitude+TargetAp)/3000,28),-36).
-        //    if CargoMass < 50000 and not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.92.
-        //    else if not Boosterconnected set ProgradeAngle to ProgradeAngle * 0.86.
-        //}
-        //if MaintainVS {
-        //    if deltaV > 500*Scale {
-        //        set OrbitBurnPitchCorrectionPID:setpoint to (targetap - altitude) / 100.
-        //        if apoapsis > 1.05*TargetAp set OrbitBurnPitchCorrectionPID:setpoint to max(min((altitude-apoapsis)/3000,28),-36).
-        //    }
-        //    else {
-        //        set OrbitBurnPitchCorrectionPID:setpoint to 0.
-        //    }
-        //    set OrbitBurnPitchCorrection to OrbitBurnPitchCorrectionPID:UPDATE(TIME:SECONDS, verticalspeed).
-        //}
-        //else {
-        //    set OrbitBurnPitchCorrection to OrbitBurnPitchCorrectionPID:UPDATE(TIME:SECONDS, apoapsis).
-        //}
-        set OrbitBurnPitchCorrectionPID:setpoint to 0.
+        set ProgradeAngle to (90 - vang(velocity:surface, up:vector))*min(max(0,(TargetAp*1.01-apoapsis)/(TargetAp-TargetAp*0.975)),1).
+        
+        set OrbitBurnPitchCorrectionPID:setpoint to 0.1.
 
         set OrbitBurnPitchCorrection to max(-14, min(OrbitBurnPitchCorrectionPID:UPDATE(time:seconds, min(max(0, (apoapsis-alt:radar)/TargetAp),1)*verticalSpeed*0.5 + min(max(0, (alt:radar/TargetAp)^4),1)*verticalSpeed*0.6), 20)).
 
@@ -12208,6 +12175,15 @@ function ReEntryAndLand {
         set steeringManager:yawpid:kp to 0.7.
         set steeringManager:yawpid:kd to 0.5.
         set steeringManager:rollpid:kd to 0.36.
+        if RSS {
+            set PitchPID_kp to 0.09.
+        }
+        else if KSRSS {
+            set PitchPID_kp to 0.2.
+        }
+        else {
+            set PitchPID_kp to 0.03.
+        }
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
