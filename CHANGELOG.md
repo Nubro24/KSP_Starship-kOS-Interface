@@ -35,13 +35,6 @@
     - Uses Ratio to determine the best Scaling
   - Added Block 3 Booster Engine Diagram
 - multiple Bug-/Errorfixes
-**Dev update**:
-- Overhauled Ship Ascent Guidance for higher insertion precision (now also taking Cargo into account)
-- Adjusted RSS MaxCargoToOrbit to preserve enough fuel in Ship for RTLS
-- Fixed Booster coming in too close to the Tower with 13>5>3 Landing Profile *and* Throttle during 5-Engines-Phase
-- Fixed Arms closing at a wrong angle after Launch Abort
-
-I decided, that this will be all for V3.6.0 and Ship Catch improvements have to wait for V3.6.1 so here is the new ReleaseVersion:
 
 # V3.5.2 (2025-06-25) - release skipped
 - **Ascent Changes**:
