@@ -12,14 +12,13 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ## Current State:
-- Ship and Booster landings/catches might be inconsistent
+- Ship and Booster landings/catches are fairly stable, with random inconsistencies here and there
 - This fork is currently worked on by Nubro.
 
 ### Known Issues:
-- **Using the (old) provided Craft Files you might have to change the Fuel levels back and forth one time in the VAB to prevent Fuel overload on first launch**
 - **Multiple ships/towers of the same name:**
     - Can cause issues where the wrong ship gets loaded during launch.
-- Booster might land in front of or in the tower, due to descent glitches or a not fully refined landing guidance
+- Booster come short of a tower catch, due to descent aero glitches
 - Engines are engaged and gimballing during re-entry. This is important for the scripts to be able to read pitch commands.
 - **Occasionally there may be glitches in the script, like not finding a suitable trajectory (circulating the orbit helps mostly) or crashing on something silly. There's usually not a lot I can do about these things. Sorry..**
 
@@ -40,7 +39,6 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Of Course I Still Love You (for multiple Camera Views on your Screen *using HullcamVDS*) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 ### Supported:
 - Flip'N'Burn - [github](https://github.com/Quest-in/FlipNBurn/releases)
-- Vista's SEP Addon (VSEPM) - [github](https://github.com/vistastudios1/VistasKSPMods/releases)
 
 ### Incompatible:
 - TweakableEverything
@@ -54,7 +52,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - RSS Adapter
 
 ## Installation:
-- **Download and install all requirements listed below.**
+- **Download and install all requirements listed above.**
 - Download the latest release .zip
 - Extract the contents to a folder.
 - Move the contents of the _/Kerbal Space Program_ folder (_GameData_ and _Ships_ folders) into your /Kerbal Space Program folder (and overwrite if you are updating).
@@ -81,13 +79,13 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 ### Bug support guide:
 - First **carefully** read this whole page! Remember there is no such thing as perfect code, and there will be errors that happen either due my scripts or just because of KSP and its unpredictability. If errors happen consistently, try the following:
-- Remove SEP/SLE/Interface and reinstall from the links above (dev versions).
+- Remove SEP/SLE/Interface and reinstall from the links above.
 - Move all unnecessary mods away from _/gamedata_ temporarily.
 - Keep the kOS CPUs open (right hand side) and screenshot any errors.
 - Either:
     - File an issue on github, or
     - Write Nubro on: SEP Discord or private message (nubro._.)
-- Be sure to describe the problem as accurately as possible and add screenshots/videos.
+- **Be sure to describe the problem as accurately as possible and add screenshots/videos.**
 - Looking forward to your bugs!
 
 
@@ -99,7 +97,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ## Planned Features:
-- Landings with sub-meter precision
+- Ship Landings with sub-meter precision
 - better Ship Catch Abort
 - IFT - Flight profile option
 - Ship High Altitude Flight Tests
