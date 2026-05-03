@@ -1,4 +1,4 @@
-# V3.6.0 (2026-04-16)
+# V3.6.0 (2026-05-04)
 - **Reworked Catch Guidance for Booster and Ship** 
   - uses Catch position instead ground impact position
   - PID based (better adjustments in different situations + easier fine tuning)
