@@ -1,3 +1,41 @@
+# V3.6.0 (2026-05-04)
+- **Reworked Catch Guidance for Booster and Ship** 
+  - uses Catch position instead ground impact position
+  - PID based (better adjustments in different situations + easier fine tuning)
+- **Reworked Ship Ascent Guidance after Hotstaging**
+  - Guidance now more situation dependend, then hardcoded
+  - dynamic parameters reacting to CargoMass
+- **Improved Reentry Guidance for Ship**
+- **Added Support for SEP 25 Ships (Block 2)**
+- Added Support for Raptor 3
+- Added Support for a Booster with 3 Gridfins (V3 Layout)
+- Added Support for Flip'N'Burn
+  - Added 13-5-3 Landing Burn Configuration
+- Added Support for flights without HSR
+- Added Support for Testflight
+- Added Booster Static Fire (Action Group 5, with ship-less Booster on OLM)
+- **Added High Altitude Flight Test** and Ship Static Fire
+  - recommended to use a Test Stand below the Ship
+- Improved Engine Health Checks for Booster
+- Fixed Booster not considering Engine ignition time in LandingBurnHeight calculation
+- Fixed Arms closing at a wrong angle, when aborting Launch
+- Improved Chopstick Movement
+- **UI Changes**
+  - Added Flight Settings:
+    - Hide Inteface during Flight Operations
+    - Automatic Mode (further reduced UI + higher V2 Ship Failure)
+    - Question for HSR Jettison after Boostback
+    - Mission Name below T-Minus-Clock
+    - Option to customize Countdown length
+    - **Dynamic Banking for Ship Reentry (as demonstrated on IFT 11)**
+    - Option for a hard splashdown / High Engine Shutdown for Booster offshore Landings
+    - Option to activate Block 3 Landing Burn (13-5-3) for Block2 Booster
+  - Reduced the Telemetry Height to match SpaceXs old Telemetry
+  - Telemetry Rescaling now requires Input of Horizontal and Vertical Resolution
+    - Uses Ratio to determine the best Scaling
+  - Added Block 3 Booster Engine Diagram
+- multiple Bug-/Errorfixes
+
 # V3.5.1 (2025-05-18)
 - **Booster Catch Position precision improved**
 - Improved Ship Reentry Flap Movement?
