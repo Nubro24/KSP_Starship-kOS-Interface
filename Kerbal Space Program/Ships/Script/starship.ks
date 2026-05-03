@@ -657,6 +657,8 @@ else {       // Stock Kerbin
     set SLEThrust to 555.
 }
 
+set Phase2 to false.
+
 set DeOrbitEngNr to 1. // Engine used for Single Engine DeOrbit Burn
 set MZHeight to 60*Scale.
 set SNStart to 30.  // Defines the first Serial Number when multiple ships are found and renaming is necessary.
@@ -6579,7 +6581,7 @@ set launchbutton:ontoggle to {
                             if TargetShip = 0 and not hastarget {}
                             else if not (TargetShip = 0) {
                                 if RSS {
-                                    set LaunchTimeSpanInSeconds to 480.
+                                    set LaunchTimeSpanInSeconds to 540.
                                     set LaunchDistance to 1450000.
                                 }
                                 else if KSRSS {
@@ -8201,44 +8203,44 @@ function Launch {
             set LaunchElev to altitude - 108.384.
             set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 42 * CargoMass / MaxCargoToOrbit.
             set BoosterAp to 94000 + (cos(targetincl) * 3000) + 12000 * CargoMass / MaxCargoToOrbit.
-            set PitchIncrement to 1 + 2.4 * CargoMass / MaxCargoToOrbit.
             set turnAltitude to 280.
             if ShipType = "Depot" {
                 set BoosterAp to 106000 + (cos(targetincl) * 3000).
                 set turnAltitude to 750.
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 45.
             }
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.01, 0.0001, 0.01, -30, PitchIncrement).
+            set insPID to PIDLOOP(0.6, 0.02, 0.25, -8, 8).
+            set vSpeedPID to PIDLOOP(0.3, 0, 0.1, -10, 10).
             set BoosterThrottleDownAlt to 1800.
         }
         else if KSRSS {
             set LaunchElev to altitude - 67.74.
             set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 36 * CargoMass / MaxCargoToOrbit.
             set BoosterAp to 65000 + (cos(targetincl) * 1500) + 4000 * CargoMass / MaxCargoToOrbit.
-            set PitchIncrement to 1 + 2.5 * CargoMass / MaxCargoToOrbit.
             if ShipType = "Depot" or CargoMass > 64000 {
                 set BoosterAp to 69000 + (cos(targetincl) * 1500).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 38.
-                set PitchIncrement to 5.
             }
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0.0001, 0.025, -30, PitchIncrement).
+            set insPID to PIDLOOP(0.6, 0.02, 0.25, -8, 8).
+            set vSpeedPID to PIDLOOP(0.3, 0, 0.1, -10, 10).
             set BoosterThrottleDownAlt to 1700.
         }
         else {
             set LaunchElev to altitude - 67.74.
             set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 24 * CargoMass / MaxCargoToOrbit.
             set BoosterAp to 48000 + (cos(targetincl) * 1000) + 4000 * CargoMass / MaxCargoToOrbit.
-            set PitchIncrement to 1 + 2.5 * CargoMass / MaxCargoToOrbit.
             if ShipType = "Depot" {
                 set BoosterAp to 52200 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 30.
-                set PitchIncrement to 5.
             }
-            set OrbitBurnPitchCorrectionPID to PIDLOOP(0.025, 0.0001, 0.03, -30, PitchIncrement).
+            set insPID to PIDLOOP(0.6, 0.02, 0.25, -8, 8).
+            set vSpeedPID to PIDLOOP(0.3, 0, 0.1, -10, 10).
             set BoosterThrottleDownAlt to 1600.
         }
-        //set OrbitBurnPitchCorrectionPID:setpoint to targetap.
-        set OrbitBurnPitchCorrectionPID:setpoint to 2.
+        set insPID:setpoint to 0.
+        set vSpeedPID:setpoint to 0.
+        set ins_ref_ap to BoosterAp.
+        set ins_ref_fpa to 40.
         print "2".
 
         set myAzimuth to LAZcalc(LaunchData).
@@ -8596,7 +8598,7 @@ function Launch {
             wait 0.01.
             if BoosterSingleEngines set SteeringManager:rollts to 5.
             else set SteeringManager:rollts to 4.
-            if BoosterSingleEngines set steeringManager:rolltorquefactor to 2. 
+            if BoosterSingleEngines set steeringManager:rolltorquefactor to 2*Scale. 
             else set steeringManager:rolltorquefactor to 4.  
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
             set LaunchRollVector to facing:topvector.
@@ -8974,20 +8976,6 @@ function Launch {
                 for eng in SLEngines {
                     eng:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
                 }
-                //set MJcore to addons:mj.
-                //set MJasc to MJcore:ascent.
-                //set MJasc:DSRALT to TargetAp.
-                //set MJasc:INC to targetincl.
-                //set MJasc:FROLL to true.
-                //set MJasc:TROLL to 90.
-                //if ShipType:contains("Block2") or ShipType:contains("Block3") or ShipSubType:contains("Block2") set MJasc:VROLL to 0.
-                //else set MJasc:VROLL to 90.
-                //set MJasc:ROLLALT to TargetAp*0.72.
-                //set MJasc:LIMAOA to false.
-                //set MJasc:LIMQAEN to false.
-                //set MJasc:LIMOVHT to false.
-                //unlock steering.
-                //set MJasc:ENABLED to true.
             }
             when time:seconds > HotStageTime + 2 then {
                 KUniverse:forceactive(vessel("Booster")).
@@ -9159,8 +9147,8 @@ function LaunchThrottle {
             set deltaV to OrbitalVelocity - ApoapsisVelocity.
         }
         set TimeToOrbitCompletion to TimeFromLaunchToOrbit - (time:seconds - LiftOffTime).
-        set DesiredAccel to max(deltaV / (TimeToOrbitCompletion), 0.25 * MaxAccel).
-        set MaxAccel to 10.
+        set DesiredAccel to max(deltaV / (TimeToOrbitCompletion), 0.3 * MaxAccel).
+        if MaxAccel < 10 set MaxAccel to 10.
         if quickengine2:pressed {
             if defined CargoBeforeSeparation and defined CargoAfterSeparation {
                 set MaxAccel to max((ship:availablethrust / (ship:mass + ((CargoBeforeSeparation - CargoAfterSeparation) / 1000))), 0.000001).
@@ -9291,6 +9279,22 @@ Function LaunchSteering {
             set steeringManager:pitchtorquefactor to 0.14*Scale.
             set steeringManager:yawtorquefactor to 0.14*Scale.
             if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
+            set ins_ref_ap to apoapsis.
+            
+            set deltaAp to TargetAp - apoapsis.
+            set etaApNow to eta:apoapsis.
+            set hSpeed to max(groundspeed,1).
+            set neededVspeed to deltaAp / max(etaApNow,1).
+            set ins_ref_fpa to arctan(neededVspeed/hSpeed).
+            set Phase1Min to ins_ref_fpa * 0.08.
+
+            when apoapsis > TargetAp then set Phase1Min to -8.
+            set ins_phase2_fpa to -1.
+            set Phase2Initilized to false.
+            when Phase2 then {
+                set ins_phase2_fpa to InsertionPitch.
+                set Phase2Initilized to true.
+            }
             set Hotstaging to true.
         }
         else {
@@ -9413,27 +9417,42 @@ Function LaunchSteering {
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
     else {
-        set ProgradeAngle to (90 - vang(velocity:surface, up:vector))*min(max(0,(TargetAp*1.01-apoapsis)/(TargetAp-TargetAp*0.975)),1).
-        
-        set OrbitBurnPitchCorrectionPID:setpoint to 0.1.
+        set ProgradeAngle to 90 - vAng(up:vector,prograde:forevector).
 
-        set OrbitBurnPitchCorrection to max(-14, min(OrbitBurnPitchCorrectionPID:UPDATE(time:seconds, min(max(0, (apoapsis-alt:radar)/TargetAp),1)*verticalSpeed*0.5 + min(max(0, (alt:radar/TargetAp)^4),1)*verticalSpeed*0.6), 20)).
+        if alt:radar < TargetAp * 0.995 and not Phase2 {
+            set progressAp to max(0, min((apoapsis - ins_ref_ap) / max(TargetAp - ins_ref_ap,1), 1)).
+            set InsertionPitch to max(Phase1Min, ins_ref_fpa * (1-progressAp)).
+            set progressInsertion to 0.
+            set Phase2 to false.
+        }
+        else {
+            set Phase2 to true.
+            set vSpeedCorrection to vSpeedPID:update(time:seconds, verticalspeed/100).
+            set InsertionPitch to max(-5, min(ins_phase2_fpa + vSpeedCorrection, max(ins_phase2_fpa, 6))).
+        }
+
+        set fpaError to ProgradeAngle - InsertionPitch.
+        set insPIDoutput to insPID:update(time:seconds, fpaError).
 
 
         print " ".
-        print "Target Pitch: " + round(ProgradeAngle + OrbitBurnPitchCorrection, 1) + "°".
-        print "Prograde: " + round(ProgradeAngle,1)  + "°  " + "Corr: " + round(OrbitBurnPitchCorrection,1)  + "°".
+        print "Target Pitch: " + round(InsertionPitch + insPIDoutput, 1) + "°".
+        print "Prograde: " + round(ProgradeAngle,1)  + "°  " + "Target: " + round(InsertionPitch,1)  + "°".
+        print "Correction: " + round(insPIDoutput,1)  + "°".
+        print "ApProgress: " + round(progressAp*100) + "%".
+        print "Phase2: " + Phase2 + " Ini: " + Phase2Initilized.
+        print "InsertionProgress: " + round(progressInsertion*100) + "%".
         print "vSpeed: " + round(verticalSpeed,1) + " m/s".
         print "Ap: " + round(apoapsis/1000,3). 
         print "Alt: " + round(alt:radar/1000,3).
         print "Pe: " + round(periapsis/1000,3).
-        print "Desired Accel: " + round(DesiredAccel / 9.81, 2) + "G".
+        print "Desired Accel: " + round(DesiredAccel / 9.805, 2) + "G".
         print "Ratio: " + round(DesiredAccel / MaxAccel, 2).
         print "Time to Orbit Completion: " + round(TimeToOrbitCompletion) + "s".
         print " ".
 
+        set result to lookdirup(heading(myAzimuth + 3 * TargetError, InsertionPitch + insPIDoutput):vector, LaunchRollVector).
         if not Boosterconnected rcs on.
-        set result to lookdirup(heading(myAzimuth + 3 * TargetError, ProgradeAngle + OrbitBurnPitchCorrection):vector, LaunchRollVector).
     }
     return result.
 }

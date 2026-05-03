@@ -3629,7 +3629,11 @@ function LandingGuidance {
     set fwdErrorVec to vxcl(vCrs(up:vector, -PositionError), -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/6 * min(max(-0.5,340-airspeed/40),1)).
     set sideErrorVec to vxcl(-PositionError, -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/10 * min(max(-0.5,340-airspeed/40),1)).
 
-    set GuidVec to PrVec + fwdErrorVec + sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
+    if angleTgtError > 90 and not Bl3LndProf set TowerAvoidanceFactor to 1.3.
+    else if angleTgtError > 90 set TowerAvoidanceFactor to 1.5.
+    else set TowerAvoidanceFactor to 1.
+
+    set GuidVec to PrVec + fwdErrorVec * TowerAvoidanceFactor + sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
     if cAbort and airspeed < 69 set GuidVec to 4*up:vector - velocity:surface:normalized.
 
     // === TVC compensation ===
@@ -3638,9 +3642,9 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
     set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-150,20))/26.
-    if RadarRatio < 0.95 and RadarRatio > 0.13 set lateBrake to min(0.24/max(0.05,RadarRatio),2)*0.1/(Scale^1.75).
+    if RadarRatio < 1.1 and RadarRatio > 0.13 set lateBrake to min(0.24/max(0.05,RadarRatio),2)*0.1/(Scale^1.75).
     else set lateBrake to 0.
-    if not MiddleEnginesShutdown set OnStreamFactor to 0.2.
+    if not MiddleEnginesShutdown set OnStreamFactor to 0.24 * 240/max(airspeed,50).
     else set OnStreamFactor to 1.
 
     // === Final Vector ===
