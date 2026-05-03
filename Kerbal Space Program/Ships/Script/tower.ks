@@ -493,10 +493,12 @@ function MechazillaArms {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
     }
     Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle).
-    if targetangle = 999 {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
-    } else {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle).
+    when Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("arms open angle") < 95 then {
+        if targetangle = 999 {
+            Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
+        } else {
+            Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle).
+        }
     }
     Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed).
 }

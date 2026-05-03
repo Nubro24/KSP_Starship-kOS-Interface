@@ -2,6 +2,9 @@
 - **Reworked Catch Guidance for Booster and Ship** 
   - uses Catch position instead ground impact position
   - PID based (better adjustments in different situations + easier fine tuning)
+- **Reworked Ship Ascent Guidance after Hotstaging**
+  - Guidance now more situation dependend, then hardcoded
+  - dynamic parameters reacting to CargoMass
 - **Improved Reentry Guidance for Ship**
 - **Added Support for SEP 25 Ships (Block 2)**
 - Added Support for Raptor 3
@@ -15,6 +18,7 @@
   - recommended to use a Test Stand below the Ship
 - Improved Engine Health Checks for Booster
 - Fixed Booster not considering Engine ignition time in LandingBurnHeight calculation
+- Fixed Arms closing at a wrong angle, when aborting Launch
 - Improved Chopstick Movement
 - **UI Changes**
   - Added Flight Settings:
@@ -31,6 +35,13 @@
     - Uses Ratio to determine the best Scaling
   - Added Block 3 Booster Engine Diagram
 - multiple Bug-/Errorfixes
+**Dev update**:
+- Overhauled Ship Ascent Guidance for higher insertion precision (now also taking Cargo into account)
+- Adjusted RSS MaxCargoToOrbit to preserve enough fuel in Ship for RTLS
+- Fixed Booster coming in too close to the Tower with 13>5>3 Landing Profile *and* Throttle during 5-Engines-Phase
+- Fixed Arms closing at a wrong angle after Launch Abort
+
+I decided, that this will be all for V3.6.0 and Ship Catch improvements have to wait for V3.6.1 so here is the new ReleaseVersion:
 
 # V3.5.2 (2025-06-25) - release skipped
 - **Ascent Changes**:
