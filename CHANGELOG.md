@@ -7,12 +7,13 @@
   - dynamic parameters reacting to CargoMass
 - **Improved Reentry Guidance for Ship**
 - **Added Support for SEP 25 Ships (Block 2)**
-- Added Support for Raptor 3
-- Added Support for a Booster with 3 Gridfins (V3 Layout)
-- Added Support for Flip'N'Burn
-  - Added 13-5-3 Landing Burn Configuration
-- Added Support for flights without HSR
-- Added Support for Testflight
+- Added Support for:
+  - Raptor 3
+  - Booster with 3 Gridfins (V3 Layout)
+  - Flip'N'Burn
+  - flights without HSR
+  - Testflight
+- Added 13-5-3 Landing Burn Configuration
 - Added Booster Static Fire (Action Group 5, with ship-less Booster on OLM)
 - **Added High Altitude Flight Test** and Ship Static Fire
   - recommended to use a Test Stand below the Ship
