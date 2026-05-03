@@ -487,9 +487,8 @@ set ALflap to false.
 set ARflap to false.
 set FNBship to false.
 
-FindParts().
 
-if Tank:hasmodule("FARPartModule") {
+if core:part:hasmodule("FARPartModule") {
     set FAR to true.
     set FARValue to 1.
 }
@@ -497,15 +496,6 @@ else {
     set FAR to false.
     set FARValue to 0.
 }
-
-set aoa to 61.
-if RSS set aoa to 65.7.
-set currentAoA to aoa.
-set maxAoA to 90.
-
-set BoosterAp to 35000.
-
-set config:obeyhideui to false.
 
 //------------Configurables-------------//
 
@@ -517,7 +507,7 @@ if RSS {         // Real Solar System
     set MaxReEntryCargoThickAtmo to 4500.
     set MaxIU to 200.
     set MaxReEntryCargoThinAtmo to 151000.
-    set LaunchTimeSpanInSeconds to 480.
+    set LaunchTimeSpanInSeconds to 520.
     set ShipHeight to 49.7.
     set BoosterMinPusherDistance to 0.48.
     set ShipMinPusherDistance to 1.12.
@@ -617,7 +607,7 @@ else {       // Stock Kerbin
     set MaxReEntryCargoThickAtmo to 2500.
     set MaxIU to 100.
     set MaxReEntryCargoThinAtmo to 77800.
-    set LaunchTimeSpanInSeconds to 265.
+    set LaunchTimeSpanInSeconds to 275.
     set ShipHeight to 31.0.
     set BoosterMinPusherDistance to 0.3.
     set ShipMinPusherDistance to 0.7.
@@ -656,6 +646,18 @@ else {       // Stock Kerbin
     set maxLatChange to 0.56.
     set SLEThrust to 555.
 }
+
+FindParts().
+
+
+set aoa to 61.
+if RSS set aoa to 65.7.
+set currentAoA to aoa.
+set maxAoA to 90.
+
+set BoosterAp to 35000.
+
+set config:obeyhideui to false.
 
 set Phase2 to false.
 
@@ -991,52 +993,52 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO") and not x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 66000.
+                    set MaxCargoToOrbit to 66000/(Scale^0.5).
                     set ShipType to "Block1Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.NOSECONE.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 65000.
+                    set MaxCargoToOrbit to 65000/(Scale^0.5).
                     set ShipType to "Block1Exp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 69000.
+                    set MaxCargoToOrbit to 70000/(Scale^0.5).
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 65000.
+                    set MaxCargoToOrbit to 65000/(Scale^0.5).
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.25.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
                     set HeaderTank to x.
-                    set MaxCargoToOrbit to 95000.
+                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.25.SHIP.CARGO") and not x:name:contains("EXP") {
                     set Nose to x.
                     set HeaderTank to x.
-                    set MaxCargoToOrbit to 95000.
+                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 95000.
+                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2PEZ".
                     set FNBship to true.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL3.NC") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 100000.
+                    set MaxCargoToOrbit to 120000/(Scale^0.5).
                     set ShipType to "Block3PEZ".
                     set FNBship to true.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
@@ -6581,7 +6583,7 @@ set launchbutton:ontoggle to {
                             if TargetShip = 0 and not hastarget {}
                             else if not (TargetShip = 0) {
                                 if RSS {
-                                    set LaunchTimeSpanInSeconds to 540.
+                                    set LaunchTimeSpanInSeconds to 520.
                                     set LaunchDistance to 1450000.
                                 }
                                 else if KSRSS {
@@ -6589,7 +6591,7 @@ set launchbutton:ontoggle to {
                                     set LaunchDistance to 700000.
                                 }
                                 else {
-                                    set LaunchTimeSpanInSeconds to 250.
+                                    set LaunchTimeSpanInSeconds to 275.
                                     set LaunchDistance to 200000.
                                 }
                                 set target to TargetShip.
@@ -8201,7 +8203,7 @@ function Launch {
 
         if RSS {
             set LaunchElev to altitude - 108.384.
-            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 42 * CargoMass / MaxCargoToOrbit.
+            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 24 * CargoMass / MaxCargoToOrbit.
             set BoosterAp to 94000 + (cos(targetincl) * 3000) + 12000 * CargoMass / MaxCargoToOrbit.
             set turnAltitude to 280.
             if ShipType = "Depot" {
@@ -8209,32 +8211,32 @@ function Launch {
                 set turnAltitude to 750.
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 45.
             }
-            set insPID to PIDLOOP(0.6, 0.02, 0.25, -8, 8).
-            set vSpeedPID to PIDLOOP(0.3, 0, 0.1, -10, 10).
+            set insPID to PIDLOOP(0.6, 0, 0.25, -8, 8).
+            set vSpeedPID to PIDLOOP(0.3, 0.0005, 0.06, -10, 10).
             set BoosterThrottleDownAlt to 1800.
         }
         else if KSRSS {
             set LaunchElev to altitude - 67.74.
-            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 36 * CargoMass / MaxCargoToOrbit.
+            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 16 * CargoMass / MaxCargoToOrbit.
             set BoosterAp to 65000 + (cos(targetincl) * 1500) + 4000 * CargoMass / MaxCargoToOrbit.
             if ShipType = "Depot" or CargoMass > 64000 {
                 set BoosterAp to 69000 + (cos(targetincl) * 1500).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 38.
             }
-            set insPID to PIDLOOP(0.6, 0.02, 0.25, -8, 8).
-            set vSpeedPID to PIDLOOP(0.3, 0, 0.1, -10, 10).
+            set insPID to PIDLOOP(0.6, 0, 0.25, -8, 8).
+            set vSpeedPID to PIDLOOP(0.3, 0.0002, 0.1, -10, 10).
             set BoosterThrottleDownAlt to 1700.
         }
         else {
             set LaunchElev to altitude - 67.74.
-            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 24 * CargoMass / MaxCargoToOrbit.
+            set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 14 * CargoMass / MaxCargoToOrbit.
             set BoosterAp to 48000 + (cos(targetincl) * 1000) + 4000 * CargoMass / MaxCargoToOrbit.
             if ShipType = "Depot" {
                 set BoosterAp to 52200 + (cos(targetincl) * 1000).
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 30.
             }
-            set insPID to PIDLOOP(0.6, 0.02, 0.25, -8, 8).
-            set vSpeedPID to PIDLOOP(0.3, 0, 0.1, -10, 10).
+            set insPID to PIDLOOP(0.6, 0, 0.25, -8, 8).
+            set vSpeedPID to PIDLOOP(0.3, 0.0002, 0.06, -10, 10).
             set BoosterThrottleDownAlt to 1600.
         }
         set insPID:setpoint to 0.
@@ -8327,7 +8329,7 @@ function Launch {
                 }
             }
             if cancelconfirmed {
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,false").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,92.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 8*Scale + ",0.8")).
@@ -8498,7 +8500,7 @@ function Launch {
                 if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
                     SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
                 }
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,false").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,92.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 8*Scale + ",0.8")).
@@ -8599,8 +8601,14 @@ function Launch {
             if BoosterSingleEngines set SteeringManager:rollts to 5.
             else set SteeringManager:rollts to 4.
             if BoosterSingleEngines set steeringManager:rolltorquefactor to 2*Scale. 
-            else set steeringManager:rolltorquefactor to 4.  
+            else set steeringManager:rolltorquefactor to 5.5.  
             set SteeringManager:ROLLCONTROLANGLERANGE to 10.
+            set steeringManager:pitchpid:kd to 0.4.
+            set steeringManager:pitchpid:ki to 0.4.
+            set steeringManager:yawpid:kd to 0.4.
+            set steeringManager:yawpid:ki to 0.4.
+            set steeringManager:rollpid:ki to 0.3.
+            set steeringManager:rollpid:kd to 0.5.
             set LaunchRollVector to facing:topvector.
             if ShipType = "Cargo" or ShipType = "Tanker" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" {
                 InhibitButtons(1, 1, 1).
@@ -8706,11 +8714,14 @@ function Launch {
             set steeringManager:maxstoppingtime to 1.2*Scale.
             if BoosterSingleEngines set steeringManager:rollts to 4*Scale.
             when apoapsis > BoosterAp - 22000 * Scale then {
-                set steeringManager:maxstoppingtime to 0.6*Scale.
-                set steeringManager:pitchtorquefactor to 0.15*Scale.
-                set steeringManager:yawtorquefactor to 0.15*Scale.
-                if BoosterSingleEngines set steeringManager:rolltorquefactor to 3.9*Scale. 
-                else set steeringManager:rolltorquefactor to 8.4*Scale.  
+                set steeringManager:maxstoppingtime to 0.5*Scale.
+                set steeringManager:pitchtorquefactor to 0.12*Scale.
+                set steeringManager:pitchpid:ki to 0.5.
+                set steeringManager:pitchpid:kd to 0.7.
+                set steeringManager:yawtorquefactor to 0.14*Scale.
+                set steeringManager:yawpid:ki to 0.4.
+                if BoosterSingleEngines set steeringManager:rolltorquefactor to 4*Scale. 
+                else set steeringManager:rolltorquefactor to 8*Scale.  
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
@@ -8926,13 +8937,13 @@ function Launch {
                 //}
                 set StageSepComplete to true.
                 if RSS {
-                    SetLoadDistances(ship, 1650000).
+                    SetLoadDistances(ship, 1750000).
                 }
                 else if KSRSS {
-                    SetLoadDistances(ship, 1100000).
+                    SetLoadDistances(ship, 1150000).
                 }
                 else {
-                    SetLoadDistances(ship, 900000).
+                    SetLoadDistances(ship, 950000).
                 }
                 LogToFile("Hot-Staging Complete").
                 if IFT1SEI when time:seconds > HotStageTime - 1 then {
@@ -8971,6 +8982,7 @@ function Launch {
             set sCH4Label:style:textcolor to white.
             set sCH4Slider:style:bg to "starship_img/telemetry_fuel".
             set sThrust:style:textcolor to white.
+            steeringManager:RESETTODEFAULT().
             when time:seconds > HotStageTime + 1.5 then {
                 set Booster to Vessel("Booster").
                 for eng in SLEngines {
@@ -9000,52 +9012,6 @@ function Launch {
             }
             if STOCK {
                 set steeringmanager:pitchtorquefactor to 0.5.
-            }
-            when apoapsis > TargetAp * 0.97 then {
-                set OrbitBurnPitchCorrectionPID:kp to OrbitBurnPitchCorrectionPID:kp*2.43.
-                set OrbitBurnPitchCorrectionPID:ki to OrbitBurnPitchCorrectionPID:ki*3.
-                set OrbitBurnPitchCorrectionPID:kd to OrbitBurnPitchCorrectionPID:kd*4.
-            }
-            if RSS {
-                when TargetAp < apoapsis and altitude > TargetAp*0.9 or altitude > targetap - 500 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 750 then {
-                    if ShipType = "Depot" {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.4, -12, 20).
-                    }
-                    else if NrOfVacEngines = 6 {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.4, -12, 16 + 2.5 * CargoMass/MaxCargoToOrbit).
-                    }
-                    else {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(0.75, 0, 0.4, -12, 16 + 3.5 * CargoMass/MaxCargoToOrbit).
-                    }
-                    set MaintainVS to true.
-                }
-            }
-            else if KSRSS {
-                when DesiredAccel / MaxAccel < 0.6 and altitude > 80000 or apoapsis > targetap then {
-                    //if NrOfVacEngines = 6 or ShipType = "Depot" or verticalspeed < 0 {
-                    //    set quickengine2:pressed to false.
-                    //}
-                    when altitude > targetap - 100 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 400 then {
-                        set OrbitBurnPitchCorrectionPID to PIDLOOP(1.5, 0, 0.6, -12, 17.5).
-                        set MaintainVS to true.
-                    }
-                }
-            }
-            else {
-                when apoapsis > targetap - 10000 and time:seconds > HotStageTime + 15 or verticalspeed < 0 then {
-                    //if NrOfVacEngines = 6 or ShipType = "Depot" {
-                    //    set quickengine2:pressed to false.
-                    //}
-                    when altitude > targetap - 1000 or eta:apoapsis > 0.5 * ship:orbit:period or eta:apoapsis < 5 or deltav < 100 then {
-                        if ShipType = "Depot" {
-                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 1.5, -14, 12.5).
-                        }
-                        else {
-                            set OrbitBurnPitchCorrectionPID to PIDLOOP(2.5, 0, 1.5, -14, 9 + 3.5 * CargoMass/MaxCargoToOrbit).
-                        }
-                        set MaintainVS to true.
-                    }
-                }
             }
         }
 
@@ -9147,7 +9113,7 @@ function LaunchThrottle {
             set deltaV to OrbitalVelocity - ApoapsisVelocity.
         }
         set TimeToOrbitCompletion to TimeFromLaunchToOrbit - (time:seconds - LiftOffTime).
-        set DesiredAccel to max(deltaV / (TimeToOrbitCompletion), 0.3 * MaxAccel).
+        set DesiredAccel to max(deltaV / max(1,TimeToOrbitCompletion), 0.42 * MaxAccel).
         if MaxAccel < 10 set MaxAccel to 10.
         if quickengine2:pressed {
             if defined CargoBeforeSeparation and defined CargoAfterSeparation {
@@ -9286,7 +9252,7 @@ Function LaunchSteering {
             set hSpeed to max(groundspeed,1).
             set neededVspeed to deltaAp / max(etaApNow,1).
             set ins_ref_fpa to arctan(neededVspeed/hSpeed).
-            set Phase1Min to ins_ref_fpa * 0.08.
+            set Phase1Min to ins_ref_fpa * 0.08 + CargoMass/MaxCargoToOrbit.
 
             when apoapsis > TargetAp then set Phase1Min to -8.
             set ins_phase2_fpa to -1.
@@ -9334,10 +9300,10 @@ Function LaunchSteering {
         }
         else {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
             }
             else {
-                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000)).
+                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/900)).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
@@ -9411,7 +9377,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1350)).
             }
             else {
-                set targetpitch to 90 - (10 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                set targetpitch to 90 - (10 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
@@ -9419,25 +9385,37 @@ Function LaunchSteering {
     else {
         set ProgradeAngle to 90 - vAng(up:vector,prograde:forevector).
 
-        if alt:radar < TargetAp * 0.995 and not Phase2 {
+        if alt:radar < TargetAp * (0.915 + 0.05*Scale) and not Phase2 {
             set progressAp to max(0, min((apoapsis - ins_ref_ap) / max(TargetAp - ins_ref_ap,1), 1)).
-            set InsertionPitch to max(Phase1Min, ins_ref_fpa * (1-progressAp)).
-            set progressInsertion to 0.
+            set InsertionPitch to max(Phase1Min, ins_ref_fpa * (1-progressAp)^(0.5625*Scale)).
+            set InsertionPitch to min(InsertionPitch,45).
+            set fpaError to ProgradeAngle - InsertionPitch.
+            set progressInsertion to velocity:orbit:mag/tgtspeed.
             set Phase2 to false.
         }
         else {
             set Phase2 to true.
-            set vSpeedCorrection to vSpeedPID:update(time:seconds, verticalspeed/100).
-            set InsertionPitch to max(-5, min(ins_phase2_fpa + vSpeedCorrection, max(ins_phase2_fpa, 6))).
+            set gravF to (Planet1G - (vxcl(up:vector,velocity:orbit):mag^2 / (ship:body:radius + ship:altitude))) * ship:mass.
+            set gravFF to  min(10,max(0, arcsin(max(-1, min(gravF / max(ship:availablethrust * throttle,1) ,1))) )) * (Scale - 0.63).
+            set vSpeedCorrection to vSpeedPID:update(time:seconds, ((verticalspeed/2)^3)*2).
+            set InsertionPitch to max(-9/(Scale^2), min(gravFF * max(0,min(1, (4/max(0.01,verticalSpeed+4))^0.5)) * min(1,(1-progressInsertion)/0.007) + vSpeedCorrection * min(1,(1-progressInsertion)/0.004),  8)).
+            set fpaError to ProgradeAngle*2.
+            set progressInsertion to velocity:orbit:mag/tgtspeed.
         }
 
-        set fpaError to ProgradeAngle - InsertionPitch.
-        set insPIDoutput to insPID:update(time:seconds, fpaError).
+
+        if not Boosterconnected {
+            set insPIDoutput to insPID:update(time:seconds, fpaError).
+        }
+        else {
+            set insPIDoutput to 0.
+        }
 
 
         print " ".
         print "Target Pitch: " + round(InsertionPitch + insPIDoutput, 1) + "°".
         print "Prograde: " + round(ProgradeAngle,1)  + "°  " + "Target: " + round(InsertionPitch,1)  + "°".
+        if Phase2 print "CounterGAngle: " + round(gravFF,1) + "°".
         print "Correction: " + round(insPIDoutput,1)  + "°".
         print "ApProgress: " + round(progressAp*100) + "%".
         print "Phase2: " + Phase2 + " Ini: " + Phase2Initilized.
@@ -12751,7 +12729,7 @@ function ReEntrySteering {
         set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (60 * Scale) + 2), maxPitchPID).
         set PitchPID:minoutput to -PitchPID:maxoutput.
         set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 40).
-        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to max(min(15,LngLatErrorList[1] / 10),min(abs(LngLatErrorList[1] / 30), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90))).
+        if DynamicBanking and airspeed < 450 set YawPID:maxoutput to max( min(15,LngLatErrorList[1] / 30) ,   min(abs(LngLatErrorList[1] / 10), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90))).
         set YawPID:minoutput to -YawPID:maxoutput.
 
         set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).

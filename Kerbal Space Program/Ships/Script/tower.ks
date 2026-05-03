@@ -39,6 +39,7 @@ set oldArms to true.
 set onOLM to false.
 set shipOnOLM to false.
 set LiftOffTime to -999.
+set TMinusCountdown to 17.
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
@@ -70,29 +71,19 @@ if RSS set Scale to 1.6.
 set OLM to ship:partstitled("Starship Orbital Launch Mount")[0].
 set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
 set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
-set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
+//set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
 set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
 if ship:partsnamed("SLE.SS.OLIT.SQD"):length > 0 {
     set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
 }
-set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+if ship:partstitled("Water Cooled Steel Plate"):length > 0 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
 
 
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name = ("SEP.23.BOOSTER") or part:name = ("SEP.24.BOOSTER") {
+    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("BLOCK.3.AFT") or part:name:contains("FNB.BL3.BOOSTERAFT") {
         set BoosterCore to part.
         set onOLM to true.
-    } else if part:name:contains("SEP.23.SHIP.BODY") {
-        set ShipTank to part.
-        set shipOnOLM to true.
-    } else if part:name:contains("SEP.24.SHIP.CORE") {
-        set ShipTank to part.
-        set shipOnOLM to true.
-    } else if part:name:contains("SEP.23.SHIP.DEPOT") {
-        set ShipTank to part.
-        set shipOnOLM to true.
-    }
-     else if part:name:contains("BLOCK-2.MAIN.TANK") {
+    } else if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") or part:name:contains("SEP.25.SHIP.CORE") {
         set ShipTank to part.
         set shipOnOLM to true.
     }
@@ -205,13 +196,13 @@ for x in range(0, Mechazilla:modules:length) {
 }
 print "Landing Rails: " + NrforLandingRails.
 
-for x in range(0, Mechazilla:modules:length) {
+if defined SQD for x in range(0, SQD:modules:length) {
     if SQD:getmodulebyindex(x):hasaction("Full Retraction") {
         set NRforSQD to x.
         break.
     }
 }
-print "SQD: " + NrforSQD.
+if defined NRforSQD print "SQD: " + NrforSQD.
 
 for x in range(0, OLM:modules:length) {
     if OLM:getmodulebyindex(x):hasaction("toggle fueling") {
@@ -315,14 +306,20 @@ until False {
             SetDockingForce(parameter1).
         }
         else if command = "Countdown" {
-            set LiftOffTime to time:seconds + 17.
+            set LiftOffTime to time:seconds + TMinusCountdown.
+        }
+        else if command = "StaticFire" {
+            StaticFireDeluge(parameter1).
+        }
+        else if command = "TMinusCountdown" {
+            set TMinusCountdown to parameter1.
         }
         else {
             PRINT "Unexpected message: " + RECEIVED:CONTENT.
         }
     }
     if time:seconds > PrevTime + 0.25 {
-        if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
+        if not (ship:name:contains("OrbitalLaunchMount")) and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0 {
             RenameOLM().
         }
         set PrevTime to time:seconds.
@@ -337,11 +334,11 @@ function LiftOff {
     if OLM:getmodule("ModuleAnimateGeneric"):hasevent("close clamps + qd") {
         OLM:getmodule("ModuleAnimateGeneric"):doevent("close clamps + qd").
     }
-    wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0.
+    wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0.
     RetractSQDArm().
     wait 3.
     RenameOLM().
-    wait 3.
+    wait 8.
     MechazillaPushers("0", "0.2", "12", "true").
     MechazillaHeight((3*Scale):tostring, "0.5").
     MechazillaArms("8","10","97.5","true").
@@ -359,6 +356,55 @@ function LiftOff {
         }
     }
     set AfterLaunch to true.
+}
+
+function StaticFireDeluge {
+    parameter T0.
+    set T0 to T0:toscalar.
+    wait until time:seconds - T0 > -10.
+        if OLM:hasmodule("ModuleEnginesFX") {
+            if OLM:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
+                OLM:getmodule("ModuleEnginesFX"):doevent("activate engine").
+            }
+        }
+        if OLM:hasmodule("ModuleEnginesRF") {
+            if OLM:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
+                OLM:getmodule("ModuleEnginesRF"):doevent("activate engine").
+            }
+        }
+    wait until time:seconds - T0 > -4.
+        if SteelPlate:hasmodule("ModuleEnginesFX") {
+            if SteelPlate:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
+                SteelPlate:getmodule("ModuleEnginesFX"):doevent("activate engine").
+            }
+        }
+        if SteelPlate:hasmodule("ModuleEnginesRF") {
+            if SteelPlate:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
+                SteelPlate:getmodule("ModuleEnginesRF"):doevent("activate engine").
+            }
+        }
+    wait until time:seconds - T0 > 2.
+        if OLM:hasmodule("ModuleEnginesFX") {
+            if OLM:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                OLM:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+            }
+        }
+        if OLM:hasmodule("ModuleEnginesRF") {
+            if OLM:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                OLM:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+            }
+        }
+    wait until time:seconds - T0 > 9.
+        if SteelPlate:hasmodule("ModuleEnginesFX") {
+            if SteelPlate:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                SteelPlate:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+            }
+        }
+        if SteelPlate:hasmodule("ModuleEnginesRF") {
+            if SteelPlate:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                SteelPlate:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+            }
+        }
 }
 
 function LandingDeluge {
@@ -435,24 +481,26 @@ function MechazillaArms {
         set targetspeed to min(targetspeed*3,12).
     }
 
-    print targetangle.
-    print targetspeed.
-    print armsopenangle.
+    print "tgtAng:"+targetangle.
+    print "tgtAng:"+targetspeed.
+    print "curErr:"+armsopenangle.
     print ArmsOpen.
-    print currentAngle.
-    if targetangle = 999 {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
-    } else {
-        Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle).
-    }
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed).
-    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle).
+    print "curAng:"+currentAngle.
     if ArmsOpen = "true" and Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("open arms") {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
     }
     if ArmsOpen = "false" and Mechazilla:getmodulebyindex(NrforOpenCloseArms):hasevent("close arms") {
         Mechazilla:getmodulebyindex(NrforOpenCloseArms):DoAction("toggle arms", true).
     }
+    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("arms open angle", armsopenangle).
+    when Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("arms open angle") < 95 then {
+        if targetangle = 999 {
+            Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", Mechazilla:getmodulebyindex(NrforOpenCloseArms):getfield("target angle")).
+        } else {
+            Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target angle", targetangle).
+        }
+    }
+    Mechazilla:getmodulebyindex(NrforOpenCloseArms):SetField("target speed", targetspeed).
 }
 
 
@@ -525,7 +573,7 @@ function RetractMechazillaRails {
 }
 
 function RetractSQD {
-    for x in range(0, SQD:modules:length) {
+    if defined SQD for x in range(0, SQD:modules:length) {
         if SQD:getmodulebyindex(x):hasaction("Full Retraction") {
             SQD:getmodulebyindex(x):doaction("Full Retraction", false).
             break.
@@ -533,7 +581,7 @@ function RetractSQD {
     }
 }
 function RetractSQDArm {
-    for x in range(0, SQD:modules:length) {
+    if defined SQD for x in range(0, SQD:modules:length) {
         if SQD:getmodulebyindex(x):hasaction("Extend Arm") {
             SQD:getmodulebyindex(x):doaction("Extend Arm", false).
             break.
@@ -555,16 +603,16 @@ function EmergencyStop {
 function ToggleReFueling {
     parameter ReFueling.
     if Refueling = "true" {
-        if OLM:getmodulebyindex(NrforFueling):HasEvent("start fueling") {
-            OLM:getmodulebyindex(NrforFueling):DoEvent("start fueling").
+        if OLM:getmodulebyindex(NrforFueling):HasEvent("Start Fueling") {
+            OLM:getmodulebyindex(NrforFueling):DoEvent("Start Fueling").
         }
         if SteelPlate:getmodulebyindex(NrforDelugeRefill):HasEvent("reload water") {
             SteelPlate:getmodulebyindex(NrforDelugeRefill):DoEvent("reload water").
         }
     }
     else {
-        if OLM:getmodulebyindex(NrforFueling):HasEvent("stop fueling") {
-            OLM:getmodulebyindex(NrforFueling):DoEvent("stop fueling").
+        if OLM:getmodulebyindex(NrforFueling):HasEvent("Stop Fueling") {
+            OLM:getmodulebyindex(NrforFueling):DoEvent("Stop Fueling").
         }
         if SteelPlate:getmodulebyindex(NrforDelugeRefill):HasEvent("stop reloading water") {
             SteelPlate:getmodulebyindex(NrforDelugeRefill):DoEvent("stop reloading water").

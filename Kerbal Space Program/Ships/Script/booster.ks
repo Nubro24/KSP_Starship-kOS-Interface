@@ -1106,7 +1106,7 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1600. 
-        else set BoosterGlideDistance to 1550.
+        else set BoosterGlideDistance to 1450.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
@@ -1150,7 +1150,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1600. 
-        else set BoosterGlideDistance to 1500.
+        else set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
@@ -1187,7 +1187,7 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1200. 
-        else set BoosterGlideDistance to 1080. //1100
+        else set BoosterGlideDistance to 1020. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set BoosterGlideFactor to 1.15.
@@ -1784,13 +1784,13 @@ function Boostback {
         
 
         if RSS {
-            SetLoadDistances(1650000).
+            SetLoadDistances(1750000).
         }
         else if KSRSS {
-            SetLoadDistances(1000000).
+            SetLoadDistances(1500000).
         }
         else {
-            SetLoadDistances(350000).
+            SetLoadDistances(355000).
         }
 
 
@@ -2622,13 +2622,18 @@ function Boostback {
     unlock SteerVec2.
 
     when RadarAlt < 24000 then {
-        if Bl3LndProf set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 32*Scale.
+        if Bl3LndProf set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 36*Scale.
         else set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 16*Scale.
         set steeringManager:rolltorquefactor to 1.
         when RadarAlt < 8600*(Scale^0.55) then {
-            if BoosterType:contains("Block3") set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24*Scale.
-            else  set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24*Scale.
-            set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position).
+            if Bl3LndProf {
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 18*Scale.
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position)*0.69.
+            }
+            else {
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24*Scale.
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position) * (1.6/Scale)^0.5.
+            }
             
             if not (TargetOLM = "false") {
                 when Vessel(TargetOLM):distance < 2000 then {
@@ -3155,7 +3160,7 @@ function Boostback {
         if not RSS lock throttle to 0.4 - (time:seconds-throttleTime)/4.
         else lock throttle to 0.2 - (time:seconds-throttleTime)/6.
     }
-    until (ship:control:pilotmainthrottle < 0.2 and vAng(up:vector,facing:forevector) < 0.6 and angularVel:mag < 0.01 and verticalSpeed > -0.5) or vAng(up:vector, facing:forevector) > 42 or (angularVel:mag < 0.03 and ship:control:pilotmainthrottle < 0.04 and verticalSpeed > -0.5) {
+    until (ship:control:pilotmainthrottle < 0.2 and vAng(up:vector,facing:forevector) < 0.6 and angularVel:mag < 0.01 and verticalSpeed > -0.5) or vAng(up:vector, facing:forevector) > 42 or (angularVel:mag < 0.02 and ship:control:pilotmainthrottle < 0.04 and verticalSpeed > -0.5) {
         clearScreen.
         print ship:control:pilotmainthrottle.
         print angularVel:mag.
@@ -3569,10 +3574,10 @@ function LandingThrottle {
     }
     if MiddleEnginesShutdown and not downToThree and defined maxDecel5 {
         if RSS {
-            set thro to max((landingRatio * min(maxDecel5, 32) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel5, 0.29).
+            set thro to max((landingRatio * min(maxDecel5, 38) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel5, 0.29).
         }
         else {
-            set thro to max((landingRatio * min(maxDecel5, 18) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel5, 0.33).
+            set thro to max((landingRatio * min(maxDecel5, 24) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel5, 0.33).
         }
     }
     if MiddleEnginesShutdown and downToThree {
@@ -3629,7 +3634,7 @@ function LandingGuidance {
     set fwdErrorVec to vxcl(vCrs(up:vector, -PositionError), -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/6 * min(max(-0.5,340-airspeed/40),1)).
     set sideErrorVec to vxcl(-PositionError, -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/10 * min(max(-0.5,340-airspeed/40),1)).
 
-    if angleTgtError > 90 and not Bl3LndProf set TowerAvoidanceFactor to 1.3.
+    if angleTgtError > 90 and not Bl3LndProf set TowerAvoidanceFactor to 1.25.
     else if angleTgtError > 90 set TowerAvoidanceFactor to 1.5.
     else set TowerAvoidanceFactor to 1.
 
@@ -3642,13 +3647,16 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
     set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-150,20))/26.
-    if RadarRatio < 1.1 and RadarRatio > 0.13 set lateBrake to min(0.24/max(0.05,RadarRatio),2)*0.1/(Scale^1.75).
+    if RadarRatio < 1.5 and RadarRatio > 0.13 set lateBrake to min(0.24/max(0.05,RadarRatio),2)*0.1/(Scale^1.75).
     else set lateBrake to 0.
-    if not MiddleEnginesShutdown set OnStreamFactor to 0.24 * 240/max(airspeed,50).
+    if not MiddleEnginesShutdown and not Bl3LndProf set OnStreamFactor to 0.24 * 240/max(airspeed,50).
+    else if not MiddleEnginesShutdown  set OnStreamFactor to 0.3 * 250/max(airspeed,50) * TowerAvoidanceFactor.
     else set OnStreamFactor to 1.
+    if MiddleEnginesShutdown and Bl3LndProf set gsLimiter to max(0,(GSVec:mag - 10*Scale)/(4*Scale) * min(1,max(0,70-airspeed)/28)).
+    else set gsLimiter to 0.
 
     // === Final Vector ===
-    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.36) * OnStreamFactor  - GSVec * lateBrake
+    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.36) * OnStreamFactor  - GSVec * lateBrake - GSVec:normalized * gsLimiter
         + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp + HighAngleVec * haVstrength/Scale.
 
     // === Case wrong Thrust dir ===
