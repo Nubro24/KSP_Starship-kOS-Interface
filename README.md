@@ -39,6 +39,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Of Course I Still Love You (for multiple Camera Views on your Screen *using HullcamVDS*) - [github](https://github.com/jrodrigv/OfCourseIStillLoveYou/releases)
 ### Supported:
 - Flip'N'Burn - [github](https://github.com/Quest-in/FlipNBurn/releases)
+- Testflight [github](https://github.com/KSP-RO/TestFlight/releases)
 
 ### Incompatible:
 - TweakableEverything
