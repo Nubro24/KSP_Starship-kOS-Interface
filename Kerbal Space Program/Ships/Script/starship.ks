@@ -507,7 +507,7 @@ if RSS {         // Real Solar System
     set MaxReEntryCargoThickAtmo to 4500.
     set MaxIU to 200.
     set MaxReEntryCargoThinAtmo to 151000.
-    set LaunchTimeSpanInSeconds to 520.
+    set LaunchTimeSpanInSeconds to 510.
     set ShipHeight to 49.7.
     set BoosterMinPusherDistance to 0.48.
     set ShipMinPusherDistance to 1.12.
@@ -1921,13 +1921,13 @@ unlock throttle.
 if OnOrbitalMount {
     if RSS {
         sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,12,0.8").
-        sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,1,97.5,false").
+        sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,1,97.5,false").
         sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,0.2,1.12,false").
         sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
     }
     else {
         sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,4,0.5").
-        sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,1,97.5,false").
+        sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,1,97.5,false").
         sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,0.2,0.7,false").
         sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
     }
@@ -6583,7 +6583,7 @@ set launchbutton:ontoggle to {
                             if TargetShip = 0 and not hastarget {}
                             else if not (TargetShip = 0) {
                                 if RSS {
-                                    set LaunchTimeSpanInSeconds to 520.
+                                    set LaunchTimeSpanInSeconds to 510.
                                     set LaunchDistance to 1450000.
                                 }
                                 else if KSRSS {
@@ -8212,7 +8212,7 @@ function Launch {
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 45.
             }
             set insPID to PIDLOOP(0.6, 0, 0.25, -8, 8).
-            set vSpeedPID to PIDLOOP(0.3, 0.0005, 0.06, -10, 10).
+            set vSpeedPID to PIDLOOP(0.3, 0.0005, 0.12, -10, 10).
             set BoosterThrottleDownAlt to 1800.
         }
         else if KSRSS {
@@ -8265,14 +8265,14 @@ function Launch {
             set cancel:text to "<b>ABORT</b>".
             set cancel:style:textcolor to red.
             if RSS {
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,117.5,true").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,5,117.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,20,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,5,0.6").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
             else {
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,117.5,true").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,5,117.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,12.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,1.8,0.5").
@@ -8329,10 +8329,10 @@ function Launch {
                 }
             }
             if cancelconfirmed {
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,92.5,false").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,5,92.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
-                sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 8*Scale + ",0.8")).
+                sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 6*Scale + ",0.8")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 set message3:text to "".
                 if time:seconds > x - 1 {
@@ -8500,10 +8500,10 @@ function Launch {
                 if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
                     SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
                 }
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,92.5,false").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,5,92.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
-                sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 8*Scale + ",0.8")).
+                sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 6*Scale + ",0.8")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "RetractMechazillaRails").
                 ClearInterfaceAndSteering().
                 if fullAuto g:show().
@@ -8586,10 +8586,10 @@ function Launch {
                 if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
                     SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
                 }
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,false").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,5,92.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
-                sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 8*Scale + ",0.8")).
+                sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 6*Scale + ",0.8")).
                 ClearInterfaceAndSteering().
                 if fullAuto g:show().
                 return.
@@ -8659,10 +8659,10 @@ function Launch {
                         }
                     }
                 }
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.2,5,97.5,false").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,5,92.5,false").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaPushers,0,0.25," + (0.7 * Scale) + ",false")).
                 sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaStabilizers," + maxstabengage)).
-                sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 8*Scale + ",0.8")).
+                sendMessage(Processor(volume("OrbitalLaunchMount")), ("MechazillaHeight," + 6*Scale + ",0.8")).
                 OLM:getmodule("ModuleAnimateGeneric"):doevent("open clamps + qd").
                 ClearInterfaceAndSteering().
                 reboot.
@@ -8714,13 +8714,9 @@ function Launch {
             set steeringManager:maxstoppingtime to 1.2*Scale.
             if BoosterSingleEngines set steeringManager:rollts to 4*Scale.
             when apoapsis > BoosterAp - 22000 * Scale then {
-                set steeringManager:maxstoppingtime to 0.5*Scale.
-                set steeringManager:pitchtorquefactor to 0.12*Scale.
-                set steeringManager:pitchpid:ki to 0.5.
-                set steeringManager:pitchpid:kd to 0.7.
-                set steeringManager:yawtorquefactor to 0.14*Scale.
-                set steeringManager:yawpid:ki to 0.4.
-                if BoosterSingleEngines set steeringManager:rolltorquefactor to 4*Scale. 
+                set steeringManager:pitchpid:kp to 0.3.
+                set steeringManager:yawpid:kp to 0.3.
+                if BoosterSingleEngines set steeringManager:rolltorquefactor to 2.6*Scale. 
                 else set steeringManager:rolltorquefactor to 8*Scale.  
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
@@ -8740,9 +8736,16 @@ function Launch {
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
                 if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") set LaunchRollVector to up:vector.
+                set config:ipu to 2000.
                 set steeringManager:rolltorquefactor to 5.
                 set Hotstaging to true.
+                set MECOTime to time:seconds.
+                LogToFile("MECO").
+                set message1:text to "<b>MECO..</b>".
+                set message2:text to "".
+                set message3:text to "".
                 sendMessage(processor(Volume("Booster")),"Hotstaging").
+                //--------Group1
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
@@ -8762,9 +8765,7 @@ function Launch {
                         fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
                     }
                 }
-                updateTelemetry().
-                wait 0.08.
-                
+                wait until time:seconds > MECOTime + 0.2. //--------Group2
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
@@ -8774,40 +8775,34 @@ function Launch {
                 }
                 else BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
-                wait 0.08.
-                //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
-                //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
-                if BoosterSingleEngines {
+                if BoosterSingleEngines wait until time:seconds > MECOTime + 0.4. { //--------Group3
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
                         if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
                         set x to x + 1.
                     }
-                }
-                LogToFile("Starting stage-separation").
-                set message1:text to "<b>Hot staging..</b>".
-                set message2:text to "".
-                set message3:text to "".
-                set tgtspeed to ship:body:radius * sqrt(Planet1G / (ship:body:radius + TargetAp)).
-                ShowHomePage().
-                updateTelemetry().
-                wait 0.08.
-                
-                if BoosterSingleEngines {
+
+                    wait until  time:seconds > MECOTime + 0.6. //--------Group4
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
                         if eng:hassuffix("activate") if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
                         set x to x + 1.
                     }
                     for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
+
+                    wait until  time:seconds > MECOTime + 0.8. //--------Group5
+                    set x to 1.
+                    for eng in BoosterSingleEnginesRC {
+                        if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if eng:hassuffix("activate") eng:shutdown.
+                        set x to x + 1.
+                    }
                 }
-                wait 0.08.
-                set CargoBeforeSeparation to CargoMass.
-                //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
-                //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
-                //}
-                if not BoosterSingleEngines and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                wait 0.
+
+                wait until time:seconds > MECOTime + 1. //--------Group6
+                if not BoosterSingleEngines and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) {
+                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                    wait 0.
+                }
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 else {
                     set x to 1.
@@ -8816,26 +8811,27 @@ function Launch {
                         set x to x + 1.
                     }
                 }
-                updateTelemetry().
-                wait 0.08.
-                if BoosterSingleEngines {
-                    set x to 1.
-                    for eng in BoosterSingleEnginesRC {
-                        if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if eng:hassuffix("activate") eng:shutdown.
-                        set x to x + 1.
-                    }
-                }
-                wait 0.05.
+                
+                //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
+                //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
+                set CargoBeforeSeparation to CargoMass.
+                //if Tank:getmodule("ModuleB9PartSwitch"):getfield("current docking system") = "QD" {
+                //    Tank:getmodule("ModuleB9PartSwitch"):DoAction("next docking system", true).
+                //}
                 set t to time:seconds.
                 until time:seconds > t + 2 {
                     clearscreen.
                     SendPing().
                     BackGroundUpdate().
                     LaunchLabelData().
-                    wait 0.1.
+                    wait 0.05.
                 }
-                updateTelemetry().
-                wait 0.02.
+                LogToFile("Starting stage-separation").
+                set message1:text to "<b>Hot staging..</b>".
+                set message2:text to "".
+                set message3:text to "".
+                set tgtspeed to ship:body:radius * sqrt(Planet1G / (ship:body:radius + TargetAp)).
+                ShowHomePage().
                 if defined HSR {
                     for x in range(0, HSR[0]:modules:length) {
                         if HSR[0]:getmodulebyindex(x):name = "ModuleEnginesFX" {
@@ -8852,7 +8848,7 @@ function Launch {
                     SendPing().
                     BackGroundUpdate().
                     LaunchLabelData().
-                    wait 0.1.
+                    wait 0.05.
                 }
                 lock throttle to 0.5.
                 set IFT1SEI to false.
@@ -8983,6 +8979,11 @@ function Launch {
             set sCH4Slider:style:bg to "starship_img/telemetry_fuel".
             set sThrust:style:textcolor to white.
             steeringManager:RESETTODEFAULT().
+            set steeringManager:pitchpid:ki to 0.3.
+            set steeringManager:pitchpid:kd to 0.5.
+            set steeringManager:yawpid:ki to 0.3.
+            set steeringManager:yawpid:kd to 0.5.
+            set config:ipu to CPUSPEED.
             when time:seconds > HotStageTime + 1.5 then {
                 set Booster to Vessel("Booster").
                 for eng in SLEngines {
@@ -9242,8 +9243,8 @@ Function LaunchSteering {
     } 
     else if apoapsis > BoosterAp - 22000 * Scale and Boosterconnected and not Hotstaging {
         if apoapsis > BoosterAp - 10000 * Scale and Boosterconnected {
-            set steeringManager:pitchtorquefactor to 0.14*Scale.
-            set steeringManager:yawtorquefactor to 0.14*Scale.
+            //set steeringManager:pitchtorquefactor to 0.14*Scale.
+            //set steeringManager:yawtorquefactor to 0.14*Scale.
             if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
             set ins_ref_ap to apoapsis.
             
@@ -9384,6 +9385,7 @@ Function LaunchSteering {
     }
     else {
         set ProgradeAngle to 90 - vAng(up:vector,prograde:forevector).
+        set currentPitch to 90 - vAng(up:vector, facing:forevector).
 
         if alt:radar < TargetAp * (0.915 + 0.05*Scale) and not Phase2 {
             set progressAp to max(0, min((apoapsis - ins_ref_ap) / max(TargetAp - ins_ref_ap,1), 1)).
@@ -9391,14 +9393,20 @@ Function LaunchSteering {
             set InsertionPitch to min(InsertionPitch,45).
             set fpaError to ProgradeAngle - InsertionPitch.
             set progressInsertion to velocity:orbit:mag/tgtspeed.
+            set FinalGravFF to -99.
+            set FinalvSpeedCorrection to -99.
             set Phase2 to false.
         }
         else {
             set Phase2 to true.
-            set gravF to (Planet1G - (vxcl(up:vector,velocity:orbit):mag^2 / (ship:body:radius + ship:altitude))) * ship:mass.
+            set gravF to (Planet1G - (min(tgtspeed-1,vxcl(up:vector,velocity:orbit):mag + DesiredAccel)^2 / (ship:body:radius + ship:altitude))) * ship:mass.
             set gravFF to  min(10,max(0, arcsin(max(-1, min(gravF / max(ship:availablethrust * throttle,1) ,1))) )) * (Scale - 0.63).
-            set vSpeedCorrection to vSpeedPID:update(time:seconds, ((verticalspeed/2)^3)*2).
-            set InsertionPitch to max(-9/(Scale^2), min(gravFF * max(0,min(1, (4/max(0.01,verticalSpeed+4))^0.5)) * min(1,(1-progressInsertion)/0.007) + vSpeedCorrection * min(1,(1-progressInsertion)/0.004),  8)).
+            set vSpeedCorrection to vSpeedPID:update(time:seconds, verticalspeed^3).
+
+            set FinalGravFF to gravFF * max(0,min(1, ( 4 /max(0.01, verticalSpeed+4)  )^0.6)).
+            set FinalvSpeedCorrection to vSpeedCorrection * min(1,(1-progressInsertion)/0.004).
+            set InsertionPitch to max(-9/(Scale^2), min(FinalGravFF + FinalvSpeedCorrection,  8)).
+
             set fpaError to ProgradeAngle*2.
             set progressInsertion to velocity:orbit:mag/tgtspeed.
         }
@@ -9414,7 +9422,8 @@ Function LaunchSteering {
 
         print " ".
         print "Target Pitch: " + round(InsertionPitch + insPIDoutput, 1) + "°".
-        print "Prograde: " + round(ProgradeAngle,1)  + "°  " + "Target: " + round(InsertionPitch,1)  + "°".
+        print "Current Pitch: " + round(currentPitch, 1) + "°".
+        print "Prograde: " + round(ProgradeAngle,1)  + "°  " + "Target: " + round(InsertionPitch,1)  + "° (" + round(FinalGravFF,1) + " | " + round(FinalvSpeedCorrection,1) + ")".
         if Phase2 print "CounterGAngle: " + round(gravFF,1) + "°".
         print "Correction: " + round(insPIDoutput,1)  + "°".
         print "ApProgress: " + round(progressAp*100) + "%".
@@ -9429,7 +9438,7 @@ Function LaunchSteering {
         print "Time to Orbit Completion: " + round(TimeToOrbitCompletion) + "s".
         print " ".
 
-        set result to lookdirup(heading(myAzimuth + 3 * TargetError, InsertionPitch + insPIDoutput):vector, LaunchRollVector).
+        set result to lookdirup(heading(myAzimuth + 3 * TargetError, (InsertionPitch + insPIDoutput)):vector, LaunchRollVector).
         if not Boosterconnected rcs on.
     }
     return result.
@@ -13894,7 +13903,7 @@ function LandingVector {
                     }
                     when time:seconds > ShutdownProcedureStart + 13 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(0.3 * Scale, 2) + ",false")).
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,0.25,60,false")).
                     }
                     when time:seconds > ShutdownProcedureStart + 18 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(0.3 * Scale, 2) + ",false")).
@@ -13907,7 +13916,7 @@ function LandingVector {
                     }
                     when time:seconds > ShutdownProcedureStart + 15 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.25," + round(1.3 * Scale, 2) + ",false")).
-                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.2,0.25,60,false")).
+                        sendMessage(Vessel(TargetOLM), ("MechazillaArms,8.5,0.25,60,false")).
                     }
                     when time:seconds > ShutdownProcedureStart + 20 then {
                         sendMessage(Vessel(TargetOLM), ("MechazillaPushers,0,0.1," + round(1.3 * Scale, 2) + ",false")).
@@ -15342,7 +15351,7 @@ function LandAtOLM {
                                     wait 0.01.
                                     set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                                     sendMessage(Vessel(TargetOLM), "MechazillaHeight,0.5,2").
-                                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.2,10,90,true").
+                                    sendMessage(Vessel(TargetOLM), "MechazillaArms,8.5,10,90,true").
                                     sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,1,12,false").
                                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
                                     if RSS {
