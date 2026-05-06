@@ -117,6 +117,7 @@ set ClusterSet to false.
 set CH4set to false.
 set ResetNeeded to false.
 set FNBBooster to false.
+set DecelFactor to 1.
 
 set GFset to false.
 set ECset to false.
@@ -1215,6 +1216,9 @@ for res in bCH4Tank:resources {
     }
 }
 
+set v2 to up:vector.
+set t2 to 0.
+
 if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
 
 if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.06.
@@ -1249,7 +1253,7 @@ if not oldBooster {
     set maxpusherengage to 0.3*Scale.
 }
 
-if BoosterSingleEngines set IgnitionTime to 0.7.
+if BoosterSingleEngines set IgnitionTime to 0.6.
 else set IgnitionTime to 0.3.
 
 if not ship:status = "FLYING" and not ship:status = "SUB_ORBITAL" or ship:status = "PRELAUNCH" set landingzone to ship:geoposition.
@@ -1681,7 +1685,7 @@ function Boostback {
     wait 0.001.
     set ShipConnectedToBooster to false.
     set ConnectedMessage to false.
-    set config:ipu to 1300.
+    set config:ipu to 1500.
     rcs off.
     set steeringmanager:maxstoppingtime to 2.
     set bAttitude:style:bg to "starship_img/booster".
@@ -1920,6 +1924,7 @@ function Boostback {
         when time:seconds > flipStartTime + 10 then {
             set steeringmanager:yawtorquefactor to 0.7.
             set steeringmanager:maxstoppingtime to 0.6.
+            set config:ipu to 1500.
             rcs on.
         }
         when BoostBackComplete then 
@@ -1978,11 +1983,11 @@ function Boostback {
                 if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
                 else for vent in DumpVents vent:doaction("activate engine", true).
             }
+            set config:ipu to 1500.
             set steeringManager:showfacingvectors to false.
             set steeringManager:showangularvectors to false.
         }
         when ship:groundspeed < 50 then {
-            set config:ipu to 1500.
             if LFBooster > LFBoosterCap * 0.16 {
                 if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
                 else for vent in DumpVents vent:doaction("activate engine", true).
@@ -2013,8 +2018,8 @@ function Boostback {
             } else set FailTimer to time:seconds.
             SteeringCorrections().
             set SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
-            if kuniverse:timewarp:warp > 1 and LngError < -12000*Scale {set kuniverse:timewarp:warp to 1.}
-            else if kuniverse:timewarp:warp > 0 and LngError > -12000*Scale {set kuniverse:timewarp:warp to 0.}
+            if kuniverse:timewarp:warp > 1 and LngError < -14000*Scale {set kuniverse:timewarp:warp to 1.}
+            else if kuniverse:timewarp:warp > 0 and LngError > -14000*Scale {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
             SetBoosterActive().
             wait 0.05.
@@ -2248,7 +2253,6 @@ function Boostback {
             }
         }
         else if defined HSR {
-            set BoosterReturnMass to BoosterReturnMass + HSR:mass.
             set LFBoosterFuelCutOff to LFBoosterFuelCutOff*1.03.
         }
 
@@ -2534,6 +2538,7 @@ function Boostback {
         set SteeringManager:maxstoppingtime to 2.4.
     
     set steeringManager:rollcontrolanglerange to 15.
+    set BoosterReturnMass to ship:mass.
     
     if (ErrorVector:mag < BoosterGlideDistance or ErrorVector:mag > 1.8*BoosterGlideDistance) and not GfC {
         if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 set landingzone to 
@@ -2681,7 +2686,7 @@ function Boostback {
         if kuniverse:timewarp:warp > 0 {
             set once to true.
         }
-        if alt:radar < 5000 and once {
+        if alt:radar < 6000 and once {
             set kuniverse:timewarp:warp to 0.
             set once to false.
         } else if kuniverse:timewarp:warp > 1 
@@ -2867,7 +2872,7 @@ function Boostback {
                     if not RSS 
                         lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 3.8.
                     else 
-                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist.// - 2.1.
+                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist + 1. //- 2.1
                 }
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
@@ -3403,59 +3408,84 @@ FUNCTION SteeringCorrections {
                 set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
             }
 
+            if not LandingBurnStarted set DecelFactor to max(1,airspeed/340).
+            set v1 to v2.
+            set t1 to t2.
+            set v2 to velocity:surface.
+            set t2 to time:seconds.
+
+            set gVec to (v2 - v1) / (t2 - t1).
+            set gFvec to -up:vector * 9.805.
+
+            set DragVec to (gVec - gFvec)*0.6.
+            
+            set DragDecel to DragVec:mag.
+            
+
             if not (MiddleEnginesShutdown) and Bl3LndProf and BoosterSingleEngines {
-                set stopTime9 to (airspeed - 75) / min(maxDecel, 50*(Scale^min(1,airspeed/550))).
-                set stopDist9 to ((airspeed + 75) / 2) * stopTime9.
-                set stopTime5 to min(75-12*Scale, airspeed - 12*Scale) / min(maxDecel5, 18*Scale).
+                if airspeed > 341 set stopTime13 to (airspeed - 340) / min(maxDecel*0.98 + DragDecel, 80*DecelFactor*Scale + DragDecel).
+                else set stopTime13 to 0.
+                if airspeed > 341 set stopDist13 to ((airspeed + 340) / 2) * stopTime13.
+                else set stopDist13 to 0.
+
+                set DragDecel9 to DragVec:mag*min(340 - 75 ,airspeed - 75)/airspeed * 0.6.
+                set stopTime9 to min(340 - 75 ,airspeed - 75) / min(maxDecel*0.98 + DragDecel9, 50*DecelFactor*Scale + DragDecel9).
+                set stopDist9 to (min(340 - 75, airspeed + 75) / 2) * stopTime9.
+
+                set DragDecel5 to DragVec:mag*min(75-12*Scale, airspeed - 12*Scale)/airspeed * 0.5.
+                set stopTime5 to min(75-12*Scale, airspeed - 12*Scale) / min(maxDecel5*0.98 + DragDecel5, 20*Scale + DragDecel5).
                 set stopDist5 to (min(75+12*Scale, airspeed + 12*Scale) / 2) * stopTime5.
-                set stopTime3 to min(12*Scale, airspeed) / min(maxDecel3, FinalDeceleration).
+
+                set DragDecel3 to DragVec:mag*min(12*Scale, airspeed)/airspeed * 0.5.
+                set stopTime3 to min(12*Scale, airspeed) / min(maxDecel3*0.98 + DragDecel3, FinalDeceleration + DragDecel3).
                 set stopDist3 to (min(12*Scale, airspeed) / 2) * stopTime3.
-                set TotalstopTime to stopTime9 + stopTime5 + stopTime3.
-                set TotalstopDist to (stopDist9 + stopDist5 + stopDist3) * 1/cos(vang(-velocity:surface, up:vector)).
-                set landingRatio to max(0, TotalstopDist / (RadarAlt - 5)).
+
+                set TotalstopTime to stopTime13 + stopTime9 + stopTime5 + stopTime3.
+                set TotalstopDist to (stopDist13 + stopDist9 + stopDist5 + stopDist3) * 1/cos(vang(-velocity:surface, up:vector)).
+                set landingRatio to max(0, TotalstopDist / (RadarAlt * 1/cos(vang(-velocity:surface, up:vector)) - 3)).
                 set LatCtrlPID:setpoint to 0.
             }
             else if not (MiddleEnginesShutdown) {
-                set stopTime9 to (airspeed - 69) / min(maxDecel, 50*(Scale^min(1,airspeed/550))).
+                set stopTime9 to (airspeed - 69) / min(maxDecel*0.98, 50*DecelFactor*Scale).
                 set stopDist9 to ((airspeed + 69) / 2) * stopTime9.
-                set stopTime3 to min(69, airspeed) / min(maxDecel3, FinalDeceleration).
+                set stopTime3 to min(69, airspeed) / min(maxDecel3*0.98, FinalDeceleration).
                 set stopDist3 to (min(69, airspeed) / 2) * stopTime3.
                 set TotalstopTime to stopTime9 + stopTime3.
                 set TotalstopDist to (stopDist9 + stopDist3) * 1/cos(vang(-velocity:surface, up:vector)).
-                set landingRatio to max(0, TotalstopDist / (RadarAlt - 2)).
+                set landingRatio to max(0, TotalstopDist / (RadarAlt * 1/cos(vang(-velocity:surface, up:vector)) - 2)).
                 set LatCtrlPID:setpoint to 0.
             }
             else if Bl3LndProf and not downToThree {
-                set stopTime5 to (airspeed - 12*Scale) / min(maxDecel5, 18*Scale).
+                set stopTime5 to (airspeed - 12*Scale) / min(maxDecel5*0.98, 20*Scale).
                 set stopDist5 to ((airspeed + 12*Scale) / 2) * stopTime5.
-                set stopTime3 to min(12*Scale, airspeed) / min(maxDecel3, FinalDeceleration).
+                set stopTime3 to min(12*Scale, airspeed) / min(maxDecel3*0.98, FinalDeceleration).
                 set stopDist3 to (min(12*Scale, airspeed) / 2) * stopTime3.
                 set TotalstopTime to stopTime5 + stopTime3.
                 set TotalstopDist to (stopDist5 + stopDist3*1.1) * 1/cos(vang(-velocity:surface, up:vector)).
-                set landingRatio to max(0, TotalstopDist / (RadarAlt - 1)).
+                set landingRatio to max(0, TotalstopDist / (RadarAlt * 1/cos(vang(-velocity:surface, up:vector)) - 1)).
                 set LngCtrlPID:setpoint to 0.
                 set LatCtrlPID:setpoint to 0.
             }
             else if RadarRatio > 1 and not RSS {
-                set stopTime3 to (airspeed - 12) / min(maxDecel3, FinalDeceleration).
+                set stopTime3 to (airspeed - 12) / min(maxDecel3*0.98, FinalDeceleration).
                 set stopDist3 to ((airspeed + 12) / 2) * stopTime3.
-                set FinstopTime to min(12, airspeed) / min(maxDecel3, FinalDeceleration - 2).
+                set FinstopTime to min(12, airspeed) / min(maxDecel3*0.98, FinalDeceleration - 2).
                 set FinstopDist to (min(12, airspeed) / 2) * FinstopTime.
                 set TotalstopTime to stopTime3 + FinstopTime.
                 set TotalstopDist to FinstopDist + stopDist3.
-                set landingRatio to max(0, TotalstopDist / (RadarAlt - 0.24)).
+                set landingRatio to max(0, TotalstopDist / (RadarAlt * 1/cos(vang(-velocity:surface, up:vector)) - 0.24)).
                 set LngCtrlPID:setpoint to 0.
                 set LatCtrlPID:setpoint to 0.
             }
             else {
-                set TotalstopTime to airspeed / min(maxDecel3, FinalDeceleration - 2).
+                set TotalstopTime to airspeed / min(maxDecel3*0.98, FinalDeceleration - 2).
                 set TotalstopDist to (abs(verticalSpeed) / 2) * TotalstopTime.
-                set landingRatio to max(0, TotalstopDist / (RadarAlt - 0.24)).
+                set landingRatio to max(0, TotalstopDist / (RadarAlt * 1/cos(vang(-velocity:surface, up:vector)) - 0.24)).
                 set LngCtrlPID:setpoint to 0.
                 set LatCtrlPID:setpoint to 0.
             }
 
-            if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 8000 {
+            if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 8000 and not downToThree {
                 set LngCtrlPID:setpoint to CorrFactor * groundspeed.
             }
             if dbactive and not LandingBurnStarted {
@@ -3497,8 +3527,14 @@ FUNCTION SteeringCorrections {
             if defined TowerHeading print "Tower Heading: " + TowerHeading.
             print " ".
             print "Landing Burn Alt: " + round(LandingBurnAlt, 1).
+            print "Decelleration Factor: " + round(DecelFactor, 2).
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
             print " ".
+            print "DragDecels: ".
+            print round(DragDecel,1).
+            print round(DragDecel9,1).
+            if defined DragDecel5 print round(DragDecel5,1).
+            print round(DragDecel3,1).
             print "Max Decel: " + round(maxDecel, 2).
             print "Radar Alt: " + round(RadarAlt, 1).
             print "Stop Time: " + round(TotalstopTime, 2).
@@ -3567,10 +3603,10 @@ function LandingThrottle {
     } 
     set thro to 0.
     if RSS {
-        set thro to max((landingRatio * min(maxDecel, 80) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.29).
+        set thro to max((landingRatio * min(maxDecel, 80*DecelFactor) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.29).
     }
     else {
-        set thro to max((landingRatio * min(maxDecel, 50) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.33).
+        set thro to max((landingRatio * min(maxDecel, 50*DecelFactor) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel, 0.33).
     }
     if MiddleEnginesShutdown and not downToThree and defined maxDecel5 {
         if RSS {
@@ -3588,6 +3624,7 @@ function LandingThrottle {
             set thro to max((landingRatio * min(maxDecel3, 12) * 1/cos(vAng(facing:forevector,up:vector))) / maxDecel3, 0.33).
         }
     }
+    if airspeed > 341 set thro to 1.
     if thro > 1 {
         return 1.
     } else {
@@ -3650,7 +3687,7 @@ function LandingGuidance {
     if RadarRatio < 1.8 and RadarRatio > 0.13 set lateBrake to min(0.3/max(0.05,RadarRatio),2)*0.1/(Scale^1.75) * min(1,GSVec:mag/(max(0.5,RadarRatio)*6.25*Scale)).
     else set lateBrake to 0.
     if not MiddleEnginesShutdown and not Bl3LndProf set OnStreamFactor to 0.24 * 240/max(airspeed,50).
-    else if not MiddleEnginesShutdown  set OnStreamFactor to 0.3 * 250/max(airspeed,50) * TowerAvoidanceFactor.
+    else if not MiddleEnginesShutdown  set OnStreamFactor to 0.3 * 280/max(airspeed,50) * TowerAvoidanceFactor.
     else set OnStreamFactor to 1.
     if MiddleEnginesShutdown and Bl3LndProf set gsLimiter to max(0,(GSVec:mag - 10*Scale)/(4*Scale) * min(1,max(0,70-airspeed)/28)).
     else set gsLimiter to 0.

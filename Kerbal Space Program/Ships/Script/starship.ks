@@ -8706,7 +8706,7 @@ function Launch {
             Droppriority().
             AbortLaunch().
         }
-        when apoapsis > BoosterAp and not AbortLaunchInProgress then {
+        when apoapsis > BoosterAp - 3000*Scale and not AbortLaunchInProgress then {
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         }
 
@@ -8765,7 +8765,7 @@ function Launch {
                         fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
                     }
                 }
-                wait until time:seconds > MECOTime + 0.2. //--------Group2
+                wait until time:seconds > MECOTime + 0.24. //--------Group2
                 if BoosterSingleEngines {
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
@@ -8775,14 +8775,14 @@ function Launch {
                 }
                 else BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
-                if BoosterSingleEngines wait until time:seconds > MECOTime + 0.4. { //--------Group3
+                if BoosterSingleEngines wait until time:seconds > MECOTime + 0.42. { //--------Group3
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
                         if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
                         set x to x + 1.
                     }
 
-                    wait until  time:seconds > MECOTime + 0.6. //--------Group4
+                    wait until  time:seconds > MECOTime + 0.65. //--------Group4
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
                         if eng:hassuffix("activate") if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
@@ -8790,7 +8790,7 @@ function Launch {
                     }
                     for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
 
-                    wait until  time:seconds > MECOTime + 0.8. //--------Group5
+                    wait until  time:seconds > MECOTime + 0.85. //--------Group5
                     set x to 1.
                     for eng in BoosterSingleEnginesRC {
                         if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if eng:hassuffix("activate") eng:shutdown.
@@ -8798,7 +8798,7 @@ function Launch {
                     }
                 }
 
-                wait until time:seconds > MECOTime + 1. //--------Group6
+                wait until time:seconds > MECOTime + 1.1. //--------Group6
                 if not BoosterSingleEngines and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) {
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     wait 0.
