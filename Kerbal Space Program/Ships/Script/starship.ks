@@ -8775,7 +8775,8 @@ function Launch {
                 }
                 else BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
-                if BoosterSingleEngines wait until time:seconds > MECOTime + 0.42. { //--------Group3
+                if BoosterSingleEngines { //--------Group3
+                    wait until time:seconds > MECOTime + 0.42. 
                     set x to 1.
                     for eng in BoosterSingleEnginesRB {
                         if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
