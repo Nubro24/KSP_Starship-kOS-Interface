@@ -1,7 +1,7 @@
 # KSP Starship kOS Interface
 - A **kOS Interface** for the **Starship Expansion Project** in Kerbal Space Program
 
-> [!DISCLAIMER]
+> [!IMPORTANT]
 > This Script is not for *new* KSP players and requires thorough knowledge about KSP basics.
 
 
