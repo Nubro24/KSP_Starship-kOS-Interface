@@ -2,7 +2,7 @@
 - A **kOS Interface** for the **Starship Expansion Project** in Kerbal Space Program
 
 > [!IMPORTANT]
-> This Script is _not_ for *new* KSP players and requires thorough knowledge about KSP basics.
+> This Script is <ins>not</ins> for *new* KSP players and requires thorough knowledge about KSP basics.
 
 
 ![Alt text](/Infographic.png)
