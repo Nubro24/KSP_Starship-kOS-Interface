@@ -8716,12 +8716,16 @@ function Launch {
             when apoapsis > BoosterAp - 22000 * Scale then {
                 set steeringManager:pitchpid:kp to 0.3.
                 set steeringManager:yawpid:kp to 0.3.
+                set steeringManager:pitchpid:ki to 0.18.
+                set steeringManager:yawpid:ki to 0.18.
+                set steeringManager:rollpid:ki to 0.4.
+                set steeringManager:rollpid:kd to 0.65.
                 if BoosterSingleEngines set steeringManager:rolltorquefactor to 2.6*Scale. 
                 else set steeringManager:rolltorquefactor to 8*Scale.  
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
-                    if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
+                    if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
                     set LaunchRollVector to up:vector.
                 } 
                 if HSRJet {
@@ -9184,7 +9188,7 @@ Function LaunchSteering {
         set target to TargetShip.
     }
 
-    if Boosterconnected and RadarAlt > 42 and not WaitTime and not Hotstaging and BoosterSingleEngines {
+    if Boosterconnected and RadarAlt > 42 and not WaitTime and not Hotstaging and BoosterSingleEngines and not TFinstalled {
         set WaitTime to true.
         if random() < ifIgnCha {
             set failedEngNr to min(max(floor(random()*33),0),32).
@@ -9197,7 +9201,7 @@ Function LaunchSteering {
             set WaitTime to false.
         }
     }
-    else if (ShipSubType:contains("Block2") or ShipType:contains("Block2")) and not WaitTime and fullAuto {
+    else if (ShipSubType:contains("Block2") or ShipType:contains("Block2")) and not WaitTime and fullAuto and random() < 0.4 {
         set WaitTime to true.
         if random() < ifIgnCha/6 and runningEngines:length > 0 {
             set failedEngNr to min(max(floor(random()*engNumber),0),5).
