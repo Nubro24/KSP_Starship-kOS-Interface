@@ -28,9 +28,9 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 
 
 ## Requirements:
-- **Stock**-size Kerbin or **Real Solar System** or KSRSS or SigmaDimensions (2.5-2.7x)
 - KSP version 1.12.5
 - KSP language set to **English**
+- **Stock**-size Kerbin or **Real Solar System** or KSRSS or SigmaDimensions (2.5-2.7x)
 - Starship Expansion Project - [github](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with v3.1.0.3*
     - with ***all*** dependencies
 - Starship Launch Expansion - [github](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Experimental) - *Experimental branch recommended*
