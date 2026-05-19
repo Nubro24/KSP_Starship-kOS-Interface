@@ -3432,7 +3432,7 @@ FUNCTION SteeringCorrections {
                 set stopTime5 to 69 / (maxDecel5*0.6).
                 set stopTime13 to (airspeed - 81) / (maxDecel*0.85).
 
-                set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
+                set TotalstopTime to stopTimeFinal + stopTime3 + stopTime5 + stopTime13.
 
                 set stopDist3 to 6 * (stopTime3+stopTimeFinal).
                 set stopDist5 to 34.5 * stopTime5.
@@ -3440,16 +3440,23 @@ FUNCTION SteeringCorrections {
 
                 set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
 
-                if not MiddleEnginesShutdown and not downToThree set ReqDecel to (airspeed^2 - 81^2)/(2*(RadarAlt-stopDist5*1.7-stopDist3*2)) - DragDecel.
-                else if not downToThree set ReqDecel to (airspeed^2 - 12^2)/(2*(RadarAlt-stopDist3*2)) - DragDecel.
-                else set ReqDecel to (airspeed^2 - 1^2)/(2*(RadarAlt - 1.5*Scale)) - DragDecel.
+                //Decel 13 Engines
+                if not MiddleEnginesShutdown and not downToThree 
+                    set ReqDecel to (airspeed^2 - 81^2)/(2*(RadarAlt-stopDist5*1.7-stopDist3*2)) - DragDecel.
+                //Decel 5 Engines
+                else if not downToThree 
+                    set ReqDecel to (airspeed^2 - 12^2)/(2*(RadarAlt-stopDist3*2)) - DragDecel.
+                //Decel 3 Engines
+                else 
+                    set ReqDecel to (airspeed^2 - 1^2)/(2*(RadarAlt - 1.5*Scale)) - DragDecel.
+                //Throttle Preset
                 set landingRatio to max(0,  ReqDecel / maxDecel  * 1/cos(vang(-velocity:surface, up:vector))).
             }
             else {
                 set stopTime3 to 69 / (maxDecel3*0.95).
                 set stopTime13 to (airspeed - 75) / (maxDecel*0.98).
 
-                set TotalstopTime to stopTime3 + stopTime13.
+                set TotalstopTime to stopTimeFinal + stopTime3 + stopTime13.
 
                 set stopDist3 to 6 * (stopTime3+stopTimeFinal).
                 set stopDist13 to ((airspeed - 75)/2)*stopTime13.
