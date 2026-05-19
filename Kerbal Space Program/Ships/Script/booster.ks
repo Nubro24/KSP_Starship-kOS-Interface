@@ -1071,7 +1071,7 @@ if bodyexists("Earth") {
         }
         if oldBooster set BoosterGlideDistance to 2540. 
         else set BoosterGlideDistance to 2400. //1640 
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 1.
@@ -1108,7 +1108,7 @@ if bodyexists("Earth") {
         }
         if oldBooster set BoosterGlideDistance to 1600. 
         else set BoosterGlideDistance to 1450.
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
@@ -1152,7 +1152,7 @@ else {
         }
         if oldBooster set BoosterGlideDistance to 1600. 
         else set BoosterGlideDistance to 1400.
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
@@ -1189,7 +1189,7 @@ else {
         }
         if oldBooster set BoosterGlideDistance to 1200. 
         else set BoosterGlideDistance to 1020. //1100
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 1.
+        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
@@ -1285,7 +1285,9 @@ if exists("0:/BoosterFlightData.csv") {
 clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
-print ShipType + "-Ship + " + HSRType + "-HSR --> RandomFlipDir:" + RandomFlip.
+print ShipType + "-Ship + " + HSRType + "-HSR + " + BoosterType + "-Booster ".
+print "--> RandomFlipDir:" + RandomFlip.
+print "Frost: " + Frost.
 
 set OnceShipName to false.
 set ShipConnectedToBooster to true.
