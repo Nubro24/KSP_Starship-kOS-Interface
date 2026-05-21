@@ -2880,7 +2880,7 @@ function Boostback {
                     if not RSS 
                         lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 3.8.
                     else 
-                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist + 1. //- 2.1
+                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.1.
                 }
 
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
@@ -2950,7 +2950,7 @@ function Boostback {
         }
     }
 
-    when airspeed < 81 and Bl3LndProf or airspeed < 75 then { //MiddleRingShutdown(velocity:surface:mag,RadarAlt) or 
+    when airspeed < 124 and Bl3LndProf or airspeed < 75 then { //MiddleRingShutdown(velocity:surface:mag,RadarAlt) or 
         set MiddleEnginesShutdown to true.
         set MidShutSpeed to airspeed.
         set ShutdownTime to time:seconds.
@@ -3036,7 +3036,7 @@ function Boostback {
                             set x to x + 1.
                         }
                     }
-                    when time:seconds > ShutdownTime + 3.08 and airspeed < 12*Scale or verticalSpeed > -10*Scale and stopDist3 < RadarAlt then {
+                    when time:seconds > ShutdownTime + 3.08 and airspeed < 14*Scale or verticalSpeed > -12*Scale and stopDist3 < RadarAlt then {
                         set downToThree to true.
                         if BoosterSingleEnginesRC[5+Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(6+Block2Offset) {
                             BoosterSingleEnginesRC[5+Block2Offset]:shutdown.
@@ -3080,7 +3080,7 @@ function Boostback {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             MidGimbMod:doaction("lock gimbal", true).
             if Block3Cluster { 
-                when time:seconds > ShutdownTime + 3 and airspeed < 12*Scale or verticalSpeed > -10*Scale and stopDist3 < RadarAlt or not Bl3LndProf then {
+                when time:seconds > ShutdownTime + 3 and airspeed < 14*Scale or verticalSpeed > -12*Scale and stopDist3 < RadarAlt or not Bl3LndProf then {
                     set downToThree to true.
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     Mid2GimbMod:doaction("lock gimbal", true).
@@ -3414,38 +3414,29 @@ FUNCTION SteeringCorrections {
                 set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
             }
 
-            set v1 to v2.
-            set t1 to t2.
-            set v2 to velocity:surface.
-            set t2 to time:seconds.
-
-            set gVec to (v2 - v1) / (t2 - t1).
-            set gFvec to -up:vector * 9.805.
-
-            set DragVec to (gVec - gFvec - facing:forevector*ship:thrust/ship:mass).
             
-            set DragDecel to DragVec:mag * 0.5.
+            set DragDecel to ((airspeed^2)/9000) * 305/airspeed.
 
-            set stopTimeFinal to 6 / (maxDecel3*0.4).
+            set stopTimeFinal to 6 / (maxDecel3*0.5).
             if Bl3LndProf and defined maxDecel5 {
-                set stopTime3 to 6 / (maxDecel3*0.6).
-                set stopTime5 to 69 / (maxDecel5*0.6).
-                set stopTime13 to (airspeed - 81) / (maxDecel*0.85).
+                set stopTime3 to 8 / (maxDecel3*0.65).
+                set stopTime5 to 110 / (maxDecel5*0.8).
+                set stopTime13 to (airspeed - 124) / (maxDecel*0.85).
 
                 set TotalstopTime to stopTimeFinal + stopTime3 + stopTime5 + stopTime13.
 
-                set stopDist3 to 6 * (stopTime3+stopTimeFinal).
-                set stopDist5 to 34.5 * stopTime5.
-                set stopDist13 to ((airspeed - 81)/2)*stopTime13.
+                set stopDist3 to 7 * (stopTime3+stopTimeFinal).
+                set stopDist5 to 55 * stopTime5.
+                set stopDist13 to ((airspeed - 124)/2)*stopTime13.
 
                 set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
 
                 //Decel 13 Engines
                 if not MiddleEnginesShutdown and not downToThree 
-                    set ReqDecel to (airspeed^2 - 81^2)/(2*(RadarAlt-stopDist5*1.7-stopDist3*2)) - DragDecel.
+                    set ReqDecel to (airspeed^2 - 124^2)/(2*(RadarAlt-stopDist5*1.7-stopDist3*2)) - DragDecel.
                 //Decel 5 Engines
                 else if not downToThree 
-                    set ReqDecel to (airspeed^2 - 12^2)/(2*(RadarAlt-stopDist3*2)) - DragDecel.
+                    set ReqDecel to (airspeed^2 - 14^2)/(2*(RadarAlt-stopDist3*2)) - DragDecel.
                 //Decel 3 Engines
                 else 
                     set ReqDecel to (airspeed^2 - 1^2)/(2*(RadarAlt - 1.5*Scale)) - DragDecel.
@@ -3545,10 +3536,10 @@ FUNCTION SteeringCorrections {
 
 
 function LandingThrottle {
-    set minDecel to (Planet1G - 0.05) * ship:mass * 1/cos(min(45,vang(-velocity:surface, up:vector))).
-    set minThrottle to minDecel/maxDecel3.
+    //set minDecel to (Planet1G - 0.05) * ship:mass * 1/cos(min(45,vang(-velocity:surface, up:vector))).
+    set minThrottle to 0.3.//minDecel/maxDecel3.
     set thro to max(0.33, landingRatio).
-    if verticalSpeed > -5 set thro to minThrottle * verticalSpeed/(CatchVS*2).
+    if verticalSpeed > -5 set thro to minThrottle * min(4,verticalSpeed/(CatchVS*2)).
     if verticalSpeed > CatchVS*2 set thro to minThrottle.
     if thro < 0.24 set thro to 0.24.
     if thro > 1 {
