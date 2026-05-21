@@ -2128,6 +2128,9 @@ function Boostback {
         if offshoreDivert and highSplash
             lock RadarAlt to alt:radar - RadarAltOffset - MZHeight.
 
+
+        if not BoosterSingleEngines and Bl3LndProf and not BoosterType:contains("Block3") set Bl3LndProf to false.
+
         
         if GfC {
             when not GfC then {
@@ -3492,6 +3495,7 @@ FUNCTION SteeringCorrections {
             print " ".
             print "Drag Decel: " + round(DragDecel,1).
             print "Max Decel: " + round(maxDecel, 2).
+            print "ReqDecel: " + round(ReqDecel,2).
             print "Radar Alt: " + round(RadarAlt, 1).
             print "Stop Time: " + round(TotalstopTime, 2).
             print "Stop Distance: " + round(TotalstopDist, 2).
