@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 clearguis().
 clearscreen.
-set Scriptversion to "V3.6.0".
+set Scriptversion to "V3.6.1_Dev".
 
 
 //<------------Telemtry Scale-------------->
@@ -4672,7 +4672,8 @@ set quickengine2:ontoggle to {
         }
         else {
             set quickengine1:pressed to false.
-            ActivateEngines(0).
+            if not BoosterType:contains("Block3") ActivateEngines(0).
+            else ActivateEngines(33).
             LogToFile("SL Engines ON").
         }
     }
@@ -8411,62 +8412,98 @@ function Launch {
                 print "Time at Launch: " + timestamp(time:seconds + 2.5):full.
                 print "Actual Distance: " + round((target:position - ship:position):mag / 1000, 1).
             }
-            if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+            if not BoosterType:contains("Block3") {
+                if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
-            wait 0.02. 
-            
-            if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
+                wait 0.02. 
+
+                if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleEnginesFX"):doaction("activate engine", true).
+                else {
+                    for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") {
+                        if random() < LOIgnCha/100 eng:activate.
+                    }
+                }
+
+                set EngineStartTime to time:seconds.
+                set message1:text to "<b>Ignition Sequence</b>".
+                set message2:text to "<b>Expected Engine Count:</b>    13".
+                set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
+                wait 1.
+
+                if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
+                else {
+                    set x to 0.
+                    for eng in BoosterSingleEnginesRB {
+                        if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
+                        else if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
+                        set x to x + 1.
+                    }
+                    set inactiveEng to List(7,11,15,19,24).
+                }
+                set message2:text to "<b>Expected Engine Count:</b>    28".
+                wait 0.4.
+
+                //last 5 outer ignition
+                set message2:text to "<b>Expected Engine Count:</b>    33".
+                if BoosterSingleEngines {
+                    set x to 0.
+                    for eng in BoosterSingleEnginesRB {
+                        if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < LOIgnCha/100 eng:activate.
+                        set x to x + 1.
+                    }
+                }
+
+
+                wait 0.1.
+                if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
+                    SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
+                }
+                if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:activate.
+                wait 1.
+
+                until time:seconds - EngineStartTime > 3.5 or cancelconfirmed {
+                    set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
+                    set message1:text to "<b>Clamps Release in:   </b>" + round(-time:seconds + EngineStartTime + 3.9, 1) + "<b> seconds</b>".
+                    lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 2.5) / 1.
+
+                    BackGroundUpdate().
+                }
+            }
             else {
-                for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") {
-                    if random() < LOIgnCha/100 eng:activate.
+                lock throttle to 0.8.
+                set EngineStartTime to time:seconds.
+                set message1:text to "<b>Ignition Sequence</b>".
+                set message2:text to "<b>Expected Engine Count:</b>    0".
+                set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
+                if not BoosterSingleEngines BoosterEngines[0]:activate.
+                else {
+                    for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:activate.
+                    if BoosterSingleEnginesRB[0]:hassuffix("activate") BoosterSingleEnginesRB[0]:activate.
+                    if BoosterSingleEnginesRB[2]:hassuffix("activate") BoosterSingleEnginesRB[2]:activate.
+                    if BoosterSingleEnginesRB[4]:hassuffix("activate") BoosterSingleEnginesRB[4]:activate.
+                    if BoosterSingleEnginesRB[6]:hassuffix("activate") BoosterSingleEnginesRB[6]:activate.
+                    if BoosterSingleEnginesRB[8]:hassuffix("activate") BoosterSingleEnginesRB[8]:activate.
+                    if BoosterSingleEnginesRB[10]:hassuffix("activate") BoosterSingleEnginesRB[10]:activate.
+                    if BoosterSingleEnginesRB[12]:hassuffix("activate") BoosterSingleEnginesRB[12]:activate.
+                    if BoosterSingleEnginesRB[14]:hassuffix("activate") BoosterSingleEnginesRB[14]:activate.
+                    if BoosterSingleEnginesRB[16]:hassuffix("activate") BoosterSingleEnginesRB[16]:activate.
+                    if BoosterSingleEnginesRB[18]:hassuffix("activate") BoosterSingleEnginesRB[18]:activate.
+                    if BoosterSingleEnginesRB[1]:hassuffix("activate") BoosterSingleEnginesRB[1]:activate.
+                    if BoosterSingleEnginesRB[3]:hassuffix("activate") BoosterSingleEnginesRB[3]:activate.
+                    if BoosterSingleEnginesRB[5]:hassuffix("activate") BoosterSingleEnginesRB[5]:activate.
+                    if BoosterSingleEnginesRB[7]:hassuffix("activate") BoosterSingleEnginesRB[7]:activate.
+                    if BoosterSingleEnginesRB[9]:hassuffix("activate") BoosterSingleEnginesRB[9]:activate.
+                    if BoosterSingleEnginesRB[11]:hassuffix("activate") BoosterSingleEnginesRB[11]:activate.
+                    if BoosterSingleEnginesRB[13]:hassuffix("activate") BoosterSingleEnginesRB[13]:activate.
+                    if BoosterSingleEnginesRB[15]:hassuffix("activate") BoosterSingleEnginesRB[15]:activate.
+                    if BoosterSingleEnginesRB[17]:hassuffix("activate") BoosterSingleEnginesRB[17]:activate.
+                    if BoosterSingleEnginesRB[19]:hassuffix("activate") BoosterSingleEnginesRB[19]:activate.
                 }
+                set message1:text to "<b>Ignition Sequence</b>".
+                set message2:text to "<b>Expected Engine Count:</b>    33".
+                set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
+                wait 1.5.
             }
-
-            set EngineStartTime to time:seconds.
-            set message1:text to "<b>Ignition Sequence</b>".
-            set message2:text to "<b>Expected Engine Count:</b>    13".
-            set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
-            wait 1.
-
-            if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true). 
-            else {
-                set x to 0.
-                for eng in BoosterSingleEnginesRB {
-                    if x = 3 or x = 7 or x = 11 or x = 15  or x = 19 {}
-                    else if eng:hassuffix("activate") if random() < LOIgnCha/100 eng:activate.
-                    set x to x + 1.
-                }
-                set inactiveEng to List(7,11,15,19,24).
-            }
-            set message2:text to "<b>Expected Engine Count:</b>    28".
-            wait 0.4.
-            
-            //last 5 outer ignition
-            set message2:text to "<b>Expected Engine Count:</b>    33".
-            if BoosterSingleEngines {
-                set x to 0.
-                for eng in BoosterSingleEnginesRB {
-                    if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 if random() < LOIgnCha/100 eng:activate.
-                    set x to x + 1.
-                }
-            }
-            
-
-            wait 0.1.
-            if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
-                SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
-            }
-            if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:activate.
-            wait 1.
-
-            until time:seconds - EngineStartTime > 3.5 or cancelconfirmed {
-                set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
-                set message1:text to "<b>Clamps Release in:   </b>" + round(-time:seconds + EngineStartTime + 3.9, 1) + "<b> seconds</b>".
-                lock throttle to 0.5 + 0.27 * (time:seconds - EngineStartTime - 2.5) / 1.
-                
-                BackGroundUpdate().
-            }
-
             if HideGUI g:hide().
             
             set message1:text to "".
@@ -8724,10 +8761,14 @@ function Launch {
                 else set steeringManager:rolltorquefactor to 8*Scale.  
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
-                if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
+                if ShipSubType:contains("Block2") or ShipType:contains("Block2") {
                     if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
                     set LaunchRollVector to up:vector.
                 } 
+                else if ShipType:contains("Block3") {
+                    if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
+                    set LaunchRollVector to -up:vector.
+                }
                 if HSRJet {
                     sendMessage(processor(volume("Booster")), "HSRJet").
                 } 
@@ -8739,7 +8780,8 @@ function Launch {
                 HUDTEXT("Leave IVA ASAP! (to avoid stuck cameras)", 10, 2, 20, yellow, false).
             }
             when apoapsis > BoosterAp and not AbortLaunchInProgress then {
-                if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") set LaunchRollVector to up:vector.
+                if ShipSubType:contains("Block2") or ShipType:contains("Block2") set LaunchRollVector to up:vector.
+                else if ShipType:contains("Block3") set LaunchRollVector to -up:vector.
                 set config:ipu to 2000.
                 set steeringManager:rolltorquefactor to 5.
                 set Hotstaging to true.
@@ -8749,74 +8791,102 @@ function Launch {
                 set message2:text to "".
                 set message3:text to "".
                 sendMessage(processor(Volume("Booster")),"Hotstaging").
+                    for fin in GridFins {
+                        if fin:hasmodule("ModuleControlSurface") {
+                            fin:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
+                            fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 32).
+                            fin:getmodule("ModuleControlSurface"):DoAction("deactivate roll control", true).
+                        }
+                        if fin:hasmodule("SyncModuleControlSurface") {
+                            fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", false).
+                            fin:getmodule("SyncModuleControlSurface"):SetField("authority limiter", 32).
+                            fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
+                        }
+                    }
                 //--------Group1
-                if BoosterSingleEngines {
-                    set x to 1.
-                    for eng in BoosterSingleEnginesRB {
-                        if x = 4 or x = 8 or x = 12 or x = 16 or x = 20 eng:shutdown.
-                        set x to x + 1.
+                if not BoosterType:contains("Block3") {
+                    if BoosterSingleEngines {
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRB {
+                            if x = 4 or x = 8 or x = 12 or x = 16 or x = 20 eng:shutdown.
+                            set x to x + 1.
+                        }
                     }
-                }
-                for fin in GridFins {
-                    if fin:hasmodule("ModuleControlSurface") {
-                        fin:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
-                        fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 32).
-                        fin:getmodule("ModuleControlSurface"):DoAction("deactivate roll control", true).
+                    wait until time:seconds > MECOTime + 0.24. //--------Group2
+                    if BoosterSingleEngines {
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRB {
+                            if eng:hassuffix("activate") if x = 2 or x = 6 or x = 10 or x = 14 or x = 18 eng:shutdown.
+                            set x to x + 1.
+                        }
                     }
-                    if fin:hasmodule("SyncModuleControlSurface") {
-                        fin:getmodule("SyncModuleControlSurface"):SetField("deploy direction", false).
-                        fin:getmodule("SyncModuleControlSurface"):SetField("authority limiter", 32).
-                        fin:getmodule("SyncModuleControlSurface"):DoAction("deactivate roll control", true).
-                    }
-                }
-                wait until time:seconds > MECOTime + 0.24. //--------Group2
-                if BoosterSingleEngines {
-                    set x to 1.
-                    for eng in BoosterSingleEnginesRB {
-                        if eng:hassuffix("activate") if x = 2 or x = 6 or x = 10 or x = 14 or x = 18 eng:shutdown.
-                        set x to x + 1.
-                    }
-                }
-                else BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                    else BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
-                if BoosterSingleEngines { //--------Group3
-                    wait until time:seconds > MECOTime + 0.42. 
-                    set x to 1.
-                    for eng in BoosterSingleEnginesRB {
-                        if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
-                        set x to x + 1.
+                    if BoosterSingleEngines { //--------Group3
+                        wait until time:seconds > MECOTime + 0.42. 
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRB {
+                            if eng:hassuffix("activate") if x = 3 or x = 7 or x = 11 or x = 15 or x = 19 eng:shutdown.
+                            set x to x + 1.
+                        }
+
+                        wait until  time:seconds > MECOTime + 0.65. //--------Group4
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRB {
+                            if eng:hassuffix("activate") if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
+                            set x to x + 1.
+                        }
+                        for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
+
+                        wait until  time:seconds > MECOTime + 0.85. //--------Group5
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRC {
+                            if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if eng:hassuffix("activate") eng:shutdown.
+                            set x to x + 1.
+                        }
                     }
 
-                    wait until  time:seconds > MECOTime + 0.65. //--------Group4
-                    set x to 1.
-                    for eng in BoosterSingleEnginesRB {
-                        if eng:hassuffix("activate") if x = 1 or x = 5 or x = 9 or x = 13 or x = 17 eng:shutdown.
-                        set x to x + 1.
+                    wait until time:seconds > MECOTime + 1.1. //--------Group6
+                    if not BoosterSingleEngines and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 {
+                        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                        wait 0.
                     }
-                    for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
-
-                    wait until  time:seconds > MECOTime + 0.85. //--------Group5
-                    set x to 1.
-                    for eng in BoosterSingleEnginesRC {
-                        if x = 4 or x = 6 or x = 8 or x = 10 or x = 12 if eng:hassuffix("activate") eng:shutdown.
-                        set x to x + 1.
+                    if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                    else {
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRC {
+                            if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if eng:hassuffix("activate") eng:shutdown.
+                            set x to x + 1.
+                        }
                     }
                 }
-
-                wait until time:seconds > MECOTime + 1.1. //--------Group6
-                if not BoosterSingleEngines and (BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) {
-                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
-                    wait 0.
-                }
-                if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                 else {
-                    set x to 1.
-                    for eng in BoosterSingleEnginesRC {
-                        if x = 1 or x = 2 or x = 3 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 {} else if eng:hassuffix("activate") eng:shutdown.
-                        set x to x + 1.
+                    if BoosterSingleEngines {
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRC {
+                            if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 {} else if eng:hassuffix("activate") eng:shutdown.
+                            set x to x + 1.
+                        }
+                        wait until time:seconds > MECOTime + 0.3. //--------Group2
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRB {
+                            if eng:hassuffix("activate") if x = 1 or x = 3 or x = 5 or x = 7 or x = 9 or x = 11 or x = 13 or x = 15 or x = 17 or x = 19 eng:shutdown.
+                            set x to x + 1.
+                        }
+                        wait until  time:seconds > MECOTime + 0.7. //--------Group3
+                        set x to 1.
+                        for eng in BoosterSingleEnginesRB {
+                            if eng:hassuffix("activate") if x = 2 or x = 4 or x = 6 or x = 8 or x = 10 or x = 12 or x = 14 or x = 16 or x = 18 or x = 20 eng:shutdown.
+                            set x to x + 1.
+                        }
+                        for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
+                    }
+                    else {
+                        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                        wait until  time:seconds > MECOTime + 0.8. //--------Group2
+                        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     }
                 }
-                
                 //GridFins[0]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 //GridFins[2]:getmodule("ModuleControlSurface"):doaction("toggle deploy", true).
                 set CargoBeforeSeparation to CargoMass.
@@ -8862,7 +8932,10 @@ function Launch {
                 if not cancelconfirmed {
                     sendMessage(Processor(volume("Booster")), "Boostback").
                 }
-                if defined HSR set quickengine3:pressed to true.
+                if defined HSR {
+                    set quickengine3:pressed to true.
+                    if BoosterType:contains("Block3") set quickengine2:pressed to true.
+                }
                 else set IFT1SEI to true.
                 if IFT1SEI lock throttle to 0.
                 updateTelemetry().
@@ -8951,7 +9024,7 @@ function Launch {
                     set quickengine3:pressed to true.
                     set HotStageTime to time:seconds + 0.2.
                 }
-                when time:seconds > HotStageTime + 0.2 then {
+                if not BoosterType:contains("Block3") when time:seconds > HotStageTime + 0.2 then {
                     set quickengine2:pressed to true.
                 }
                 when time:seconds > HotStageTime + 0.4 then {
@@ -14613,6 +14686,20 @@ function ActivateEngines {
         if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         LogToFile("SL Engine Start Successful!").
+    }
+    else if WhichEngines = 33 {
+        set SEITime to time:seconds.
+        when time:seconds > SEITime + 0.1 then {
+            if SLEngines[0]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[0]:activate.
+            if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+        }
+        when time:seconds > SEITime + 0.3 then {
+            if SLEngines[1]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[1]:activate.
+            if SLEngines[2]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[2]:activate.
+            if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+            if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+            LogToFile("SL Engine Start Successful!").
+        }
     }
     else {
         if not SHipType:contains("SN") for eng in VACEngines {

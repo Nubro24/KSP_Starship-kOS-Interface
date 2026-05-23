@@ -1,3 +1,7 @@
+# V3.6.1 (2026-05-23)
+- Updated Block 3 Flight Profile and Engine Timings
+- Reworked Booster Return Calculations
+
 # V3.6.0 (2026-05-04)
 - **Reworked Catch Guidance for Booster and Ship** 
   - uses Catch position instead ground impact position

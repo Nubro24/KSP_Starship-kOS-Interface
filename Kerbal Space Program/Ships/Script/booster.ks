@@ -1,5 +1,5 @@
 wait until ship:unpacked.
-set Scriptversion to "V3.6.0".
+set Scriptversion to "V3.6.1_Dev".
 
 //<------------Telemtry Scale-------------->
 
@@ -1226,7 +1226,7 @@ if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1
 if BoosterType:contains("Block3") {
     set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
     set BoosterHeight to 45.4*Scale.
-    set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.7.
+    set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
 }
 if FNBBooster {
     set BoosterGlideDistance to BoosterGlideDistance * 1.25.
@@ -1744,7 +1744,7 @@ function Boostback {
             else set FlipTime to 4.2.
             if oldBooster set FlipTime to FlipTime * 1.3.
         } else {
-            //if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/Scale * PitchStrength. else 
+            if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/Scale * PitchStrength. else 
             set ship:control:pitch to 2.4 * 1.6/Scale * PitchStrength.
             set ship:control:yaw to 0.
             if not RSS set FlipTime to 4.5.
@@ -1756,7 +1756,7 @@ function Boostback {
         wait 0.
         rcs on.
         lock throttle to 0.66.
-        when time:seconds > SeparationTime + 0.5 then {lock throttle to 0.95.}
+        if not BoosterType:contains("Block3") when time:seconds > SeparationTime + 0.5 then {lock throttle to 0.95.}
         sas off.
         set SteeringManager:ROLLCONTROLANGLERANGE to 3.
         set SteeringManager:rollts to 5.
@@ -1851,52 +1851,125 @@ function Boostback {
         }
 
         //Middle Restart
-        when time:seconds > flipStartTime + FlipTime*0.8 and verticalspeed > 0 then {
-            lock throttle to 0.6.
-            wait 0.01.
-            if BoosterSingleEngines {
-                set x to 1.
-                until x > 3 {
-                    if BoosterSingleEnginesRC[x-1]:hassuffix("activate") set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
-                    if BoosterSingleEnginesRC[x-1]:hassuffix("activate") BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 50).
-                    set x to x + 1.
-                }
-                set tEngStart to time:seconds.
-                if random() < BBIgn/100 if BoosterSingleEnginesRC[3]:hassuffix("activate") BoosterSingleEnginesRC[3]:activate.
-                if random() < BBIgn/100 if BoosterSingleEnginesRC[8]:hassuffix("activate") BoosterSingleEnginesRC[8]:activate.
-                when time:seconds - tEngStart > 0.24 then {
-                    if random() < BBIgn/100 if BoosterSingleEnginesRC[4]:hassuffix("activate") BoosterSingleEnginesRC[4]:activate.
-                    if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[9]:hassuffix("activate") BoosterSingleEnginesRC[9]:activate.
-                    when time:seconds - tEngStart > 0.48 then {
-                        if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[6]:hassuffix("activate") BoosterSingleEnginesRC[6]:activate.
-                        if random() < BBIgn/100 if BoosterSingleEnginesRC[11]:hassuffix("activate") BoosterSingleEnginesRC[11]:activate.
-                        when time:seconds - tEngStart > 0.72 then {
-                            if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[7]:hassuffix("activate") BoosterSingleEnginesRC[7]:activate.
-                            if random() < BBIgn/100 if BoosterSingleEnginesRC[12]:hassuffix("activate") BoosterSingleEnginesRC[12]:activate.
-                            when time:seconds - tEngStart > 0.96 then {
-                                if random() < BBIgn/100 if BoosterSingleEnginesRC[5]:hassuffix("activate") BoosterSingleEnginesRC[5]:activate.
-                                if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[10]:hassuffix("activate") BoosterSingleEnginesRC[10]:activate.
-                                set EC to true.
+        if not BoosterType:contains("Block3") { 
+            when time:seconds > flipStartTime + FlipTime*0.8 and verticalspeed > 0 then {
+                lock throttle to 0.6.
+                wait 0.01.
+                if BoosterSingleEngines {
+                    set x to 1.
+                    until x > 3 {
+                        if BoosterSingleEnginesRC[x-1]:hassuffix("activate") set BoosterSingleEnginesRC[x-1]:gimbal:lock to false.
+                        if BoosterSingleEnginesRC[x-1]:hassuffix("activate") BoosterSingleEnginesRC[x-1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 50).
+                        set x to x + 1.
+                    }
+                    set tEngStart to time:seconds.
+                    if random() < BBIgn/100 if BoosterSingleEnginesRC[3]:hassuffix("activate") BoosterSingleEnginesRC[3]:activate.
+                    if random() < BBIgn/100 if BoosterSingleEnginesRC[8]:hassuffix("activate") BoosterSingleEnginesRC[8]:activate.
+                    when time:seconds - tEngStart > 0.24 then {
+                        if random() < BBIgn/100 if BoosterSingleEnginesRC[4]:hassuffix("activate") BoosterSingleEnginesRC[4]:activate.
+                        if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[9]:hassuffix("activate") BoosterSingleEnginesRC[9]:activate.
+                        when time:seconds - tEngStart > 0.48 then {
+                            if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[6]:hassuffix("activate") BoosterSingleEnginesRC[6]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRC[11]:hassuffix("activate") BoosterSingleEnginesRC[11]:activate.
+                            when time:seconds - tEngStart > 0.72 then {
+                                if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[7]:hassuffix("activate") BoosterSingleEnginesRC[7]:activate.
+                                if random() < BBIgn/100 if BoosterSingleEnginesRC[12]:hassuffix("activate") BoosterSingleEnginesRC[12]:activate.
+                                when time:seconds - tEngStart > 0.96 then {
+                                    if random() < BBIgn/100 if BoosterSingleEnginesRC[5]:hassuffix("activate") BoosterSingleEnginesRC[5]:activate.
+                                    if random() < 0.98*BBIgn/100 if BoosterSingleEnginesRC[10]:hassuffix("activate") BoosterSingleEnginesRC[10]:activate.
+                                    set EC to true.
+                                }
                             }
                         }
                     }
                 }
-            }
-            else {
-                if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 90).
-                MidGimbMod:SetField("gimbal limit", 90).
-                MidGimbMod:doaction("free gimbal", true).
-                if Block3Cluster Mid2GimbMod:doaction("free gimbal", true).
-                if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
-                    set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
-                }
-                if Mode = "Middle Inner" or Mode = "Raptor_3_Inner" or Mode = "Inner" {} else {
-                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
-                    wait 0.
+                else {
+                    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 90).
+                    MidGimbMod:SetField("gimbal limit", 90).
+                    MidGimbMod:doaction("free gimbal", true).
+                    if Block3Cluster Mid2GimbMod:doaction("free gimbal", true).
                     if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
                         set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
                     }
-                    if Mode = "Raptor_3_2Inner" or Mode = "2Inner" BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                    if Mode = "Middle Inner" or Mode = "Raptor_3_Inner" or Mode = "Inner" {} else {
+                        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                        wait 0.
+                        if BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):hasfield("Mode") {
+                            set Mode to BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode").
+                        }
+                        if Mode = "Raptor_3_2Inner" or Mode = "2Inner" BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                    }
+                }
+            }
+        }
+        else {
+            when (vAng(facing:forevector, vxcl(up:vector, -ErrorVector)) < 110 and time:seconds > flipStartTime + FlipTime*0.7) or time:seconds > flipStartTime + FlipTime then {
+                if BoosterSingleEngines {
+                    set tEngStart to time:seconds.
+                    for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:activate.
+                    when time:seconds - tEngStart > 0.4 then {
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[0]:hassuffix("activate") BoosterSingleEnginesRB[0]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[2]:hassuffix("activate") BoosterSingleEnginesRB[2]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[4]:hassuffix("activate") BoosterSingleEnginesRB[4]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[6]:hassuffix("activate") BoosterSingleEnginesRB[6]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[8]:hassuffix("activate") BoosterSingleEnginesRB[8]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[10]:hassuffix("activate") BoosterSingleEnginesRB[10]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[12]:hassuffix("activate") BoosterSingleEnginesRB[12]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[14]:hassuffix("activate") BoosterSingleEnginesRB[14]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[16]:hassuffix("activate") BoosterSingleEnginesRB[16]:activate.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[18]:hassuffix("activate") BoosterSingleEnginesRB[18]:activate.
+                        when time:seconds - tEngStart > 0.8 then {
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[1]:hassuffix("activate") BoosterSingleEnginesRB[1]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[3]:hassuffix("activate") BoosterSingleEnginesRB[3]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[5]:hassuffix("activate") BoosterSingleEnginesRB[5]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[7]:hassuffix("activate") BoosterSingleEnginesRB[7]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[9]:hassuffix("activate") BoosterSingleEnginesRB[9]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[11]:hassuffix("activate") BoosterSingleEnginesRB[11]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[13]:hassuffix("activate") BoosterSingleEnginesRB[13]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[15]:hassuffix("activate") BoosterSingleEnginesRB[15]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[17]:hassuffix("activate") BoosterSingleEnginesRB[17]:activate.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[19]:hassuffix("activate") BoosterSingleEnginesRB[19]:activate.
+                        }
+                    }
+                }
+                else {
+                    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 90).
+                    MidGimbMod:SetField("gimbal limit", 90).
+                    MidGimbMod:doaction("free gimbal", true).
+                    set tEngStart to time:seconds.
+                    BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                    when time:seconds - tEngStart > 0.65 then BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                }
+                when ship:groundspeed < 120 then {
+                    if BoosterSingleEngines {
+                        set tEngStop to time:seconds.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[0]:hassuffix("activate") BoosterSingleEnginesRB[0]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[2]:hassuffix("activate") BoosterSingleEnginesRB[2]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[4]:hassuffix("activate") BoosterSingleEnginesRB[4]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[6]:hassuffix("activate") BoosterSingleEnginesRB[6]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[8]:hassuffix("activate") BoosterSingleEnginesRB[8]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[10]:hassuffix("activate") BoosterSingleEnginesRB[10]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[12]:hassuffix("activate") BoosterSingleEnginesRB[12]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[14]:hassuffix("activate") BoosterSingleEnginesRB[14]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[16]:hassuffix("activate") BoosterSingleEnginesRB[16]:shutdown.
+                        if random() < BBIgn/100 if BoosterSingleEnginesRB[18]:hassuffix("activate") BoosterSingleEnginesRB[18]:shutdown.
+                        when time:seconds - tEngStop > 0.3 then {
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[1]:hassuffix("activate") BoosterSingleEnginesRB[1]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[3]:hassuffix("activate") BoosterSingleEnginesRB[3]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[5]:hassuffix("activate") BoosterSingleEnginesRB[5]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[7]:hassuffix("activate") BoosterSingleEnginesRB[7]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[9]:hassuffix("activate") BoosterSingleEnginesRB[9]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[11]:hassuffix("activate") BoosterSingleEnginesRB[11]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[13]:hassuffix("activate") BoosterSingleEnginesRB[13]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[15]:hassuffix("activate") BoosterSingleEnginesRB[15]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[17]:hassuffix("activate") BoosterSingleEnginesRB[17]:shutdown.
+                            if random() < BBIgn/100 if BoosterSingleEnginesRB[19]:hassuffix("activate") BoosterSingleEnginesRB[19]:shutdown.
+                            for eng in BoosterSingleEnginesRB if eng:hassuffix("activate") eng:shutdown.
+                        }
+                    }
+                    else {
+                        BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
+                    }
                 }
             }
         }
@@ -2293,7 +2366,7 @@ function Boostback {
             lock steering to SteeringVector.
             unlock SteeringVectorBoostback.
         }
-        when vAng(vxcl(vCrs(up:vector, vxcl(up:vector, BoosterCore:position - landingzone:position)),facing:forevector), BoosterCore:position - landingzone:position) < 10 then {
+        when vAng(vxcl(vCrs(up:vector, vxcl(up:vector, BoosterCore:position - landingzone:position)),facing:forevector), BoosterCore:position - landingzone:position) < 25 then {
             if RadarAlt > 32000 {
                 //if BoosterType:contains("Block3") lock SteeringVector to lookDirUp(BoosterCore:position - landingzone:position, -ApproachVector). else 
                 lock SteeringVector to lookDirUp(BoosterCore:position - landingzone:position, ApproachVector).
@@ -3418,13 +3491,13 @@ FUNCTION SteeringCorrections {
             }
 
             
-            set DragDecel to ((airspeed^2)/9000) * 305/airspeed.
+            set DragDecel to ((airspeed^2)/9000) * min(1,305/airspeed).
 
             set stopTimeFinal to 6 / (maxDecel3*0.5).
             if Bl3LndProf and defined maxDecel5 {
                 set stopTime3 to 8 / (maxDecel3*0.65).
                 set stopTime5 to 110 / (maxDecel5*0.8).
-                set stopTime13 to (airspeed - 124) / (maxDecel*0.85).
+                set stopTime13 to (airspeed - 124) / (maxDecel*0.75).
 
                 set TotalstopTime to stopTimeFinal + stopTime3 + stopTime5 + stopTime13.
 
@@ -3436,10 +3509,10 @@ FUNCTION SteeringCorrections {
 
                 //Decel 13 Engines
                 if not MiddleEnginesShutdown and not downToThree 
-                    set ReqDecel to (airspeed^2 - 124^2)/(2*(RadarAlt-stopDist5*1.7-stopDist3*2)) - DragDecel.
+                    set ReqDecel to (airspeed^2 - 124^2)/(2*(RadarAlt-stopDist5-stopDist3)) - DragDecel.
                 //Decel 5 Engines
                 else if not downToThree 
-                    set ReqDecel to (airspeed^2 - 14^2)/(2*(RadarAlt-stopDist3*2)) - DragDecel.
+                    set ReqDecel to (airspeed^2 - 14^2)/(2*(RadarAlt-stopDist3*1.5)) - DragDecel.
                 //Decel 3 Engines
                 else 
                     set ReqDecel to (airspeed^2 - 1^2)/(2*(RadarAlt - 1.5*Scale)) - DragDecel.
@@ -3495,7 +3568,7 @@ FUNCTION SteeringCorrections {
             print " ".
             print "Drag Decel: " + round(DragDecel,1).
             print "Max Decel: " + round(maxDecel, 2).
-            print "ReqDecel: " + round(ReqDecel,2).
+            if defined ReqDecel print "ReqDecel: " + round(ReqDecel,2).
             print "Radar Alt: " + round(RadarAlt, 1).
             print "Stop Time: " + round(TotalstopTime, 2).
             print "Stop Distance: " + round(TotalstopDist, 2).
