@@ -933,12 +933,15 @@ function FindParts {
             else if x:name:contains("FNB.BL1.BOOSTERCH4") {}
             else if x:name:contains("FNB.BL1.BOOSTERHSR") {}
             else if x:name:contains("FNB.BL1.BOOSTERCLUSTER") {}
+            else if x:name:contains("FNB.BL3.BOOSTER") {}
             else if x:name:contains("FNB.BL3.BOOSTERAFT") {}
             else if x:name:contains("FNB.BL3.BOOSTERLOX") {}
             else if x:name:contains("FNB.BL3.BOOSTERCMN") {}
             else if x:name:contains("FNB.BL3.BOOSTERCH4") {}
             else if x:name:contains("FNB.BL3.BOOSTERFWD") {}
-            else if x:name:contains("FNB.BL3.BOOSTERHSR") {}
+            else if x:name:contains("FNB.BL3.IHSR") {}
+            else if x:name:contains("FNB.BL3.BOOSTERIHSR") {}
+            else if x:name:contains("FNB.BL3.GRIDFIN") {}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else if x:name:contains("FNB.R3.CLUSTER") {}
@@ -14728,11 +14731,11 @@ function ActivateEngines {
     }
     else if WhichEngines = 33 {
         set SEITime to time:seconds.
-        when time:seconds > SEITime + 0.1 then {
+        when time:seconds > SEITime then {
             if SLEngines[0]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[0]:activate.
             if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         }
-        when time:seconds > SEITime + 0.3 then {
+        when time:seconds > SEITime + 0.2 then {
             if SLEngines[1]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[1]:activate.
             if SLEngines[2]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[2]:activate.
             if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
@@ -16790,20 +16793,20 @@ function updateTelemetry {
 
     if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
         if Boosterconnected {
-            if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
-            else set currentPitch to 360-vAng(facing:forevector,up:vector).
+            if vAng(ship:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(ship:facing:forevector,up:vector).
+            else set currentPitch to 360-vAng(ship:facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
             set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(abs(currentPitch)):tostring.
         }
         else {
             if not LandingBurnStarted {
-                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
+                if vAng(ship:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(ship:facing:forevector,up:vector).
+                else set currentPitch to vang(ship:facing:forevector,up:vector).
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             else {
-                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
+                if vAng(ship:facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(ship:facing:forevector,up:vector).
+                else set currentPitch to vang(ship:facing:forevector,up:vector).
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(abs(currentPitch)):tostring.
@@ -16811,20 +16814,20 @@ function updateTelemetry {
     } 
     else {
         if Boosterconnected {
-            if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(facing:forevector,up:vector).
-            else set currentPitch to 360-vAng(facing:forevector,up:vector).
+            if vAng(ship:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(ship:facing:forevector,up:vector).
+            else set currentPitch to 360-vAng(ship:facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
             set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(abs(currentPitch)):tostring.
         }
         else {
             if not LandingBurnStarted {
-                if vAng(facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
+                if vAng(ship:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(ship:facing:forevector,up:vector).
+                else set currentPitch to vang(ship:facing:forevector,up:vector).
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             else {
-                if vAng(facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(facing:forevector,up:vector).
-                else set currentPitch to vang(facing:forevector,up:vector).
+                if vAng(ship:facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(ship:facing:forevector,up:vector).
+                else set currentPitch to vang(ship:facing:forevector,up:vector).
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(abs(currentPitch)):tostring.

@@ -1,6 +1,9 @@
-# V3.6.1 (2026-05-23)
+# V3.6.1 (2026-05-27)
 - Updated Block 3 Flight Profile and Engine Timings
 - Reworked Booster Return Calculations
+- Added Support for FNB Experimental branch
+- Improved Gimbal Module find-function for Cluster
+- Increased Booster Descent Lng PID kd
 
 # V3.6.0 (2026-05-04)
 - **Reworked Catch Guidance for Booster and Ship** 

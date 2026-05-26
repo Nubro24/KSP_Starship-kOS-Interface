@@ -190,6 +190,17 @@ for part in ship:parts {
         set BTset to true.
         set SinglePartBooster to false.
     }
+    if part:name:contains("FNB.BL3.BOOSTER") and not part:name:contains("CH4") and not part:name:contains("LOX") and not part:name:contains("CMN") {
+        set BoosterType to "Block3".
+        set bCH4Tank to part.
+        set bCMNDome to part.
+        set FWD to part.
+        set bLOXTank to part.
+        set BoosterCore to part.
+        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTER").
+        set BTset to true.
+        set SinglePartBooster to true.
+    }
     if part:name:contains("FNB.BL1.BOOSTERLOX") and not BTset {
         set BoosterType to "Block1".
         set Bl3LndProf to false.
@@ -211,16 +222,6 @@ for part in ship:parts {
         }
         set BTset to true.
         set SinglePartBooster to false.
-    }
-    if part:name:contains("FNB.BL3.BOOSTER") and not part:name:contains("CH4") and not part:name:contains("LOX") and not part:name:contains("CMN") {
-        set bCH4Tank to part.
-        set bCMNDome to part.
-        set FWD to part.
-        set bLOXTank to part.
-        set BoosterCore to part.
-        set SinglePartBooster to true.
-        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTER").
-        set BTset to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERCH4") {
         set bCH4Tank to part.
@@ -391,6 +392,18 @@ else if GridfinLength = 3 {
                     set Gridfins[2] to fin.
                 }
             } 
+        else if ship:partsnamed("FNB.BL3.GRIDFIN"):length > 0
+            for fin in ship:partsnamed("FNB.BL3.GRIDFIN") {
+                if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 or vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 60 {
+                    set Gridfins[0] to fin.
+                }
+                else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 60 {
+                    set Gridfins[1] to fin.
+                }
+                else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:starvector) < 60 {
+                    set Gridfins[2] to fin.
+                }
+            } 
         else
             for fin in ship:partsnamed("FNB.BL3.BOOSTERFIN") {
                 if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 or vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 60 {
@@ -421,6 +434,8 @@ else if GridfinLength = 3 {
     }
 }
 else set Gridfins to list("","").
+
+print Gridfins.
 
 set ShipTypeFound to false.
 for part in ship:parts {
@@ -462,6 +477,7 @@ for part in ship:parts {
     else if not ShipTypeFound set ShipType to "None".
 }
 
+set EnginesFound to false.
 FindEngines().
 
 function FindEngines {
@@ -509,67 +525,33 @@ function FindEngines {
         set BoosterSingleEngines to false.
     }
     set findingEngines to false.
+    set EnginesFound to true.
 }
 
 
 set ModulesFound to false.
-set x to 0.
-if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERCLUSTER"):length > 0
-    until x > BoosterEngines[0]:modules:length or ModulesFound {
-        if BoosterEngines[0]:getmodulebyindex(x):name = "ModuleGimbal" {
-            set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x).
-            if x < BoosterEngines[0]:modules:length {
-                if BoosterEngines[0]:getmodulebyindex(x+1):name = "ModuleGimbal" {
-                    set Mid2GimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
-                    if BoosterEngines[0]:getmodulebyindex(x+2):name = "ModuleGimbal" set MidGimbMod to BoosterEngines[0]:getmodulebyindex(x+2).
-                }
+when EnginesFound then {
+    if not BoosterSingleEngines {
+        set x to 0.
+        until x > BoosterEngines[0]:modules:length - 1 {
+            set GimbMod to BoosterEngines[0]:getmodulebyindex(x).
+            if GimbMod:name = "ModuleGimbal" {
+                if GimbMod:gethiddenfield("gimbaltransformname") = "GimbalCore" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Center_Three" or GimbMod:gethiddenfield("gimbaltransformname") = "GimbalCenter"
+                    set CtrGimbMod to GimbMod.
+                else if GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal2Inner" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal2" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Middle_Two"
+                    set Mid2GimbMod to GimbMod.
+                else if GimbMod:gethiddenfield("gimbaltransformname") = "GimbalInner" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Middle_Eight"
+                    set MidGimbMod to GimbMod.
             }
-            set ModulesFound to true.
-            break.
+            set x to x + 1.
         }
-        set x to x+1.
-        wait 0.
     }
-else if not BoosterType:contains("Block3") 
-    until x > BoosterEngines[0]:modules:length or ModulesFound {
-        if BoosterEngines[0]:getmodulebyindex(x):name = "ModuleGimbal" {
-            set MidGimbMod to BoosterEngines[0]:getmodulebyindex(x).
-            if x < BoosterEngines[0]:modules:length 
-                if BoosterEngines[0]:getmodulebyindex(x+1):name = "ModuleGimbal" set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
-                else if x > 0 
-                    if BoosterEngines[0]:getmodulebyindex(x-1):name = "ModuleGimbal" set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x-1).
-            set ModulesFound to true.
-            set Mid2GimbMod to False.
-            break.
-        }
-        set x to x+1.
-        wait 0.
-    }
-else if BoosterType:contains("Block3") and Block3Cluster 
-    until x > BoosterEngines[0]:modules:length or ModulesFound  {
-        if BoosterEngines[0]:getmodulebyindex(x):name = "ModuleGimbal" {
-            set CtrGimbMod to BoosterEngines[0]:getmodulebyindex(x).
-            if x < BoosterEngines[0]:modules:length {
-                if BoosterEngines[0]:getmodulebyindex(x+1):name = "ModuleGimbal" {
-                    set Mid2GimbMod to BoosterEngines[0]:getmodulebyindex(x+1).
-                    if BoosterEngines[0]:getmodulebyindex(x+2):name = "ModuleGimbal" set MidGimbMod to BoosterEngines[0]:getmodulebyindex(x+2).
-                }
-            }
-            set ModulesFound to true.
-            break.
-        }
-        set x to x+1.
-        wait 0.
-    }
-else {
-    set MidGimbMod to False.
-    set Mid2GimbMod to False.
-    set CtrGimbMod to False.
+    if defined CtrGimbMod {} else set CtrGimbMod to false.
+    if defined Mid2GimbMod {} else set Mid2GimbMod to false.
+    if defined MidGimbMod {} else set MidGimbMod to false.
 }
 
-
-
-wait 0.5.
+wait until EnginesFound.
 set InitialError to -9999.
 set maxDecel to 0.00001.
 set TotalstopTime to 0.
@@ -664,6 +646,7 @@ set HighLandingBurn to false.
 set downToThree to false.
 set HighAngleVec to facing:forevector.
 set haVstrength to 0.
+set MidShutdownSpeed to 69.
 
 if TFinstalled {
     set BBIgn to 100.
@@ -1199,10 +1182,10 @@ else {
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 2520.
         if FAR {
-            set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
+            set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
         else {
-            set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
+            set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
         if oldBooster set BoosterGlideDistance to 1200. 
         else set BoosterGlideDistance to 1020. //1100
@@ -1214,11 +1197,12 @@ else {
         set LatCtrlPID to PIDLOOP(0.25, 0.15, 0.15, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 125.
-        if not BoosterType:contains("Block3") set BoosterRaptorThrust to 555.
-        else if Block3Cluster set BoosterRaptorThrust to 413.
-        else set BoosterRaptorThrust to 672.
-        if not BoosterType:contains("Block3") set BoosterRaptorThrust3 to 510.
-        else set BoosterRaptorThrust3 to 672.
+        set BoosterRaptorThrust to 555.
+        set BoosterRaptorThrust3 to 555.
+        if Block3Cluster or BoosterType:contains("Block3") {
+            set BoosterRaptorThrust to 672.
+            set BoosterRaptorThrust3 to 672.
+        }
         set Scale to 1.
         set CorrFactor to 0.95.
         set PIDFactor to 8.
@@ -1272,7 +1256,7 @@ if not oldBooster {
 }
 
 if BoosterSingleEngines set IgnitionTime to 0.6.
-else set IgnitionTime to 0.3.
+else set IgnitionTime to 0.48.
 
 if not ship:status = "FLYING" and not ship:status = "SUB_ORBITAL" or ship:status = "PRELAUNCH" set landingzone to ship:geoposition.
 else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to 
@@ -1345,13 +1329,13 @@ wait 0.
 
 if BoosterSingleEngines {
     for gimbalEng in BoosterSingleEnginesRC {
-        if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 60).
+        if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 85/Scale).
     }
 }
 else if FNBBooster {
-    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 55).
-    MidGimbMod:SetField("gimbal limit", 55).
-    CtrGimbMod:SetField("gimbal limit", 55).
+    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 65).
+    MidGimbMod:SetField("gimbal limit", 65).
+    CtrGimbMod:SetField("gimbal limit", 65).
 }
 else {
     if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 80).
@@ -1728,7 +1712,7 @@ function Boostback {
     
     SteeringCorrections().
 
-    if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore:controlfrom().
+    if not BoosterType:contains("Block3") and SinglePartBooster BoosterCore:controlfrom().
     if BoosterType:contains("Block3")
         set Bl3LndProf to true.
     if HSRJet set RadarAltOffset to BoosterHeight * 0.6.
@@ -2073,7 +2057,7 @@ function Boostback {
 
         when time:seconds > flipStartTime + 30 then {
             if LFBooster > LFBoosterCap * 0.3 {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
+                if SinglePartBooster BoosterCore:activate.
                 else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("activate engine", true).
             }
             set config:ipu to 1500.
@@ -2082,7 +2066,7 @@ function Boostback {
         }
         when ship:groundspeed < 50 then {
             if LFBooster > LFBoosterCap * 0.16 {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
+                if SinglePartBooster BoosterCore:activate.
                 else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("activate engine", true).
             }
         }
@@ -2145,10 +2129,10 @@ function Boostback {
             }
         }
         if LFBooster > LFBoosterCap * 0.1 {
-            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
+            if SinglePartBooster BoosterCore:activate.
             else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("activate engine", true).
         } else {
-            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:shutdown.
+            if SinglePartBooster BoosterCore:shutdown.
             else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("shutdown engine", true).
         }
         set steeringManager:rolltorquefactor to 2.
@@ -2309,7 +2293,7 @@ function Boostback {
         
 
         if LFBooster > LFBoosterFuelCutOff {
-            if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
+            if SinglePartBooster BoosterCore:activate.
             else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("activate engine", true).
         }
 
@@ -2367,8 +2351,8 @@ function Boostback {
                 set FuelDump to true.
             }
             wait 0.01.
-            if FuelDump when vAng(facing:forevector, up:vector) < 64 and RSS or vAng(facing:forevector, up:vector) < 50 then {
-                if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
+            if FuelDump and LFBooster > LFBoosterFuelCutOff when vAng(facing:forevector, up:vector) < 64 and RSS or vAng(facing:forevector, up:vector) < 50 then {
+                if SinglePartBooster BoosterCore:activate.
                 else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("activate engine", true).
             }
         }
@@ -2728,11 +2712,11 @@ function Boostback {
         set steeringManager:rolltorquefactor to 1.
         when RadarAlt < 8600*(Scale^0.55) then {
             if Bl3LndProf {
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 12*Scale.
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 8*Scale.
                 set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position)*0.69.
             }
             else {
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24*Scale.
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 22*Scale.
                 set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position) * (1.6/Scale)^0.4 * (airspeed/600).
             }
             
@@ -2933,7 +2917,7 @@ function Boostback {
         when airspeed < 30 then lock steering to up.
     }
 
-    if (abs(LngError - LngCtrlPID:setpoint) > 66 * Scale or abs(LatError) > 10) and not GfC and not cAbort {
+    if (abs(LngError - LngCtrlPID:setpoint) > 69 * Scale or abs(LatError) > 10) and not GfC and not cAbort {
         set LZchange to true.
         wait 0.
         set landingzone to latlng(addons:tr:IMPACTPOS:lat-0.005,addons:tr:impactpos:lng+0.002).
@@ -3043,7 +3027,7 @@ function Boostback {
         }
     }
 
-    when airspeed < 124 and Bl3LndProf or airspeed < 75 then { //MiddleRingShutdown(velocity:surface:mag,RadarAlt) or 
+    when airspeed < MidShutdownSpeed then { //MiddleRingShutdown(velocity:surface:mag,RadarAlt) or 
         set MiddleEnginesShutdown to true.
         set MidShutSpeed to airspeed.
         set ShutdownTime to time:seconds.
@@ -3320,7 +3304,7 @@ function Boostback {
     CheckFuel().
 
     when time:seconds > LandingTime + 3 then {
-        if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 BoosterCore:activate.
+        if SinglePartBooster BoosterCore:activate.
         else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("activate engine", true).
     }
 
@@ -3510,54 +3494,92 @@ FUNCTION SteeringCorrections {
             
             set DragDecel to ((airspeed^2)/9000) * min(1,305/airspeed).
 
-            set stopTimeFinal to 6 / (maxDecel3*0.5).
             if Bl3LndProf and defined maxDecel5 {
-                set stopTime3 to 8 / (maxDecel3*0.65).
-                set stopTime5 to 110 / (maxDecel5*0.8).
-                set stopTime13 to (airspeed - 124) / (maxDecel*0.75).
+                if LandingBurnStarted {
+                    set MidShutdownSpeed to min(max(80,sqrt(max(0, (2*RadarAlt - (airspeed^2)/maxDecel - (12^2)*(1/(maxDecel3*0.9) - 1/(maxDecel5*0.9)))/(1/(maxDecel5*0.95) - 1/maxDecel) ))) , 150).
+                    set stopTime3 to 12 / (maxDecel3*0.8).
+                    set stopTime5 to (MidShutdownSpeed-12) / (maxDecel5*0.8).
+                    set stopTime13 to (airspeed - MidShutdownSpeed - 12) / (maxDecel).
+    
+                    set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
+    
+                    set stopDist3 to 6 * (stopTime3).
+                    set stopDist5 to ((MidShutdownSpeed - 12)/2) * stopTime5.
+                    set stopDist13 to ((airspeed - MidShutdownSpeed - 12)/2)*stopTime13.
+    
+                    set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
+                } else {
+                    set MidShutdownSpeed to min(sqrt(max(0, (2*RadarAlt - (airspeed^2)/maxDecel - (12^2)*(1/(maxDecel3*0.9) - 1/(maxDecel5*0.9)))/(1/(maxDecel5*0.95) - 1/maxDecel) )) , 150).
+                    set stopTime3 to 8 / (maxDecel3*0.8).
+                    set stopTime5 to 110 / (maxDecel5*0.8).
+                    set stopTime13 to (airspeed - 124) / (maxDecel*0.8).
 
-                set TotalstopTime to stopTimeFinal + stopTime3 + stopTime5 + stopTime13.
+                    set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
 
-                set stopDist3 to 7 * (stopTime3+stopTimeFinal).
-                set stopDist5 to 55 * stopTime5.
-                set stopDist13 to ((airspeed - 124)/2)*stopTime13.
+                    set stopDist3 to 7 * stopTime3.
+                    set stopDist5 to 55 * stopTime5.
+                    set stopDist13 to ((airspeed - 124)/2)*stopTime13.
 
-                set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
+                    set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
+                }
 
-                //Decel 13 Engines
-                if not MiddleEnginesShutdown and not downToThree 
-                    set ReqDecel to (airspeed^2 - 124^2)/(2*(RadarAlt-stopDist5-stopDist3)) - DragDecel.
-                //Decel 5 Engines
-                else if not downToThree 
-                    set ReqDecel to (airspeed^2 - 14^2)/(2*(RadarAlt-stopDist3*1.5)) - DragDecel.
-                //Decel 3 Engines
-                else 
-                    set ReqDecel to (airspeed^2 - 1^2)/(2*(RadarAlt - 1.5*Scale)) - DragDecel.
-                //Throttle Preset
-                set landingRatio to max(0,  ReqDecel / maxDecel  * 1/cos(vang(-velocity:surface, up:vector))).
-            }
-            else {
-                set stopTime3 to 69 / (maxDecel3*0.8).
-                set stopTime13 to (airspeed - 75) / (maxDecel*0.85).
 
-                set TotalstopTime to stopTimeFinal + stopTime3 + stopTime13.
-
-                set stopDist3 to 37.5 * (stopTime3+stopTimeFinal).
-                set stopDist13 to ((airspeed - 75)/2)*stopTime13.
-
-                set TotalstopDist to stopDist3 + stopDist13.
 
                 //Decel 13 Engines
-                if not MiddleEnginesShutdown 
-                    set ReqDecel to (airspeed^2 - 81^2)/(2*(RadarAlt-stopDist3)) - DragDecel.
-                //Decel 3 Engines
-                else if airspeed > 13 
-                    set ReqDecel to (airspeed^2 - 12^2)/(2*(RadarAlt-stopDist3*1.5)) - DragDecel.
-                //Decel 3 Engines Landing
-                else 
-                    set ReqDecel to (airspeed^2 - 1^2)/(2*(RadarAlt - 1.5*Scale)) - DragDecel.
-                //Throttle Preset
-                set landingRatio to max(0,  ReqDecel / maxDecel  * 1/cos(vang(-velocity:surface, up:vector))).
+                if not MiddleEnginesShutdown and not downToThree {
+                    set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(stopDist5+stopDist3+0.1, RadarAlt) - stopDist5 - stopDist3)) - DragDecel.
+                    set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(-velocity:surface, up:vector)))).
+                }//Decel 5 Engines
+                else if not downToThree {
+                    set ReqDecel to (max(12,airspeed)^2 - 12^2)/(2*(max(stopDist3*1.5+0.1, RadarAlt) - stopDist3*1.5)) - DragDecel.
+                    set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))).
+                }//Decel 3 Engines
+                else {
+                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(1.5*Scale+0.1, RadarAlt) - 1.5*Scale)) - DragDecel.
+                    set landingRatio to max(0,  ReqDecel / (maxDecel3  * cos(vang(-velocity:surface, up:vector)))).
+                }//Throttle Preset
+
+            //Block 2 Landing Profile
+            } else {
+                if LandingBurnStarted {
+                    set MidShutdownSpeed to min(max(12,sqrt(max(0, (2*RadarAlt - airspeed^2/maxDecel)/(1/(maxDecel3*0.85) - 1/maxDecel) ))) , 80).
+                    set stopTime3 to MidShutdownSpeed / (maxDecel3*0.85).
+                    set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
+
+                    set TotalstopTime to stopTime3 + stopTime13.
+
+                    set stopDist3 to MidShutdownSpeed/2 * (stopTime3).
+                    set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
+
+                    set TotalstopDist to stopDist3 + stopDist13.
+                }
+                else {
+                    set MidShutdownSpeed to min(sqrt(max(0, (2*RadarAlt - airspeed^2/maxDecel)/(1/(maxDecel3*0.85) - 1/maxDecel) )) , 80).
+                    set stopTime3 to 69 / (maxDecel3*0.85).
+                    set stopTime13 to (airspeed - 75) / maxDecel.
+
+                    set TotalstopTime to stopTime3 + stopTime13.
+
+                    set stopDist3 to 37.5 * (stopTime3).
+                    set stopDist13 to ((airspeed - 75)/2)*stopTime13.
+
+                    set TotalstopDist to stopDist3 + stopDist13.
+                }
+
+
+                //Decel 13 Engines
+                if not MiddleEnginesShutdown {
+                    set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(stopDist3+0.1, RadarAlt)-stopDist3)) - DragDecel.
+                    set landingRatio to max(0,  ReqDecel / (maxDecel * cos(vang(-velocity:surface, up:vector)))).
+                }//Decel 3 Engines
+                else if airspeed > 13 {
+                    set ReqDecel to (max(12,airspeed)^2 - 12^2)/(2*(max(BoosterHeight*0.6+0.1, RadarAlt) - BoosterHeight*0.6)) - DragDecel.
+                    set landingRatio to max(0,  ReqDecel / (maxDecel3 * cos(vang(-velocity:surface, up:vector)))).
+                }//Decel 3 Engines Landing
+                else {
+                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(1.5*Scale+0.1, RadarAlt) - 1.5*Scale)) - DragDecel.
+                    set landingRatio to max(0,  ReqDecel / (maxDecel3 * cos(vang(-velocity:surface, up:vector)))).
+                }//Throttle Preset
             }
             
             if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 8000 and not downToThree {
@@ -3577,7 +3599,7 @@ FUNCTION SteeringCorrections {
         //print " ".
 
         if not LandingBurnStarted {
-            set LandingBurnAlt to max(1000 + airspeed*IgnitionTime, TotalstopDist*cos(vang(-velocity:surface, up:vector)) + airspeed*IgnitionTime).
+            set LandingBurnAlt to min(max(700 + airspeed*IgnitionTime, TotalstopDist*cos(vang(-velocity:surface, up:vector)) + airspeed*IgnitionTime) , 7000).
         }
         
 
@@ -3587,13 +3609,12 @@ FUNCTION SteeringCorrections {
             if defined TowerHeading print "Tower Heading: " + TowerHeading.
             print " ".
             print "Landing Burn Alt: " + round(LandingBurnAlt, 1).
-            print "Decelleration Factor: " + round(DecelFactor, 2).
+            print "MidShutdown: " + round(MidShutdownSpeed,1).
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
             print " ".
             print "Drag Decel: " + round(DragDecel,1).
             print "Max Decel: " + round(maxDecel, 2).
             if defined ReqDecel print "ReqDecel: " + round(ReqDecel,2).
-            print "Radar Alt: " + round(RadarAlt, 1).
             print "Stop Time: " + round(TotalstopTime, 2).
             print "Stop Distance: " + round(TotalstopDist, 2).
             if defined stopDist5 print "Stop Distance 5: " + round(stopDist5, 2).
@@ -3659,7 +3680,7 @@ function LandingGuidance {
     set CatchPos to landingzone:position + MZHeight*up:vector + TheTowerHeadingVector:normalized * angleAxis(ApproachAngle/2, up:vector) - 1.2*(Scale^0.6)*TheTowerHeadingVector:normalized.
     if verticalSpeed < 0 set vSpeed to -verticalSpeed.
     else set vSpeed to max(verticalSpeed,0.001).
-    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*ActiveRC/(Scale*10).
+    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*min(8,ActiveRC)/(Scale*10).
     set gsTime to max(PositionError:mag,2)*2/max(PredictGSVec:mag,0.01).
     set vertTime to RadarAlt*2/vSpeed.
     set speedRatio to vSpeed/max(0.1,PredictGSVec:mag).
@@ -4196,14 +4217,14 @@ function CheckFuel {
         if res:name = "LiquidFuel" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
-            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 {
+            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and SinglePartBooster {
                 BoosterCore:shutdown.
             } else if LFBooster < (LFBoosterFuelCutOff*1.1) and not BoosterLanded and (ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) DumpVents[1]:doaction("shutdown engine", true).
         }
         if res:name = "LqdMethane" or res:name = "CooledLqdMethane" {
             set LFBooster to res:amount.
             set LFBoosterCap to res:capacity.
-            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 {
+            if LFBooster < LFBoosterFuelCutOff and not BoosterLanded and SinglePartBooster {
                 BoosterCore:shutdown.
             } else if LFBooster < (LFBoosterFuelCutOff*1.1) and not BoosterLanded and (ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0) DumpVents[1]:doaction("shutdown engine", true).
         }
@@ -4486,12 +4507,14 @@ function PollUpdate {
             set Gridfins to ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN").
     }
     else if GridfinsType = "Block3" {
-        if ship:partsnamed("Block.3.Fin"):length < GridfinLength and ship:partsnamed("FNB.BL3.BOOSTERFIN"):length < GridfinLength set GG to false.
+        if ship:partsnamed("Block.3.Fin"):length < GridfinLength and ship:partsnamed("FNB.BL3.BOOSTERFIN"):length < GridfinLength and ship:partsnamed("FNB.BL3.GRIDFIN"):length < GridfinLength set GG to false.
         else set GG to true.
         if ship:partsnamed("Block.3.Fin"):length < Gridfins:length and ship:partsnamed("Block.3.Fin"):length > 0 
             set Gridfins to ship:partsnamed("Block.3.Fin").
         else if ship:partsnamed("FNB.BL3.BOOSTERFIN"):length < Gridfins:length and ship:partsnamed("FNB.BL3.BOOSTERFIN"):length > 0 
             set Gridfins to ship:partsnamed("FNB.BL3.BOOSTERFIN").
+        else if ship:partsnamed("FNB.BL3.GRIDFIN"):length < Gridfins:length and ship:partsnamed("FNB.BL3.GRIDFIN"):length > 0 
+            set Gridfins to ship:partsnamed("FNB.BL3.GRIDFIN").
     }
     else {
         if ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN"):length < GridfinLength set GG to false.
