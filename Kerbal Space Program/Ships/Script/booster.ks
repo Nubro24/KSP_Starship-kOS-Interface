@@ -145,6 +145,7 @@ for part in ship:parts {
         }
         set oldBooster to true.
         set BTset to true.
+        set SinglePartBooster to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterType to "Block2".
@@ -165,6 +166,7 @@ for part in ship:parts {
             set x to x+1.
         }
         set BTset to true.
+        set SinglePartBooster to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERLOX") and not BTset {
         set BoosterType to "Block3".
@@ -186,10 +188,12 @@ for part in ship:parts {
             }
         }
         set BTset to true.
+        set SinglePartBooster to false.
     }
     if part:name:contains("FNB.BL1.BOOSTERLOX") and not BTset {
         set BoosterType to "Block1".
         set Bl3LndProf to false.
+        set bLOXTank to part.
         set BoosterCore to part.
         set DumpVentNotCore to true.
         when defined bCMNDome then {
@@ -206,6 +210,17 @@ for part in ship:parts {
             }
         }
         set BTset to true.
+        set SinglePartBooster to false.
+    }
+    if part:name:contains("FNB.BL3.BOOSTER") and not part:name:contains("CH4") and not part:name:contains("LOX") and not part:name:contains("CMN") {
+        set bCH4Tank to part.
+        set bCMNDome to part.
+        set FWD to part.
+        set bLOXTank to part.
+        set BoosterCore to part.
+        set SinglePartBooster to true.
+        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTER").
+        set BTset to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERCH4") {
         set bCH4Tank to part.
@@ -218,9 +233,6 @@ for part in ship:parts {
         set bCH4Tank to part.
         set FWD to part.
         set CH4set to true.
-    }
-    if part:name:contains("FNB.BL1.BOOSTERLOX") {
-        set bLOXTank to part.
     }
     if part:name:contains("FNB.BL1.BOOSTERCMN") {
         set bCMNDome to part.
@@ -259,6 +271,11 @@ for part in ship:parts {
         set GridfinLength to ship:partsnamed("FNB.BL3.BOOSTERFIN"):length.
         set GFset to true.
     }
+    if part:name:contains("FNB.BL3.GRIDFIN") and not GFset {
+        set GridfinsType to "Block3".
+        set GridfinLength to ship:partsnamed("FNB.BL3.GRIDFIN"):length.
+        set GFset to true.
+    }
     if part:name:contains("FNB.BL1.BOOSTERGRIDFIN") and not GFset {
         set GridfinsType to "Block1".
         set GridfinLength to ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length.
@@ -280,7 +297,7 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
-    if part:name:contains("FNB.BL3.BOOSTERIHSR") and not HSset {
+    if (part:name:contains("FNB.BL3.BOOSTERIHSR") or part:name:contains("FNB.BL3.IHSR")) and not HSset {
         set HSRType to "Block3".
         set Bl3LndProf to true.
         set HSR to part.
@@ -3520,19 +3537,26 @@ FUNCTION SteeringCorrections {
                 set landingRatio to max(0,  ReqDecel / maxDecel  * 1/cos(vang(-velocity:surface, up:vector))).
             }
             else {
-                set stopTime3 to 69 / (maxDecel3*0.95).
-                set stopTime13 to (airspeed - 75) / (maxDecel*0.98).
+                set stopTime3 to 69 / (maxDecel3*0.8).
+                set stopTime13 to (airspeed - 75) / (maxDecel*0.85).
 
                 set TotalstopTime to stopTimeFinal + stopTime3 + stopTime13.
 
-                set stopDist3 to 6 * (stopTime3+stopTimeFinal).
+                set stopDist3 to 37.5 * (stopTime3+stopTimeFinal).
                 set stopDist13 to ((airspeed - 75)/2)*stopTime13.
 
                 set TotalstopDist to stopDist3 + stopDist13.
 
-                if not MiddleEnginesShutdown and airspeed > 13 set ReqDecel to (airspeed^2 - 81^2)/(2*(RadarAlt-stopDist3*1.6)) - DragDecel.
-                else if airspeed > 13 set ReqDecel to (airspeed^2 - 12^2)/(2*(RadarAlt-stopDist3*0.65)) - DragDecel.
-                else set ReqDecel to (airspeed^2 - 1^2)/(2*(RadarAlt - 1.5*Scale)) - DragDecel.
+                //Decel 13 Engines
+                if not MiddleEnginesShutdown 
+                    set ReqDecel to (airspeed^2 - 81^2)/(2*(RadarAlt-stopDist3)) - DragDecel.
+                //Decel 3 Engines
+                else if airspeed > 13 
+                    set ReqDecel to (airspeed^2 - 12^2)/(2*(RadarAlt-stopDist3*1.5)) - DragDecel.
+                //Decel 3 Engines Landing
+                else 
+                    set ReqDecel to (airspeed^2 - 1^2)/(2*(RadarAlt - 1.5*Scale)) - DragDecel.
+                //Throttle Preset
                 set landingRatio to max(0,  ReqDecel / maxDecel  * 1/cos(vang(-velocity:surface, up:vector))).
             }
             
@@ -4188,7 +4212,7 @@ function CheckFuel {
             set OxBoosterCap to res:capacity.
         }
     }
-    if BoosterType:contains("Block3") or ship:partsnamed("FNB.BL1.BOOSTERLOX"):length > 0 {
+    if not SinglePartBooster {
         for res in bCMNDome:resources {
             if res:name = "LiquidFuel" {
                 set LFBooster to LFBooster + res:amount.
@@ -4585,7 +4609,7 @@ function GUIupdate {
             set methane to false.
         }
     }
-    if BoosterType:contains("Block3") {
+    if not SinglePartBooster {
         for res in BoosterCore:resources {
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set boosterLOX to boosterLOX + res:amount.

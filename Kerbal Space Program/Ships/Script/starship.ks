@@ -1448,6 +1448,45 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("FNB.BL3.BOOSTER"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block3".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        if SHIP:PARTSNAMED("FNB.R3.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.R3.CLUSTER").
+        else { 
+            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+            set BoosterSingleEngines to true.
+        }
+        set GridFins to SHIP:PARTSNAMED("FNB.BL3.GRIDFIN").
+        set HSR to SHIP:PARTSNAMED("FNB.BL3.IHSR").
+        set BoosterCore to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        set bLOXTank to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        set bCH4Tank to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        set bCMNDome to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        set bFWDDome to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
     }
     else {
         set Boosterconnected to false.
@@ -16498,12 +16537,10 @@ function CheckFullTanks {
             }
         }
 
-        if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 or SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 and FullTanks {
+        if SHIP:PARTSNAMED("FNB.BL3.BOOSTERLOX"):length > 0 and FullTanks {
             set BoosterResourcesSTEP to BoosterCore[0]:resources.
             BoosterResourcesSTEP:add(bLOXTank[0]:resources). 
             BoosterResourcesSTEP:add(bCH4Tank[0]:resources).
-            if SHIP:PARTSNAMED("Block.3.AFT"):length > 0 BoosterResourcesSTEP:add(HSR[0]:resources).
-            else if SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length > 0 BoosterResourcesSTEP:add(bFWDDome[0]:resources).
             BoosterResourcesSTEP:add(bCMNDome[0]:resources).
             set BoosterResources to list().
             for StepRes in BoosterResourcesSTEP {
@@ -16553,6 +16590,56 @@ function CheckFullTanks {
                             set cap to cap + res2:capacity.
                         } else {
                             for res3 in BoosterResources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to true.
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if SHIP:PARTSNAMED("FNB.BL3.BOOSTER"):length > 0 and FullTanks {
+            for res in BoosterCore[0]:resources {
+                if res:amount < res:capacity - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass > 24000 {
+                    set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "bNewHigh|".
+                    set amount to amount + res:amount.
+                    set cap to cap + res:capacity.
+                } else if res:amount < res:capacity * 0.9 - 1 and not (res:name = "ElectricCharge") and not (res:name = "SolidFuel") and not (res:name = "SpareParts") and CargoMass <= 24000 {
+                    set FullTanks to false.
+                    set missingStuffWhere to missingStuffWhere + "bNewLow|".
+                    set LowCargoMass to true.
+                    set amount to amount + res:amount.
+                    set cap to cap + res:capacity.
+                } else if ShipType = "Block1" or ShipType = "Cargo" or ShipType = "Block1Cargo" or ShipType = "Block1CargoExp" or ShipType = "Block1PEZExp" or ShipType = "Block1PEZ" {
+                    for res2 in Tank:resources {
+                        if res2:amount < res2:capacity - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and not (res2:name = "SpareParts") and CargoMass > 16000 {
+                            for res3 in BoosterCore[0]:resources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to false.
+                                }
+                            }
+                            set FullTanks to false.
+                            set missingStuffWhere to missingStuffWhere + "V1MainHigh|".
+                            set missingStuffWhat to missingStuffWhat + res2:name.
+                            set amount to amount + res2:amount.
+                            set cap to cap + res2:capacity.
+                        } else if res2:amount < res2:capacity * 0.9 - 1 and not (res2:name = "ElectricCharge") and not (res2:name = "SolidFuel") and not (res2:name = "SpareParts") and CargoMass <= 16000 {
+                            for res3 in BoosterCore[0]:resources {
+                                if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
+                                    set res3:enabled to false.
+                                }
+                            }
+                            set FullTanks to false.
+                            set missingStuffWhere to missingStuffWhere + "V1MainLow|".
+                            set missingStuffWhat to missingStuffWhat + res2:name.
+                            set LowCargoMass to true.
+                            set amount to amount + res2:amount.
+                            set cap to cap + res2:capacity.
+                        } else {
+                            for res3 in BoosterCore[0]:resources {
                                 if res3:name = "Oxidizer" or res3:name = "LqdMethane" {
                                     set res3:enabled to true.
                                 }
