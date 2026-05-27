@@ -4,7 +4,8 @@
 - Added Support for FNB Experimental branch
 - Improved Gimbal Module find-function for Cluster
 - Increased Booster Descent Lng PID kd
-- Fixed/Added Patch for Clusters in Real Scale
+- Added Patch for Clusters in Real Scale
+- Added Patch for FNB part drags
 
 # V3.6.0 (2026-05-04)
 - **Reworked Catch Guidance for Booster and Ship** 
