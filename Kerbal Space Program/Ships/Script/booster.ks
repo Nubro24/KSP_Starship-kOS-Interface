@@ -172,7 +172,7 @@ for part in ship:parts {
         set BoosterType to "Block3".
         set Bl3LndProf to true.
         set bLOXTank to part.
-        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERLOX").
+        if not ECset set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERLOX").
         set BoosterCore to part.
         set DumpVents to list().
         set ModulesFound to false.
@@ -190,14 +190,14 @@ for part in ship:parts {
         set BTset to true.
         set SinglePartBooster to false.
     }
-    if part:name:contains("FNB.BL3.BOOSTER") and not part:name:contains("CH4") and not part:name:contains("LOX") and not part:name:contains("CMN") {
+    if part:name:contains("FNB.BL3.BOOSTER") and not part:name:contains("HSR") and not part:name:contains("FIN") and not part:name:contains("CH4") and not part:name:contains("LOX") and not part:name:contains("CMN") {
         set BoosterType to "Block3".
         set bCH4Tank to part.
         set bCMNDome to part.
         set FWD to part.
         set bLOXTank to part.
         set BoosterCore to part.
-        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTER").
+        if not ECset set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTER").
         set BTset to true.
         set SinglePartBooster to true.
     }
@@ -260,26 +260,31 @@ for part in ship:parts {
     if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "23".
         set GridfinLength to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length.
+        set GridfinsName to "SEP.23.BOOSTER.GRIDFIN".
         set GFset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "25".
         set GridfinLength to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length.
+        set GridfinsName to "SEP.25.BOOSTER.GRIDFIN".
         set GFset to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERFIN") and not GFset {
         set GridfinsType to "Block3".
         set GridfinLength to ship:partsnamed("FNB.BL3.BOOSTERFIN"):length.
+        set GridfinsName to "FNB.BL3.BOOSTERFIN".
         set GFset to true.
     }
     if part:name:contains("FNB.BL3.GRIDFIN") and not GFset {
         set GridfinsType to "Block3".
         set GridfinLength to ship:partsnamed("FNB.BL3.GRIDFIN"):length.
+        set GridfinsName to "FNB.BL3.GRIDFIN".
         set GFset to true.
     }
     if part:name:contains("FNB.BL1.BOOSTERGRIDFIN") and not GFset {
         set GridfinsType to "Block1".
         set GridfinLength to ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length.
+        set GridfinsName to "FNB.BL1.BOOSTERGRIDFIN".
         set GFset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
@@ -323,35 +328,7 @@ print GridfinLength.
 
 if GridfinLength = 4 {
     set Gridfins to list("","","","").
-    if GridfinsType = "Vista" for fin in ship:partsnamed("Sep.Gridfin") {
-        if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
-            set Gridfins[0] to fin.
-        }
-        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
-            set Gridfins[1] to fin.
-        }
-        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
-            set Gridfins[2] to fin.
-        }
-        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
-            set Gridfins[3] to fin.
-        }
-    } 
-    else if GridfinsType = "Block1" for fin in ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN") {
-        if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
-            set Gridfins[0] to fin.
-        }
-        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
-            set Gridfins[1] to fin.
-        }
-        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) > 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
-            set Gridfins[2] to fin.
-        }
-        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) > 90 {
-            set Gridfins[3] to fin.
-        }
-    }
-    else for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {
+    for fin in ship:partsnamed(GridfinsName) {
         if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 90 and vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 90 {
             set Gridfins[0] to fin.
         }
@@ -368,7 +345,7 @@ if GridfinLength = 4 {
 }
 else if GridfinLength = 3 {
     set Gridfins to list("","","").
-    if GridfinsType = "Vista" for fin in ship:partsnamed("Sep.Gridfin") {
+    for fin in ship:partsnamed(GridfinsName) {
         if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 {
             set Gridfins[0] to fin.
         }
@@ -379,63 +356,48 @@ else if GridfinLength = 3 {
             set Gridfins[2] to fin.
         }
     } 
-    else if GridfinsType = "Block3" {
-        if ship:partsnamed("Block.3.Fin"):length > 0
-            for fin in ship:partsnamed("Block.3.Fin") {
-                if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 or vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 60 {
-                    set Gridfins[0] to fin.
-                }
-                else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 60 {
-                    set Gridfins[1] to fin.
-                }
-                else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:starvector) < 60 {
-                    set Gridfins[2] to fin.
-                }
-            } 
-        else if ship:partsnamed("FNB.BL3.GRIDFIN"):length > 0
-            for fin in ship:partsnamed("FNB.BL3.GRIDFIN") {
-                if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 or vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 60 {
-                    set Gridfins[0] to fin.
-                }
-                else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 60 {
-                    set Gridfins[1] to fin.
-                }
-                else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:starvector) < 60 {
-                    set Gridfins[2] to fin.
-                }
-            } 
-        else
-            for fin in ship:partsnamed("FNB.BL3.BOOSTERFIN") {
-                if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 or vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:topvector) < 60 {
-                    set Gridfins[0] to fin.
-                }
-                else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 60 {
-                    set Gridfins[1] to fin.
-                }
-                else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:starvector) < 60 {
-                    set Gridfins[2] to fin.
-                }
-            } 
+}
+else set Gridfins to list("","").
+set x to 0.
+set missingFin to list().
+set foundFin to list().
+set FinIDs to list().
+set AllFINIDs to list().
+set foundFinPart to list().
+set done to false.
+for fins in ship:partsnamed(GridfinsName) {
+    AllFINIDs:add(fins:uid).
+}
+for fin in Gridfins {
+    if fin = "" {
+        missingFin:add(x).
+    } else {
+        FinIDs:add(fin:uid).
     }
-    else for fin in ship:partsnamed("SEP."+GridfinsType+".BOOSTER.GRIDFIN") {
-        print ".".
-        if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:topvector) < 60 {
-            set Gridfins[0] to fin.
-            print "0".
-        }
-        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), facing:starvector) < 60 {
-            set Gridfins[1] to fin.
-            print "1".
-        }
-        else if vAng(vxcl(facing:forevector, fin:position - BoosterCore:position), -facing:starvector) < 60 {
-            set Gridfins[2] to fin.
-            print "2".
+    set x to x+1.
+}
+when x = GridfinLength then set done to true.
+wait until done.
+if missingFin:length > 0 {
+    for id in AllFINIDs {
+        if FinIDs:contains(id) {}
+        else {
+            foundFin:add(id).
         }
     }
 }
-else set Gridfins to list("","").
-
+from {local m is 0.} until m=foundFin:length STEP {set m to m+1.} DO {
+    for Finpart in ship:parts {
+        if Finpart:uid = foundFin[m] foundFinPart:add(Finpart).
+    }
+}
+from {local o is 0.} until o=foundFin:length STEP {set o to o+1.} DO {
+    for n in missingFin {
+        set Gridfins[n] to foundFinPart[o].
+    }
+}
 print Gridfins.
+wait 0.2.
 
 set ShipTypeFound to false.
 for part in ship:parts {
@@ -536,11 +498,11 @@ when EnginesFound then {
         until x > BoosterEngines[0]:modules:length - 1 {
             set GimbMod to BoosterEngines[0]:getmodulebyindex(x).
             if GimbMod:name = "ModuleGimbal" {
-                if GimbMod:gethiddenfield("gimbaltransformname") = "GimbalCore" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Center_Three" or GimbMod:gethiddenfield("gimbaltransformname") = "GimbalCenter"
+                if GimbMod:gethiddenfield("gimbaltransformname") = "GimbalCore" or GimbMod:gethiddenfield("gimbaltransformname") = "Core" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Center_Three" or GimbMod:gethiddenfield("gimbaltransformname") = "GimbalCenter"
                     set CtrGimbMod to GimbMod.
-                else if GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal2Inner" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal2" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Middle_Two"
+                else if GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal2Inner" or GimbMod:gethiddenfield("gimbaltransformname") = "2Inner" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal2" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Middle_Two"
                     set Mid2GimbMod to GimbMod.
-                else if GimbMod:gethiddenfield("gimbaltransformname") = "GimbalInner" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Middle_Eight"
+                else if GimbMod:gethiddenfield("gimbaltransformname") = "GimbalInner" or GimbMod:gethiddenfield("gimbaltransformname") = "Inner" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal" or GimbMod:gethiddenfield("gimbaltransformname") = "Gimbal_Middle_Eight"
                     set MidGimbMod to GimbMod.
             }
             set x to x + 1.
@@ -1079,8 +1041,8 @@ if bodyexists("Earth") {
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.15, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
-        set BoosterRaptorThrust to 2130.
-        set BoosterRaptorThrust3 to 2140.
+        set BoosterRaptorThrust to 2230.
+        set BoosterRaptorThrust3 to 2240.
         if Block3Cluster or BoosterType:contains("Block3") {
             set BoosterRaptorThrust to 2579.
             set BoosterRaptorThrust3 to 2579.
@@ -1338,9 +1300,9 @@ else if FNBBooster {
     CtrGimbMod:SetField("gimbal limit", 65).
 }
 else {
-    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 80).
-    MidGimbMod:SetField("gimbal limit", 80).
-    CtrGimbMod:SetField("gimbal limit", 85).
+    if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 80/Scale).
+    MidGimbMod:SetField("gimbal limit", 80/Scale).
+    CtrGimbMod:SetField("gimbal limit", 85/Scale).
 }
 set MaxQ to false.
 set Hotstaging to false.
@@ -2045,10 +2007,10 @@ function Boostback {
 
 
         if RSS {
-            lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 5000 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
+            lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 5000 + 0.01, 10 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
         else {
-            lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 7 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
+            lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 10 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
         //if BoosterType:contains("Block3") lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector) + (targetAp-apoapsis)*up:vector*(ErrorVector:mag/32000*Scale), up:vector). else 
         lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector) + (targetAp-apoapsis)*up:vector*(ErrorVector:mag/32000*Scale), -up:vector).
@@ -2657,7 +2619,7 @@ function Boostback {
 
     until alt:radar < 34000 and RSS or alt:radar < 26000 and KSRSS or alt:radar < 21000 {
         SteeringCorrections().
-        if altitude > 33000 and RSS or altitude > 28000 and not (RSS) {
+        if altitude > 33000 and RSS or altitude > 28000 and not (RSS) and abs(steeringManager:angleerror) > 1 {
             rcs on.
         }
         else {
@@ -2771,7 +2733,7 @@ function Boostback {
             set once to false.
         } else if kuniverse:timewarp:warp > 1 
             set kuniverse:timewarp:warp to 1.
-        if altitude > 26000 and RSS or altitude > 20000 and not (RSS) or altitude > 15000*Scale and BoosterType:contains("Block3") {
+        if altitude > 26000 and RSS or altitude > 20000 and not (RSS) and abs(steeringManager:angleerror) > 1 {
             rcs on.
         }
         else {
@@ -3027,7 +2989,7 @@ function Boostback {
         }
     }
 
-    when airspeed < MidShutdownSpeed then { //MiddleRingShutdown(velocity:surface:mag,RadarAlt) or 
+    when airspeed < MidShutdownSpeed + 4*Scale then { //MiddleRingShutdown(velocity:surface:mag,RadarAlt) or 
         set MiddleEnginesShutdown to true.
         set MidShutSpeed to airspeed.
         set ShutdownTime to time:seconds.
@@ -3599,7 +3561,7 @@ FUNCTION SteeringCorrections {
         //print " ".
 
         if not LandingBurnStarted {
-            set LandingBurnAlt to min(max(700 + airspeed*IgnitionTime, TotalstopDist*cos(vang(-velocity:surface, up:vector)) + airspeed*IgnitionTime) , 7000).
+            set LandingBurnAlt to min(max(750 + airspeed*IgnitionTime, TotalstopDist*cos(vang(-velocity:surface, up:vector)) + airspeed*IgnitionTime) , 7000).
         }
         
 
@@ -3723,7 +3685,7 @@ function LandingGuidance {
     set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
     set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
     set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-120,20))/26.
-    if RadarRatio < 1.8 and RadarRatio > 0.13 set lateBrake to min(0.3/max(0.05,RadarRatio),2)*0.1/(Scale^1.75) * min(1,GSVec:mag/(max(0.5,RadarRatio)*6.25*Scale)).
+    if RadarRatio < 1.5*max(1,GSVec:mag/(10*Scale)) and RadarRatio > 0.13 set lateBrake to min(0.3/max(0.05,RadarRatio),2)*0.1/(Scale^1.75) * min(1,GSVec:mag/(max(0.5,RadarRatio)*6.25*Scale)).
     else set lateBrake to 0.
     if not MiddleEnginesShutdown and not Bl3LndProf set OnStreamFactor to 0.24 * 240/max(airspeed,50).
     else if not MiddleEnginesShutdown  set OnStreamFactor to 0.5 * 300/max(airspeed,50) * TowerAvoidanceFactor.

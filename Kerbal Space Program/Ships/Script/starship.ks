@@ -4715,7 +4715,6 @@ set quickengine2:ontoggle to {
         else {
             set quickengine1:pressed to false.
             if not BoosterType:contains("Block3") ActivateEngines(0).
-            else ActivateEngines(33).
             LogToFile("SL Engines ON").
         }
     }
@@ -6627,14 +6626,17 @@ set launchbutton:ontoggle to {
                             else if not (TargetShip = 0) {
                                 if RSS {
                                     set LaunchTimeSpanInSeconds to 510.
+                                    if ShipType:contains("Block3") set LaunchTimeSpanInSeconds to 460.
                                     set LaunchDistance to 1450000.
                                 }
                                 else if KSRSS {
                                     set LaunchTimeSpanInSeconds to 300.
+                                    if ShipType:contains("Block3") set LaunchTimeSpanInSeconds to 270.
                                     set LaunchDistance to 700000.
                                 }
                                 else {
                                     set LaunchTimeSpanInSeconds to 275.
+                                    if ShipType:contains("Block3") set LaunchTimeSpanInSeconds to 250.
                                     set LaunchDistance to 200000.
                                 }
                                 set target to TargetShip.
@@ -8792,12 +8794,12 @@ function Launch {
         if Boosterconnected {
             set steeringManager:maxstoppingtime to 1.2*Scale.
             if BoosterSingleEngines set steeringManager:rollts to 4*Scale.
-            when apoapsis > BoosterAp - 22000 * Scale then {
+            when apoapsis > BoosterAp - 22000 * Scale^0.5 then {
                 set steeringManager:pitchpid:kp to 0.3.
                 set steeringManager:yawpid:kp to 0.3.
                 set steeringManager:pitchpid:ki to 0.18.
                 set steeringManager:yawpid:ki to 0.18.
-                set steeringManager:rollpid:ki to 0.4.
+                set steeringManager:rollpid:ki to 0.4/Scale.
                 set steeringManager:rollpid:kd to 0.65.
                 if BoosterSingleEngines set steeringManager:rolltorquefactor to 2.6*Scale. 
                 else set steeringManager:rolltorquefactor to 8*Scale.  
@@ -8976,7 +8978,6 @@ function Launch {
                 }
                 if defined HSR {
                     set quickengine3:pressed to true.
-                    if BoosterType:contains("Block3") set quickengine2:pressed to true.
                 }
                 else set IFT1SEI to true.
                 if IFT1SEI lock throttle to 0.
@@ -9045,6 +9046,10 @@ function Launch {
                 rcs on.
                 lock steering to LaunchSteering().
                 set steeringManager:rolltorquefactor to 4.
+                if BoosterType:contains("Block3") if SLEngines[0]:hassuffix("Activate") {
+                    SLEngines[0]:activate.
+                    SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                } 
                 wait 0.1.
                 set kuniverse:activevessel to vessel(ship:name).
                 HideEngineToggles(1).
@@ -9066,14 +9071,24 @@ function Launch {
                     set quickengine3:pressed to true.
                     set HotStageTime to time:seconds + 0.2.
                 }
-                if not BoosterType:contains("Block3") when time:seconds > HotStageTime + 0.2 then {
+                when time:seconds > HotStageTime + 0.2 then {
+                    if BoosterType:contains("Block3") {
+                        if SLEngines[1]:hassuffix("Activate") {
+                            SLEngines[1]:activate.
+                            SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        } 
+                        if SLEngines[2]:hassuffix("Activate") {
+                            SLEngines[2]:activate.
+                            SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        } 
+                    }
                     set quickengine2:pressed to true.
                 }
                 when time:seconds > HotStageTime + 0.4 then {
                     set tgtThro to LaunchThrottle().
                     set curThro to throttle.
-                    lock throttle to curThro + (tgtThro - curThro)*(time:seconds-HotStageTime-0.4)/2.
-                    when throttle > tgtThro - 0.02 then lock throttle to LaunchThrottle().
+                    lock throttle to max(curThro, curThro + (tgtThro - curThro)*(time:seconds-HotStageTime-0.4)/2).
+                    when throttle > tgtThro - 0.02 or time:seconds > HotStageTime + 1 then lock throttle to LaunchThrottle().
                 }
                 set config:ipu to CPUSPEED.
                 list targets in shiplist.
@@ -9392,13 +9407,13 @@ Function LaunchSteering {
             }
         }
     }
-    else if Boosterconnected and not lowTWR and CargoMass < 50001 and not Hotstaging {
+    else if Boosterconnected and not Hotstaging and not BoosterType:contains("Block3") {
         if RSS {
             if ShipType = "Depot" {
                 set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
             else {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, 50000/max(50000,CargoMass)).
             }
         }
         else if KSRSS {
@@ -9407,7 +9422,7 @@ Function LaunchSteering {
                     set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
                 }
                 else {
-                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150))*min(1, 50000/max(50000,CargoMass)).
                 }
             }
             else {
@@ -9415,7 +9430,7 @@ Function LaunchSteering {
                     set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
                 }
                 else {
-                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, 50000/max(50000,CargoMass)).
                 }
             }
         }
@@ -9424,18 +9439,18 @@ Function LaunchSteering {
                 set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
             }
             else {
-                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/850)).
+                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/860))*min(1, 50000/max(50000,CargoMass)).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
     }
-    else if Boosterconnected and not lowTWR and CargoMass > 50000 and not Hotstaging {
+    else if Boosterconnected and not Hotstaging {
         if RSS {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (7.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
             else {
-                set targetpitch to 90 - (8.4 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                set targetpitch to 90 - (8.6 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000))*min(1, 50000/max(50000,CargoMass)).
             }
         }
         else if KSRSS {
@@ -9444,7 +9459,7 @@ Function LaunchSteering {
                     set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
                 }
                 else {
-                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, 50000/max(50000,CargoMass)).
                 }
             }
             else {
@@ -9452,53 +9467,16 @@ Function LaunchSteering {
                     set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
                 }
                 else {
-                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
+                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050))*min(1, 50000/max(50000,CargoMass)).
                 }
             }
         }
         else {
             if ShipType = "Depot" {
-                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
             }
             else {
-                set targetpitch to 90 - (10.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/900)).
-            }
-        }
-        set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
-    }
-    else if Boosterconnected and not Hotstaging {
-        if RSS {
-            if ShipType = "Depot" {
-                set targetpitch to 90 - (7.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
-            }
-            else {
-                set targetpitch to 90 - (8.3 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
-            }
-        }
-        else if KSRSS {
-            if RESCALE {
-                if ShipType = "Depot" {
-                    set targetpitch to 90 - (8.125 * SQRT(max((altitude - 250 - LaunchElev), 0)/1400)).
-                }
-                else {
-                    set targetpitch to 90 - (8.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1300)).
-                }
-            }
-            else {
-                if ShipType = "Depot" {
-                    set targetpitch to 90 - (9.375 * SQRT(max((altitude - 250 - LaunchElev), 0)/1350)).
-                }
-                else {
-                    set targetpitch to 90 - (9.625 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
-                }
-            }
-        }
-        else {
-            if ShipType = "Depot" {
-                set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1350)).
-            }
-            else {
-                set targetpitch to 90 - (10 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/800))*min(1, 50000/max(50000,CargoMass)).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
@@ -14729,20 +14707,6 @@ function ActivateEngines {
         if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
         LogToFile("SL Engine Start Successful!").
     }
-    else if WhichEngines = 33 {
-        set SEITime to time:seconds.
-        when time:seconds > SEITime then {
-            if SLEngines[0]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[0]:activate.
-            if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-        }
-        when time:seconds > SEITime + 0.2 then {
-            if SLEngines[1]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[1]:activate.
-            if SLEngines[2]:hassuffix("activate") if random() < SLIgnCha/100 SLEngines[2]:activate.
-            if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-            if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-            LogToFile("SL Engine Start Successful!").
-        }
-    }
     else {
         if not SHipType:contains("SN") for eng in VACEngines {
             if eng:hassuffix("activate") if random() < VCIgnCha/100 eng:activate.
@@ -16793,20 +16757,20 @@ function updateTelemetry {
 
     if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
         if Boosterconnected {
-            if vAng(ship:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(ship:facing:forevector,up:vector).
-            else set currentPitch to 360-vAng(ship:facing:forevector,up:vector).
+            if vAng(Tank:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(Tank:facing:forevector,up:vector).
+            else set currentPitch to 360-vAng(Tank:facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
             set sAttitude:style:bg to "starship_img/ShipStackAttitude/Block2/"+round(abs(currentPitch)):tostring.
         }
         else {
             if not LandingBurnStarted {
-                if vAng(ship:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(ship:facing:forevector,up:vector).
-                else set currentPitch to vang(ship:facing:forevector,up:vector).
+                if vAng(Tank:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(Tank:facing:forevector,up:vector).
+                else set currentPitch to vang(Tank:facing:forevector,up:vector).
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             else {
-                if vAng(ship:facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(ship:facing:forevector,up:vector).
-                else set currentPitch to vang(ship:facing:forevector,up:vector).
+                if vAng(Tank:facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(Tank:facing:forevector,up:vector).
+                else set currentPitch to vang(Tank:facing:forevector,up:vector).
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             set sAttitude:style:bg to "starship_img/ShipAttitude/Block2/"+round(abs(currentPitch)):tostring.
@@ -16814,20 +16778,20 @@ function updateTelemetry {
     } 
     else {
         if Boosterconnected {
-            if vAng(ship:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(ship:facing:forevector,up:vector).
-            else set currentPitch to 360-vAng(ship:facing:forevector,up:vector).
+            if vAng(Tank:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to vAng(Tank:facing:forevector,up:vector).
+            else set currentPitch to 360-vAng(Tank:facing:forevector,up:vector).
             if round(currentPitch) = 360 set currentPitch to 0.
             set sAttitude:style:bg to "starship_img/ShipStackAttitude/"+round(abs(currentPitch)):tostring.
         }
         else {
             if not LandingBurnStarted {
-                if vAng(ship:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(ship:facing:forevector,up:vector).
-                else set currentPitch to vang(ship:facing:forevector,up:vector).
+                if vAng(Tank:facing:forevector, vxcl(up:vector, velocity:surface)) < 90 set currentPitch to 360-vang(Tank:facing:forevector,up:vector).
+                else set currentPitch to vang(Tank:facing:forevector,up:vector).
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             else {
-                if vAng(ship:facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(ship:facing:forevector,up:vector).
-                else set currentPitch to vang(ship:facing:forevector,up:vector).
+                if vAng(Tank:facing:forevector, LandingBurnDirection) < 90 set currentPitch to 360-vang(Tank:facing:forevector,up:vector).
+                else set currentPitch to vang(Tank:facing:forevector,up:vector).
                 if round(currentPitch) = 360 set currentPitch to 0.
             }
             set sAttitude:style:bg to "starship_img/ShipAttitude/"+round(abs(currentPitch)):tostring.
