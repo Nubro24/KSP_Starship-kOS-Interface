@@ -2,7 +2,7 @@ wait until ship:unpacked.
 unlock steering.
 
 clearscreen.
-set Scriptversion to "v5".
+set Scriptversion to "v6".
 //<==== Mission Name (below Clock) ====>
 set MissionName to "".
 
@@ -518,21 +518,24 @@ function FindParts {
             else if x:name:contains("FNB.BL1.BOOSTERCH4") {}
             else if x:name:contains("FNB.BL1.BOOSTERHSR") {}
             else if x:name:contains("FNB.BL1.BOOSTERCLUSTER") {}
+            else if x:name:contains("FNB.BL3.BOOSTER") {}
             else if x:name:contains("FNB.BL3.BOOSTERAFT") {}
             else if x:name:contains("FNB.BL3.BOOSTERLOX") {}
             else if x:name:contains("FNB.BL3.BOOSTERCMN") {}
             else if x:name:contains("FNB.BL3.BOOSTERCH4") {}
             else if x:name:contains("FNB.BL3.BOOSTERFWD") {}
-            else if x:name:contains("FNB.BL3.BOOSTERHSR") {}
+            else if x:name:contains("FNB.BL3.IHSR") {}
+            else if x:name:contains("FNB.BL3.BOOSTERIHSR") {}
+            else if x:name:contains("FNB.BL3.GRIDFIN") {}
             else if x:name:contains("SEP.23.BOOSTER.HSR") {}
             else if x:name:contains("SEP.25.BOOSTER.HSR") {}
             else if x:name:contains("FNB.R3.CLUSTER") {}
             else {
-                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER")) and (x:parent:name:contains("SHIP") or x:parent:name:contains("LOX")) {
+                if (x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") or x:name:contains("SEP.26.R3.SL.C")) and (x:parent:name:contains("SHIP") or x:parent:name:contains("LOX")) {
                     set SL to true.
                     set SLcount to SLcount + 1.
                 }
-                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") or x:name:contains("FNB.R3.VAC") {
+                else if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("SEP.24.R1V") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
@@ -578,52 +581,54 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO") and not x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 66000.
+                    set MaxCargoToOrbit to 66000/(Scale^0.5).
                     set ShipType to "Block1Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.NOSECONE.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 65000.
+                    set MaxCargoToOrbit to 65000/(Scale^0.5).
                     set ShipType to "Block1Exp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 69000.
+                    set MaxCargoToOrbit to 70000/(Scale^0.5).
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 65000.
+                    set MaxCargoToOrbit to 65000/(Scale^0.5).
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.25.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
                     set HeaderTank to x.
-                    set MaxCargoToOrbit to 95000.
+                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.25.SHIP.CARGO") and not x:name:contains("EXP") {
                     set Nose to x.
                     set HeaderTank to x.
-                    set MaxCargoToOrbit to 95000.
+                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 95000.
+                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2PEZ".
+                    set FNBship to true.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL3.NC") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 100000.
+                    set MaxCargoToOrbit to 120000/(Scale^0.5).
                     set ShipType to "Block3PEZ".
+                    set FNBship to true.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.CH4") or x:name:contains("FNB.BL3.CH4") {
@@ -632,6 +637,7 @@ function FindParts {
                 }
                 else if x:name:contains("FNB.BL2.CMN") or x:name:contains("FNB.BL3.CMN") {
                     set sCMNTank to x.
+                    set FNBship to true.
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ.EXP") {
                     set Nose to x.
@@ -674,7 +680,13 @@ function FindParts {
             }
         }
     }
-    if defined HeaderTank {} else if ship:partsnamed("FNB.BL2.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL2.NC")[0].
+    if defined HeaderTank {} 
+    else if ship:partsnamed("FNB.BL2.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL2.NC")[0].
+    else if ship:partsnamed("FNB.BL3.NC"):length > 0 set HeaderTank to ship:partsnamed("FNB.BL3.NC")[0].
+    else if ship:partsnamed("SEP.25.SHIP.CARGO"):length > 0 set HeaderTank to ship:partsnamed("SEP.25.SHIP.CARGO")[0].
+    else if ship:partsnamed("SEP.25.SHIP.PEZ"):length > 0 set HeaderTank to ship:partsnamed("SEP.25.SHIP.PEZ")[0].
+    else if ship:partsnamed("SEP.24.SHIP.CARGO"):length > 0 set HeaderTank to ship:partsnamed("SEP.24.SHIP.CARGO")[0].
+    else if ship:partsnamed("SEP.24.SHIP.PEZ"):length > 0 set HeaderTank to ship:partsnamed("SEP.24.SHIP.PEZ")[0].
 
     set SLStep to false.
     set VACStep to false.
@@ -685,7 +697,7 @@ function FindParts {
         set SL3 to false.
         for x in Tank:children {
             if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
-                if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") {
+                if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") or x:name:contains("SEP.26.R3.SL.C") {
                     set partPos to x:position - Tank:position.
                     set compPos to Tank:facing:topvector.
                     if vAng(partPos, compPos) < 89 {
@@ -733,7 +745,7 @@ function FindParts {
         set Vac3 to false.
         for x in Tank:children {
             if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
-                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set partPos to x:position - Tank:position.
                     set compPos to -Tank:facing:topvector.
                     if vAng(partPos, compPos) < 89 {
@@ -778,7 +790,7 @@ function FindParts {
         set Vac6 to false.
         for x in Tank:children {
             if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
-                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") {
+                if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set partPos to vxcl(Tank:facing:forevector,x:position - Tank:position).
                     set compPos to -Tank:facing:starvector.
                     if vAng(partPos, compPos) < 10 {
@@ -1022,6 +1034,45 @@ function FindParts {
         set sTelemetry:style:bg to "starship_img/telemetry_bg_".
         set missionTimeLabel:text to "".
         print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("FNB.BL3.BOOSTER"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block3".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        if SHIP:PARTSNAMED("FNB.R3.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("FNB.R3.CLUSTER").
+        else { 
+            set BoosterEngines to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+            set BoosterSingleEngines to true.
+        }
+        set GridFins to SHIP:PARTSNAMED("FNB.BL3.GRIDFIN").
+        set HSR to SHIP:PARTSNAMED("FNB.BL3.IHSR").
+        set BoosterCore to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        set bLOXTank to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        set bCH4Tank to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        set bCMNDome to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        set bFWDDome to SHIP:PARTSNAMED("FNB.BL3.BOOSTER").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
     }
     else {
         set Boosterconnected to false.
@@ -1031,14 +1082,14 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not bEngSet {
+    if Boosterconnected and not Hotstaging and not bEngSet {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
             or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
-            or BoosterEngines[0]:children[0]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[0]:name:contains("Raptor.3RB") 
+            or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.B") 
             or BoosterEngines[0]:children[0]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[0]:name:contains("FNB.R3.BOOSTER") 
             or BoosterEngines[0]:children[1]:name:contains("SEP.24.R1C") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[1]:name:contains("SEP.23.RAPTOR2.SL.RB")
-            or BoosterEngines[0]:children[1]:name:contains("Raptor.3RC") or BoosterEngines[0]:children[1]:name:contains("Raptor.3RB")
-            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") )  {
+            or BoosterEngines[0]:children[1]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[1]:name:contains("SEP.26.R3.SL.B")
+            or BoosterEngines[0]:children[1]:name:contains("FNB.R3.CENTER") or BoosterEngines[0]:children[1]:name:contains("FNB.R3.BOOSTER") or BoosterEngines[0]:children[0]:title:contains("Nagata") )  {
             set BoosterSingleEngines to true.
             set BoosterSingleEnginesRB to list().
             set BoosterSingleEnginesRC to list().

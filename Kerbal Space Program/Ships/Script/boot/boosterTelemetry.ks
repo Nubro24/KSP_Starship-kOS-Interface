@@ -1,6 +1,6 @@
 wait until ship:unpacked.
 
-set Scriptversion to "v5".
+set Scriptversion to "v6".
 
 //<==== Countdown Start (T- ... ) ====>
 set CountdownStart to 240.
@@ -46,6 +46,7 @@ for part in ship:parts {
         set FWD to part.
         set oldBooster to true.
         set BTset to true.
+        set SinglePartBooster to true.
     }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterType to "Block2".
@@ -55,24 +56,39 @@ for part in ship:parts {
         set bCMNDome to part.
         set FWD to part.
         set BTset to true.
+        set SinglePartBooster to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERLOX") and not BTset {
         set BoosterType to "Block3".
-        set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERLOX").
+        set Bl3LndProf to true.
+        set bLOXTank to part.
+        if not ECset set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTERLOX").
         set BoosterCore to part.
         set BTset to true.
+        set SinglePartBooster to false.
+    }
+    if part:name:contains("FNB.BL3.BOOSTER") and not part:name:contains("HSR") and not part:name:contains("FIN") and not part:name:contains("CH4") and not part:name:contains("LOX") and not part:name:contains("CMN") {
+        set BoosterType to "Block3".
+        set bCH4Tank to part.
+        set bCMNDome to part.
+        set FWD to part.
+        set bLOXTank to part.
+        set BoosterCore to part.
+        if not ECset set BoosterEngines to ship:partsnamed("FNB.BL3.BOOSTER").
+        set BTset to true.
+        set SinglePartBooster to true.
     }
     if part:name:contains("FNB.BL1.BOOSTERLOX") and not BTset {
         set BoosterType to "Block1".
+        set Bl3LndProf to false.
+        set bLOXTank to part.
         set BoosterCore to part.
         set BTset to true.
+        set SinglePartBooster to false.
     }
     if part:name:contains("FNB.BL3.BOOSTERCH4") {
         set bCH4Tank to part.
         set FWD to part.
-    }
-    if part:name:contains("FNB.BL3.BOOSTERLOX") {
-        set bLOXTank to part.
     }
     if part:name:contains("FNB.BL3.BOOSTERCMN") {
         set bCMNDome to part.
@@ -81,9 +97,6 @@ for part in ship:parts {
         set bCH4Tank to part.
         set FWD to part.
         set CH4set to true.
-    }
-    if part:name:contains("FNB.BL1.BOOSTERLOX") {
-        set bLOXTank to part.
     }
     if part:name:contains("FNB.BL1.BOOSTERCMN") {
         set bCMNDome to part.
@@ -100,29 +113,41 @@ for part in ship:parts {
         set BoosterEngines to ship:partsnamed("FNB.BL1.BOOSTERCLUSTER").
         set ClusterSet to true.
         set ECset to true.
+        set Block3Cluster to true.
     }
     if part:name:contains("FNB.R3.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("FNB.R3.CLUSTER").
         set ECset to true.
+        set Block3Cluster to true.
     }
     if part:name:contains("SEP.23.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "23".
         set GridfinLength to ship:partsnamed("SEP.23.BOOSTER.GRIDFIN"):length.
+        set GridfinsName to "SEP.23.BOOSTER.GRIDFIN".
         set GFset to true.
     }
     if part:name:contains("SEP.25.BOOSTER.GRIDFIN") and not GFset {
         set GridfinsType to "25".
         set GridfinLength to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length.
+        set GridfinsName to "SEP.25.BOOSTER.GRIDFIN".
         set GFset to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERFIN") and not GFset {
         set GridfinsType to "Block3".
         set GridfinLength to ship:partsnamed("FNB.BL3.BOOSTERFIN"):length.
+        set GridfinsName to "FNB.BL3.BOOSTERFIN".
+        set GFset to true.
+    }
+    if part:name:contains("FNB.BL3.GRIDFIN") and not GFset {
+        set GridfinsType to "Block3".
+        set GridfinLength to ship:partsnamed("FNB.BL3.GRIDFIN"):length.
+        set GridfinsName to "FNB.BL3.GRIDFIN".
         set GFset to true.
     }
     if part:name:contains("FNB.BL1.BOOSTERGRIDFIN") and not GFset {
         set GridfinsType to "Block1".
         set GridfinLength to ship:partsnamed("FNB.BL1.BOOSTERGRIDFIN"):length.
+        set GridfinsName to "FNB.BL1.BOOSTERGRIDFIN".
         set GFset to true.
     }
     if part:name:contains("SEP.23.BOOSTER.HSR") and not HSset {
@@ -140,7 +165,7 @@ for part in ship:parts {
         set HSR to part.
         set HSset to true.
     }
-    if part:name:contains("FNB.BL3.BOOSTERIHSR") and not HSset {
+    if (part:name:contains("FNB.BL3.BOOSTERIHSR") or part:name:contains("FNB.BL3.IHSR")) and not HSset {
         set HSRType to "Block3".
         set HSR to part.
         set HSset to true.
@@ -633,7 +658,7 @@ function GUIupdate {
     else set currentPitch to vAng(facing:forevector,up:vector).
     if round(currentPitch) = 360 set currentPitch to 0.
 
-    if ShipConnectedToBooster and ShipType:contains("Block2") set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
+    if ShipConnectedToBooster and (ShipType:contains("Block2") or ShipType:contains("Block3")) set bAttitude:style:bg to "starship_img/StackAttitude/Block2/"+round(currentPitch):tostring.
     else if ShipConnectedToBooster set bAttitude:style:bg to "starship_img/StackAttitude/"+round(currentPitch):tostring.
     else set bAttitude:style:bg to "starship_img/BoosterAttitude/"+round(currentPitch):tostring.
 
@@ -688,7 +713,7 @@ function GUIupdate {
             set methane to false.
         }
     }
-    if BoosterType:contains("Block3") {
+    if not SinglePartBooster {
         for res in BoosterCore:resources {
             if res:name = "Oxidizer" or res:name = "LqdOxygen" or res:name = "CooledLqdOxygen" {
                 set boosterLOX to boosterLOX + res:amount.
@@ -816,7 +841,7 @@ function GUIupdate {
         } 
         else if boosterThrust > 60*Scale and not findingEngines {
             set z to 1.
-            if ShipConnectedToBooster { 
+            if ShipConnectedToBooster or BoosterType:contains("Block3") { 
                 for uieng in BoosterSingleEnginesRB {
                     if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
                         if uieng:thrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/" + (z+13).

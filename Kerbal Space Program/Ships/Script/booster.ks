@@ -4722,7 +4722,7 @@ function GUIupdate {
         } 
         else if boosterThrust > 60*Scale and not findingEngines {
             set z to 1.
-            if ShipConnectedToBooster { 
+            if ShipConnectedToBooster or BoosterType:contains("Block3") { 
                 for uieng in BoosterSingleEnginesRB {
                     if uieng:hassuffix("activate") and not BoosterType:contains("Block3") {
                         if uieng:thrust > 60*Scale set EngClusterDisplay[z+12]:style:bg to "starship_img/EngPicBooster/" + (z+13).
