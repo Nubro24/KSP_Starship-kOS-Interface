@@ -1169,6 +1169,7 @@ when ship:partstitled("Starship Orbital Launch Mount"):length = 0 and ship:parts
 sTelemetry:show().
 print "Test".
 
+wait until partsfound.
 when not Boosterconnected then {
     set sAltitude:style:textcolor to white.
     set sSpeed:style:textcolor to white.
