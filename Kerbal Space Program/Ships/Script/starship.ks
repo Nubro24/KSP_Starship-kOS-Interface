@@ -1322,6 +1322,7 @@ function FindParts {
         set bLOXTank to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
         set bCH4Tank to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
         set bCMNDome to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
+        set bFWDDome to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             print(round(BoosterCore[0]:drymass)).
@@ -1356,6 +1357,7 @@ function FindParts {
         set bLOXTank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
         set bCH4Tank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
         set bCMNDome to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        set bFWDDome to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             //print(round(BoosterCore[0]:drymass)).
@@ -9007,6 +9009,7 @@ function Launch {
                     }
                     else {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                        bFWDDome:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     wait 0.1.
@@ -9020,6 +9023,7 @@ function Launch {
                     }
                     else {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                        bFWDDome:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     wait 0.1.
