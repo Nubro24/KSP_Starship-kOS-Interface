@@ -322,6 +322,7 @@ for part in ship:parts {
 }
 
 if defined HSR set HSRpartname to HSR:name.
+else set HSRpartname to "keinHSRmontiert".
 
 print GridfinLength.
 
