@@ -124,7 +124,6 @@ set ECset to false.
 set BTset to false.
 set HSset to false.
 for part in ship:parts {
-    print RandomFlip.
     if part:name:contains("SEP.23.BOOSTER.INTEGRATED") and not BTset {
         set BoosterType to "Block0".
         set BoosterCore to part.

@@ -1082,7 +1082,7 @@ function FindParts {
 
     }
 
-    if Boosterconnected and not Hotstaging and not bEngSet {
+    if Boosterconnected and not bEngSet {
         if BoosterEngines[0]:children:length > 1 and ( BoosterEngines[0]:children[0]:name:contains("SEP.24.R1C") 
             or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RC") or BoosterEngines[0]:children[0]:name:contains("SEP.23.RAPTOR2.SL.RB") 
             or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.C") or BoosterEngines[0]:children[0]:name:contains("SEP.26.R3.SL.B") 
@@ -1169,6 +1169,7 @@ when ship:partstitled("Starship Orbital Launch Mount"):length = 0 and ship:parts
 sTelemetry:show().
 print "Test".
 
+wait until partsfound.
 when not Boosterconnected then {
     set sAltitude:style:textcolor to white.
     set sSpeed:style:textcolor to white.
