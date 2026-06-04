@@ -1317,7 +1317,7 @@ function FindParts {
         set sThrust:style:textcolor to grey.
         set BoosterEngines to SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER").
         set GridFins to SHIP:PARTSNAMED("SEP.23.BOOSTER.GRIDFIN").
-        set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
+        if SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR"):length > 0 set HSR to SHIP:PARTSNAMED("SEP.23.BOOSTER.HSR").
         set BoosterCore to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
         set bLOXTank to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
         set bCH4Tank to SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED").
@@ -1389,7 +1389,7 @@ function FindParts {
             set BoosterSingleEngines to true.
         }
         set GridFins to SHIP:PARTSNAMED("FNB.BL1.BOOSTERGRIDFIN").
-        set HSR to SHIP:PARTSNAMED("FNB.BL1.BOOSTERHSR").
+        if SHIP:PARTSNAMED("FNB.BL1.BOOSTERHSR"):length > 0 set HSR to SHIP:PARTSNAMED("FNB.BL1.BOOSTERHSR").
         set BoosterCore to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
         set bLOXTank to SHIP:PARTSNAMED("FNB.BL1.BOOSTERLOX").
         set bCH4Tank to SHIP:PARTSNAMED("FNB.BL1.BOOSTERCH4").
@@ -9007,6 +9007,7 @@ function Launch {
                     }
                     else {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                        bFWDDome:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     wait 0.1.
@@ -9020,6 +9021,7 @@ function Launch {
                     }
                     else {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
+                        bFWDDome:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     wait 0.1.
