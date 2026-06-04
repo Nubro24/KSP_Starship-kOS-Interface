@@ -9009,7 +9009,7 @@ function Launch {
                     }
                     else {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                        bFWDDome:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
+                        bFWDDome[0]:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     wait 0.1.
@@ -9023,7 +9023,7 @@ function Launch {
                     }
                     else {
                         BoosterCore[0]:getmodule("ModuleDockingNode"):doaction("undock node", true).
-                        bFWDDome:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
+                        bFWDDome[0]:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                     }
                     Tank:getmodule("ModuleDockingNode"):doaction("undock node", true).
                     wait 0.1.
