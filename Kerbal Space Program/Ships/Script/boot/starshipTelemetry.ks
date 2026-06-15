@@ -581,52 +581,44 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO") and not x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 66000/(Scale^0.5).
                     set ShipType to "Block1Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.NOSECONE.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 65000/(Scale^0.5).
                     set ShipType to "Block1Exp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.CARGO.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 70000/(Scale^0.5).
                     set ShipType to "Block1CargoExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 65000/(Scale^0.5).
                     set ShipType to "Block1PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.25.SHIP.PEZ") and not x:name:contains("EXP") {
                     set Nose to x.
                     set HeaderTank to x.
-                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2PEZ".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("SEP.25.SHIP.CARGO") and not x:name:contains("EXP") {
                     set Nose to x.
                     set HeaderTank to x.
-                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2Cargo".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2PEZ".
                     set FNBship to true.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL3.NC") and not x:name:contains("EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 120000/(Scale^0.5).
                     set ShipType to "Block3PEZ".
                     set FNBship to true.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
@@ -641,7 +633,6 @@ function FindParts {
                 }
                 else if x:name:contains("SEP.24.SHIP.PEZ.EXP") {
                     set Nose to x.
-                    set MaxCargoToOrbit to 68000.
                     set ShipType to "Block1PEZExp".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
@@ -655,13 +646,6 @@ function FindParts {
                     set ShipType to "Tanker".
                     set CargoMassStep to CargoMassStep + x:mass - x:drymass.
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
-                    if RSS {
-                        set MaxCargoToOrbit to 150000.
-                    } else if KSRSS {
-                        set MaxCargoToOrbit to 97000.
-                    } else {
-                        set MaxCargoToOrbit to 79000.
-                    }
                 }
                 else if x:name:contains("SEP.23.SHIP.CARGO.EXP") {
                     set Nose to x.
