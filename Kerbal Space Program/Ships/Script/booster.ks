@@ -213,6 +213,7 @@ for part in ship:parts {
             until x > bCMNDome:modules:length-1 or ModulesFound {
                 if bCMNDome:getmodulebyindex(x):name = "ModuleEnginesFX" {
                     DumpVents:add(bCMNDome:getmodulebyindex(x)).
+                    set DumpVents[0] to bCMNDome:getmodulebyindex(x).
                     set ModulesFound to true.
                     break.
                 }
