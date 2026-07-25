@@ -1,5 +1,6 @@
-# V3.6.1 (2026-05-27)
+# V3.6.1 (2026-07-25)
 - Updated Block 3 Flight Profile and Engine Timings
+- Updated to SEP v3.2.1
 - Reworked Booster Return Calculations
 - Added Support for FNB Experimental branch
 - Improved Gimbal Module find-function for Cluster

@@ -3413,8 +3413,8 @@ FUNCTION SteeringCorrections {
                 if LandingBurnStarted {
                     set MidShutdownSpeed to min(max(50,sqrt(max(0, (2*RadarAlt - (airspeed^2)/maxDecel - (12^2)*(1/(maxDecel3*0.9) - 1/(maxDecel5*0.9)))/(1/(maxDecel5*0.95) - 1/maxDecel) ))) , 150).
                     set stopTime3 to 12 / (maxDecel3*0.7).
-                    set stopTime5 to (MidShutdownSpeed-12) / (maxDecel5*0.8).
-                    set stopTime13 to (airspeed - MidShutdownSpeed - 12) / (maxDecel).
+                    set stopTime5 to (MidShutdownSpeed-12) / (maxDecel5*0.75).
+                    set stopTime13 to (airspeed - MidShutdownSpeed - 12) / (maxDecel*0.9).
     
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
     

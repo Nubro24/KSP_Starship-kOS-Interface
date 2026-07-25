@@ -4694,7 +4694,7 @@ set quickengine1:onclick to {
     for eng in SLEngines {if eng:hassuffix("activate") eng:shutdown.}.
     if not ShipType:contains("SN") for eng in VACEngines {if eng:hassuffix("activate") eng:shutdown.}.
     LogToFile("ALL Engines turned OFF").
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not FNBship and not ShipType:contains("SN") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not (ShipType:contains("Block2")) and not FNBship and not ShipType:contains("SN") {
         Nose:shutdown.
     } else if (ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ") {
         HeaderTank:shutdown.
@@ -7198,7 +7198,7 @@ set landbutton:ontoggle to {
                                     set runningprogram to "Venting Fuel..".
                                     HideEngineToggles(1).
                                     ToggleHeaderTank(0).
-                                    if not ShipType:contains("Block1") and not ShipType:contains("SN") and not FNBship {
+                                    if not ShipType:contains("Block1") and not (ShipType:contains("Block2")) and not ShipType:contains("SN") and not FNBship {
                                         Nose:activate.
                                     } else if ShipType:contains("Block1") and not ShipType:contains("Exp") and not ShipType:contains("SN")  {
                                         HeaderTank:activate.
@@ -12669,10 +12669,10 @@ function ReEntryAndLand {
                             when RadarAlt < 1800 then {
                                 if (currentdeltav > maxDeltaV*1.1 or LFShip > 0.65*FuelVentCutOffValue) and ship:body:atm:sealevelpressure > 0.5 {
                                     sCMNTank:activate.
-                                    if not ShipType:contains("SN") and not FNBship Nose:activate.
+                                    if not ShipType:contains("SN") and not (ShipType:contains("Block2")) and not FNBship Nose:activate.
                                     when currentdeltav < maxDeltaV and LFShip < 0.5*FuelVentCutOffValue then {
                                         sCMNTank:shutdown.
-                                        if not ShipType:contains("SN") and not FNBship Nose:shutdown.
+                                        if not ShipType:contains("SN") and not (ShipType:contains("Block2")) and not FNBship Nose:shutdown.
                                     }
                                 }
                             }
@@ -14717,7 +14717,7 @@ function ActivateEngines {
         }
         LogToFile("VAC Engine Start Successful!").
     }
-    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not FNBship and not ShipType:contains("SN") {
+    if not (ShipType = "Expendable") and not (ShipType = "Depot") and not (ShipType:contains("Block1")) and not (ShipType:contains("Block2")) and not FNBship and not ShipType:contains("SN") {
         Nose:shutdown.
     } else if ShipType = "Block1" or ShipType = "Block1Cargo" or ShipType = "Block1PEZ" {
         HeaderTank:shutdown.
@@ -15413,29 +15413,29 @@ function LandAtOLM {
         set TargetOLM to false.
         if STOCK {
             if ShipType:contains("SN") 
-                set FlipAltitude to 620.
+                set FlipAltitude to 720.
             else if ShipType:contains("Block1") {
-                set FlipAltitude to 642.
+                set FlipAltitude to 742.
             } else {
-                set FlipAltitude to 625.
+                set FlipAltitude to 725.
             }
         }
         else if KSRSS {
             if ShipType:contains("Block1") {
-                set FlipAltitude to 628.
+                set FlipAltitude to 728.
             } else {
-                set FlipAltitude to 626.
+                set FlipAltitude to 726.
             }
         }
         else {
             if ShipType:contains("SN") 
-                set FlipAltitude to 530.
+                set FlipAltitude to 730.
             else if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {
-                set FlipAltitude to 660.
+                set FlipAltitude to 860.
             } else if ShipType:contains("Block1") {
-                set FlipAltitude to 710.
+                set FlipAltitude to 910.
             } else {
-                set FlipAltitude to 700.
+                set FlipAltitude to 900.
             }
         }
         list targets in shiplist.
