@@ -14201,7 +14201,7 @@ function LngLatError {
                     set LngLatOffset to -38.
                 }
                 else {
-                    set LngLatOffset to -70.
+                    set LngLatOffset to -45.
                     
                     
                 }
