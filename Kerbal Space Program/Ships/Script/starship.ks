@@ -486,6 +486,7 @@ set FRflap to false.
 set ALflap to false.
 set ARflap to false.
 set FNBship to false.
+set Phase1Min to -4.
 
 
 if core:part:hasmodule("FARPartModule") {
