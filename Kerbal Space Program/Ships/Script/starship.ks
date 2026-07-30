@@ -13437,7 +13437,7 @@ function ReEntryData {
                 set CancelVelocityHasStarted to true.
             }
             when time:seconds > LandingFlipStart + 1.5 then if SLactive < 3 set steeringManager:maxstoppingtime to steeringManager:maxstoppingtime * round(SLactive^0.5,3).
-            when vang(facing:forevector,up:vector) < 75 then setflaps(0, 87, 1, 0).
+            when vang(facing:forevector,up:vector) < 80 then setflaps(0, 87, 1, 0).
 
             InhibitButtons(1, 1, 1).
             set SteeringManager:ROLLCONTROLANGLERANGE to 15.
@@ -13521,8 +13521,7 @@ function ReEntryData {
             
             when vang(-velocity:surface, ship:facing:forevector) < FlipAngleFactor * FlipAngle then {
                 set config:ipu to CPUSPEED.
-                when vang(-velocity:surface, ship:facing:forevector) < 0.9 * FlipAngle then
-                    setflaps(80, 80, 1, 0).
+                when airspeed < 42 then setflaps(80, 80, 1, 0).
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
                     if (ShipType:contains("Block2") or ShipType:contains("Block3")) and not AFTONLY {
