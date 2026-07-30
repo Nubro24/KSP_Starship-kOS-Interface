@@ -2,11 +2,13 @@
 - Updated Block 3 Flight Profile and Engine Timings
 - Updated to SEP v3.2.1
 - Reworked Booster Return Calculations
+- Reworked Ship Landing Guidance
 - Added Support for FNB Experimental branch
 - Improved Gimbal Module find-function for Cluster
 - Increased Booster Descent Lng PID kd
 - Added Patch for Clusters in Real Scale
 - Added Patch for FNB part drags
+- Fixed Ship not targeting the OLM
 
 # V3.6.0 (2026-05-04)
 - **Reworked Catch Guidance for Booster and Ship** 

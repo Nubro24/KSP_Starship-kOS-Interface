@@ -1050,7 +1050,7 @@ if bodyexists("Earth") {
         }
         set Scale to 1.6.
         set CorrFactor to 0.7.
-        set PIDFactor to 16.
+        set PIDFactor to 24.
         set CatchVS to -0.5.
         set FinalDeceleration to 9.
     }
