@@ -1143,7 +1143,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2650.
+        set LFBoosterFuelCutOff to 2750.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
@@ -2622,8 +2622,8 @@ function Boostback {
         CheckFuel().
         wait 0.05.
     }
-    set steeringManager:pitchpid:kd to 0.12*Scale.
-    set steeringManager:yawpid:kd to 0.14*Scale.
+    set steeringManager:pitchpid:kd to 0.16*Scale.
+    set steeringManager:yawpid:kd to 0.18*Scale.
     set maxRoll to 6.
 
 
@@ -2734,7 +2734,7 @@ function Boostback {
         set LandSomewhereElse to true.
     } 
 
-    set tgtErrorPID to pidLoop(0.044*(Scale^0.7), 0.00014*(Scale^0.5), 0.07/(Scale), -10, 10).
+    set tgtErrorPID to pidLoop(0.042*(Scale^0.7), 0.0005*(Scale^0.5), 0.075/(Scale), -7, 7).
 
     if not BoosterSingleEngines {
         until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Center Three" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_Core" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Core" {
@@ -3593,13 +3593,7 @@ function LandingGuidance {
     set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
     set CatchPins to BoosterCore:position + BoosterHeight*0.4 * facing:forevector.
     set CatchPos to landingzone:position + MZHeight*up:vector + TheTowerHeadingVector:normalized * angleAxis(ApproachAngle/2, up:vector) - 1.2*(Scale^0.6)*TheTowerHeadingVector:normalized.
-    if verticalSpeed < 0 set vSpeed to -verticalSpeed.
-    else set vSpeed to max(verticalSpeed,0.001).
     set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*min(8,ActiveRC)/(Scale*10).
-    set gsTime to max(PositionError:mag,2)*2/max(PredictGSVec:mag,0.01).
-    set vertTime to RadarAlt*2/vSpeed.
-    set speedRatio to vSpeed/max(0.1,PredictGSVec:mag).
-    set closureRatio to (gsTime/max(vertTime,0.1)).
 
     if dbactive {
         set HighAngleVec to TheTowerHeadingVector:normalized * OffsetPosVec:mag + OffsetPosVec.
@@ -3611,7 +3605,7 @@ function LandingGuidance {
     else set TVCDamp to 0.18*PredictGSVec.
     if addons:tr:hasimpact and RadarAlt > 3*Scale set myFuturePos to addons:tr:impactpos:position + MZHeight*(CatchPins-addons:tr:impactpos:position + velocity:surface/9.81):normalized*1/cos(vAng((CatchPins-addons:tr:impactpos:position + velocity:surface/9.81), up:vector)).
     else set myFuturePos to CatchPos.
-    set TargetError to CatchPos - myFuturePos - TVCDamp.
+    set TargetError to CatchPos - myFuturePos - TVCDamp * max(0,min(1,RadarRatio-1)).
     set TgtErrorVector to ErrorVector * min(max(0.1, (RadarRatio-2.5)/4), 0.2) - TargetError * min(max(0.4, 1.5/(RadarRatio-1.75)), 0.9).
 
     // === Guidance ===
@@ -3619,7 +3613,7 @@ function LandingGuidance {
     if angleTgtError > 90 set predictInput to -TargetError:mag.
     else set predictInput to TargetError:mag.
     set predictValue to 6*min(1,max(RadarRatio,0.3))*tgtErrorPID:update(time:seconds, predictInput).
-    if landDistance > BoosterHeight or RadarAlt > BoosterHeight*0.7 set PrVec to (CatchPins - CatchPos):normalized * landDistance/3 + up:vector * landDistance/9.
+    if landDistance > BoosterHeight or RadarRatio > 1 set PrVec to (CatchPins - CatchPos):normalized * landDistance/3 + up:vector * landDistance/9.
     else set PrVec to BoosterHeight*up:vector - GSVec*0.1.
 
     set fwdErrorVec to vxcl(vCrs(up:vector, -PositionError), -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/6 * min(max(-0.5,340-airspeed/40),1)).
@@ -3630,9 +3624,10 @@ function LandingGuidance {
     else set TowerAvoidanceFactor to 1.
 
     set GuidVec to PrVec 
-        + fwdErrorVec * TowerAvoidanceFactor 
-        + sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) 
-        + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
+        + fwdErrorVec * TowerAvoidanceFactor * min(RadarRatio,1)/1
+        + sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) * min(RadarRatio,1)/1
+        + GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale) * 0.6 * min(RadarRatio,0.4)/0.4
+        + PositionError:normalized * 1/max(RadarRatio^3,0.2) * min(RadarRatio,0.4)/0.4 * TargetError:mag.
     if cAbort and airspeed < 69 set GuidVec to 4*up:vector - velocity:surface:normalized.
 
     // === TVC compensation ===
@@ -3699,13 +3694,14 @@ function LandingGuidance {
 
     // === Debug Draw ===
     //set tgtError to vecDraw(CatchPos, -TargetError, white, "TgtError", 1, true, 0.1).
-    //set TestVec to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, fwdErrorVec, red, "Test", 1, true, 0.2).
-    //set TestVec2 to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, sideErrorVec, magenta, "Test", 1, true, 0.2). 
-    //set TestVec3 to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, PrVec, green, "Test", 1, true, 0.2).
-    //set Test2Vec to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale), blue, "Test2", 1, true, 0.2).
-    //set drawGuid to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, GuidVec, grey, "Guid", 1, true, 0.2).
+    //set TestVec3 to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, PrVec, green, "P", 1, true, 0.2).
+    //set TestVec to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, fwdErrorVec * TowerAvoidanceFactor , red, "fwdErr", 1, true, 0.2).
+    //set TestVec2 to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) , magenta, "sideErr", 1, true, 0.2). 
+    //set TestVec4 to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, PositionError:normalized * 1/max(RadarRatio^3,0.2) * min(RadarRatio,0.5)/0.5, yellow, "posit", 1, true, 0.2).
+    //set Test2Vec to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale) * 0.69, blue, "GSVec", 1, true, 0.2).
+    //set drawGuid to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, GuidVec, grey, "Guid", 1, true, 0.2).
     //set drawFin to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, FinalVec, white, "Final", 24, true, 0.008).
-    print round(gsTime,3)+ " _ " +round(vertTime,3)+ " - " +round(closureRatio,3)+ " / " +round(RadarRatio,2). 
+    print round(RadarRatio,2). 
     print round(predictValue,3).
 
     //if BoosterType:contains("Block3") return lookDirUp(FinalVec, -RollVector). else 
