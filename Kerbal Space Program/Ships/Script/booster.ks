@@ -3629,7 +3629,10 @@ function LandingGuidance {
     else if angleTgtError > 100 and GfC set TowerAvoidanceFactor to 1.5.
     else set TowerAvoidanceFactor to 1.
 
-    set GuidVec to PrVec + fwdErrorVec * TowerAvoidanceFactor + sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
+    set GuidVec to PrVec 
+        + fwdErrorVec * TowerAvoidanceFactor 
+        + sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) 
+        + PredictGSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale).
     if cAbort and airspeed < 69 set GuidVec to 4*up:vector - velocity:surface:normalized.
 
     // === TVC compensation ===
@@ -3647,8 +3650,13 @@ function LandingGuidance {
     else set gsLimiter to 0.
 
     // === Final Vector ===
-    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.36) * OnStreamFactor  - GSVec * lateBrake - GSVec:normalized * gsLimiter
-        + facing:forevector * steerDamp - velocity:surface:normalized * streamDamp + up:vector * lookUpDamp + HighAngleVec * haVstrength/Scale.
+    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.36) * OnStreamFactor  
+        - GSVec * lateBrake 
+        - GSVec:normalized * gsLimiter
+        + facing:forevector * steerDamp 
+        - velocity:surface:normalized * streamDamp 
+        + up:vector * lookUpDamp 
+        + HighAngleVec * haVstrength/Scale.
 
     // === Case wrong Thrust dir ===
     if vAng(FinalVec,facing:forevector) < 4 and TgtErrorVector:mag > BoosterHeight/Scale and MiddleEnginesShutdown {
