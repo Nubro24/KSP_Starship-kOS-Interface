@@ -1143,7 +1143,7 @@ else {
         set BoosterHeight to 42.2.
         if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2520.
+        set LFBoosterFuelCutOff to 2650.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
@@ -3607,7 +3607,7 @@ function LandingGuidance {
         else set haVstrength to 0.
     }
     // === Future Offset from Target ===
-    if MiddleEnginesShutdown set TVCDamp to 0.8*PredictGSVec.
+    if MiddleEnginesShutdown set TVCDamp to PredictGSVec.
     else set TVCDamp to 0.18*PredictGSVec.
     if addons:tr:hasimpact and RadarAlt > 3*Scale set myFuturePos to addons:tr:impactpos:position + MZHeight*(CatchPins-addons:tr:impactpos:position + velocity:surface/9.81):normalized*1/cos(vAng((CatchPins-addons:tr:impactpos:position + velocity:surface/9.81), up:vector)).
     else set myFuturePos to CatchPos.
