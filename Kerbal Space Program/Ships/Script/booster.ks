@@ -101,7 +101,6 @@ set LngCtrl to 0.
 set LngError to 0.
 set LatError to 0.
 set ErrorVector to V(0, 0, 0).
-set oldBooster to false.
 set BoosterFueled to false.
 set Frost to false.
 set RandomFlip to false.
@@ -124,28 +123,6 @@ set ECset to false.
 set BTset to false.
 set HSset to false.
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") and not BTset {
-        set BoosterType to "Block0".
-        set BoosterCore to part.
-        set bLOXTank to part.
-        set bCH4Tank to part.
-        set bCMNDome to part.
-        set FWD to part.
-        set DumpVents to list().
-        set ModulesFound to false.
-        set x to 0.
-        until x > part:modules:length-1 or ModulesFound {
-            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
-                DumpVents:add(part:getmodulebyindex(x)).
-                set ModulesFound to true.
-                break.
-            }
-            set x to x+1.
-        }
-        set oldBooster to true.
-        set BTset to true.
-        set SinglePartBooster to true.
-    }
     if part:name:contains("SEP.25.BOOSTER.CORE") and not BTset {
         set BoosterType to "Block2".
         set BoosterCore to part.
@@ -1022,7 +999,6 @@ if bodyexists("Earth") {
         set LaunchSites to lexicon("KSC", "28.549072,-80.655925").
         set offshoreSite to latlng(28.549,-80.5).
         set BoosterHeight to 70.6.
-        if oldBooster set BoosterHeight to 72.6.
         set LiftingPointToGridFinDist to 4.5.
         set LFBoosterFuelCutOff to 12000.
         if not BoosterSingleEngines set LFBoosterFuelCutOff to 15000.
@@ -1032,13 +1008,12 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 2540. 
-        else set BoosterGlideDistance to 2400. //1640 
+        set BoosterGlideDistance to 2800. //2400 
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 1.
-        set LngCtrlPID:setpoint to 50. //84
+        set LngCtrlPID:setpoint to 20. //24
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.15, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
@@ -1060,7 +1035,6 @@ if bodyexists("Earth") {
         set LaunchSites to lexicon("KSC", "28.50895,-81.20396").
         set offshoreSite to latlng(28.50895,-80.4).
         set BoosterHeight to 42.2.
-        if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 3000. //3000
         if FAR {
@@ -1069,8 +1043,7 @@ if bodyexists("Earth") {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1600. 
-        else set BoosterGlideDistance to 1450.
+        set BoosterGlideDistance to 1450.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
@@ -1104,7 +1077,6 @@ else {
             set offshoreSite to latlng(-0.09,-74.3).
         }
         set BoosterHeight to 42.2.
-        if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 3000. //3000
         if FAR {
@@ -1113,8 +1085,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1600. 
-        else set BoosterGlideDistance to 1400.
+        set BoosterGlideDistance to 1400.
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
@@ -1141,7 +1112,6 @@ else {
         set LaunchSites to lexicon("KSC", "-0.0972,-74.5577", "Dessert", "-6.5604,-143.95", "Woomerang", "45.2896,136.11", "Baikerbanur", "20.6635,-146.4210").
         set offshoreSite to latlng(-0.097,-73).
         set BoosterHeight to 42.2.
-        if oldBooster set BoosterHeight to 45.6.
         set LiftingPointToGridFinDist to 0.3.
         set LFBoosterFuelCutOff to 2750.
         if FAR {
@@ -1150,8 +1120,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
-        if oldBooster set BoosterGlideDistance to 1200. 
-        else set BoosterGlideDistance to 1020. //1100
+        set BoosterGlideDistance to 1020. //1100
         if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set BoosterGlideFactor to 1.15.
@@ -1211,15 +1180,13 @@ set maxpusherengage to 0.33*Scale.
 
 set MZHeight to 70*Scale.
 
-if not oldBooster {
-    set BoosterDockingHeight to 32.6*Scale.
-    if RSS set BoosterDockingHeight to BoosterDockingHeight + 0.65.
-    set maxstabengage to 100 * Scale.
-    set maxpusherengage to 0.3*Scale.
-}
+set BoosterDockingHeight to 32.6*Scale.
+if RSS set BoosterDockingHeight to BoosterDockingHeight + 0.65.
+set maxstabengage to 100 * Scale.
+set maxpusherengage to 0.3*Scale.
 
 if BoosterSingleEngines set IgnitionTime to 0.6.
-else set IgnitionTime to 0.48.
+else set IgnitionTime to 0.6.
 
 if not ship:status = "FLYING" and not ship:status = "SUB_ORBITAL" or ship:status = "PRELAUNCH" set landingzone to ship:geoposition.
 else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to 
@@ -1706,7 +1673,6 @@ function Boostback {
             set ship:control:yaw to -2 * YawStrength.
             if not RSS set FlipTime to 4.4.
             else set FlipTime to 4.2.
-            if oldBooster set FlipTime to FlipTime * 1.3.
         } else {
             if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/Scale * PitchStrength. else 
             set ship:control:pitch to 2.4 * 1.6/Scale * PitchStrength.
@@ -2029,6 +1995,12 @@ function Boostback {
                 if SinglePartBooster BoosterCore:activate.
                 else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("activate engine", true).
             }
+            if RSS {
+                lock throttle to min(0.8,max(min((-(LngError + BoosterGlideDistance - 1000) / 5000 + 0.01), (10 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass))), 0.33)).
+            }
+            else {
+                lock throttle to min(0.8,max(min((-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01), (10 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass))), 0.33)).
+            }
         }
         set changed to false.
         set lastCheck to GfC.
@@ -2096,6 +2068,8 @@ function Boostback {
             else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("shutdown engine", true).
         }
         set steeringManager:rolltorquefactor to 2.
+
+        if HSRJet set BoosterGlideDistance to BoosterGlideDistance * 0.93.
 
         until (LngError + 50 > -BoosterGlideDistance and LFBooster < LFBoosterFuelCutOff * 2) or (LngError + 50 > -BoosterGlideDistance*1.04) or verticalspeed < -280 or BoostBackComplete {
             if not GfC = lastCheck {
@@ -2656,7 +2630,7 @@ function Boostback {
                 set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position)*0.69.
             }
             else {
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 22*Scale.
+                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24/Scale.
                 set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position) * (1.6/Scale)^0.4 * (airspeed/600).
             }
             
@@ -2927,13 +2901,7 @@ function Boostback {
                                     }
                                 }
                                 for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("authority limiter", 0).
-                                if oldBooster and GridfinLength = 4 {
-                                    for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 10).
-                                    Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
-                                    Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
-                                    for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy", true).
-                                } 
-                                else if GridfinLength = 4 {
+                                if GridfinLength = 4 {
                                     for fin in Gridfins fin:getmodule("ModuleControlSurface"):SetField("deploy angle", 10).
                                     Gridfins[1]:getmodule("ModuleControlSurface"):SetField("deploy direction", false). Gridfins[3]:getmodule("ModuleControlSurface"):SetField("deploy direction", false).
                                     Gridfins[0]:getmodule("ModuleControlSurface"):SetField("deploy direction", true). Gridfins[2]:getmodule("ModuleControlSurface"):SetField("deploy direction", true).
@@ -3450,7 +3418,7 @@ FUNCTION SteeringCorrections {
                     set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))).
                 }//Decel 3 Engines
                 else {
-                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(1.5*Scale+0.1, RadarAlt) - 1.5*Scale)) - DragDecel.
+                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(1.5*Scale+0.1, RadarAlt) - 1.5*Scale)).
                     set landingRatio to max(0,  ReqDecel / (maxDecel3  * cos(vang(-velocity:surface, up:vector)))).
                 }//Throttle Preset
 
@@ -3487,14 +3455,10 @@ FUNCTION SteeringCorrections {
                     set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(stopDist3+0.1, RadarAlt)-stopDist3)) - DragDecel.
                     set landingRatio to max(0,  ReqDecel / (maxDecel * cos(vang(-velocity:surface, up:vector)))).
                 }//Decel 3 Engines
-                else if airspeed > 13 {
-                    set ReqDecel to (max(12,airspeed)^2 - 12^2)/(2*(max(BoosterHeight*0.6+0.1, RadarAlt) - BoosterHeight*0.6)) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel3 * cos(vang(-velocity:surface, up:vector)))).
-                }//Decel 3 Engines Landing
                 else {
-                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(1.5*Scale+0.1, RadarAlt) - 1.5*Scale)) - DragDecel.
+                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.5*Scale+0.1, RadarAlt) - 0.5*Scale)).
                     set landingRatio to max(0,  ReqDecel / (maxDecel3 * cos(vang(-velocity:surface, up:vector)))).
-                }//Throttle Preset
+                }
             }
             
             if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 8000 and not downToThree {
@@ -3523,8 +3487,8 @@ FUNCTION SteeringCorrections {
             print "LatCtrl: " + round(LatCtrl, 2) + " / " + round(LatCtrlPID:maxoutput, 1).
             if defined TowerHeading print "Tower Heading: " + TowerHeading.
             print " ".
-            print "Landing Burn Alt: " + round(LandingBurnAlt, 1).
-            print "MidShutdown: " + round(MidShutdownSpeed,1).
+            print "Landing Burn Alt: " + round(LandingBurnAlt, 1) + " m".
+            print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s".
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
             print " ".
             print "Drag Decel: " + round(DragDecel,1).
@@ -3542,7 +3506,8 @@ FUNCTION SteeringCorrections {
             print "AoA: " + round(vAng(-velocity:surface,facing:forevector),1).
             print "GS: " + round(groundspeed,2).
             print " ".
-            print "Dist.: " + round(landDistance,1) + "m     | " + NrCounterEngine.
+            print "Dist.: " + round(landDistance,1) + " m     | " + RadarRatio.
+            if defined tgtError print "TgtError: " + round(tgtError,1) + " m".
             print " ".
         }
     }
@@ -3573,10 +3538,9 @@ FUNCTION SteeringCorrections {
 
 
 function LandingThrottle {
-    //set minDecel to (Planet1G - 0.05) * ship:mass * 1/cos(min(45,vang(-velocity:surface, up:vector))).
-    set minThrottle to 0.3.//minDecel/maxDecel3.
+    set minThrottle to 0.33.
     set thro to max(0.33, landingRatio).
-    if verticalSpeed > -5 set thro to minThrottle * min(4,verticalSpeed/(CatchVS*2)).
+    if verticalSpeed > -5 set thro to minThrottle * min(3,verticalSpeed/(CatchVS*2)).
     if verticalSpeed > CatchVS*2 set thro to minThrottle.
     if thro < 0.24 set thro to 0.24.
     if thro > 1 {
@@ -3593,118 +3557,35 @@ function LandingGuidance {
     set landDistance to sqrt(RadarAlt^2 + PositionError:mag^2).
     set CatchPins to BoosterCore:position + BoosterHeight*0.4 * facing:forevector.
     set CatchPos to landingzone:position + MZHeight*up:vector + TheTowerHeadingVector:normalized * angleAxis(ApproachAngle/2, up:vector) - 1.2*(Scale^0.6)*TheTowerHeadingVector:normalized.
-    set PredictGSVec to GSVec*0.5 + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*min(8,ActiveRC)/(Scale*10).
+    set PredictGSVec to GSVec + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*min(13,ActiveRC)/(Scale*10+OffsetPosVec:mag/GSVec:mag). //
 
-    if dbactive {
-        set HighAngleVec to TheTowerHeadingVector:normalized * OffsetPosVec:mag + OffsetPosVec.
-        if RadarRatio > 5*Scale set haVstrength to min(max(0, (400-airspeed)/80), 1) * min(RadarRatio/5*Scale, 1) * 1/(2*LandingBurnAlt*Scale).
-        else set haVstrength to 0.
-    }
     // === Future Offset from Target ===
-    if MiddleEnginesShutdown set TVCDamp to PredictGSVec.
-    else set TVCDamp to 0.18*PredictGSVec.
     if addons:tr:hasimpact and RadarAlt > 3*Scale set myFuturePos to addons:tr:impactpos:position + MZHeight*(CatchPins-addons:tr:impactpos:position + velocity:surface/9.81):normalized*1/cos(vAng((CatchPins-addons:tr:impactpos:position + velocity:surface/9.81), up:vector)).
     else set myFuturePos to CatchPos.
-    set TargetError to CatchPos - myFuturePos - TVCDamp * max(0,min(1,RadarRatio-1)).
-    set TgtErrorVector to ErrorVector * min(max(0.1, (RadarRatio-2.5)/4), 0.2) - TargetError * min(max(0.4, 1.5/(RadarRatio-1.75)), 0.9).
+    set TargetError to CatchPos - myFuturePos - PredictGSVec.
 
     // === Guidance ===
-    set angleTgtError to vAng(TargetError, PositionError). 
-    if angleTgtError > 90 set predictInput to -TargetError:mag.
-    else set predictInput to TargetError:mag.
-    set predictValue to 6*min(1,max(RadarRatio,0.3))*tgtErrorPID:update(time:seconds, predictInput).
-    if landDistance > BoosterHeight or RadarRatio > 1 set PrVec to (CatchPins - CatchPos):normalized * landDistance/3 + up:vector * landDistance/9.
-    else set PrVec to BoosterHeight*up:vector - GSVec*0.1.
+    set MainVector to 
+        (CatchPins - CatchPos + 0.5 * OffsetPosVec):normalized * max(0,RadarRatio-2.5) * min(1,airspeed/100)
+        + up:vector * 3/max(1,RadarRatio^1.5) * 120/max(120,airspeed).
 
-    set fwdErrorVec to vxcl(vCrs(up:vector, -PositionError), -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/6 * min(max(-0.5,340-airspeed/40),1)).
-    set sideErrorVec to vxcl(-PositionError, -TgtErrorVector * 20/max(airspeed-260,16) + TargetError * abs(predictValue)/10 * min(max(-0.5,340-airspeed/40),1)).
+    set tgtError to max(2*Scale,TargetError:mag)/(2*Scale) * max(1, 1/max(0.75,abs(RadarRatio-1))).
+    //if defined TowerHeadingVector if vAng(TowerHeadingVector, TargetError) < 90 set tgtError to tgtError - RadarRatio.
+    set GSCancel to GSVec * 2/max(1,(RadarRatio-0.5)*2) * max(-1,1.1 - OffsetPosVec:mag/max(1,GSVec:mag*max(0.8,TotalstopTime-0.8))).
+    set GuidVec to
+        TargetError:normalized * tgtError
+        - GSCancel.
 
-    if angleTgtError > 100 and not Bl3LndProf and GfC set TowerAvoidanceFactor to 1.25.
-    else if angleTgtError > 100 and GfC set TowerAvoidanceFactor to 1.5.
-    else set TowerAvoidanceFactor to 1.
+    set FinalVec to MainVector * BoosterHeight/min(max(0.4,RadarRatio+0.2),1.6) + GuidVec * 160/max(160,airspeed) + facing:forevector * BoosterHeight/4 - velocity:surface * max(0,airspeed-150)/max(1,airspeed/2).
 
-    set GuidVec to PrVec 
-        + fwdErrorVec * TowerAvoidanceFactor * min(RadarRatio,1)/1
-        + sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) * min(RadarRatio,1)/1
-        + GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale) * 0.6 * min(RadarRatio,0.4)/0.4
-        + PositionError:normalized * 1/max(RadarRatio^3,0.2) * min(RadarRatio,0.4)/0.4 * TargetError:mag.
-    if cAbort and airspeed < 69 set GuidVec to 4*up:vector - velocity:surface:normalized.
+    // == Debug ==
+    set vMain to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight/2, MainVector, grey, "Main", 1, true, 0.2).
+    set v1 to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight/2, TargetError:normalized * tgtError, blue, "Tgt", 1, true, 0.2).
+    set v2 to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight/2, - GSCancel, red, "GS", 1, true, 0.2).
+    set vGuid to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight/2, GuidVec, green, "Guid", 1, true, 0.2).
+    set vFinal to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight/2, FinalVec, white, "Final", 1, true, 0.2).
+    set vOffset to vecDraw(myFuturePos + PredictGSVec, TargetError, yellow, "Error", 1, true, 0.1).
 
-    // === TVC compensation ===
-    set steeringOffset to vAng(GuidVec,facing:forevector).
-    set streamOffset to vAng(GuidVec,-velocity:surface).
-    set steerDamp to min((max((steeringOffset - 1) / 8, 0))^1.4, 1.1).
-    set streamDamp to min((max((streamOffset - 1) / 4, 0))^1.4, 1.1) * min(max(0,airspeed-180)/50, 1).
-    set lookUpDamp to min(1, 0.6/max((RadarRatio^1.6)/(Scale^0.7), 0.05)) + (max(0,vAng(up:vector,GuidVec)-6)*20/max(airspeed-120,20))/26.
-    if RadarRatio < 1.5*max(1,GSVec:mag/(8*Scale)) and RadarRatio > 0.13 set lateBrake to min(0.3/max(0.05,RadarRatio),2)*0.1/((Scale+0.1)^1.55) * min(1,GSVec:mag/(max(0.5,RadarRatio)*6.25*Scale)) * min(1,(10*Scale)/max(1,GSVec:mag)).
-    else set lateBrake to 0.
-    if not MiddleEnginesShutdown and not Bl3LndProf set OnStreamFactor to 0.24 * 240/max(airspeed,50).
-    else if not MiddleEnginesShutdown  set OnStreamFactor to 0.5 * 300/max(airspeed,50) * TowerAvoidanceFactor.
-    else set OnStreamFactor to 1.
-    if MiddleEnginesShutdown and Bl3LndProf set gsLimiter to max(0,(GSVec:mag - 10*Scale)/(4*Scale) * min(1,max(0,70-airspeed)/28)).
-    else set gsLimiter to 0.
-
-    // === Final Vector ===
-    set FinalVec to GuidVec:normalized * max(min(1, (RadarRatio^1.2)/0.12),0.36) * OnStreamFactor  
-        - GSVec * lateBrake 
-        - GSVec:normalized * gsLimiter
-        + facing:forevector * steerDamp 
-        - velocity:surface:normalized * streamDamp 
-        + up:vector * lookUpDamp 
-        + HighAngleVec * haVstrength/Scale.
-
-    // === Case wrong Thrust dir ===
-    if vAng(FinalVec,facing:forevector) < 4 and TgtErrorVector:mag > BoosterHeight/Scale and MiddleEnginesShutdown {
-        set ResetNeeded to true.
-        if BoosterSingleEngines {
-            for gimbalEng in BoosterSingleEnginesRC {
-                if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", vAng(FinalVec,facing:forevector)).
-            }
-        }
-        else {
-            if Block3Cluster Mid2GimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)).
-            MidGimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)).
-            CtrGimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)).
-        }
-    } else if vAng(FinalVec,facing:forevector) < 12 and TgtErrorVector:mag > BoosterHeight/Scale or not MiddleEnginesShutdown {
-        set ResetNeeded to true.
-        if BoosterSingleEngines {
-            for gimbalEng in BoosterSingleEnginesRC {
-                if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", vAng(FinalVec,facing:forevector)*3).
-            }
-        }
-        else {
-            if Block3Cluster Mid2GimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)*3).
-            MidGimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)*3).
-            CtrGimbMod:SetField("gimbal limit", vAng(FinalVec,facing:forevector)*3).
-        }
-    } else if ResetNeeded {
-        set ResetNeeded to false.
-        if BoosterSingleEngines {
-            for gimbalEng in BoosterSingleEnginesRC {
-                if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 78).
-            }
-        }
-        else {
-            if Block3Cluster Mid2GimbMod:SetField("gimbal limit", 78).
-            MidGimbMod:SetField("gimbal limit", 78).
-            CtrGimbMod:SetField("gimbal limit", 78).
-        }
-    }
-
-    // === Debug Draw ===
-    //set tgtError to vecDraw(CatchPos, -TargetError, white, "TgtError", 1, true, 0.1).
-    //set TestVec3 to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, PrVec, green, "P", 1, true, 0.2).
-    //set TestVec to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, fwdErrorVec * TowerAvoidanceFactor , red, "fwdErr", 1, true, 0.2).
-    //set TestVec2 to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, sideErrorVec * max(0.2,min(1,RadarRatio/3)) * min(1,(sideErrorVec:mag/(3*Scale))^1.5) , magenta, "sideErr", 1, true, 0.2). 
-    //set TestVec4 to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, PositionError:normalized * 1/max(RadarRatio^3,0.2) * min(RadarRatio,0.5)/0.5, yellow, "posit", 1, true, 0.2).
-    //set Test2Vec to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, GSVec:normalized * predictValue * 20/max(airspeed-280,20) * min(1, max(RadarRatio-0.24/2, 0.1)) * min(1,max(GSVec:mag,2)/7*Scale) * 0.69, blue, "GSVec", 1, true, 0.2).
-    //set drawGuid to vecDraw(FWD:position+BoosterHeight*0.3*facing:forevector, GuidVec, grey, "Guid", 1, true, 0.2).
-    //set drawFin to vecDraw(FWD:position+BoosterHeight*0.1*facing:forevector, FinalVec, white, "Final", 24, true, 0.008).
-    print round(RadarRatio,2). 
-    print round(predictValue,3).
-
-    //if BoosterType:contains("Block3") return lookDirUp(FinalVec, -RollVector). else 
     return lookDirUp(FinalVec, RollVector).
 }
 
@@ -4599,6 +4480,7 @@ function GUIupdate {
 
             if not BoosterType:contains("Block3") {
                 if (Mode = "Center Three" or Mode = "Core") and ModeChanged {
+                    set ActiveRC to 3.
                     set x to 1.
                     until x > 3 {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -4609,6 +4491,7 @@ function GUIupdate {
                         set x to x+1.
                     }
                 } else if Mode = "2Inner" and ModeChanged {
+                    set ActiveRC to 5.
                     set x to 1.
                     until x > 13 {
                         if x = 1 or x = 2 or x = 3 or x = 7 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -4620,6 +4503,7 @@ function GUIupdate {
                         set x to x+1.
                     }
                 } else if (Mode = "Middle Inner" or Mode = "Inner" or Mode = "Middle Ten") and ModeChanged {
+                    set ActiveRC to 13.
                     set x to 1.
                     until x > 13 {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -4630,6 +4514,7 @@ function GUIupdate {
                         set x to x+1.
                     }
                 } else if (Mode = "All Engines" or Mode = "All" or Mode = "Outer Twenty") and ModeChanged {
+                    set ActiveRC to 33.
                     set x to 1.
                     until x > 33 {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -4637,6 +4522,7 @@ function GUIupdate {
                     }
                 }
             } else if Mode = "Core" and ModeChanged {
+                set ActiveRC to 3.
                 set x to 1.
                 until x > 3 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
@@ -4647,6 +4533,7 @@ function GUIupdate {
                     set x to x+1.
                 }
             } else if Mode = "2Inner" and ModeChanged {
+                set ActiveRC to 5.
                 set x to 1.
                 until x > 13 {
                     if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
@@ -4658,6 +4545,7 @@ function GUIupdate {
                     set x to x+1.
                 }
             } else if Mode = "Inner" and ModeChanged {
+                set ActiveRC to 13.
                 set x to 1.
                 until x > 13 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
@@ -4668,6 +4556,7 @@ function GUIupdate {
                     set x to x+1.
                 }
             } else if Mode = "All" and ModeChanged {
+                set ActiveRC to 33.
                 set x to 1.
                 until x > 33 {
                     set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.

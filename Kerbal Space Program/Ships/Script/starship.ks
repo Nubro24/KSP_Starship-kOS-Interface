@@ -12587,8 +12587,8 @@ function ReEntryAndLand {
                         if RSS {
                             set PitchPID:kp to 0.09.
                             set PitchPID_kp to 0.09.
-                            set PitchPID:ki to 0.072. 
-                            set PitchPID:kd to 0.15. 
+                            set PitchPID:ki to 0.062. 
+                            set PitchPID:kd to 0.14. 
                             set YawPID:kp to 0.03.
                             set YawPID:ki to 0.018. 
                             set YawPID:kd to 0.012. 
@@ -14164,8 +14164,8 @@ function LngLatError {
                         if RadarAlt > 5500 set LngLatOffset to -15.
                         else set LngLatOffset to 0 - vxcl(up:vector, velocity:surface):mag*0.55.
                     } else if ShipType:contains("SN"){
-                        if RadarAlt > 5500 set LngLatOffset to -40.
-                        else set LngLatOffset to -32 - vxcl(up:vector, velocity:surface):mag*0.55.
+                        if RadarAlt > 5500 set LngLatOffset to -38.
+                        else set LngLatOffset to -34 - vxcl(up:vector, velocity:surface):mag*0.55.
                     } else {
                         if RadarAlt > 5500 set LngLatOffset to -15.
                         else set LngLatOffset to -5 - vxcl(up:vector, velocity:surface):mag*0.55.
@@ -14196,8 +14196,8 @@ function LngLatError {
                         if RadarAlt > 6500 set LngLatOffset to -42.
                         else set LngLatOffset to -32 - vxcl(up:vector, velocity:surface):mag*0.8.
                     } else if ShipType:contains("SN"){
-                        if RadarAlt > 5500 set LngLatOffset to -55.
-                        else set LngLatOffset to -46 - vxcl(up:vector, velocity:surface):mag*0.55.
+                        if RadarAlt > 5500 set LngLatOffset to -58.
+                        else set LngLatOffset to -52 - vxcl(up:vector, velocity:surface):mag*0.55.
                     } else {
                         if RadarAlt > 6500 set LngLatOffset to -40.
                         else set LngLatOffset to -30 - vxcl(up:vector, velocity:surface):mag*0.8.

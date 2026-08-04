@@ -4,6 +4,8 @@
 - Reworked Booster Return Calculations
 - **Reworked Ship Catch Guidance**
 - Improved Gimbal Module find-function for Cluster
+- Improved Booster Catch Guidance
+- Improved Ship Descent Guidance
 - Increased Booster Descent Lng PID kd
 - Fixed Ship not targeting the OLM
 
