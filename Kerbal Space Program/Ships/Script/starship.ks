@@ -487,6 +487,7 @@ set ALflap to false.
 set ARflap to false.
 set FNBship to false.
 set Phase1Min to -4.
+set HotstageSwitch to false.
 
 
 if core:part:hasmodule("FARPartModule") {
@@ -9095,6 +9096,8 @@ function Launch {
             set quickengine3:pressed to true.
             lock throttle to 1.
             set cancel:text to "<b>CANCEL</b>".
+            set tgtspeed to ship:body:radius * sqrt(Planet1G / (ship:body:radius + TargetAp)).
+            set Phase2Initilized to false.
             InhibitButtons(1, 1, 1).
         }
 
@@ -9117,12 +9120,16 @@ function Launch {
                 for eng in SLEngines {
                     eng:getmodule("ModuleSEPRaptor"):doaction("disable actuate out", true).
                 }
+                set HotstageSwitch to true.
             }
             when time:seconds > HotStageTime + 2 then {
                 KUniverse:forceactive(vessel("Booster")).
             }
             when time:seconds > HotStageTime + 3 then {
                 lock steering to LaunchSteering().
+            }
+            when time:seconds > HotStageTime + 4 then {
+                set HotstageSwitch to false.
             }
 
             when altitude > 0.72*TargetAp then {
@@ -11312,7 +11319,7 @@ function BackGroundUpdate {
         if prevCalcTime + 0.1 < time:seconds {
             SendPing().
             updatestatusbar().
-            SetPlanetData().
+            if not HotstageSwitch SetPlanetData().
             if ShipIsDocked {
                 if Tank:getmodule("ModuleDockingNode"):hasevent("undock") {
                     if time:seconds - TimeSinceDock > 10 and not (TimeSinceDock = "0") {
@@ -13846,7 +13853,7 @@ function LandingVector {
                     set PositionCorrection to vxcl(up:vector, TargetPos - Nose:position).
                     if not twoSL {
                         set PredictErrVec to TargetPos - myFuturePos.
-                        set GoDownFactor to 4 * min(1,vAng(vxcl(up:vector, facing:topvector), PredictErrVec)/90).
+                        set GoDownFactor to 5 * min(1,vAng(vxcl(up:vector, facing:topvector), PredictErrVec)/90).
                         if PredictErrVec:mag < 1*Scale set GoDownFactor to 6.
                         set PredictGSVec to PredictGSVec - vxcl(up:vector, facing:topvector)*GoDownFactor.
                     }
@@ -13859,7 +13866,7 @@ function LandingVector {
 
                     //Guidance
                     set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) 
-                        + TgtErrorVector:normalized * TgtErrorStrength
+                        + TgtErrorVector:normalized * TgtErrorStrength * 1/max(0.75,collisionAvoider)
                         - GSVec * 0.2 * 1/max(0.55,RadarRatio)
                         + PositionCorrection:normalized * min(3,TgtErrorStrength) * collisionAvoider * 1/max(1,RadarRatio-4) * min(1,RadarRatio-0.5).
                     

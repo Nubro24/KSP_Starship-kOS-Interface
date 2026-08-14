@@ -2,12 +2,12 @@
 - Updated Block 3 Flight Profile and Engine Timings
 - **Updated to SEP v3.2.1**
 - Reworked Booster Return Calculations
-- **Reworked Ship Catch Guidance**
+- **Reworked Ship & Booster Catch Guidance**
 - Improved Gimbal Module find-function for Cluster
-- Improved Booster Catch Guidance
 - Improved Ship Descent Guidance
 - Increased Booster Descent Lng PID kd
 - Fixed Ship not targeting the OLM
+- Fixed some Errors
 
 # V3.6.0 (2026-05-04)
 - **Reworked Catch Guidance for Booster and Ship** 
