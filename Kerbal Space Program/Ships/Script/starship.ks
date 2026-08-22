@@ -12606,6 +12606,7 @@ function ReEntryAndLand {
         if not AFTONLY ALflap:getmodule("ModuleSEPControlSurface"):DoAction("deactivate yaw control", true).
         if not AFTONLY ARflap:getmodule("ModuleSEPControlSurface"):DoAction("deactivate yaw control", true).
 
+
         
         if DynamicBanking {
             set timesChecked to 0.
@@ -12626,6 +12627,7 @@ function ReEntryAndLand {
                     set Vessel(TargetedOLM):loaddistance:landed:unpack to DistanceToTarget*1200.
                     set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to DistanceToTarget*1200.
                     when Vessel(TargetedOLM):loaded then {
+                        if Vessel(TargetedOLM):partsnamed("OLM.B2"):length > 0 or Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount 2"):length > 0 set PadB to true.
                         if Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  
                             set TowerHeadingVector to vxcl(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                         else {
@@ -12879,8 +12881,9 @@ function ReEntryAndLand {
                         //InhibitButtons(1, 1, 1).
                         LandAtOLM().
                         wait 0.
-                        if not (TargetOLM = "False") and not LandSomewhereElse when Vessel(TargetOLM):distance < 2000 then {
+                        if not (TargetOLM = "False") and not LandSomewhereElse when Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded then {
                             lock PositionError to vxcl(up:vector, Nose:position - landingzone:position).
+                            if Vessel(TargetOLM):partsnamed("OLM.B2"):length > 0 or Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2"):length > 0 set PadB to true.
                             set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
                             set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
                             when Vessel(TargetOLM):distance < 1300 then {
@@ -17001,7 +17004,7 @@ function GetShipRotation {
         set shipPos to Nose:position - facing:forevector * min(ShipHeight,RadarAlt).
 
         if PadB {
-        if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Vessel(TargetOLM):PARTSNAMED("OLIT.2")[0]:position).
+            if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Vessel(TargetOLM):PARTSNAMED("OLIT.2")[0]:position).
             if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded and vAng(shipPos-Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position,TowerHeadingVector) < 80 {
                 set varVec to vxcl(up:vector, shipPos - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + vxcl(TowerHeadingVector,GSVec)) * min(1,RadarRatio).
                 if defined myFuturePos set varVec to vxcl(up:vector, vxcl(TowerHeadingVector,myFuturePos)*0.8 * min(1,RadarRatio) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + shipPos).
@@ -17011,7 +17014,7 @@ function GetShipRotation {
             else set varR to 8.
         }
         else {
-        if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+            if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
             if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded and vAng(shipPos-Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,TowerHeadingVector) < 80 {
                 set varVec to vxcl(up:vector, shipPos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + vxcl(TowerHeadingVector,GSVec)) * min(1,RadarRatio).
                 if defined myFuturePos set varVec to vxcl(up:vector, vxcl(TowerHeadingVector,myFuturePos)*0.8 * min(1,RadarRatio) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + shipPos).
