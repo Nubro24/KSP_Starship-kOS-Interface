@@ -861,6 +861,7 @@ set LFShip to 0.
 set LFShipCap to 0.
 set PlotAoAset to false.
 set yawctrl to 0.
+set PadB to false.
 
 
 //---------------Finding Parts-----------------//
@@ -881,7 +882,7 @@ when NOT CORE:MESSAGES:EMPTY then {
 
 function FindParts {
     wait 0.
-    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 or ship:partsnamed("SEP.24.SHIP.CORE"):length > 0) if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 {
+    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 or ship:partsnamed("SEP.24.SHIP.CORE"):length > 0 or ship:partsnamed("SEP.26.SHIP.CORE"):length > 0) if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0  and SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE"):length = 0 {
         set ShipIsDocked to true.
     }
     else {
@@ -926,6 +927,7 @@ function FindParts {
         for x in StartPart:children {
             if x:name:contains("SEP.23.BOOSTER.INTEGRATED") {}
             else if x:name:contains("SEP.25.BOOSTER.CORE") {}
+            else if x:name:contains("SEP.26.BOOSTER.CORE") {}
             else if x:name:contains("Block.3.AFT") {}
             else if x:name:contains("Block.3.LOX") {}
             else if x:name:contains("Block.3.CMN") {}
@@ -957,16 +959,16 @@ function FindParts {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.25.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
+                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.26.SHIP.AFT.LEFT") or x:name:contains("SEP.25.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
                     set ALflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.25.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
+                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.26.SHIP.AFT.RIGHT") or x:name:contains("SEP.25.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.25.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.26.SHIP.FWD.LEFT") or x:name:contains("SEP.25.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.25.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.26.SHIP.FWD.RIGHT") or x:name:contains("SEP.25.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
                     set FRflap to x.
                 }
                 else if x:name:contains("SEP.24.SHIP.PROTO.NOSE") {
@@ -1033,6 +1035,25 @@ function FindParts {
                     set HeaderTank to x.
                     set MaxCargoToOrbit to 95000/(Scale^0.5).
                     set ShipType to "Block2Cargo".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.26.SHIP.PEZ") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set MaxCargoToOrbit to 95000/(Scale^0.5).
+                    set ShipType to "Block3PEZ".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.26.SHIP.CARGO") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set MaxCargoToOrbit to 95000/(Scale^0.5).
+                    set ShipType to "Block3Cargo".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+				else if x:name:contains("SEP.26.SHIP.NOSECONE") and not x:name:contains("SEP.26.SHIP.NOSECONE.EXP") {
+                    set Nose to x.
+                    set ShipType to "Block3".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
@@ -1114,7 +1135,7 @@ function FindParts {
         set SL2 to false.
         set SL3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.26.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") or x:name:contains("SEP.26.R3.SL.C") {
                     set partPos to x:position - Tank:position.
                     set compPos to Tank:facing:topvector.
@@ -1162,7 +1183,7 @@ function FindParts {
         set Vac2 to false.
         set Vac3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.26.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set partPos to x:position - Tank:position.
                     set compPos to -Tank:facing:topvector.
@@ -1207,7 +1228,7 @@ function FindParts {
         set Vac5 to false.
         set Vac6 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.26.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set partPos to vxcl(Tank:facing:forevector,x:position - Tank:position).
                     set compPos to -Tank:facing:starvector.
@@ -1361,6 +1382,45 @@ function FindParts {
         set bCH4Tank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
         set bCMNDome to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
         set bFWDDome to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("SEP.26.BOOSTER.CORE"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block3".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        if SHIP:PARTSNAMED("SEP.26.BOOSTER.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("SEP.26.BOOSTER.CLUSTER").
+        else { 
+            set BoosterEngines to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+            set BoosterSingleEngines to true.
+        }
+        set GridFins to SHIP:PARTSNAMED("SEP.26.BOOSTER.GRIDFIN").
+        set HSR to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set BoosterCore to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set bLOXTank to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set bCH4Tank to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set bCMNDome to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set bFWDDome to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             //print(round(BoosterCore[0]:drymass)).
@@ -1559,6 +1619,43 @@ function FindParts {
         print("Stack mass: " + StackMass).
         print(ship:mass).
     }
+    else if ship:partsnamed("OLM.B2"):length > 0 {
+        set OnOrbitalMount to True.
+        set OLM to ship:partsnamed("OLM.B2")[0].
+        set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+        set Mechazilla to ship:partsnamed("PadB.Chopsticks")[0].
+        set TowerCore to ship:partsnamed("OLIT.2")[0].
+        if ship:partsnamed("Sqd.2"):length > 0 {
+            set SQD to ship:partsnamed("Sqd.2")[0].
+        }
+        set SteelPlate to ship:partsnamed("OLM.B2")[0].
+        set PadB to true.
+        sendMessage(processor(volume("OrbitalLaunchMount")), "getArmsVersion").
+        if RSS {
+            set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 12.
+        }
+        else {
+            set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 7.5.
+        }
+        //SaveToSettings("ArmsHeight", ArmsHeight).
+        set StackMass to ship:mass - OLM:Mass - TowerCore:mass - Mechazilla:mass.
+        print("Stack mass: " + StackMass).
+        print(ship:mass).
+        set curMod to 0.
+        for DelugeMod in OLM:modules {
+            if DelugeMod = "ModuleEnginesFX" {
+                if OLM:getmodulebyindex(curMod):gethiddenfield("runningEffectName") = "running_trench" set Trenchmod to curMod.
+                if OLM:getmodulebyindex(curMod):gethiddenfield("runningEffectName") = "running_deluge" set TopDeckmod to curMod.
+            }
+            if DelugeMod = "DualEngineModule" set DSSmod to curMod.
+            if DelugeMod = "ModuleEngines" and OLM:getmodulebyindex(curMod):gethiddenfield("engineID") = "Trench Effect" set Plumemod to curMod.
+            set curMod to curMod + 1.
+        }
+        print DSSmod.
+        print Plumemod.
+        print Trenchmod.
+        print TopDeckmod.
+    }
     else {
         set OnOrbitalMount to False.
         set OLM to false.
@@ -1718,7 +1815,8 @@ function HighAltitudeFlightTest {
         }
     }
     set LaunchStandMass to LaunchStand:mass.
-    if OnOrbitalMount set LaunchStandMass to LaunchStandMass + OLM:Mass + TowerBase:mass + TowerCore:mass + Mechazilla:mass.
+    if OnOrbitalMount and not PadB set LaunchStandMass to LaunchStandMass + OLM:Mass + TowerBase:mass + TowerCore:mass + Mechazilla:mass.
+    else if OnOrbitalMount set LaunchStandMass to LaunchStandMass + OLM:Mass + TowerCore:mass + Mechazilla:mass.
     wait 0.2.
     set tgtVec to -facing:starvector*500.
     set TowerHeadingVector to -facing:topvector.
@@ -1988,6 +2086,20 @@ if OnOrbitalMount {
         set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
         set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
         Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
+        if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
+            SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
+        }
+    } else if ship:partsnamed("OLM.B2"):length > 0 {
+        set OnOrbitalMount to True.
+        set OLM to ship:partsnamed("OLM.B2")[0].
+        set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+        set Mechazilla to ship:partsnamed("PadB.Chopsticks")[0].
+        set TowerCore to ship:partsnamed("OLIT.2")[0].
+        if ship:partsnamed("Sqd.2"):length > 0 {
+            set SQD to ship:partsnamed("Sqd.2")[0].
+        }
+        set SteelPlate to ship:partsnamed("OLM.B2")[0].
+        set PadB to true.
         if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
             SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
         }
@@ -7895,7 +8007,31 @@ if addons:tr:available and not startup {
             }
             Watchdog:activate().
         }
-        if ShipType = "Block3PEZ" {
+        if ShipType = "Block3PEZ" and ship:partsnamed("SEP.26.SHIP.PEZ"):length > 0 {
+            set cargo1text:text to "Closed".
+            cargobutton:show().
+            set Watchdog to SHIP:PARTSNAMED("SEP.26.SHIP.PEZ").
+            if Watchdog:length = 0 {
+                set Watchdog to SHIP:PARTSNAMED(("SEP.26.SHIP.PEZ (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+            }
+            else {
+                set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
+            }
+            Watchdog:activate().
+        }
+        if ShipType = "Block3Cargo" and ship:partsnamed("SEP.26.SHIP.Cargo"):length > 0 {
+            set cargo1text:text to "Closed".
+            cargobutton:show().
+            set Watchdog to SHIP:PARTSNAMED("SEP.26.SHIP.Cargo").
+            if Watchdog:length = 0 {
+                set Watchdog to SHIP:PARTSNAMED(("SEP.26.SHIP.Cargo (" + ship:name + ")"))[0]:getmodule("kOSProcessor").
+            }
+            else {
+                set Watchdog to Watchdog[0]:getmodule("kOSProcessor").
+            }
+            Watchdog:activate().
+        }
+        if ShipType = "Block3PEZ" and ship:partsnamed("FNB.BL3.NC"):length > 0 {
             set cargo1text:text to "Closed".
             cargobutton:show().
             set Watchdog to SHIP:PARTSNAMED("FNB.BL3.NC").
@@ -8036,6 +8172,20 @@ if addons:tr:available and not startup {
                     set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
                     set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
                     Set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
+                    if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
+                        SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
+                    }
+                } else if ship:partsnamed("OLM.B2"):length > 0 {
+                    set OnOrbitalMount to True.
+                    set OLM to ship:partsnamed("OLM.B2")[0].
+                    set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+                    set Mechazilla to ship:partsnamed("PadB.Chopsticks")[0].
+                    set TowerCore to ship:partsnamed("OLIT.2")[0].
+                    if ship:partsnamed("Sqd.2"):length > 0 {
+                        set SQD to ship:partsnamed("Sqd.2")[0].
+                    }
+                    set SteelPlate to ship:partsnamed("OLM.B2")[0].
+                    set PadB to true.
                     if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Extension") {
                         SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Extension").
                     }
@@ -8273,7 +8423,7 @@ function Launch {
                 set TimeFromLaunchToOrbit to LaunchTimeSpanInSeconds + 30.
             }
             set insPID to PIDLOOP(0.6, 0, 0.25, -8, 8).
-            set vSpeedPID to PIDLOOP(0.3, 0.0002, 0.06, -10, 10).
+            set vSpeedPID to PIDLOOP(0.3, 0.0002, 0.08, -10, 10).
             set BoosterThrottleDownAlt to 1600.
         }
         set insPID:setpoint to 0.
@@ -8305,21 +8455,17 @@ function Launch {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,5,117.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,20,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,5,0.6").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,5,0.65").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
             else {
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaArms,8.5,5,117.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaPushers,0,2,12.5,true").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaStabilizers,0").
-                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,1.8,0.5").
+                sendMessage(Processor(volume("OrbitalLaunchMount")), "MechazillaHeight,2.5,0.65").
                 sendMessage(Processor(volume("OrbitalLaunchMount")), "ExtendMechazillaRails").
             }
             set x to time:seconds + TMinusCountdown - 3.
-            when x - time:seconds < 2 then {
-                wait 0.01.
-                lock throttle to 0.5.
-            }
             print "4".
             until x < time:seconds or cancelconfirmed {
                 set message1:text to "<b>All Systems:               <color=green>GO</color></b>".
@@ -8333,36 +8479,52 @@ function Launch {
                 else {
                     set message2:text to "<b>Booster/Ship:             <color=green>Start-Up Confirmed..</color></b>".
                 }
-                if x - time:seconds < 9 {
-                    for k in list(OLM) {
-                        if k:hasmodule("ModuleEnginesFX") {
-                            if k:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
-                                k:getmodule("ModuleEnginesFX"):doevent("activate engine").
+                if not PadB {
+                    if x - time:seconds < 9 {
+                        for k in list(OLM) {
+                            if k:hasmodule("ModuleEnginesFX") {
+                                if k:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
+                                    k:getmodule("ModuleEnginesFX"):doevent("activate engine").
+                                }
                             }
-                        }
-                        if k:hasmodule("ModuleEnginesRF") {
-                            if k:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
-                                k:getmodule("ModuleEnginesRF"):doevent("activate engine").
+                            if k:hasmodule("ModuleEnginesRF") {
+                                if k:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
+                                    k:getmodule("ModuleEnginesRF"):doevent("activate engine").
+                                }
                             }
                         }
                     }
-                    
+                    if x - time:seconds < 3 {
+                        for p in list(SteelPlate) {
+                            if p:hasmodule("ModuleEnginesFX") {
+                                if P:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
+                                    p:getmodule("ModuleEnginesFX"):doevent("activate engine").
+                                }
+                            }
+                            if p:hasmodule("ModuleEnginesRF") {
+                                if p:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
+                                    p:getmodule("ModuleEnginesRF"):doevent("activate engine").
+                                }
+                            }
+                        }
+                    }
                 }
-                if x - time:seconds < 3 {
-                    for p in list(SteelPlate) {
-                        if p:hasmodule("ModuleEnginesFX") {
-                            if P:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
-                                p:getmodule("ModuleEnginesFX"):doevent("activate engine").
-                            }
-                        }
-                        if p:hasmodule("ModuleEnginesRF") {
-                            if p:getmodule("ModuleEnginesRF"):hasevent("activate engine") {
-                                p:getmodule("ModuleEnginesRF"):doevent("activate engine").
-                            }
+                {
+                    if x - time:seconds < 13 {
+                        if OLM:getmodulebyindex(DSSmod):hasevent("activate Dss") {
+                            OLM:getmodulebyindex(DSSmod):doevent("activate Dss").
                         }
                     }
-                    
-                    
+                    if x - time:seconds < 7 {
+                        if OLM:getmodulebyindex(Trenchmod):hasevent("activate engine") {
+                            OLM:getmodulebyindex(Trenchmod):doevent("activate engine").
+                        }
+                    }
+                    if x - time:seconds < 4 {
+                        if OLM:getmodulebyindex(TopDeckmod):hasevent("activate engine") {
+                            OLM:getmodulebyindex(TopDeckmod):doevent("activate engine").
+                        }
+                    }
                 }
             }
             if cancelconfirmed {
@@ -8374,15 +8536,27 @@ function Launch {
                 set message3:text to "".
                 if time:seconds > x - 1 {
                     set t to time:seconds.
-                    for x in list(OLM,SteelPlate) {
-                        if x:hasmodule("ModuleEnginesFX") {
-                            if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
-                                x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
-                            }
+                    if PadB {
+                        if OLM:getmodulebyindex(DSSmod):hasevent("shutdown DSS") {
+                            OLM:getmodulebyindex(DSSmod):doevent("shutdown DSS").
                         }
-                        if x:hasmodule("ModuleEnginesRF") {
-                            if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
-                                x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                        if OLM:getmodulebyindex(Trenchmod):hasevent("shutdown engine") {
+                            OLM:getmodulebyindex(Trenchmod):doevent("shutdown engine").
+                        }
+                        if OLM:getmodulebyindex(TopDeckmod):hasevent("shutdown engine") {
+                            OLM:getmodulebyindex(TopDeckmod):doevent("shutdown engine").
+                        }
+                    } else {
+                        for x in list(OLM,SteelPlate) {
+                            if x:hasmodule("ModuleEnginesFX") {
+                                if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                                    x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+                                }
+                            }
+                            if x:hasmodule("ModuleEnginesRF") {
+                                if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                                    x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                                }
                             }
                         }
                     }
@@ -8506,8 +8680,8 @@ function Launch {
                 }
             }
             else {
-                lock throttle to 0.8.
                 set EngineStartTime to time:seconds.
+                lock throttle to 0 + min(0.8,(time:seconds-EngineStartTime)*1.1).
                 set message1:text to "<b>Ignition Sequence</b>".
                 set message2:text to "<b>Expected Engine Count:</b>    0".
                 set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
@@ -8538,6 +8712,10 @@ function Launch {
                 set message1:text to "<b>Ignition Sequence</b>".
                 set message2:text to "<b>Expected Engine Count:</b>    33".
                 set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
+                
+                if OLM:getmodulebyindex(Plumemod):hasevent("activate engine") {
+                    OLM:getmodulebyindex(Plumemod):doevent("activate engine").
+                }
                 wait 1.5.
             }
             if HideGUI g:hide().
@@ -8558,15 +8736,27 @@ function Launch {
                         wait 0.01.
                     }
                 }
-                for x in list(OLM,SteelPlate) {
-                    if x:hasmodule("ModuleEnginesFX") {
-                        if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
-                            x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
-                        }
+                if PadB {
+                    if OLM:getmodulebyindex(DSSmod):hasevent("shutdown DSS") {
+                        OLM:getmodulebyindex(DSSmod):doevent("shutdown DSS").
                     }
-                    if x:hasmodule("ModuleEnginesRF") {
-                        if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
-                            x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                    if OLM:getmodulebyindex(Trenchmod):hasevent("shutdown engine") {
+                        OLM:getmodulebyindex(Trenchmod):doevent("shutdown engine").
+                    }
+                    if OLM:getmodulebyindex(TopDeckmod):hasevent("shutdown engine") {
+                        OLM:getmodulebyindex(TopDeckmod):doevent("shutdown engine").
+                    }
+                } else {
+                    for x in list(OLM,SteelPlate) {
+                        if x:hasmodule("ModuleEnginesFX") {
+                            if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                                x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+                            }
+                        }
+                        if x:hasmodule("ModuleEnginesRF") {
+                            if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                                x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                            }
                         }
                     }
                 }
@@ -8582,7 +8772,8 @@ function Launch {
                 if fullAuto g:show().
                 return.
             }
-            set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass.
+            if not PadB set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass.
+            else set StackMass to ship:mass - OLM:Mass - TowerCore:mass - Mechazilla:mass.
             lock throttle to 0.77.
             wait 0.1.
             
@@ -8644,15 +8835,27 @@ function Launch {
                 set message1:style:textcolor to yellow.
                 set textbox:style:bg to "starship_img/starship_main_square_bg".
                 wait 3.
-                for x in list(OLM,SteelPlate) {
-                    if x:hasmodule("ModuleEnginesFX") {
-                        if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
-                            x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
-                        }
+                if PadB {
+                    if OLM:getmodulebyindex(DSSmod):hasevent("shutdown DSS") {
+                        OLM:getmodulebyindex(DSSmod):doevent("shutdown DSS").
                     }
-                    if x:hasmodule("ModuleEnginesRF") {
-                        if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
-                            x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                    if OLM:getmodulebyindex(Trenchmod):hasevent("shutdown engine") {
+                        OLM:getmodulebyindex(Trenchmod):doevent("shutdown engine").
+                    }
+                    if OLM:getmodulebyindex(TopDeckmod):hasevent("shutdown engine") {
+                        OLM:getmodulebyindex(TopDeckmod):doevent("shutdown engine").
+                    }
+                } else {
+                    for x in list(OLM,SteelPlate) {
+                        if x:hasmodule("ModuleEnginesFX") {
+                            if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                                x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+                            }
+                        }
+                        if x:hasmodule("ModuleEnginesRF") {
+                            if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                                x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                            }
                         }
                     }
                 }
@@ -8697,7 +8900,7 @@ function Launch {
             else {
                 OLM:getmodule("LaunchClamp"):DoEvent("release clamp").
             }
-            if SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER"):length > 0 or SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER"):length > 0 {
+            if SHIP:PARTSNAMED("SEP.23.BOOSTER.CLUSTER"):length > 0 or SHIP:PARTSNAMED("SEP.25.BOOSTER.CLUSTER"):length > 0 or SHIP:PARTSNAMED("SEP.26.BOOSTER.CLUSTER"):length > 0 {
                 if BoosterEngines[0]:getmodule("ModuleDockingNode"):hasevent("undock") {
                     BoosterEngines[0]:getmodule("ModuleDockingNode"):doevent("undock").
                 }
@@ -8720,15 +8923,27 @@ function Launch {
                 set textbox:style:bg to "starship_img/starship_main_square_bg".
                 HUDTEXT("Clamp Failure! Please refuel (tower page) and try again..", 10, 2, 20, red, false).
                 wait 3.
-                for x in list(OLM,SteelPlate) {
-                    if x:hasmodule("ModuleEnginesFX") {
-                        if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
-                            x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
-                        }
+                if PadB {
+                    if OLM:getmodulebyindex(DSSmod):hasevent("shutdown DSS") {
+                        OLM:getmodulebyindex(DSSmod):doevent("shutdown DSS").
                     }
-                    if x:hasmodule("ModuleEnginesRF") {
-                        if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
-                            x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                    if OLM:getmodulebyindex(Trenchmod):hasevent("shutdown engine") {
+                        OLM:getmodulebyindex(Trenchmod):doevent("shutdown engine").
+                    }
+                    if OLM:getmodulebyindex(TopDeckmod):hasevent("shutdown engine") {
+                        OLM:getmodulebyindex(TopDeckmod):doevent("shutdown engine").
+                    }
+                } else {
+                    for x in list(OLM,SteelPlate) {
+                        if x:hasmodule("ModuleEnginesFX") {
+                            if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                                x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+                            }
+                        }
+                        if x:hasmodule("ModuleEnginesRF") {
+                            if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                                x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                            }
                         }
                     }
                 }
@@ -8969,7 +9184,15 @@ function Launch {
                     sendMessage(Processor(volume("Booster")), "Boostback").
                 }
                 if defined HSR {
-                    set quickengine3:pressed to true.
+                    if ShipType:contains("Block3") {
+                        if VACEngines[1]:hassuffix("Activate") VACEngines[1]:activate.
+                        if VACEngines[2]:hassuffix("Activate") VACEngines[2]:activate.
+                        if SLEngines[0]:hassuffix("Activate") {
+                            SLEngines[0]:activate.
+                            SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
+                        }
+                    }
+                    else set quickengine3:pressed to true.
                 }
                 else set IFT1SEI to true.
                 if IFT1SEI lock throttle to 0.
@@ -9040,10 +9263,6 @@ function Launch {
                 rcs on.
                 lock steering to LaunchSteering().
                 set steeringManager:rolltorquefactor to 4.
-                if BoosterType:contains("Block3") if SLEngines[0]:hassuffix("Activate") {
-                    SLEngines[0]:activate.
-                    SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
-                } 
                 wait 0.1.
                 set kuniverse:activevessel to vessel(ship:name).
                 HideEngineToggles(1).
@@ -9065,7 +9284,7 @@ function Launch {
                     set quickengine3:pressed to true.
                     set HotStageTime to time:seconds + 0.2.
                 }
-                when time:seconds > HotStageTime + 0.2 then {
+                when time:seconds > HotStageTime + 0.16 then {
                     if BoosterType:contains("Block3") {
                         if SLEngines[1]:hassuffix("Activate") {
                             SLEngines[1]:activate.
@@ -9075,6 +9294,7 @@ function Launch {
                             SLEngines[2]:activate.
                             SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                         } 
+                        if VACEngines[0]:hassuffix("Activate") VACEngines[0]:activate.
                     }
                     set quickengine2:pressed to true.
                 }
@@ -9272,7 +9492,7 @@ function LaunchThrottle {
                         set thr to max(min(DesiredAccel / MaxAccel, max(deltaV / MaxAccel, 0.1)), 0.33).
                     }
                 }
-                else if MaintainVS and periapsis < (ship:body:atm:height + TargetAp) / 2 {
+                else if periapsis < (ship:body:atm:height + TargetAp) / 2 {
                     set thr to max(min(DesiredAccel / MaxAccel, max(deltaV / MaxAccel, 0.1)), 0.33).
                 }
                 else {
@@ -9498,7 +9718,7 @@ Function LaunchSteering {
         else {
             set Phase2 to true.
             set gravF to (Planet1G - (min(tgtspeed-1,vxcl(up:vector,velocity:orbit):mag + DesiredAccel)^2 / (ship:body:radius + ship:altitude))) * ship:mass.
-            set gravFF to  min(10,max(0, arcsin(max(-1, min(gravF / max(ship:availablethrust * throttle,1) ,1))) )) * (Scale - 0.63).
+            set gravFF to  min(10,max(0, arcsin(max(-1, min(gravF / max(ship:availablethrust * throttle,1) ,1))) )) * (Scale - 0.64).
             set vSpeedCorrection to vSpeedPID:update(time:seconds, verticalspeed^3).
 
             set FinalGravFF to gravFF * max(0,min(1, ( 4 /max(0.01, verticalSpeed+4)  )^0.6)).
@@ -10436,7 +10656,8 @@ function updateStatus {
         if LQFpct < 6 {set status2label5:style:textcolor to red.}
         if OXpct < 6 {set status3label5:style:textcolor to red.}
         if OnOrbitalMount {
-            set status1label5:text to "<b>MASS:</b>  " + round(ship:mass - OLM:mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass) + "t".
+            if PadB set status1label5:text to "<b>MASS:</b>  " + round(ship:mass - OLM:mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass) + "t".
+            else set status1label5:text to "<b>MASS:</b>  " + round(ship:mass - OLM:mass - TowerCore:mass - Mechazilla:mass) + "t".
         }
         else if ShipMass < 999999 {
             set status1label5:text to "<b>MASS:</b>  " + round(ShipMass / 1000, 1) + "t".
@@ -13509,21 +13730,41 @@ function ReEntryData {
                 when airspeed < 60 then setflaps(85, 85, 1, 0).
                 rcs on.
                 if not (TargetOLM = "false") and not (LandSomewhereElse) and not (FindNewTarget) {
-                    if (ShipType:contains("Block2") or ShipType:contains("Block3")) and not AFTONLY {
-                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.1.
-                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 16.3.
-                    }
-                    else if ShipSubType:contains("Block2") and not AFTONLY {
-                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 8.4.
-                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 13.8.
-                    }
-                    else if not AFTONLY {
-                        if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 7.2.
-                        else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.8.
+                    if PadB {
+                        if (ShipType:contains("Block2") or ShipType:contains("Block3")) and not AFTONLY {
+                            if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - 10.1.
+                            else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - 16.3.
+                        }
+                        else if ShipSubType:contains("Block2") and not AFTONLY {
+                            if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - 8.4.
+                            else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - 13.8.
+                        }
+                        else if not AFTONLY {
+                            if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - 7.2.
+                            else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - 10.8.
+                        }
+                        else {
+                            if not RSS lock RadarAlt to vdot(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) + 2.2.
+                            else lock RadarAlt to vdot(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) + 3.2.
+                        }
                     }
                     else {
-                        if not RSS lock RadarAlt to vdot(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) + 2.2.
-                        else lock RadarAlt to vdot(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) + 3.2.
+                        if (ShipType:contains("Block2") or ShipType:contains("Block3")) and not AFTONLY {
+                            if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.1.
+                            else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 16.3.
+                        }
+                        else if ShipSubType:contains("Block2") and not AFTONLY {
+                            if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 8.4.
+                            else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 13.8.
+                        }
+                        else if not AFTONLY {
+                            if not RSS lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 7.2.
+                            else lock RadarAlt to vdot(up:vector, FLflap:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - 10.8.
+                        }
+                        else {
+                            if not RSS lock RadarAlt to vdot(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) + 2.2.
+                            else lock RadarAlt to vdot(up:vector, Nose:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) + 3.2.
+                        }
                     }
                 }
                 set ship:control:neutralize to true.
@@ -15260,7 +15501,7 @@ function SetPlanetData {
     }
     if KUniverse:activevessel = vessel(ship:name) {
         wait 0.001.
-        if KUniverse:activevessel = vessel(ship:name) {
+        if KUniverse:activevessel = vessel(ship:name) and not Hotstaging {
             set addons:tr:descentmodes to list(true, true, true, true).
             set addons:tr:descentgrades to list(false, false, false, false).
             if KUniverse:activevessel = vessel(ship:name) {
@@ -16752,18 +16993,30 @@ function SetShipBGPage {
 
 function GetShipRotation {
     if not (TargetOLM = "false") {
-        if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
         //print vang(TowerHeadingVector, heading(90,0):vector).
 
         set shipPos to Nose:position - facing:forevector * min(ShipHeight,RadarAlt).
 
-        if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded and vAng(shipPos-Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,TowerHeadingVector) < 80 {
-            set varVec to vxcl(up:vector, shipPos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + vxcl(TowerHeadingVector,GSVec)) * min(1,RadarRatio).
-            if defined myFuturePos set varVec to vxcl(up:vector, vxcl(TowerHeadingVector,myFuturePos)*0.8 * min(1,RadarRatio) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + shipPos).
-            set varR to vang(varVec, TowerHeadingVector).
-            if vAng(vCrs(TowerHeadingVector,up:vector),varVec) < 90 set varR to -varR.
+        if PadB {
+        if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Vessel(TargetOLM):PARTSNAMED("OLIT.2")[0]:position).
+            if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded and vAng(shipPos-Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position,TowerHeadingVector) < 80 {
+                set varVec to vxcl(up:vector, shipPos - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + vxcl(TowerHeadingVector,GSVec)) * min(1,RadarRatio).
+                if defined myFuturePos set varVec to vxcl(up:vector, vxcl(TowerHeadingVector,myFuturePos)*0.8 * min(1,RadarRatio) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + shipPos).
+                set varR to vang(varVec, TowerHeadingVector).
+                if vAng(vCrs(TowerHeadingVector,up:vector),varVec) < 90 set varR to -varR.
+            }
+            else set varR to 8.
         }
-        else set varR to 8.
+        else {
+        if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+            if Vessel(TargetOLM):distance < 2000 and Vessel(TargetOLM):loaded and vAng(shipPos-Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,TowerHeadingVector) < 80 {
+                set varVec to vxcl(up:vector, shipPos - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + vxcl(TowerHeadingVector,GSVec)) * min(1,RadarRatio).
+                if defined myFuturePos set varVec to vxcl(up:vector, vxcl(TowerHeadingVector,myFuturePos)*0.8 * min(1,RadarRatio) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + shipPos).
+                set varR to vang(varVec, TowerHeadingVector).
+                if vAng(vCrs(TowerHeadingVector,up:vector),varVec) < 90 set varR to -varR.
+            }
+            else set varR to 8.
+        }
 
 
         //set THVd to vecdraw(v(0, 0, 0), TowerHeadingVector, blue, "Tower Heading", 20, true, 0.005, true, true).

@@ -117,6 +117,7 @@ set CH4set to false.
 set ResetNeeded to false.
 set FNBBooster to false.
 set DecelFactor to 1.
+set PadB to false.
 
 set GFset to false.
 set ECset to false.
@@ -130,6 +131,29 @@ for part in ship:parts {
         set bCH4Tank to part.
         set bCMNDome to part.
         set FWD to part.
+        set DumpVents to list().
+        set ModulesFound to false.
+        set x to 0.
+        until x > part:modules:length-1 or ModulesFound {
+            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
+                DumpVents:add(part:getmodulebyindex(x)).
+                set ModulesFound to true.
+                break.
+            }
+            set x to x+1.
+        }
+        set BTset to true.
+        set SinglePartBooster to true.
+    }
+    if part:name:contains("SEP.26.BOOSTER.CORE") and not BTset {
+        set BoosterType to "Block3".
+        set BoosterCore to part.
+        set bLOXTank to part.
+        set bCH4Tank to part.
+        set bCMNDome to part.
+        set FWD to part.
+        set HSR to part.
+        set HSRType to "Block3".
         set DumpVents to list().
         set ModulesFound to false.
         set x to 0.
@@ -223,6 +247,11 @@ for part in ship:parts {
         set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
         set ECset to true.
     }
+    if part:name:contains("SEP.26.BOOSTER.CLUSTER") and not ECset {
+        set BoosterEngines to ship:partsnamed("SEP.26.BOOSTER.CLUSTER").
+        set ECset to true.
+        set Block3Cluster to true.
+    }
     if part:name:contains("FNB.BL1.BOOSTERCLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("FNB.BL1.BOOSTERCLUSTER").
         set ClusterSet to true.
@@ -244,6 +273,12 @@ for part in ship:parts {
         set GridfinsType to "25".
         set GridfinLength to ship:partsnamed("SEP.25.BOOSTER.GRIDFIN"):length.
         set GridfinsName to "SEP.25.BOOSTER.GRIDFIN".
+        set GFset to true.
+    }
+    if part:name:contains("SEP.26.BOOSTER.GRIDFIN") and not GFset {
+        set GridfinsType to "26".
+        set GridfinLength to ship:partsnamed("SEP.26.BOOSTER.GRIDFIN"):length.
+        set GridfinsName to "SEP.26.BOOSTER.GRIDFIN".
         set GFset to true.
     }
     if part:name:contains("FNB.BL3.BOOSTERFIN") and not GFset {
@@ -379,10 +414,13 @@ wait 0.2.
 
 set ShipTypeFound to false.
 for part in ship:parts {
-    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
+    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("SEP.26.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
         set ShipTank to part.
         set ShipConnectedToBooster to true.
         set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
+    }
+    if part:name:contains("OLM.B2") {
+        set PadB to true.
     }
     if part:name:contains("VS.25.BL2") {
         set RandomFlip to false.
@@ -412,6 +450,11 @@ for part in ship:parts {
     else if part:name:contains("SEP.25.SHIP.CORE") {
         set RandomFlip to false.
         set ShipType to "Block2".
+        set ShipTypeFound to true.
+    }
+    else if part:name:contains("SEP.26.SHIP.CORE") {
+        set RandomFlip to false.
+        set ShipType to "Block3".
         set ShipTypeFound to true.
     }
     else if not ShipTypeFound set ShipType to "None".
@@ -587,6 +630,7 @@ set downToThree to false.
 set HighAngleVec to facing:forevector.
 set haVstrength to 0.
 set MidShutdownSpeed to 69.
+set TargetMidShutdown to 300.
 
 if TFinstalled {
     set BBIgn to 100.
@@ -1017,11 +1061,11 @@ if bodyexists("Earth") {
         set LatCtrlPID to PIDLOOP(0.25, 0.2, 0.15, -5, 5).
         set RollVector to heading(270,0):vector.
         set BoosterReturnMass to 200.
-        set BoosterRaptorThrust to 2230.
-        set BoosterRaptorThrust3 to 2240.
+        set BoosterRaptorThrust to 2220.
+        set BoosterRaptorThrust3 to 2230.
         if Block3Cluster or BoosterType:contains("Block3") {
-            set BoosterRaptorThrust to 2579.
-            set BoosterRaptorThrust3 to 2579.
+            set BoosterRaptorThrust to 2700.
+            set BoosterRaptorThrust3 to 2710.
         }
         set Scale to 1.6.
         set CorrFactor to 0.7.
@@ -1055,8 +1099,8 @@ if bodyexists("Earth") {
         set BoosterRaptorThrust to 555.
         set BoosterRaptorThrust3 to 555.
         if Block3Cluster or BoosterType:contains("Block3") {
-            set BoosterRaptorThrust to 672.
-            set BoosterRaptorThrust3 to 672.
+            set BoosterRaptorThrust to 655.
+            set BoosterRaptorThrust3 to 660.
         }
         set Scale to 1.
         set CorrFactor to 0.8.
@@ -1097,8 +1141,8 @@ else {
         set BoosterRaptorThrust to 555.
         set BoosterRaptorThrust3 to 555.
         if Block3Cluster or BoosterType:contains("Block3") {
-            set BoosterRaptorThrust to 672.
-            set BoosterRaptorThrust3 to 672.
+            set BoosterRaptorThrust to 655.
+            set BoosterRaptorThrust3 to 660.
         }
         set Scale to 1.
         set CorrFactor to 0.8.
@@ -1132,8 +1176,8 @@ else {
         set BoosterRaptorThrust to 555.
         set BoosterRaptorThrust3 to 555.
         if Block3Cluster or BoosterType:contains("Block3") {
-            set BoosterRaptorThrust to 672.
-            set BoosterRaptorThrust3 to 672.
+            set BoosterRaptorThrust to 655.
+            set BoosterRaptorThrust3 to 660.
         }
         set Scale to 1.
         set CorrFactor to 0.95.
@@ -1159,13 +1203,19 @@ if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1
 if BoosterType:contains("Block3") {
     set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
     set BoosterHeight to 45.4*Scale.
-    set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
-}
+    if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
+    set BoosterGlideDistance to BoosterGlideDistance * 1.5.
+    set Block3Time to 10.
+    set BoosterGlideFactor to BoosterGlideFactor * 0.85.
+} else 
+    set Block3Time to 0.
 if FNBBooster {
-    set BoosterGlideDistance to BoosterGlideDistance * 1.25.
     set BoosterGlideFactor to BoosterGlideFactor * 0.85.
 } 
-if FNBBooster and not BoosterType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 0.9.
+if FNBBooster and not BoosterType:contains("Block3") {
+    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 0.9.
+    set BoosterGlideDistance to BoosterGlideDistance * 1.25.
+}
 
 set RadarAltOffset to BoosterHeight.
 lock RadarAlt to alt:radar - RadarAltOffset.
@@ -1650,7 +1700,7 @@ function Boostback {
 
     if verticalspeed > 0 {
         set rebooted to false.
-        if ship:partsnamed(HSRpartname):length = 0 {
+        if ship:partsnamed(HSRpartname):length = 0 and not BoosterType:contains("Block3") {
             set Block1HSR to true.
             set HSRJet to true.
         }
@@ -2068,6 +2118,7 @@ function Boostback {
             else for vent in DumpVents if not vent:istype("Boolean") vent:doaction("shutdown engine", true).
         }
         set steeringManager:rolltorquefactor to 2.
+        if HSRType:contains("Block3") set HSRJet to false.
 
         if HSRJet set BoosterGlideDistance to BoosterGlideDistance * 0.93.
 
@@ -2245,7 +2296,7 @@ function Boostback {
         }
 
         set FuelDump to false.
-        if HSRJet and defined HSR {
+        if HSRJet and defined HSR and not BoosterType:contains("Block3") {
             when time:seconds - turnTime > 2 then {
                 FWD:getmodule("ModuleDecouple"):DOACTION("Decouple", true).
                 set RenameHSR to false.
@@ -2478,7 +2529,9 @@ function Boostback {
         set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 60000*Scale.
         when Vessel(TargetOLM):loaded then {
             set TgtLandingzone to landingzone.
-            set TheTowerHeadingVector to vxcl(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+            if Vessel(TargetOLM):partsnamed("OLM.B2"):length > 0 set PadB to true.
+            if PadB set TheTowerHeadingVector to vxcl(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Vessel(TargetOLM):PARTSNAMED("OLIT.2")[0]:position).
+            else set TheTowerHeadingVector to vxcl(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
             //set TowerHeadDraw to vecDraw(BoosterCore:position,TowerHeadingVector,red,"Tower",2,true,0.2).
             if vAng(TheTowerHeadingVector, Vessel(TargetOLM):north:vector) < 52 set TowerHeading to "North".
             else if vAng(TheTowerHeadingVector, Vessel(TargetOLM):north:vector) > 128 set TowerHeading to "South".
@@ -2601,8 +2654,8 @@ function Boostback {
     set maxRoll to 6.
 
 
-    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*1.6*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-    when alt:radar < 16000 and RSS or 14000 then lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*0.9*Scale*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    when alt:radar < 24000 and RSS or 18000 then lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.24 then { 
         if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-(0.6/(Scale^0.7))*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
         when LngError < -50*Scale then {
@@ -2635,18 +2688,33 @@ function Boostback {
             }
             
             if not (TargetOLM = "false") {
-                when Vessel(TargetOLM):distance < 2000 then {
-                    set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Integration Tower Base")[0]:position).
-                    lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
-                    lock DistanceError to Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position.
-                    if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
-                    if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
-                    if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+                if PadB {
+                    when Vessel(TargetOLM):distance < 2000 then {
+                        if Vessel(TargetOLM):partsnamed("OLM.B2"):length > 0 set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partsnamed("OLM.B2")[0]:position - Vessel(TargetOLM):partsnamed("OLIT.2")[0]:position).
+                        if Vessel(TargetOLM):partsnamed("OLM.B2"):length > 0 lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("OLM.B2")[0]:position).
+                        if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
+                        if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
+                        if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position)):mag.
+                    }
+                    when Vessel(TargetOLM):distance < 1800 then {
+                        set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
+                        set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
+                        if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position)):mag.
+                    }
                 }
-                when Vessel(TargetOLM):distance < 1800 then {
-                    set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
-                    set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
-                    if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+                else {
+                    when Vessel(TargetOLM):distance < 2000 then {
+                        set TowerRotationVector to vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Integration Tower Base")[0]:position).
+                        lock PositionError to vxcl(up:vector, BoosterCore:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
+                        if vAng(TowerRotationVector,PositionError) > 42 set HighIncl to true.
+                        if not RSS {sendMessage(Vessel(TargetOLM), "MechazillaHeight,"+ 3*Scale + ",0.5").}
+                        if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+                    }
+                    when Vessel(TargetOLM):distance < 1800 then {
+                        set Vessel(TargetOLM):loaddistance:landed:unpack to 1500.
+                        set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1500.
+                        if not LZchange set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+                    }
                 }
             }
         }
@@ -2854,21 +2922,39 @@ function Boostback {
             addons:tr:settarget(landingzone).
             if GfC when Vessel(TargetOLM):distance < 2200 and Vessel(TargetOLM):loaded then {
                 PollUpdate().
-                set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
-                set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
-                if BoosterType:contains("Block3") {
-                    if not RSS 
-                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.8.
-                    else 
-                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 1.5.
+                if Vessel(TargetOLM):partsnamed("OLM.B2"):length > 0 set PadB to true.
+                if PadB {
+                    set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position)):mag.
+                    set TowerHeadingVector to vxcl(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Vessel(TargetOLM):PARTSNAMED("OLIT.2")[0]:position).
+                    if BoosterType:contains("Block3") {
+                        if not RSS 
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - LiftingPointToGridFinDist - 2.8.
+                        else 
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - LiftingPointToGridFinDist - 1.5.
+                    }
+                    else {
+                        if not RSS 
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - LiftingPointToGridFinDist - 3.8.
+                        else 
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - LiftingPointToGridFinDist - 2.1.
+                    }
                 }
                 else {
-                    if not RSS 
-                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 3.8.
-                    else 
-                        lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.1.
+                    set MZHeight to vxcl(vCrs(north:vector, up:vector), vxcl(north:vector, landingzone:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position)):mag.
+                    set TowerHeadingVector to vxcl(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                    if BoosterType:contains("Block3") {
+                        if not RSS 
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.8.
+                        else 
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 1.5.
+                    }
+                    else {
+                        if not RSS 
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 3.8.
+                        else 
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position) - LiftingPointToGridFinDist - 2.1.
+                    }
                 }
-
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
 
                 when Vessel(TargetOLM):distance < 1000 then {sendMessage(Vessel(TargetOLM), ("RetractSQD")).}
@@ -3077,7 +3163,10 @@ function Boostback {
 
     until (verticalspeed > CatchVS - 0.5 and RadarAlt < 5) or (verticalspeed > -0.2 and RadarAlt < 100*Scale) or hover {
         SteeringCorrections().
-        if GfC and not offshoreDivert and not LZchange if landingzone:distance < 1500 set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
+        if GfC and not offshoreDivert and not LZchange if landingzone:distance < 1500 {
+            if PadB set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - BoosterCore:position).
+            else set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
+        } 
         set LandingVector to LandingGuidance().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         PollUpdate().
@@ -3123,7 +3212,10 @@ function Boostback {
     until ((ship:status = "LANDED" or ship:status = "SPLASHED") and verticalspeed > -0.1) or (RadarAlt < -1) or (verticalSpeed > -0.3 and RadarAlt < 1) {
         clearScreen.
         print "slowly lowering down booster..".
-        if GfC and not offshoreDivert set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
+        if GfC and not offshoreDivert {
+            if PadB set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - BoosterCore:position).
+            else set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
+        }
         set LandingVector to LandingGuidance().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         if not rcs rcs on.
@@ -3194,7 +3286,6 @@ function Boostback {
     
     SetLoadDistances("default").
     unlock PositionError.
-    unlock DistanceError.
 
     DeactivateGridFins().
     if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -3329,7 +3420,7 @@ FUNCTION SteeringCorrections {
             if InitialError = -9999 and addons:tr:hasimpact {
                 set InitialError to LngError.
             }
-            set LngCtrlPID:maxoutput to max(min(abs(LngError - LngCtrlPID:setpoint) / (PIDFactor), maxAoA), 2.5).
+            set LngCtrlPID:maxoutput to max(min(abs(LngError - LngCtrlPID:setpoint) / (PIDFactor), maxAoA), 2.5) * max(0.8,min(1, abs(LngError - LngCtrlPID:setpoint)*20/max(1,RadarAlt))).
             set LngCtrlPID:minoutput to -LngCtrlPID:maxoutput.
             set LatCtrlPID:maxoutput to max(min(abs(LatError) / (10 * Scale), maxRoll), 0.5).
             set LatCtrlPID:minoutput to -LatCtrlPID:maxoutput.
@@ -3374,29 +3465,31 @@ FUNCTION SteeringCorrections {
             //Block 3 Landing Profile
             if Bl3LndProf and defined maxDecel5 {
                 if LandingBurnStarted {
-                    set MidShutdownSpeed to min(max(50,sqrt(max(0, (2*RadarAlt - (airspeed^2)/maxDecel - (12^2)*(1/(maxDecel3*0.9) - 1/(maxDecel5*0.9)))/(1/(maxDecel5*0.95) - 1/maxDecel) ))) , 150).
+                    set MidShutdownSpeed to min(max(50, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (12^2)/(maxDecel5*0.75)  - (12^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) ))) , 150).
                     set stopTime3 to 12 / (maxDecel3*0.7).
                     set stopTime5 to (MidShutdownSpeed-12) / (maxDecel5*0.75).
-                    set stopTime13 to (airspeed - MidShutdownSpeed - 12) / (maxDecel*0.9).
+                    set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
     
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
     
-                    set stopDist3 to 6 * (stopTime3).
+                    set stopDist3 to 6 * stopTime3.
                     set stopDist5 to ((MidShutdownSpeed - 12)/2) * stopTime5.
-                    set stopDist13 to ((airspeed - MidShutdownSpeed - 12)/2)*stopTime13.
+                    set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
+                    set TargetMidShutdown to (airspeed^2 - 124^2)/(2*maxDecel) + (124^2 - 12^2)/(2*maxDecel5) + (12^2)/(2*maxDecel3).
     
                     set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
                 } else {
-                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel - (12^2)*(1/(maxDecel3*0.9) - 1/(maxDecel5*0.9)))/(1/(maxDecel5*0.95) - 1/maxDecel) )) , 150).
-                    set stopTime3 to 8 / (maxDecel3*0.6).
-                    set stopTime5 to 110 / (maxDecel5*0.7).
-                    set stopTime13 to (airspeed - 124) / (maxDecel*0.8).
+                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (12^2)/(maxDecel5*0.75)  - (12^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) )) , 150).
+                    set stopTime3 to 12 / (maxDecel3*0.65).
+                    set stopTime5 to 112 / (maxDecel5*0.7).
+                    set stopTime13 to (airspeed - 124) / maxDecel.
 
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
 
-                    set stopDist3 to 7 * stopTime3.
-                    set stopDist5 to 55 * stopTime5.
+                    set stopDist3 to 6 * stopTime3.
+                    set stopDist5 to 56 * stopTime5.
                     set stopDist13 to ((airspeed - 124)/2)*stopTime13.
+                    set TargetMidShutdown to (airspeed^2 - 124^2)/(2*maxDecel) + (124^2 - 12^2)/(2*maxDecel5) + (12^2)/(2*maxDecel3).
 
                     set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
                 }
@@ -3405,17 +3498,17 @@ FUNCTION SteeringCorrections {
 
                 //Decel 13 Engines
                 if not MiddleEnginesShutdown and not downToThree {
-                    set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(stopDist5+stopDist3+0.1, RadarAlt) - stopDist5 - stopDist3)) - DragDecel.
+                    set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(0.1, RadarAlt - (TargetMidShutdown+stopDist3+stopDist5)/2))) - DragDecel.
                     set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(-velocity:surface, up:vector)))).
                 }//Decel 5 Engines
                 else if not downToThree {
-                    set ReqDecel to (max(12,airspeed)^2 - 12^2)/(2*(max(stopDist3*1.5+0.1, RadarAlt) - stopDist3*1.5)) - DragDecel.
+                    set ReqDecel to (max(12,airspeed)^2 - 12^2)/(2*(max(0.1, RadarAlt - stopDist3*1.5))) - DragDecel.
                     set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))).
                 }//Decel 3 Engines
                 else {
-                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(1.5*Scale+0.1, RadarAlt) - 1.5*Scale)).
+                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.1, RadarAlt - 0.5*Scale))).
                     set landingRatio to max(0,  ReqDecel / (maxDecel3  * cos(vang(-velocity:surface, up:vector)))).
-                }//Throttle Preset
+                }
 
             //Block 2 Landing Profile
             } else {
@@ -3428,6 +3521,7 @@ FUNCTION SteeringCorrections {
 
                     set stopDist3 to MidShutdownSpeed/2 * (stopTime3).
                     set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
+                    set TargetMidShutdown to (airspeed^2 - 69^2)/(2*maxDecel) + (69^2)/(2*maxDecel3).
 
                     set TotalstopDist to stopDist3 + stopDist13.
                 }
@@ -3440,6 +3534,7 @@ FUNCTION SteeringCorrections {
 
                     set stopDist3 to 37.5 * (stopTime3).
                     set stopDist13 to ((airspeed - 75)/2)*stopTime13.
+                    set TargetMidShutdown to (airspeed^2 - 69^2)/(2*maxDecel) + (69^2)/(2*maxDecel3).
 
                     set TotalstopDist to stopDist3 + stopDist13.
                 }
@@ -3483,7 +3578,7 @@ FUNCTION SteeringCorrections {
             if defined TowerHeading print "Tower Heading: " + TowerHeading.
             print " ".
             print "Landing Burn Alt: " + round(LandingBurnAlt, 1) + " m".
-            print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s".
+            print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s   | " + TargetMidShutdown.
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
             print " ".
             print "Drag Decel: " + round(DragDecel,1).
@@ -4192,7 +4287,8 @@ function setTowerHeadingVector {
                 set ArmCenterVec to Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position. 
                 lock RollVector to vxcl(up:vector, ArmCenterVec - BoosterCore:position).
                 if Vessel(TargetOLM):distance < 2100 {
-                    set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                    if PadB set TowerHeadingVector to vxcl(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Vessel(TargetOLM):PARTSNAMED("OLIT.2")[0]:position).
+                    else set TowerHeadingVector to vxcl(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                 } else set TowerHeadingVector to angleAxis(-6,up:vector) * vCrs(up:vector, north:vector).
             } else {
                 lock RollVector to vxcl(up:vector, velocity:surface).
@@ -4206,13 +4302,22 @@ function setTowerHeadingVector {
 function GetBoosterRotation {
     if not (TargetOLM = "false") and RadarAlt < 240 * Scale and GfC and not LandSomewhereElse and not cAbort {
         //set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
-
-        if RadarAlt < 0.9*BoosterHeight {
-            set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-            set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + min(3,TotalstopTime)*GSVec*0.5).
+        if PadB {
+            if RadarAlt < 0.9*BoosterHeight {
+                set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position).
+                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + min(3,TotalstopTime)*GSVec*0.5).
+            } else {
+                set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position).
+                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + TotalstopTime*GSVec*0.65).
+            }
         } else {
-            set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-            set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + TotalstopTime*GSVec*0.65).
+            if RadarAlt < 0.9*BoosterHeight {
+                set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
+                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + min(3,TotalstopTime)*GSVec*0.5).
+            } else {
+                set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
+                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + TotalstopTime*GSVec*0.65).
+            }
         }
         set varVecFinal to varVec + varPredctVec/2.
         set varFinal to vang(varVecFinal, TowerHeadingVector).
@@ -4479,7 +4584,7 @@ function GUIupdate {
             if Mode = lastMode set ModeChanged to false. else set ModeChanged to true.
 
             if not BoosterType:contains("Block3") {
-                if (Mode = "Center Three" or Mode = "Core") and ModeChanged {
+                if (Mode = "CenterThree" or Mode = "Center Three" or Mode = "Core") and ModeChanged {
                     set ActiveRC to 3.
                     set x to 1.
                     until x > 3 {
@@ -4490,7 +4595,7 @@ function GUIupdate {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                         set x to x+1.
                     }
-                } else if Mode = "2Inner" and ModeChanged {
+                } else if (Mode = "2Inner" or Mode = "MiddleTwo") and ModeChanged {
                     set ActiveRC to 5.
                     set x to 1.
                     until x > 13 {
@@ -4502,7 +4607,7 @@ function GUIupdate {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                         set x to x+1.
                     }
-                } else if (Mode = "Middle Inner" or Mode = "Inner" or Mode = "Middle Ten") and ModeChanged {
+                } else if (Mode = "Middle Inner" or Mode = "Inner" or Mode = "Middle Ten" or Mode = "MiddleEight") and ModeChanged {
                     set ActiveRC to 13.
                     set x to 1.
                     until x > 13 {
@@ -4513,7 +4618,7 @@ function GUIupdate {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                         set x to x+1.
                     }
-                } else if (Mode = "All Engines" or Mode = "All" or Mode = "Outer Twenty") and ModeChanged {
+                } else if (Mode = "All Engines" or Mode = "All" or Mode = "Outer Twenty" or Mode = "OuterTwenty") and ModeChanged {
                     set ActiveRC to 33.
                     set x to 1.
                     until x > 33 {
@@ -4521,49 +4626,51 @@ function GUIupdate {
                         set x to x+1.
                     }
                 }
-            } else if Mode = "Core" and ModeChanged {
-                set ActiveRC to 3.
-                set x to 1.
-                until x > 3 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
-                    set x to x+1.
+            } else {
+                if (Mode = "CenterThree" or Mode = "Center Three" or Mode = "Core") and ModeChanged {
+                    set ActiveRC to 3.
+                    set x to 1.
+                    until x > 3 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                        set x to x+1.
+                    }
+                } else if (Mode = "2Inner" or Mode = "MiddleTwo" or Mode = "Middle Two") and ModeChanged {
+                    set ActiveRC to 5.
+                    set x to 1.
+                    until x > 13 {
+                        if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                        else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                        set x to x+1.
+                    }
+                } else if (Mode = "Middle Inner" or Mode = "Inner" or Mode = "Middle Ten" or Mode = "MiddleEight" or Mode = "Middle Eight") and ModeChanged {
+                    set ActiveRC to 13.
+                    set x to 1.
+                    until x > 13 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                        set x to x+1.
+                    }
+                } else if (Mode = "All Engines" or Mode = "All" or Mode = "Outer Twenty" or Mode = "OuterTwenty") and ModeChanged {
+                    set ActiveRC to 33.
+                    set x to 1.
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                        set x to x+1.
+                    }
+                } else if Mode = "NaN" {
+                    print("Mode not found").
                 }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
-                    set x to x+1.
-                }
-            } else if Mode = "2Inner" and ModeChanged {
-                set ActiveRC to 5.
-                set x to 1.
-                until x > 13 {
-                    if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
-                    else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
-                    set x to x+1.
-                }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
-                    set x to x+1.
-                }
-            } else if Mode = "Inner" and ModeChanged {
-                set ActiveRC to 13.
-                set x to 1.
-                until x > 13 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
-                    set x to x+1.
-                }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
-                    set x to x+1.
-                }
-            } else if Mode = "All" and ModeChanged {
-                set ActiveRC to 33.
-                set x to 1.
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
-                    set x to x+1.
-                }
-            } else if Mode = "NaN" {
-                print("Mode not found").
             }
         } 
         else if boosterThrust > 60*Scale and not findingEngines {
@@ -4666,9 +4773,9 @@ function GUIupdate {
     
 
     if flipStartTime > 0 {
-        if RSS set PollTimer to flipStartTime+45-time:seconds.    
-        else if KSRSS set PollTimer to flipStartTime+55-time:seconds.    
-        else set PollTimer to flipStartTime+50-time:seconds.
+        if RSS set PollTimer to flipStartTime+45-Block3Time-time:seconds.    
+        else if KSRSS set PollTimer to flipStartTime+55-Block3Time-time:seconds.    
+        else set PollTimer to flipStartTime+50-Block3Time-time:seconds.
     } 
     if GfC set message4:text to "Current decision: <b><color=green>GO</color></b>".
     else set message4:text to "Current decision: <b><color=red>NOGo</color></b>".

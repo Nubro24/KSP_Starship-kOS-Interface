@@ -43,7 +43,7 @@ set TMinusCountdown to 17.
 if bodyexists("Earth") {
     if body("Earth"):radius > 1600000 {
         set RSS to true.
-        set LaunchSites to lexicon("KSC", "28.6084,-80.59975").
+        set LaunchSites to lexicon("KSC", "28.549072,-80.655925").
     }
     else {
         set KSRSS to true.
@@ -68,22 +68,43 @@ if RSS set Scale to 1.6.
 //------------Find Parts--------------//
 
 
-set OLM to ship:partstitled("Starship Orbital Launch Mount")[0].
-set TowerBase to ship:partstitled("Starship Orbital Launch Integration Tower Base")[0].
-set TowerCore to ship:partstitled("Starship Orbital Launch Integration Tower Core")[0].
-//set TowerTop to ship:partstitled("Starship Orbital Launch Integration Tower Rooftop")[0].
-set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
-if ship:partsnamed("SLE.SS.OLIT.SQD"):length > 0 {
-    set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+if ship:partsnamed("SLE.SS.OLIT.MZ"):length > 0 {
+    set OLM to ship:partstitled("Starship Orbital Launch Mount")[0].
+    set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
+    if ship:partsnamed("SLE.SS.OLIT.SQD"):length > 0 {
+        set SQD to ship:partstitled("Starship Quick Disconnect Arm")[0].
+    }
+    if ship:partstitled("Water Cooled Steel Plate"):length > 0 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+    set PadB to false.
 }
-if ship:partstitled("Water Cooled Steel Plate"):length > 0 set SteelPlate to ship:partstitled("Water Cooled Steel Plate")[0].
+else if ship:partsnamed("OLM.B2"):length > 0 {
+    set OLM to ship:partsnamed("OLM.B2")[0].
+    set Mechazilla to ship:partsnamed("PadB.Chopsticks")[0].
+    if ship:partsnamed("Sqd.2"):length > 0 {
+        set SQD to ship:partsnamed("Sqd.2")[0].
+    }
+    set SteelPlate to ship:partsnamed("OLM.B2")[0].
+    set PadB to true.
+}
+else if ship:partstitled("Starship Orbital Launch Mount 2"):length > 0 {
+    set OLM to ship:partstitled("Starship Orbital Launch Mount 2")[0].
+    set Mechazilla to ship:partstitled("Pad B Chopsticks")[0].
+    if ship:partstitled("Starship Quick Disconnect Arm 2"):length > 0 {
+        set SQD to ship:partstitled("Starship Quick Disconnect Arm 2")[0].
+    }
+    set SteelPlate to ship:partstitled("Starship Orbital Launch Mount 2")[0].
+    set PadB to true.
+}
+else {
+    print "No supported Tower parts found".
+}
 
 
 for part in ship:parts {
-    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("BLOCK.3.AFT") or part:name:contains("FNB.BL3.BOOSTERAFT") {
+    if part:name:contains("SEP.23.BOOSTER.INTEGRATED") or part:name:contains("SEP.25.BOOSTER.CORE") or part:name:contains("SEP.26.BOOSTER.CORE") or part:name:contains("BLOCK.3.AFT") or part:name:contains("FNB.BL3.BOOSTERAFT") {
         set BoosterCore to part.
         set onOLM to true.
-    } else if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") or part:name:contains("SEP.25.SHIP.CORE") {
+    } else if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.26.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") or part:name:contains("SEP.25.SHIP.CORE") {
         set ShipTank to part.
         set shipOnOLM to true.
     }
@@ -207,8 +228,8 @@ if defined NRforSQD print "SQD: " + NrforSQD.
 for x in range(0, OLM:modules:length) {
     if OLM:getmodulebyindex(x):hasaction("toggle fueling") {
         set NrforFueling to x.
-        break.
     }
+    if OLM:getmodulebyindex(x):name = "ModuleEngines" and OLM:getmodulebyindex(x):gethiddenfield("engineID") = "Trench Effect" set PlumeEffect to x.
 }
 print "Fueling: " + NrforFueling.
 
@@ -334,25 +355,55 @@ function LiftOff {
     if OLM:getmodule("ModuleAnimateGeneric"):hasevent("close clamps + qd") {
         OLM:getmodule("ModuleAnimateGeneric"):doevent("close clamps + qd").
     }
-    wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0.
+    wait until SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0 and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE"):length = 0 and SHIP:PARTSNAMED("BLOCK.3.AFT"):length = 0 and SHIP:PARTSNAMED("FNB.BL3.BOOSTERAFT"):length = 0.
+    set shipOnOLM to false.
+    set PlumeTimer to time:seconds+3.
     RetractSQDArm().
+    set curMod to 0.
+    for ClampsMod in OLM:modules {
+        if ClampsMod = "ModuleAnimateGeneric" {
+            if OLM:getmodulebyindex(curMod):hasevent("Retract Clamp Arms") {
+                OLM:getmodulebyindex(curMod):doevent("Retract Clamp Arms").
+            }
+            if OLM:getmodulebyindex(curMod):hasevent("Retract BQDs") {
+                OLM:getmodulebyindex(curMod):doevent("Retract BQDs").
+            } 
+        }
+        set curMod to curMod + 1.
+    }
+    if OLM:getmodulebyindex(PlumeEffect):hasevent("shutdown engine") {
+        OLM:getmodulebyindex(PlumeEffect):doevent("shutdown engine").
+    }
     wait 3.
     RenameOLM().
-    wait 8.
+    wait 12.
     MechazillaPushers("0", "0.2", "12", "true").
     MechazillaHeight((3*Scale):tostring, "0.5").
     MechazillaArms("8","10","97.5","true").
     set ship:type to "Base".
-    for x in list(OLM,SteelPlate) {
-        if x:hasmodule("ModuleEnginesFX") {
-            if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
-                x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+    if not PadB {
+        for x in list(OLM,SteelPlate) {
+            if x:hasmodule("ModuleEnginesFX") {
+                if x:getmodule("ModuleEnginesFX"):hasevent("shutdown engine") {
+                    x:getmodule("ModuleEnginesFX"):doevent("shutdown engine").
+                }
+            }
+            if x:hasmodule("ModuleEnginesRF") {
+                if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
+                    x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+                }
             }
         }
-        if x:hasmodule("ModuleEnginesRF") {
-            if x:getmodule("ModuleEnginesRF"):hasevent("shutdown engine") {
-                x:getmodule("ModuleEnginesRF"):doevent("shutdown engine").
+    }
+    else {
+        set y to 0.
+        for x in OLM:modules {
+            if x = "ModuleEnginesFX" {
+                if OLM:getmodulebyindex(y):hasevent("shutdown engine") {
+                    OLM:getmodulebyindex(y):doevent("shutdown engine").
+                }
             }
+            set y to y+1.
         }
     }
     set AfterLaunch to true.
@@ -435,7 +486,7 @@ function LandingDeluge {
 
 function ArmVersion {
     set oldArms to false.
-    if Mechazilla:modules:length > 16 {
+    if Mechazilla:modules:length > 16 or Mechazilla:name:contains("PadB") {
         set oldArms to false.
         print("Arms new").
         print(Mechazilla:modules:length).
@@ -631,7 +682,6 @@ function SetDockingForce {
 
 
 function RenameOLM {
-    if LiftOffTime + 2 < time:seconds set shipOnOLM to false.
     if not shipOnOLM {
         print "No Ship currently occupying the tower..".
         for var in LaunchSites:keys {
