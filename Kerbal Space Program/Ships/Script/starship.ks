@@ -16976,6 +16976,9 @@ function SetShipBGPage {
     if ShipType = "Block3PEZ" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_block3PEZ".
     }
+    if ShipType = "Block3Cargo" {
+        set textbox:style:bg to "starship_img/starship_main_square_bg_block3Cargo".
+    }
     if ShipType = "Crew" {
         set textbox:style:bg to "starship_img/starship_main_square_bg_crew".
     }
