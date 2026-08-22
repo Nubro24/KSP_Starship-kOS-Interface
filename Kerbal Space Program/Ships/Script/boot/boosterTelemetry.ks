@@ -57,6 +57,29 @@ for part in ship:parts {
         set BTset to true.
         set SinglePartBooster to true.
     }
+    if part:name:contains("SEP.26.BOOSTER.CORE") and not BTset {
+        set BoosterType to "Block3".
+        set BoosterCore to part.
+        set bLOXTank to part.
+        set bCH4Tank to part.
+        set bCMNDome to part.
+        set FWD to part.
+        set HSR to part.
+        set HSRType to "Block3".
+        set DumpVents to list().
+        set ModulesFound to false.
+        set x to 0.
+        until x > part:modules:length-1 or ModulesFound {
+            if part:getmodulebyindex(x):name = "ModuleEnginesFX" {
+                DumpVents:add(part:getmodulebyindex(x)).
+                set ModulesFound to true.
+                break.
+            }
+            set x to x+1.
+        }
+        set BTset to true.
+        set SinglePartBooster to true.
+    }
     if part:name:contains("FNB.BL3.BOOSTERLOX") and not BTset {
         set BoosterType to "Block3".
         set Bl3LndProf to true.
@@ -203,9 +226,12 @@ else if ship:partsnamed("FNB.BL3.LOX"):length > 0 {
 else if ship:partsnamed("SEP.25.SHIP.CORE"):length > 0 {
     set ShipType to "Block2".
 }
+else if ship:partsnamed("SEP.26.SHIP.CORE"):length > 0 {
+    set ShipType to "Block3".
+}
 else set ShipType to "None".
 for part in ship:parts {
-    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
+    if part:name:contains("SEP.23.SHIP.BODY") or part:name:contains("SEP.23.SHIP.DEPOT") or part:name:contains("SEP.24.SHIP.CORE") or part:name:contains("SEP.25.SHIP.CORE") or part:name:contains("SEP.26.SHIP.CORE") or part:name:contains("FNB.BL2.LOX") or part:name:contains("FNB.BL3.LOX") {
         set ShipTank to part.
         set ShipConnectedToBooster to true.
         set ShipTank:getmodule("kOSProcessor"):volume:name to "Starship".
@@ -759,7 +785,8 @@ function GUIupdate {
             if Mode = lastMode set ModeChanged to false. else set ModeChanged to true.
 
             if not BoosterType:contains("Block3") {
-                if (Mode = "Center Three" or Mode = "Core") and ModeChanged {
+                if (Mode = "CenterThree" or Mode = "Center Three" or Mode = "Core") and ModeChanged {
+                    set ActiveRC to 3.
                     set x to 1.
                     until x > 3 {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -769,7 +796,8 @@ function GUIupdate {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                         set x to x+1.
                     }
-                } else if Mode = "2Inner" and ModeChanged {
+                } else if (Mode = "2Inner" or Mode = "MiddleTwo") and ModeChanged {
+                    set ActiveRC to 5.
                     set x to 1.
                     until x > 13 {
                         if x = 1 or x = 2 or x = 3 or x = 7 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -780,7 +808,8 @@ function GUIupdate {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                         set x to x+1.
                     }
-                } else if (Mode = "Middle Inner" or Mode = "Inner" or Mode = "Middle Ten") and ModeChanged {
+                } else if (Mode = "Middle Inner" or Mode = "Inner" or Mode = "Middle Ten" or Mode = "MiddleEight") and ModeChanged {
+                    set ActiveRC to 13.
                     set x to 1.
                     until x > 13 {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
@@ -790,52 +819,59 @@ function GUIupdate {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/0".
                         set x to x+1.
                     }
-                } else if (Mode = "All Engines" or Mode = "All" or Mode = "Outer Twenty") and ModeChanged {
+                } else if (Mode = "All Engines" or Mode = "All" or Mode = "Outer Twenty" or Mode = "OuterTwenty") and ModeChanged {
+                    set ActiveRC to 33.
                     set x to 1.
                     until x > 33 {
                         set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster/"+x.
                         set x to x+1.
                     }
                 }
-            } else if Mode = "Core" and ModeChanged {
-                set x to 1.
-                until x > 3 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
-                    set x to x+1.
+            } else {
+                if (Mode = "CenterThree" or Mode = "Center Three" or Mode = "Core") and ModeChanged {
+                    set ActiveRC to 3.
+                    set x to 1.
+                    until x > 3 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                        set x to x+1.
+                    }
+                } else if (Mode = "2Inner" or Mode = "MiddleTwo" or Mode = "Middle Two") and ModeChanged {
+                    set ActiveRC to 5.
+                    set x to 1.
+                    until x > 13 {
+                        if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                        else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                        set x to x+1.
+                    }
+                } else if (Mode = "Middle Inner" or Mode = "Inner" or Mode = "Middle Ten" or Mode = "MiddleEight" or Mode = "Middle Eight") and ModeChanged {
+                    set ActiveRC to 13.
+                    set x to 1.
+                    until x > 13 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                        set x to x+1.
+                    }
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
+                        set x to x+1.
+                    }
+                } else if (Mode = "All Engines" or Mode = "All" or Mode = "Outer Twenty" or Mode = "OuterTwenty") and ModeChanged {
+                    set ActiveRC to 33.
+                    set x to 1.
+                    until x > 33 {
+                        set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
+                        set x to x+1.
+                    }
+                } else if Mode = "NaN" {
+                    print("Mode not found").
                 }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
-                    set x to x+1.
-                }
-            } else if Mode = "2Inner" and ModeChanged {
-                set x to 1.
-                until x > 13 {
-                    if x = 1 or x = 2 or x = 3 or x = 6 or x = 11 set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
-                    else set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
-                    set x to x+1.
-                }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
-                    set x to x+1.
-                }
-            } else if Mode = "Inner" and ModeChanged {
-                set x to 1.
-                until x > 13 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
-                    set x to x+1.
-                }
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/0".
-                    set x to x+1.
-                }
-            } else if Mode = "All" and ModeChanged {
-                set x to 1.
-                until x > 33 {
-                    set EngClusterDisplay[x-1]:style:bg to "starship_img/EngPicBooster3/"+x.
-                    set x to x+1.
-                }
-            } else if Mode = "NaN" {
-                print("Mode not found").
             }
         } 
         else if boosterThrust > 60*Scale and not findingEngines {

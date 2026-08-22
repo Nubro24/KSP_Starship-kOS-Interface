@@ -508,6 +508,7 @@ function FindParts {
         for x in StartPart:children {
             if x:name:contains("SEP.23.BOOSTER.INTEGRATED") {}
             else if x:name:contains("SEP.25.BOOSTER.CORE") {}
+            else if x:name:contains("SEP.26.BOOSTER.CORE") {}
             else if x:name:contains("Block.3.AFT") {}
             else if x:name:contains("Block.3.LOX") {}
             else if x:name:contains("Block.3.CMN") {}
@@ -539,16 +540,16 @@ function FindParts {
                     set Vac to true.
                     set Vaccount to Vaccount + 1.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.25.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
+                else if x:name:contains("SEP.23.SHIP.AFT.LEFT") or x:name:contains("SEP.26.SHIP.AFT.LEFT") or x:name:contains("SEP.25.SHIP.AFT.LEFT") or x:name:contains("SEP.24.SHIP.AFT.LEFT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.LEFT") or x:name:contains("FNB.BL2.AFTLEFT") {
                     set ALflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.25.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
+                else if x:name:contains("SEP.23.SHIP.AFT.RIGHT") or x:name:contains("SEP.26.SHIP.AFT.RIGHT") or x:name:contains("SEP.25.SHIP.AFT.RIGHT") or x:name:contains("SEP.24.SHIP.AFT.RIGHT.FLAP") or x:name:contains("SEP.24.SHIP.PROTO.AFT.RIGHT") or x:name:contains("FNB.BL2.AFTRIGHT") {
                     set ARflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.25.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.LEFT") or x:name:contains("SEP.26.SHIP.FWD.LEFT") or x:name:contains("SEP.25.SHIP.FWD.LEFT") or x:name:contains("SEP.24.SHIP.FWD.LEFT.FLAP") or x:name:contains("VS.25.BL2.FLAP.LEFT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.LEFT") or x:name:contains("FNB.BL2.FWDLEFT") {
                     set FLflap to x.
                 }
-                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.25.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
+                else if x:name:contains("SEP.23.SHIP.FWD.RIGHT") or x:name:contains("SEP.26.SHIP.FWD.RIGHT") or x:name:contains("SEP.25.SHIP.FWD.RIGHT") or x:name:contains("SEP.24.SHIP.FWD.RIGHT.FLAP") or x:name:contains("VS.25.BL2.FLAP.RIGHT") or x:name:contains("SEP.24.SHIP.PROTO.FWD.RIGHT") or x:name:contains("FNB.BL2.FWDRIGHT") {
                     set FRflap to x.
                 }
                 else if x:name:contains("SEP.24.SHIP.PROTO.NOSE") {
@@ -609,6 +610,23 @@ function FindParts {
                     set Nose to x.
                     set HeaderTank to x.
                     set ShipType to "Block2Cargo".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.26.SHIP.PEZ") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set ShipType to "Block3PEZ".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+                else if x:name:contains("SEP.26.SHIP.CARGO") and not x:name:contains("EXP") {
+                    set Nose to x.
+                    set HeaderTank to x.
+                    set ShipType to "Block3Cargo".
+                    set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
+                }
+				else if x:name:contains("SEP.26.SHIP.NOSECONE") and not x:name:contains("SEP.26.SHIP.NOSECONE.EXP") {
+                    set Nose to x.
+                    set ShipType to "Block3".
                     set Nose:getmodule("kOSProcessor"):volume:name to "watchdog".
                 }
                 else if x:name:contains("FNB.BL2.NC") and not x:name:contains("EXP") {
@@ -680,7 +698,7 @@ function FindParts {
         set SL2 to false.
         set SL3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.26.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("SEP.24.SHIP.PROTO.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR2.SL.RC") or x:name:contains("SEP.24.R1C") or x:name:contains("FNB.R3.CENTER") or x:name:contains("SEP.26.R3.SL.C") {
                     set partPos to x:position - Tank:position.
                     set compPos to Tank:facing:topvector.
@@ -728,7 +746,7 @@ function FindParts {
         set Vac2 to false.
         set Vac3 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.26.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set partPos to x:position - Tank:position.
                     set compPos to -Tank:facing:topvector.
@@ -773,7 +791,7 @@ function FindParts {
         set Vac5 to false.
         set Vac6 to false.
         for x in Tank:children {
-            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
+            if x:parent:name:contains("SEP.24.SHIP.CORE") or x:parent:name:contains("SEP.25.SHIP.CORE") or x:parent:name:contains("SEP.26.SHIP.CORE") or x:parent:name:contains("SEP.23.SHIP.BODY") or x:parent:name:contains("FNB.BL2.LOX") or x:parent:name:contains("FNB.BL3.LOX") {
                 if x:name:contains("SEP.23.RAPTOR.VAC") or x:name:contains("FNB.R3.VAC") or x:name:contains("SEP.26.R3.VAC") {
                     set partPos to vxcl(Tank:facing:forevector,x:position - Tank:position).
                     set compPos to -Tank:facing:starvector.
@@ -923,6 +941,45 @@ function FindParts {
         set bLOXTank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
         set bCH4Tank to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
         set bCMNDome to SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE").
+        if BoosterCore:length > 0 {
+            set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
+            //print(round(BoosterCore[0]:drymass)).
+            if round(BoosterCore[0]:drymass) = 55 and not (RSS) or round(BoosterCore[0]:drymass) = 80 and RSS {
+                set BoosterCorrectVariant to true.
+            }
+            else {
+                set BoosterCorrectVariant to true.
+            }
+            if ShipType = "Depot" {
+                sendMessage(processor(volume("Booster")),"Depot").
+            }
+            sendMessage(processor(volume("Booster")), "ShipDetected").
+        }
+        set sTelemetry:style:bg to "starship_img/telemetry_bg_".
+        set missionTimeLabel:text to "".
+        print(BoosterCore[0]:mass).
+    } else if ship:partsnamed("SEP.26.BOOSTER.CORE"):length > 0 {
+        set Boosterconnected to true.
+        set BoosterType to "Block3".
+        set sAltitude:style:textcolor to grey.
+        set sSpeed:style:textcolor to grey.
+        set sLOXLabel:style:textcolor to grey.
+        set sLOXSlider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sCH4Label:style:textcolor to grey.
+        set sCH4Slider:style:bg to "starship_img/telemetry_fuel_grey".
+        set sThrust:style:textcolor to grey.
+        if SHIP:PARTSNAMED("SEP.26.BOOSTER.CLUSTER"):length > 0 set BoosterEngines to SHIP:PARTSNAMED("SEP.26.BOOSTER.CLUSTER").
+        else { 
+            set BoosterEngines to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+            set BoosterSingleEngines to true.
+        }
+        set GridFins to SHIP:PARTSNAMED("SEP.26.BOOSTER.GRIDFIN").
+        set HSR to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set BoosterCore to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set bLOXTank to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set bCH4Tank to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set bCMNDome to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
+        set bFWDDome to SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE").
         if BoosterCore:length > 0 {
             set BoosterCore[0]:getmodule("kOSProcessor"):volume:name to "Booster".
             //print(round(BoosterCore[0]:drymass)).
@@ -1120,6 +1177,43 @@ function FindParts {
         set StackMass to ship:mass - OLM:Mass - TowerBase:mass - TowerCore:mass - Mechazilla:mass.
         print("Stack mass: " + StackMass).
         print(ship:mass).
+    }
+    else if ship:partsnamed("OLM.B2"):length > 0 {
+        set OnOrbitalMount to True.
+        set OLM to ship:partsnamed("OLM.B2")[0].
+        set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
+        set Mechazilla to ship:partsnamed("PadB.Chopsticks")[0].
+        set TowerCore to ship:partsnamed("OLIT.2")[0].
+        if ship:partsnamed("Sqd.2"):length > 0 {
+            set SQD to ship:partsnamed("Sqd.2")[0].
+        }
+        set SteelPlate to ship:partsnamed("OLM.B2")[0].
+        set PadB to true.
+        sendMessage(processor(volume("OrbitalLaunchMount")), "getArmsVersion").
+        if RSS {
+            set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 12.
+        }
+        else {
+            set ArmsHeight to (Mechazilla:position - ship:body:position):mag - SHIP:BODY:RADIUS - ship:geoposition:terrainheight + 7.5.
+        }
+        //SaveToSettings("ArmsHeight", ArmsHeight).
+        set StackMass to ship:mass - OLM:Mass - TowerCore:mass - Mechazilla:mass.
+        print("Stack mass: " + StackMass).
+        print(ship:mass).
+        set curMod to 0.
+        for DelugeMod in OLM:modules {
+            if DelugeMod = "ModuleEnginesFX" {
+                if OLM:getmodulebyindex(curMod):gethiddenfield("runningEffectName") = "running_trench" set Trenchmod to curMod.
+                if OLM:getmodulebyindex(curMod):gethiddenfield("runningEffectName") = "running_deluge" set TopDeckmod to curMod.
+            }
+            if DelugeMod = "DualEngineModule" set DSSmod to curMod.
+            if DelugeMod = "ModuleEngines" and OLM:getmodulebyindex(curMod):gethiddenfield("engineID") = "Trench Effect" set Plumemod to curMod.
+            set curMod to curMod + 1.
+        }
+        print DSSmod.
+        print Plumemod.
+        print Trenchmod.
+        print TopDeckmod.
     }
     else {
         set OnOrbitalMount to False.
