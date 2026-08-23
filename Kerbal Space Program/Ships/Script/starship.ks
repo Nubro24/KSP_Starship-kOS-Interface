@@ -8509,7 +8509,7 @@ function Launch {
                         }
                     }
                 }
-                {
+                else {
                     if x - time:seconds < 13 {
                         if OLM:getmodulebyindex(DSSmod):hasevent("activate Dss") {
                             OLM:getmodulebyindex(DSSmod):doevent("activate Dss").
