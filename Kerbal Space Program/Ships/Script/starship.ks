@@ -12630,6 +12630,8 @@ function ReEntryAndLand {
                         if Vessel(TargetedOLM):partsnamed("OLM.B2"):length > 0 or Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount 2"):length > 0 set PadB to true.
                         if Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ"):length > 0 and Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base"):length > 0  
                             set TowerHeadingVector to vxcl(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                        else if Vessel(TargetedOLM):PARTSNAMED("PadB.Chopsticks"):length > 0 and Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Tower 2"):length > 0  
+                            set TowerHeadingVector to vxcl(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Vessel(TargetedOLM):PARTSTITLED("Starship Orbital Launch Tower 2")[0]:position).
                         else {
                             set TowerHeadingVector to vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector).
                             set LandSomewhereElse to true.
@@ -13699,24 +13701,49 @@ function ReEntryData {
             if not (TargetOLM = "false") {
                 when vAng(facing:forevector, up:vector) < 3 and Vessel(TargetOLM):distance < 2000 then {
                     HUDTEXT("Distance Check 1", 3, 2, 15, white, false).
-                    if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag > 2.5*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Tank:position), LandingForwardDirection) < 90 {
-                        set LandSomewhereElse to true.
-                        set cAbort to true.
-                        SetRadarAltitude().
-                        HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag+"m)", 3, 2, 20, red, false).
-                    } else {
-                        set landingzone to ship:body:geoPositionOf(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
-                        ADDONS:TR:SETTARGET(landingzone).
-                        when groundspeed < 3*Scale then {
-                            HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
-                            set steeringManager:pitchpid:kp to 1.2.
-                            set steeringManager:pitchpid:ki to 0.2.
-                            set steeringManager:pitchpid:kd to 0.6.
-                            if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.5*ShipHeight {
-                                set LandSomewhereElse to true.
-                                set cAbort to true.
-                                SetRadarAltitude().
-                                HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag+"m)", 3, 2, 20, red, false).
+                    if PadB {
+                        if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):mag > 2.5*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Tank:position), LandingForwardDirection) < 90 {
+                            set LandSomewhereElse to true.
+                            set cAbort to true.
+                            SetRadarAltitude().
+                            HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):mag+"m)", 3, 2, 20, red, false).
+                        } else {
+                            set landingzone to ship:body:geoPositionOf(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position).
+                            ADDONS:TR:SETTARGET(landingzone).
+                            when groundspeed < 3*Scale then {
+                                HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
+                                set steeringManager:pitchpid:kp to 1.2.
+                                set steeringManager:pitchpid:ki to 0.2.
+                                set steeringManager:pitchpid:kd to 0.6.
+                                if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("PadB.Chopsticks")[0]:position):mag > 1.5*ShipHeight {
+                                    set LandSomewhereElse to true.
+                                    set cAbort to true.
+                                    SetRadarAltitude().
+                                    HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("PadB.Chopsticks")[0]:position):mag+"m)", 3, 2, 20, red, false).
+                                }
+                            }
+                        }
+                    }
+                    else  {
+                        if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag > 2.5*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Tank:position), LandingForwardDirection) < 90 {
+                            set LandSomewhereElse to true.
+                            set cAbort to true.
+                            SetRadarAltitude().
+                            HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):mag+"m)", 3, 2, 20, red, false).
+                        } else {
+                            set landingzone to ship:body:geoPositionOf(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position).
+                            ADDONS:TR:SETTARGET(landingzone).
+                            when groundspeed < 3*Scale then {
+                                HUDTEXT("Distance Check 2", 3, 2, 15, white, false).
+                                set steeringManager:pitchpid:kp to 1.2.
+                                set steeringManager:pitchpid:ki to 0.2.
+                                set steeringManager:pitchpid:kd to 0.6.
+                                if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag > 1.5*ShipHeight {
+                                    set LandSomewhereElse to true.
+                                    set cAbort to true.
+                                    SetRadarAltitude().
+                                    HUDTEXT("Mechazilla too far away ("+vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("SLE.SS.OLIT.MZ")[0]:position):mag+"m)", 3, 2, 20, red, false).
+                                }
                             }
                         }
                     }

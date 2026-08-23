@@ -1200,20 +1200,6 @@ function FindParts {
         set StackMass to ship:mass - OLM:Mass - TowerCore:mass - Mechazilla:mass.
         print("Stack mass: " + StackMass).
         print(ship:mass).
-        set curMod to 0.
-        for DelugeMod in OLM:modules {
-            if DelugeMod = "ModuleEnginesFX" {
-                if OLM:getmodulebyindex(curMod):gethiddenfield("runningEffectName") = "running_trench" set Trenchmod to curMod.
-                if OLM:getmodulebyindex(curMod):gethiddenfield("runningEffectName") = "running_deluge" set TopDeckmod to curMod.
-            }
-            if DelugeMod = "DualEngineModule" set DSSmod to curMod.
-            if DelugeMod = "ModuleEngines" and OLM:getmodulebyindex(curMod):gethiddenfield("engineID") = "Trench Effect" set Plumemod to curMod.
-            set curMod to curMod + 1.
-        }
-        print DSSmod.
-        print Plumemod.
-        print Trenchmod.
-        print TopDeckmod.
     }
     else {
         set OnOrbitalMount to False.
