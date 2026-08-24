@@ -1,4 +1,4 @@
-# V3.6.1 (2026-07-25)
+# V3.6.1 (2026-08-24)
 - Updated Block 3 Flight Profile and Engine Timings
 - **Updated to SEP v3.2.3**
 - **Added Support for F3's Stage Zero (Pad B)**
