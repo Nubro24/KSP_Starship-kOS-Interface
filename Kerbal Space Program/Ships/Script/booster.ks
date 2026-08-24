@@ -1059,8 +1059,8 @@ if bodyexists("Earth") {
         set BoosterRaptorThrust to 2220.
         set BoosterRaptorThrust3 to 2230.
         if Block3Cluster or BoosterType:contains("Block3") {
-            set BoosterRaptorThrust to 2700.
-            set BoosterRaptorThrust3 to 2710.
+            set BoosterRaptorThrust to 2500.
+            set BoosterRaptorThrust3 to 2510.
         }
         set Scale to 1.6.
         set CorrFactor to 0.7.
