@@ -1196,6 +1196,7 @@ if BoosterType:contains("Block3") {
     set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
     set BoosterHeight to 45.4*Scale.
     if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
+    else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.1*Scale.
     set maxAoA to 17.
     set BoosterGlideDistance to BoosterGlideDistance * 1.8.
     set Block3Time to 10.
