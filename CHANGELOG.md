@@ -6,6 +6,7 @@
 - **Reworked Ship & Booster Catch Guidance**
 - Improved Gimbal Module find-function for Cluster
 - Improved Ship Descent Guidance
+- Improved High Altitude FLight Test Ascent Guidance
 - Increased Booster Descent Lng PID kd
 - Fixed Ship not targeting the OLM
 - Fixed some Errors
