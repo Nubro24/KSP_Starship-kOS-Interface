@@ -1191,18 +1191,17 @@ set DragDecel to 0.
 
 if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
 
-if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.06.
 if BoosterType:contains("Block3") {
-    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
+    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
     set BoosterHeight to 45.4*Scale.
     if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
     else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.1*Scale.
     set maxAoA to 17.
     set BoosterGlideDistance to BoosterGlideDistance * 1.8.
-    set Block3Time to 10.
+    set Block3PollTime to 10.
     set BoosterGlideFactor to BoosterGlideFactor * 0.85.
 } else 
-    set Block3Time to 0.
+    set Block3PollTime to 0.
 if FNBBooster {
     set BoosterGlideFactor to BoosterGlideFactor * 0.85.
 } 
@@ -3488,11 +3487,11 @@ FUNCTION SteeringCorrections {
                 //Decel 13 Engines
                 if not MiddleEnginesShutdown and not downToThree {
                     set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(0.1, RadarAlt - (TargetMidShutdown+stopDist3+stopDist5)/2))) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(-velocity:surface, up:vector)))).
+                    set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(-velocity:surface, up:vector)))) + 0.02.
                 }//Decel 5 Engines
                 else if not downToThree {
                     set ReqDecel to (max(12,airspeed)^2 - 12^2)/(2*(max(0.1, RadarAlt - stopDist3*1.5))) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))).
+                    set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))) - 0.01.
                 }//Decel 3 Engines
                 else {
                     set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.1, RadarAlt - 0.5*Scale))).
@@ -4762,9 +4761,9 @@ function GUIupdate {
     
 
     if flipStartTime > 0 {
-        if RSS set PollTimer to flipStartTime+45-Block3Time-time:seconds.    
-        else if KSRSS set PollTimer to flipStartTime+55-Block3Time-time:seconds.    
-        else set PollTimer to flipStartTime+50-Block3Time-time:seconds.
+        if RSS set PollTimer to flipStartTime+45-Block3PollTime-time:seconds.    
+        else if KSRSS set PollTimer to flipStartTime+55-Block3PollTime-time:seconds.    
+        else set PollTimer to flipStartTime+50-Block3PollTime-time:seconds.
     } 
     if GfC set message4:text to "Current decision: <b><color=green>GO</color></b>".
     else set message4:text to "Current decision: <b><color=red>NOGo</color></b>".
