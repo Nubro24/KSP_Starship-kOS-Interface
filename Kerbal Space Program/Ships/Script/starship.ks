@@ -14119,8 +14119,8 @@ function LandingVector {
                     else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
-                    set PredictGSVec to GSVec + vxcl((up:vector* angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,-facing:topvector), facing:forevector):normalized*vAng((up:vector* angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector), facing:forevector)*ActiveSL/((Scale^1.48)*2.4).
-                    set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 1.5*(Scale^1.2)).
+                    set PredictGSVec to GSVec + vxcl((up:vector* angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,-facing:topvector), facing:forevector):normalized*vAng((up:vector* angleAxis(_2SL,facing:starvector)) * angleAxis(_1SL,facing:topvector), facing:forevector)*ActiveSL/((Scale^1.48)*1.6).
+                    set TargetPos to ((landingzone:position + MZHeight*up:vector) - (TowerHeadingVector*angleAxis(8.5,up:vector)):normalized * 1.2*(Scale^1.2)).
                     set PositionCorrection to vxcl(up:vector, TargetPos - Nose:position).
                     if not twoSL {
                         set PredictErrVec to TargetPos - myFuturePos.

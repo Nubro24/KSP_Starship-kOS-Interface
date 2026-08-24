@@ -102,7 +102,6 @@ set LngError to 0.
 set LatError to 0.
 set ErrorVector to V(0, 0, 0).
 set BoosterFueled to false.
-set Frost to false.
 set RandomFlip to false.
 set GoForCatch to false.
 set NrCounterEngine to list().
@@ -325,9 +324,6 @@ for part in ship:parts {
         set HSRType to "Block1/2".
         set HSR to part.
         set HSset to true.
-    }
-    if part:name:contains("frostbooster") {
-        set Frost to true.
     }
     if part:name:contains("FNB") and part:name:contains("BOOSTER") {
         set FNBBooster to true.
@@ -1053,7 +1049,6 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
         set BoosterGlideDistance to 2800. //2400 
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.95.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.07.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 1.
@@ -1088,7 +1083,6 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1450.
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
@@ -1130,7 +1124,6 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1400.
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
@@ -1164,8 +1157,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
-        set BoosterGlideDistance to 1020. //1100
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
+        set BoosterGlideDistance to 1040. //1100
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
@@ -1204,7 +1196,8 @@ if BoosterType:contains("Block3") {
     set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
     set BoosterHeight to 45.4*Scale.
     if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
-    set BoosterGlideDistance to BoosterGlideDistance * 1.5.
+    set maxAoA to 17.
+    set BoosterGlideDistance to BoosterGlideDistance * 1.8.
     set Block3Time to 10.
     set BoosterGlideFactor to BoosterGlideFactor * 0.85.
 } else 
@@ -1268,7 +1261,6 @@ print "Booster Nominal Operation, awaiting command..".
 
 print ShipType + "-Ship + " + HSRType + "-HSR + " + BoosterType + "-Booster ".
 print "--> RandomFlipDir:" + RandomFlip.
-print "Frost: " + Frost.
 
 set OnceShipName to false.
 set ShipConnectedToBooster to true.
@@ -1334,10 +1326,6 @@ when time:seconds > TelemetryTimer + 0.03 then {
 }
 
 
-if BoosterType:contains("Block3") {
-    set maxAoA to 18.
-    set BoosterGlideDistance to BoosterGlideDistance * 1.2.
-}
 
 when MaxQ then {
     set ClockHeader:text to "Max Q".
@@ -2674,7 +2662,7 @@ function Boostback {
     unlock SteerVec2.
 
     when RadarAlt < 24000 then {
-        if Bl3LndProf set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 36*Scale.
+        if Bl3LndProf set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 24*Scale.
         else set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 16*Scale.
         set steeringManager:rolltorquefactor to 1.
         when RadarAlt < 8600*(Scale^0.75) then {
