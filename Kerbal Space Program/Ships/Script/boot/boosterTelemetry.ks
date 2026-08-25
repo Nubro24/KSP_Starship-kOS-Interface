@@ -66,6 +66,7 @@ for part in ship:parts {
         set FWD to part.
         set HSR to part.
         set HSRType to "Block3".
+        if not ECset set BoosterEngines to ship:partsnamed("SEP.26.BOOSTER.CORE").
         set DumpVents to list().
         set ModulesFound to false.
         set x to 0.
@@ -130,6 +131,11 @@ for part in ship:parts {
     if part:name:contains("SEP.25.BOOSTER.CLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("SEP.25.BOOSTER.CLUSTER").
         set ECset to true.
+    }
+    if part:name:contains("SEP.26.BOOSTER.CLUSTER") and not ECset {
+        set BoosterEngines to ship:partsnamed("SEP.26.BOOSTER.CLUSTER").
+        set ECset to true.
+        set Block3Cluster to true.
     }
     if part:name:contains("FNB.BL1.BOOSTERCLUSTER") and not ECset {
         set BoosterEngines to ship:partsnamed("FNB.BL1.BOOSTERCLUSTER").
