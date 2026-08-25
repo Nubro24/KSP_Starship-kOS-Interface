@@ -14127,7 +14127,10 @@ function LandingVector {
             else {
                 if ship:body:atm:sealevelpressure > 0.5 {
                     //Position Vectors
-                    if TargetOLM and altitude < 1000 if Vessel(TargetOLM):distance < 2000 set TowerRotationVector to vCrs(vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position),up:vector).
+                    if TargetOLM and altitude < 1000 if Vessel(TargetOLM):distance < 2000 {
+                        if PadB set TowerRotationVector to vCrs(vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount 2")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Tower 2")[0]:position),up:vector).
+                        else set TowerRotationVector to vCrs(vxcl(up:vector, Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Mount")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position),up:vector).
+                    } 
                     else set TowerRotationVector to vCrs(up:vector, north:vector).
                     if not TargetOLM set MZHeight to 0.8*ShipHeight.
                     if addons:tr:hasimpact set myFuturePos to addons:tr:impactpos:position + MZHeight*(Nose:position-addons:tr:impactpos:position + velocity:surface/9.81):normalized.
@@ -15752,12 +15755,18 @@ function LandAtOLM {
                             if not (Vessel(TargetOLM):isdead) {
                                 when Vessel(TargetOLM):unpacked then {
                                     wait 0.01.
-                                    set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
+                                    if PadB set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Tower 2")[0]:position).
+                                    else set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
                                     sendMessage(Vessel(TargetOLM), "MechazillaHeight,0.5,2").
                                     sendMessage(Vessel(TargetOLM), "MechazillaArms,8.5,10,90,true").
                                     sendMessage(Vessel(TargetOLM), "MechazillaPushers,0,1,12,false").
                                     sendMessage(Vessel(TargetOLM), "MechazillaStabilizers,0").
-                                    if RSS {
+                                    if RSS and PadB {
+                                        set landingzone to latlng(round(body:geopositionof(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):lat, 7), round(body:geopositionof(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):lng, 7)).
+                                    }
+                                    else if PadB {
+                                        set landingzone to latlng(round(body:geopositionof(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):lat, 5), round(body:geopositionof(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):lng, 5)).
+                                    } else if RSS {
                                         set landingzone to latlng(round(body:geopositionof(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):lat, 7), round(body:geopositionof(Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position):lng, 7)).
                                     }
                                     else {
