@@ -3151,10 +3151,10 @@ function Boostback {
 
     until (verticalspeed > CatchVS - 0.5 and RadarAlt < 5) or (verticalspeed > -0.2 and RadarAlt < 100*Scale) or hover {
         SteeringCorrections().
-        if GfC and not offshoreDivert and not LZchange if landingzone:distance < 1500 {
+        if GfC and not offshoreDivert and not LZchange {if landingzone:distance < 1500 and Vessel(TargetOLM):loaded {
             if PadB set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - BoosterCore:position).
             else set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
-        } 
+        } else set RollVector to -TowerRotationVector. }
         set LandingVector to LandingGuidance().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         PollUpdate().
