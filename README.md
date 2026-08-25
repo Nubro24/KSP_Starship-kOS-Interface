@@ -31,9 +31,10 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - KSP version 1.12.5
 - KSP language set to **English**
 - **Stock**-size Kerbin or **Real Solar System** or KSRSS or SigmaDimensions (2.5-2.7x)
-- Starship Expansion Project - [github](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with v3.2.1*
+- Starship Expansion Project - [github](https://github.com/Kari1407/Starship-Expansion-Project/releases) - *compatible with v3.2.1* (3.2.4 on Dev branch)
     - with ***all*** dependencies
 - Starship Launch Expansion - [github](https://github.com/SAMCG14/StarshipLaunchExpansion/tree/Experimental) - *Experimental branch recommended*
+- F346's GSE (Starship Pad B) - [github](https://github.com/f346-KSP/F3s-GSE/releases/tag/V2.1)
 - kOS - [github](https://github.com/KSP-KOS/KOS/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/165628-ksp-1101-and-111-kos-v1310-kos-scriptable-autopilot-system/)
 - Trajectories - [github](https://github.com/neuoy/KSPTrajectories/releases) - [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/162324-18-112x-trajectories-v241-2021-06-27-atmospheric-predictions/)
 - Kopernicus - [github](https://github.com/Kopernicus/Kopernicus/releases)
