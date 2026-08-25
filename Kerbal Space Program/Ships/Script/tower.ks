@@ -371,7 +371,7 @@ function LiftOff {
         }
         set curMod to curMod + 1.
     }
-    if OLM:getmodulebyindex(PlumeEffect):hasevent("shutdown engine") {
+    if PadB if OLM:getmodulebyindex(PlumeEffect):hasevent("shutdown engine") {
         OLM:getmodulebyindex(PlumeEffect):doevent("shutdown engine").
     }
     wait 3.
