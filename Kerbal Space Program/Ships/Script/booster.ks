@@ -1713,7 +1713,7 @@ function Boostback {
             if not RSS set FlipTime to 4.4.
             else set FlipTime to 4.2.
         } else {
-            if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/Scale * PitchStrength. else 
+            //if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/Scale * PitchStrength. else 
             set ship:control:pitch to 2.4 * 1.6/Scale * PitchStrength.
             set ship:control:yaw to 0.
             if not RSS set FlipTime to 4.5.
