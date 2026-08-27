@@ -100,7 +100,7 @@ set LatCtrl to 0.
 set LngCtrl to 0.
 set LngError to 0.
 set LatError to 0.
-set ErrorVector to V(0, 0, 1)*24000.
+set ErrorVector to vCrs(north:vector,up:vector)*24000.
 set BoosterFueled to false.
 set RandomFlip to false.
 set GoForCatch to false.
