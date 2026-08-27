@@ -8585,7 +8585,7 @@ function Launch {
             }
         }
 
-        if RadarAlt < 100 {
+        if RadarAlt < 120 {
             for resBooster in bCH4Tank[0]:resources {
                 if resBooster:name = "Oxidizer" or resBooster:name = "LqdMethane" or resBooster:name = "LiquidFuel" {
                     set resBooster:enabled to true.
