@@ -1623,7 +1623,9 @@ function FindParts {
         set OnOrbitalMount to True.
         set OLM to ship:partsnamed("OLM.B2")[0].
         set OLM:getmodule("kOSProcessor"):volume:name to "OrbitalLaunchMount".
-        set Mechazilla to ship:partsnamed("PadB.Chopsticks")[0].
+        if ship:partsnamed("PadB.Chopsticks"):length > 0 set Mechazilla to ship:partsnamed("PadB.Chopsticks")[0].
+        else if ship:partsnamed("SLE.SS.OLIT.MZ"):length > 0 set Mechazilla to ship:partsnamed("SLE.SS.OLIT.MZ")[0].
+        else print "NO supported CHOPSTICKS FOUND!".
         set TowerCore to ship:partsnamed("OLIT.2")[0].
         if ship:partsnamed("Sqd.2"):length > 0 {
             set SQD to ship:partsnamed("Sqd.2")[0].
@@ -8481,7 +8483,7 @@ function Launch {
                 }
                 if not PadB {
                     if x - time:seconds < 9 {
-                        print x.
+                        print time:seconds-x.
                         for k in list(OLM) {
                             if k:hasmodule("ModuleEnginesFX") {
                                 if k:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
@@ -8496,7 +8498,6 @@ function Launch {
                         }
                     }
                     if x - time:seconds < 3 {
-                        print x.
                         for p in list(SteelPlate) {
                             if p:hasmodule("ModuleEnginesFX") {
                                 if P:getmodule("ModuleEnginesFX"):hasevent("activate engine") {
@@ -8513,19 +8514,17 @@ function Launch {
                 }
                 else {
                     if x - time:seconds < 13 {
-                        print x.
+                        print time:seconds-x.
                         if OLM:getmodulebyindex(DSSmod):hasevent("activate Dss") {
                             OLM:getmodulebyindex(DSSmod):doevent("activate Dss").
                         }
                     }
                     if x - time:seconds < 7 {
-                        print x.
                         if OLM:getmodulebyindex(Trenchmod):hasevent("activate engine") {
                             OLM:getmodulebyindex(Trenchmod):doevent("activate engine").
                         }
                     }
                     if x - time:seconds < 4 {
-                        print x.
                         if OLM:getmodulebyindex(TopDeckmod):hasevent("activate engine") {
                             OLM:getmodulebyindex(TopDeckmod):doevent("activate engine").
                         }
@@ -8628,7 +8627,7 @@ function Launch {
                 print "Actual Distance: " + round((target:position - ship:position):mag / 1000, 1).
             }
             if not BoosterType:contains("Block3") {
-                print x.
+                print time:seconds-x.
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
                 wait 0.02. 
@@ -8677,7 +8676,7 @@ function Launch {
                 if not BoosterType:contains("Block3") and ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 BoosterCore[0]:activate.
                 wait 1.
                         
-                print x.
+                print time:seconds-x.
 
                 until time:seconds - EngineStartTime > 3.5 or cancelconfirmed {
                     set message3:text to "<b>Engine throttle up:  </b>" + round(throttle * 100) + "%".
@@ -8688,7 +8687,7 @@ function Launch {
                 }
             }
             else {
-                print x.
+                print time:seconds-x.
                 set EngineStartTime to time:seconds.
                 lock throttle to 0 + min(0.8,(time:seconds-EngineStartTime)*1.1).
                 set message1:text to "<b>Ignition Sequence</b>".
@@ -8726,7 +8725,7 @@ function Launch {
                     OLM:getmodulebyindex(Plumemod):doevent("activate engine").
                 }
                 wait 1.5.
-                print x.
+                print time:seconds-x.
             }
             if HideGUI g:hide().
             print "---___---".
