@@ -100,7 +100,7 @@ set LatCtrl to 0.
 set LngCtrl to 0.
 set LngError to 0.
 set LatError to 0.
-set ErrorVector to V(0, 0, 0).
+set ErrorVector to V(0, 0, 1)*24000.
 set BoosterFueled to false.
 set RandomFlip to false.
 set GoForCatch to false.
@@ -3591,7 +3591,7 @@ FUNCTION SteeringCorrections {
     }
     else {
         clearscreen.
-        print "Booster: Coasting back to LZ..".
+        print "Booster: Return in Progress..".
         print " ".
         print "Radar Altitude: " + round(RadarAlt).
         //if ShipExists {
