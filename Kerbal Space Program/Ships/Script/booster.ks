@@ -1677,6 +1677,7 @@ function Boostback {
 
     set ApproachUPVector to (landingzone:position - body:position):normalized.
     set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
+    set ErrorVector to vxcl(up:vector, landingzone:position - ship:position).
     
     SteeringCorrections().
 
@@ -1875,7 +1876,7 @@ function Boostback {
                 if BoosterSingleEngines {
                     set tEngStart to time:seconds.
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:activate.
-                    when time:seconds - tEngStart > 0.4 then {
+                    when time:seconds - tEngStart > 0.8 then {
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[0]:hassuffix("activate") BoosterSingleEnginesRB[0]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[2]:hassuffix("activate") BoosterSingleEnginesRB[2]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[4]:hassuffix("activate") BoosterSingleEnginesRB[4]:activate.
@@ -1886,7 +1887,7 @@ function Boostback {
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[14]:hassuffix("activate") BoosterSingleEnginesRB[14]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[16]:hassuffix("activate") BoosterSingleEnginesRB[16]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[18]:hassuffix("activate") BoosterSingleEnginesRB[18]:activate.
-                        when time:seconds - tEngStart > 0.8 then {
+                        when time:seconds - tEngStart > 1.2 then {
                             if random() < BBIgn/100 if BoosterSingleEnginesRB[1]:hassuffix("activate") BoosterSingleEnginesRB[1]:activate.
                             if random() < BBIgn/100 if BoosterSingleEnginesRB[3]:hassuffix("activate") BoosterSingleEnginesRB[3]:activate.
                             if random() < BBIgn/100 if BoosterSingleEnginesRB[5]:hassuffix("activate") BoosterSingleEnginesRB[5]:activate.
@@ -1906,7 +1907,7 @@ function Boostback {
                     MidGimbMod:doaction("free gimbal", true).
                     set tEngStart to time:seconds.
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
-                    when time:seconds - tEngStart > 0.65 then BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                    when time:seconds - tEngStart > 0.95 then BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
                 }
                 when ship:groundspeed < 120 then {
                     if BoosterSingleEngines {
