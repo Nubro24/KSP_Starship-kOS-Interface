@@ -153,6 +153,7 @@ for part in ship:parts {
         set FWD to part.
         set HSR to part.
         set HSRType to "Block3".
+        set RandomFlip to false.
         set DumpVents to list().
         set ModulesFound to false.
         set x to 0.
@@ -1677,7 +1678,7 @@ function Boostback {
 
     set ApproachUPVector to (landingzone:position - body:position):normalized.
     set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
-    set ErrorVector to vxcl(up:vector, landingzone:position - ship:position).
+    set ErrorVector to vxcl(up:vector, ship:position - landingzone:position).
     
     SteeringCorrections().
 
