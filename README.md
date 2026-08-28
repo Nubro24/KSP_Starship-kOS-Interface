@@ -57,6 +57,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - PEKKA's Starship Pack
 - Atmospheric Autopilot
 - RSS Adapter
+- Persistent Thrust
 
 ## Installation:
 - **Download and install all requirements listed above.**
