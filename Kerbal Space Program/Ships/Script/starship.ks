@@ -8623,6 +8623,8 @@ function Launch {
                 print "Actual Distance: " + round((target:position - ship:position):mag / 1000, 1).
             }
             if not BoosterType:contains("Block3") {
+                set EngineStartTime to time:seconds.
+                if PadB lock throttle to 0 + min(0.5,(time:seconds-EngineStartTime)*1.1).
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
                 wait 0.02. 
@@ -8632,6 +8634,9 @@ function Launch {
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") {
                         if random() < LOIgnCha/100 eng:activate.
                     }
+                }
+                if PadB if OLM:getmodulebyindex(Plumemod):hasevent("activate engine") {
+                    OLM:getmodulebyindex(Plumemod):doevent("activate engine").
                 }
 
                 set EngineStartTime to time:seconds.
@@ -8651,6 +8656,7 @@ function Launch {
                     set inactiveEng to List(7,11,15,19,24).
                 }
                 set message2:text to "<b>Expected Engine Count:</b>    28".
+                if PadB lock throttle to 0.5 + min(0.25,(time:seconds-EngineStartTime-1)).
                 wait 0.4.
 
                 //last 5 outer ignition
@@ -8713,7 +8719,7 @@ function Launch {
                 set message2:text to "<b>Expected Engine Count:</b>    33".
                 set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
                 
-                if OLM:getmodulebyindex(Plumemod):hasevent("activate engine") {
+                if PadB if OLM:getmodulebyindex(Plumemod):hasevent("activate engine") {
                     OLM:getmodulebyindex(Plumemod):doevent("activate engine").
                 }
                 wait 1.5.
