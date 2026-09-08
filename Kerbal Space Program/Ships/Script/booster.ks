@@ -100,9 +100,8 @@ set LatCtrl to 0.
 set LngCtrl to 0.
 set LngError to 0.
 set LatError to 0.
-set ErrorVector to V(0, 0, 0).
+set ErrorVector to vCrs(north:vector,up:vector)*24000.
 set BoosterFueled to false.
-set Frost to false.
 set RandomFlip to false.
 set GoForCatch to false.
 set NrCounterEngine to list().
@@ -154,6 +153,7 @@ for part in ship:parts {
         set FWD to part.
         set HSR to part.
         set HSRType to "Block3".
+        set RandomFlip to false.
         set DumpVents to list().
         set ModulesFound to false.
         set x to 0.
@@ -325,9 +325,6 @@ for part in ship:parts {
         set HSRType to "Block1/2".
         set HSR to part.
         set HSset to true.
-    }
-    if part:name:contains("frostbooster") {
-        set Frost to true.
     }
     if part:name:contains("FNB") and part:name:contains("BOOSTER") {
         set FNBBooster to true.
@@ -1053,7 +1050,6 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.27, -10, 10).
         }
         set BoosterGlideDistance to 2800. //2400 
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.95.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.07.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 1.
@@ -1064,8 +1060,8 @@ if bodyexists("Earth") {
         set BoosterRaptorThrust to 2220.
         set BoosterRaptorThrust3 to 2230.
         if Block3Cluster or BoosterType:contains("Block3") {
-            set BoosterRaptorThrust to 2700.
-            set BoosterRaptorThrust3 to 2710.
+            set BoosterRaptorThrust to 2500.
+            set BoosterRaptorThrust3 to 2510.
         }
         set Scale to 1.6.
         set CorrFactor to 0.7.
@@ -1088,7 +1084,6 @@ if bodyexists("Earth") {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1450.
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
@@ -1130,7 +1125,6 @@ else {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
         set BoosterGlideDistance to 1400.
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
@@ -1164,8 +1158,7 @@ else {
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
-        set BoosterGlideDistance to 1020. //1100
-        if Frost set BoosterGlideDistance to BoosterGlideDistance * 0.9.
+        set BoosterGlideDistance to 1040. //1100
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.25.
         set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
@@ -1199,16 +1192,17 @@ set DragDecel to 0.
 
 if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
 
-if HSRType:contains("Block3") set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.06.
 if BoosterType:contains("Block3") {
-    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
+    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
     set BoosterHeight to 45.4*Scale.
     if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
-    set BoosterGlideDistance to BoosterGlideDistance * 1.5.
-    set Block3Time to 10.
+    else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.1*Scale.
+    set maxAoA to 17.
+    set BoosterGlideDistance to BoosterGlideDistance * 1.8.
+    set Block3PollTime to 10.
     set BoosterGlideFactor to BoosterGlideFactor * 0.85.
 } else 
-    set Block3Time to 0.
+    set Block3PollTime to 0.
 if FNBBooster {
     set BoosterGlideFactor to BoosterGlideFactor * 0.85.
 } 
@@ -1268,7 +1262,6 @@ print "Booster Nominal Operation, awaiting command..".
 
 print ShipType + "-Ship + " + HSRType + "-HSR + " + BoosterType + "-Booster ".
 print "--> RandomFlipDir:" + RandomFlip.
-print "Frost: " + Frost.
 
 set OnceShipName to false.
 set ShipConnectedToBooster to true.
@@ -1334,10 +1327,6 @@ when time:seconds > TelemetryTimer + 0.03 then {
 }
 
 
-if BoosterType:contains("Block3") {
-    set maxAoA to 18.
-    set BoosterGlideDistance to BoosterGlideDistance * 1.2.
-}
 
 when MaxQ then {
     set ClockHeader:text to "Max Q".
@@ -1689,6 +1678,7 @@ function Boostback {
 
     set ApproachUPVector to (landingzone:position - body:position):normalized.
     set ApproachVector to vxcl(up:vector, landingzone:position - ship:position):normalized.
+    set ErrorVector to vxcl(up:vector, ship:position - landingzone:position).
     
     SteeringCorrections().
 
@@ -1724,7 +1714,7 @@ function Boostback {
             if not RSS set FlipTime to 4.4.
             else set FlipTime to 4.2.
         } else {
-            if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/Scale * PitchStrength. else 
+            //if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/Scale * PitchStrength. else 
             set ship:control:pitch to 2.4 * 1.6/Scale * PitchStrength.
             set ship:control:yaw to 0.
             if not RSS set FlipTime to 4.5.
@@ -1887,7 +1877,7 @@ function Boostback {
                 if BoosterSingleEngines {
                     set tEngStart to time:seconds.
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:activate.
-                    when time:seconds - tEngStart > 0.4 then {
+                    when time:seconds - tEngStart > 0.8 then {
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[0]:hassuffix("activate") BoosterSingleEnginesRB[0]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[2]:hassuffix("activate") BoosterSingleEnginesRB[2]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[4]:hassuffix("activate") BoosterSingleEnginesRB[4]:activate.
@@ -1898,7 +1888,7 @@ function Boostback {
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[14]:hassuffix("activate") BoosterSingleEnginesRB[14]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[16]:hassuffix("activate") BoosterSingleEnginesRB[16]:activate.
                         if random() < BBIgn/100 if BoosterSingleEnginesRB[18]:hassuffix("activate") BoosterSingleEnginesRB[18]:activate.
-                        when time:seconds - tEngStart > 0.8 then {
+                        when time:seconds - tEngStart > 1.2 then {
                             if random() < BBIgn/100 if BoosterSingleEnginesRB[1]:hassuffix("activate") BoosterSingleEnginesRB[1]:activate.
                             if random() < BBIgn/100 if BoosterSingleEnginesRB[3]:hassuffix("activate") BoosterSingleEnginesRB[3]:activate.
                             if random() < BBIgn/100 if BoosterSingleEnginesRB[5]:hassuffix("activate") BoosterSingleEnginesRB[5]:activate.
@@ -1918,7 +1908,7 @@ function Boostback {
                     MidGimbMod:doaction("free gimbal", true).
                     set tEngStart to time:seconds.
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
-                    when time:seconds - tEngStart > 0.65 then BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
+                    when time:seconds - tEngStart > 0.95 then BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("previous engine mode", true).
                 }
                 when ship:groundspeed < 120 then {
                     if BoosterSingleEngines {
@@ -2674,7 +2664,7 @@ function Boostback {
     unlock SteerVec2.
 
     when RadarAlt < 24000 then {
-        if Bl3LndProf set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 36*Scale.
+        if Bl3LndProf set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 24*Scale.
         else set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 16*Scale.
         set steeringManager:rolltorquefactor to 1.
         when RadarAlt < 8600*(Scale^0.75) then {
@@ -3163,10 +3153,10 @@ function Boostback {
 
     until (verticalspeed > CatchVS - 0.5 and RadarAlt < 5) or (verticalspeed > -0.2 and RadarAlt < 100*Scale) or hover {
         SteeringCorrections().
-        if GfC and not offshoreDivert and not LZchange if landingzone:distance < 1500 {
+        if GfC and not offshoreDivert and not LZchange {if landingzone:distance < 1500 and Vessel(TargetOLM):loaded {
             if PadB set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - BoosterCore:position).
             else set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - BoosterCore:position).
-        } 
+        } else set RollVector to -TowerRotationVector. }
         set LandingVector to LandingGuidance().
         if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
         PollUpdate().
@@ -3499,11 +3489,11 @@ FUNCTION SteeringCorrections {
                 //Decel 13 Engines
                 if not MiddleEnginesShutdown and not downToThree {
                     set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(0.1, RadarAlt - (TargetMidShutdown+stopDist3+stopDist5)/2))) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(-velocity:surface, up:vector)))).
+                    set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(-velocity:surface, up:vector)))) + 0.02.
                 }//Decel 5 Engines
                 else if not downToThree {
                     set ReqDecel to (max(12,airspeed)^2 - 12^2)/(2*(max(0.1, RadarAlt - stopDist3*1.5))) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))).
+                    set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))) - 0.01.
                 }//Decel 3 Engines
                 else {
                     set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.1, RadarAlt - 0.5*Scale))).
@@ -3603,7 +3593,7 @@ FUNCTION SteeringCorrections {
     }
     else {
         clearscreen.
-        print "Booster: Coasting back to LZ..".
+        print "Booster: Return in Progress..".
         print " ".
         print "Radar Altitude: " + round(RadarAlt).
         //if ShipExists {
@@ -4773,9 +4763,9 @@ function GUIupdate {
     
 
     if flipStartTime > 0 {
-        if RSS set PollTimer to flipStartTime+45-Block3Time-time:seconds.    
-        else if KSRSS set PollTimer to flipStartTime+55-Block3Time-time:seconds.    
-        else set PollTimer to flipStartTime+50-Block3Time-time:seconds.
+        if RSS set PollTimer to flipStartTime+45-Block3PollTime-time:seconds.    
+        else if KSRSS set PollTimer to flipStartTime+55-Block3PollTime-time:seconds.    
+        else set PollTimer to flipStartTime+50-Block3PollTime-time:seconds.
     } 
     if GfC set message4:text to "Current decision: <b><color=green>GO</color></b>".
     else set message4:text to "Current decision: <b><color=red>NOGo</color></b>".
