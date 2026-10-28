@@ -3089,7 +3089,7 @@ function Boostback {
                             set x to x + 1.
                         }
                     }
-                    when time:seconds > ShutdownTime + 3.08 and airspeed < 14*Scale or verticalSpeed > -12*Scale and stopDist3 < RadarAlt then {
+                    when time:seconds > ShutdownTime + 3.08 and airspeed < 10*Scale or verticalSpeed > -9*Scale and stopDist3 < RadarAlt then {
                         set downToThree to true.
                         if BoosterSingleEnginesRC[5+Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(6+Block2Offset) {
                             BoosterSingleEnginesRC[5+Block2Offset]:shutdown.
@@ -3133,7 +3133,7 @@ function Boostback {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             MidGimbMod:doaction("lock gimbal", true).
             if Block3Cluster { 
-                when time:seconds > ShutdownTime + 3 and airspeed < 14*Scale or verticalSpeed > -12*Scale and stopDist3 < RadarAlt or not Bl3LndProf then {
+                when time:seconds > ShutdownTime + 3 and airspeed < 10*Scale or verticalSpeed > -9*Scale and stopDist3 < RadarAlt or not Bl3LndProf then {
                     set downToThree to true.
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     Mid2GimbMod:doaction("lock gimbal", true).
@@ -3456,23 +3456,23 @@ FUNCTION SteeringCorrections {
             //Block 3 Landing Profile
             if Bl3LndProf and defined maxDecel5 {
                 if LandingBurnStarted {
-                    set MidShutdownSpeed to min(max(50, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (12^2)/(maxDecel5*0.75)  - (12^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) ))) , 150).
-                    set stopTime3 to 12 / (maxDecel3*0.7).
-                    set stopTime5 to (MidShutdownSpeed-12) / (maxDecel5*0.75).
+                    set MidShutdownSpeed to min(max(50, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.75)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) ))) , 150).
+                    set stopTime3 to 10 / (maxDecel3*0.7).
+                    set stopTime5 to (MidShutdownSpeed-10) / (maxDecel5*0.75).
                     set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
     
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
     
                     set stopDist3 to 6 * stopTime3.
-                    set stopDist5 to ((MidShutdownSpeed - 12)/2) * stopTime5.
+                    set stopDist5 to ((MidShutdownSpeed - 10)/2) * stopTime5.
                     set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
-                    set TargetMidShutdown to (airspeed^2 - 124^2)/(2*maxDecel) + (124^2 - 12^2)/(2*maxDecel5) + (12^2)/(2*maxDecel3).
+                    set TargetMidShutdown to (airspeed^2 - 124^2)/(2*maxDecel) + (124^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
     
                     set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
                 } else {
-                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (12^2)/(maxDecel5*0.75)  - (12^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) )) , 150).
-                    set stopTime3 to 12 / (maxDecel3*0.65).
-                    set stopTime5 to 112 / (maxDecel5*0.7).
+                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.75)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) )) , 150).
+                    set stopTime3 to 10 / (maxDecel3*0.65).
+                    set stopTime5 to 114 / (maxDecel5*0.7).
                     set stopTime13 to (airspeed - 124) / maxDecel.
 
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
@@ -3493,7 +3493,7 @@ FUNCTION SteeringCorrections {
                     set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(-velocity:surface, up:vector)))) + 0.02.
                 }//Decel 5 Engines
                 else if not downToThree {
-                    set ReqDecel to (max(12,airspeed)^2 - 12^2)/(2*(max(0.1, RadarAlt - stopDist3*1.5))) - DragDecel*0.96.
+                    set ReqDecel to (max(10,airspeed)^2 - 10^2)/(2*(max(0.1, RadarAlt - stopDist3*1.5))) - DragDecel*0.96.
                     set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))) - 0.01.
                 }//Decel 3 Engines
                 else {
