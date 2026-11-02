@@ -8627,7 +8627,8 @@ function Launch {
                 print "Actual Distance: " + round((target:position - ship:position):mag / 1000, 1).
             }
             if not BoosterType:contains("Block3") {
-                print time:seconds-x.
+                set EngineStartTime to time:seconds.
+                if PadB lock throttle to 0 + min(0.5,(time:seconds-EngineStartTime)*1.1).
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
                 wait 0.02. 
@@ -8637,6 +8638,9 @@ function Launch {
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") {
                         if random() < LOIgnCha/100 eng:activate.
                     }
+                }
+                if PadB if OLM:getmodulebyindex(Plumemod):hasevent("activate engine") {
+                    OLM:getmodulebyindex(Plumemod):doevent("activate engine").
                 }
 
                 set EngineStartTime to time:seconds.
@@ -8656,6 +8660,7 @@ function Launch {
                     set inactiveEng to List(7,11,15,19,24).
                 }
                 set message2:text to "<b>Expected Engine Count:</b>    28".
+                if PadB lock throttle to 0.5 + min(0.25,(time:seconds-EngineStartTime-1)).
                 wait 0.4.
 
                 //last 5 outer ignition
@@ -8721,10 +8726,13 @@ function Launch {
                 set message2:text to "<b>Expected Engine Count:</b>    33".
                 set message3:text to "<b>Engine throttle:     </b>" + round(throttle * 100) + "%".
                 
-                if OLM:getmodulebyindex(Plumemod):hasevent("activate engine") {
+                if PadB if OLM:getmodulebyindex(Plumemod):hasevent("activate engine") {
                     OLM:getmodulebyindex(Plumemod):doevent("activate engine").
                 }
                 wait 1.5.
+                if SQD:getmodule("ModuleSLESequentialAnimate"):hasevent("Full Retraction") {
+                    SQD:getmodule("ModuleSLESequentialAnimate"):DOEVENT("Full Retraction").
+                }
                 print time:seconds-x.
             }
             if HideGUI g:hide().
@@ -9562,30 +9570,6 @@ Function LaunchSteering {
             set WaitTime to false.
         }
     }
-    else if (ShipSubType:contains("Block2") or ShipType:contains("Block2")) and not WaitTime and fullAuto and random() < 0.4 {
-        set WaitTime to true.
-        if random() < ifIgnCha/6 and runningEngines:length > 0 {
-            set failedEngNr to min(max(floor(random()*engNumber),0),5).
-            if runningEngines[failedEngNr] > 2 {
-                if VACEngines[runningEngines[failedEngNr]-3]:hassuffix("activate") VACEngines[runningEngines[failedEngNr]-3]:shutdown.
-                runningEngines:remove(failedEngNr).
-            }
-            else if SLEngines[runningEngines[failedEngNr]]:hassuffix("activate") {
-                SLEngines[runningEngines[failedEngNr]]:shutdown.
-                SLEngines[runningEngines[failedEngNr]]:getmodule("ModuleSEPRaptor"):DoAction("toggle actuate out", true).
-                runningEngines:remove(failedEngNr).
-            }
-            else hudtext("HELP",4,2,20,red,false).
-            set engNumber to engNumber - 1.
-            set waitingTime to max(waitingTime/2,2).
-            set ifIgnCha to ifIgnCha*2.
-        }
-        set waitingTime to max(waitingTime-0.04,2).
-        local failureTimer to time:seconds.
-        when time:seconds - failureTimer > waitingTime then {
-            set WaitTime to false.
-        }
-    }
 
     if altitude - LaunchElev < 120 {
         set result to heading(myAzimuth + TargetError, 90).
@@ -9644,24 +9628,24 @@ Function LaunchSteering {
                 set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
             else {
-                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, 50000/max(50000,CargoMass)).
+                set targetpitch to 90 - (8.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, (50000/max(50000,CargoMass))^0.6).
             }
         }
         else if KSRSS {
             if RESCALE {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                    set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
                 }
                 else {
-                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150))*min(1, 50000/max(50000,CargoMass)).
+                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050))*min(1, (50000/max(50000,CargoMass))^0.6).
                 }
             }
             else {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                    set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
                 }
                 else {
-                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, 50000/max(50000,CargoMass)).
+                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000))*min(1, (50000/max(50000,CargoMass))^0.6).
                 }
             }
         }
@@ -9670,7 +9654,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
             }
             else {
-                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/860))*min(1, 50000/max(50000,CargoMass)).
+                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000))*min(1, (50000/max(50000,CargoMass))^0.6).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
@@ -9681,24 +9665,24 @@ Function LaunchSteering {
                 set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
             }
             else {
-                set targetpitch to 90 - (8.6 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000))*min(1, 50000/max(50000,CargoMass)).
+                set targetpitch to 90 - (8.6 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050))*min(1, (50000/max(50000,CargoMass))^0.6).
             }
         }
         else if KSRSS {
             if RESCALE {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
+                    set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
                 }
                 else {
-                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, 50000/max(50000,CargoMass)).
+                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000))*min(1, (50000/max(50000,CargoMass))^0.6).
                 }
             }
             else {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                    set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
                 }
                 else {
-                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050))*min(1, 50000/max(50000,CargoMass)).
+                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050))*min(1, (50000/max(50000,CargoMass))^0.6).
                 }
             }
         }
@@ -9707,7 +9691,7 @@ Function LaunchSteering {
                 set targetpitch to 90 - (6.5 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050)).
             }
             else {
-                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/800))*min(1, 50000/max(50000,CargoMass)).
+                set targetpitch to 90 - (11 * SQRT(max((altitude - 250 - LaunchElev), 0)/950))*min(1, (50000/max(50000,CargoMass))^0.6).
             }
         }
         set result to lookdirup(heading(myAzimuth + 3 * TargetError, targetpitch):vector, LaunchRollVector).
@@ -14224,7 +14208,8 @@ function LandingVector {
 
     wait 0.001.
     if TargetOLM and RadarAlt < 4*ShipHeight and not (LandSomewhereElse) and Vessel(TargetOLM):distance < 2000 and vAng(facing:forevector, up:vector) < 10 {
-        set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Nose:position).
+        if PadB set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position - Nose:position).
+        else set RollVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Nose:position).
         return lookDirUp(result, RollVector).
     }
     else {
