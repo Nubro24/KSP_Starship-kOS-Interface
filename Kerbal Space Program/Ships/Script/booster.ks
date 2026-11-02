@@ -3456,7 +3456,7 @@ FUNCTION SteeringCorrections {
             //Block 3 Landing Profile
             if Bl3LndProf and defined maxDecel5 {
                 if LandingBurnStarted {
-                    set MidShutdownSpeed to min(max(50, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.75)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) ))) , 150).
+                    set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.75)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) ))) , 160).
                     set stopTime3 to 10 / (maxDecel3*0.7).
                     set stopTime5 to (MidShutdownSpeed-10) / (maxDecel5*0.75).
                     set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
@@ -3466,21 +3466,21 @@ FUNCTION SteeringCorrections {
                     set stopDist3 to 6 * stopTime3.
                     set stopDist5 to ((MidShutdownSpeed - 10)/2) * stopTime5.
                     set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
-                    set TargetMidShutdown to (airspeed^2 - 124^2)/(2*maxDecel) + (124^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
+                    set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
     
                     set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
                 } else {
-                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.75)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) )) , 150).
+                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.75)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) )) , 160).
                     set stopTime3 to 10 / (maxDecel3*0.65).
-                    set stopTime5 to 114 / (maxDecel5*0.7).
-                    set stopTime13 to (airspeed - 124) / maxDecel.
+                    set stopTime5 to 132 / (maxDecel5*0.7).
+                    set stopTime13 to (airspeed - 142) / maxDecel.
 
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
 
                     set stopDist3 to 6 * stopTime3.
                     set stopDist5 to 56 * stopTime5.
-                    set stopDist13 to ((airspeed - 124)/2)*stopTime13.
-                    set TargetMidShutdown to (airspeed^2 - 124^2)/(2*maxDecel) + (124^2 - 12^2)/(2*maxDecel5) + (12^2)/(2*maxDecel3).
+                    set stopDist13 to ((airspeed - 142)/2)*stopTime13.
+                    set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
 
                     set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
                 }
