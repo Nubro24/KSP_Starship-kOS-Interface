@@ -12632,7 +12632,7 @@ function ReEntryAndLand {
                             set LandSomewhereElse to true.
                             hudtext("Tower is missing some parts !!! Landing somewhere else",10,2,18,red,true).
                         }
-                        if Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount"):length > 0 {
+                        if Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount"):length > 0 or Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount 2"):length > 0 {
                             hudtext("Landingzone set on OLM",10,2,18,green,true).
                             if RSS {
                                 set landingzone to latlng(round(body:geopositionof(Vessel(TargetedOLM):position):lat, 7), round(body:geopositionof(Vessel(TargetedOLM):position):lng, 7)).
@@ -13019,14 +13019,14 @@ function ReEntrySteering {
         if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 320 {
             set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
             
-            if STOCK set OvershootFactor to ApproachRatio * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90).
-            else set OvershootFactor to 2 * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90).
+            if STOCK set OvershootFactor to ApproachRatio * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/110).
+            else set OvershootFactor to 2 * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/110).
             set bankLNG to min(max(-2.6*maxLatChange, maxLatChange * (min(80,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/75)^2 * OvershootFactor/ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2.6*maxLatChange).
             if RSS set LngMove to min(max(0,DistanceToTarget-200/200)^1.5,1) * bankLNG * min(max(0,300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/(1600 * max(0.75,min(60/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5))))^1.5, 1).
             else set LngMove to min(max(0,DistanceToTarget-50/50),1) * bankLNG * min(max(0,150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/(450 * max(0.8,min(60/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5)))), 1).
 
-            if STOCK set OvershootReducer to min(1,(90/vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface)))^3).
-            else set OvershootReducer to min(1,(90/vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface)))^2).
+            if STOCK set OvershootReducer to min(1,(110/vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface)))^3).
+            else set OvershootReducer to min(1,(110/vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface)))^2).
             set bankLAT to min(max(-2*maxLatChange, maxLatChange * (min(80,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/75)^2 * OvershootReducer*ApproachRatio * min(1,(50000*Scale)/(DistanceToTarget^2))), 2*maxLatChange).
             if RSS set LatMove to min(max(0,DistanceToTarget-160/160)^1.5,1) * bank * bankLAT * min(max(0, 300/max(300,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/(1600 * max(0.75,min(60/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5))))^1.5, 1).
             else set LatMove to min(max(0,DistanceToTarget-60/60),1) * bank * bankLAT * min(max(0, 150/max(150,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/(650 * max(0.8,min(60/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5)))), 1).
@@ -13694,10 +13694,10 @@ function ReEntryData {
             when time:seconds > LandingFlipStart + 1.2 then if (SLactive < 3 and not RSS) or (SLactive < 2) set cAbort to true.
 
             if not (TargetOLM = "false") {
-                when vAng(facing:forevector, up:vector) < 3 and Vessel(TargetOLM):distance < 2000 then {
+                when vAng(facing:forevector, up:vector) < 5 and Vessel(TargetOLM):distance < 2000 then {
                     HUDTEXT("Distance Check 1", 3, 2, 15, white, false).
                     if PadB {
-                        if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):mag > 2.5*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount")[0]:position - Tank:position), LandingForwardDirection) < 90 {
+                        if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):mag > 2.5*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position - Tank:position), LandingForwardDirection) < 90 {
                             set LandSomewhereElse to true.
                             set cAbort to true.
                             SetRadarAltitude().
@@ -14128,7 +14128,7 @@ function LandingVector {
                     }
                     set TgtErrorVector to TargetPos - myFuturePos - PredictGSVec.
                     set tgtError to TgtErrorVector:mag.
-                    set TgtErrorStrength to max(2.8125*Scale,tgtError)/(2.8125*Scale) * max(1, 1/max(0.75,abs(RadarRatio-1))).
+                    set TgtErrorStrength to max(2.4125*Scale,tgtError)/(2.4125*Scale) * max(1, 1/max(0.75,abs(RadarRatio-1))).
 
                     set collisionAvoider to min(1,vAng(TgtErrorVector,TowerHeadingVector)/80)^4.
                     //else set collisionAvoider to 0. if vAng(TgtErrorVector,TowerHeadingVector) > 90 
@@ -14136,7 +14136,7 @@ function LandingVector {
                     //Guidance
                     set LndGuidVec to up:vector * ShipHeight/min(max(0.82,RadarRatio^0.7), 1) 
                         + TgtErrorVector:normalized * TgtErrorStrength * 1/max(0.75,collisionAvoider)
-                        - GSVec * 0.2 * 1/max(0.55,RadarRatio)
+                        - GSVec * 0.24 * 1/max(0.55,RadarRatio)
                         + PositionCorrection:normalized * min(3,TgtErrorStrength) * collisionAvoider * 1/max(1,RadarRatio-4) * min(1,RadarRatio-0.5).
                     
                     if verticalSpeed < -40 and vxcl(TowerHeadingVector,TgtErrorVector):mag > (2.8125*Scale) set LndGuidVec to LndGuidVec + vxcl(TowerHeadingVector,TgtErrorVector):normalized * Scale/1.6 * abs(verticalSpeed)/90.

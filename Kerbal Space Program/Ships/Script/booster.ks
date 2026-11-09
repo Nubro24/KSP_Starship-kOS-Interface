@@ -1189,6 +1189,7 @@ for res in bCH4Tank:resources {
 set v2 to up:vector.
 set t2 to 0.
 set DragDecel to 0.
+set maxAoA to 12.
 
 if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
 
@@ -1196,8 +1197,8 @@ if BoosterType:contains("Block3") {
     set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
     set BoosterHeight to 45.4*Scale.
     if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
-    else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.1*Scale.
-    set maxAoA to 17.
+    else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.15*Scale.
+    set maxAoA to 16.
     set BoosterGlideDistance to BoosterGlideDistance * 1.15.
     set Block3PollTime to 10.
     set BoosterGlideFactor to BoosterGlideFactor * 0.85.
@@ -1216,7 +1217,6 @@ lock RadarAlt to alt:radar - RadarAltOffset.
 lock GSVec to vxcl(up:vector,velocity:surface).
 set LandingBurnAlt to 1800.
 set maxRoll to 5.
-set maxAoA to 12.
 
 set BoosterDockingHeight to 29.8*Scale.
 set maxstabengage to 80 * Scale.
@@ -1229,8 +1229,8 @@ if RSS set BoosterDockingHeight to BoosterDockingHeight + 0.65.
 set maxstabengage to 100 * Scale.
 set maxpusherengage to 0.3*Scale.
 
-if BoosterSingleEngines set IgnitionTime to 0.64.
-else set IgnitionTime to 0.69.
+if BoosterSingleEngines set IgnitionTime to 0.8.
+else set IgnitionTime to 0.75.
 
 if not ship:status = "FLYING" and not ship:status = "SUB_ORBITAL" or ship:status = "PRELAUNCH" set landingzone to ship:geoposition.
 else if vAng(GSVec,vCrs(north:vector,up:vector)) < 90 and vAng(GSVec,north:vector) < 90 and addons:tr:hasimpact set landingzone to 
@@ -1816,7 +1816,7 @@ function Boostback {
         set flipStartTime to time:seconds.
 
         when time:seconds > flipStartTime + FlipTime*0.6 then {
-            lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), up:vector -facing:topvector).
+            lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), up:vector + facing:topvector*1.1).
             lock steering to SteeringVector.
         }
 
@@ -1873,7 +1873,7 @@ function Boostback {
             }
         }
         else {
-            when (vAng(facing:forevector, vxcl(up:vector, -ErrorVector)) < 110 and time:seconds > flipStartTime + FlipTime*0.7) or time:seconds > flipStartTime + FlipTime then {
+            when (vAng(facing:forevector, vxcl(up:vector, -ErrorVector)) < 120 and time:seconds > flipStartTime + FlipTime*0.8) or time:seconds > flipStartTime + FlipTime * 1.3 then {
                 if BoosterSingleEngines {
                     set tEngStart to time:seconds.
                     for eng in BoosterSingleEnginesRC if eng:hassuffix("activate") eng:activate.
@@ -2017,7 +2017,8 @@ function Boostback {
         else {
             lock throttle to max(min(-(LngError + BoosterGlideDistance - 1000) / 2500 + 0.01, 10 * 9.81 / (max(ship:availablethrust, 0.000001) / ship:mass)), 0.33).
         }
-        lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector) + (targetAp-apoapsis)*up:vector*(ErrorVector:mag/32000*Scale), -up:vector).
+        if BoosterType:contains("Block3") lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector) + (targetAp-apoapsis)*up:vector*(ErrorVector:mag/32000*Scale), up:vector).
+        else lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector) + (targetAp-apoapsis)*up:vector*(ErrorVector:mag/32000*Scale), -up:vector).
         lock steering to SteeringVector.
 
 
@@ -2066,7 +2067,6 @@ function Boostback {
                 if BoosterSingleEnginesRC[failedEngNr-1]:hassuffix("activate") BoosterSingleEnginesRC[failedEngNr-1]:shutdown.
             } else set FailTimer to time:seconds.
             SteeringCorrections().
-            set SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
             if kuniverse:timewarp:warp > 1 and LngError < -14000*Scale {set kuniverse:timewarp:warp to 1.}
             else if kuniverse:timewarp:warp > 0 and LngError > -14000*Scale {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
@@ -2127,7 +2127,6 @@ function Boostback {
                 set changed to false.
             }
             SteeringCorrections().
-            set SteeringVectorBoostback to lookdirup(vxcl(up:vector, -ErrorVector), -up:vector * angleAxis(0,facing:forevector)).
             if kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
             PollUpdate().
             SetBoosterActive().
@@ -2313,7 +2312,8 @@ function Boostback {
 
         if not HSRJet set turnTime to turnTime - 10.
         set CurrentVec to ship:facing:forevector.
-        set LeftVector to ship:facing:starvector.
+        if BoosterType:contains("Block3") set LeftVector to -ship:facing:starvector.
+        else set LeftVector to ship:facing:starvector.
 
         when time:seconds - turnTime > 1.8 then {
             if ship:partsnamed("FNB.BL1.BOOSTERLOX"):length = 0 and ship:partsnamed("FNB.BL3.BOOSTERLOX"):length = 0 if BoosterCore:thrust > 0 {
@@ -2338,7 +2338,6 @@ function Boostback {
             set SteeringManager:maxstoppingtime to 4.
             lock SteeringVector to lookDirUp(CurrentVec * angleAxis((time:seconds - turnTime)*2, LeftVector), ApproachVector * angleAxis((time:seconds - turnTime)*2, LeftVector)).
             lock steering to SteeringVector.
-            unlock SteeringVectorBoostback.
         }
         when vAng(vxcl(vCrs(up:vector, vxcl(up:vector, BoosterCore:position - landingzone:position)),facing:forevector), BoosterCore:position - landingzone:position) < 25 then {
             if RadarAlt > 32000 {
@@ -2644,12 +2643,12 @@ function Boostback {
     set maxRoll to 6.
 
 
-    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*0.9*Scale*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+    lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*0.8*Scale*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when alt:radar < 24000 and RSS or 18000 then lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
     when LngError > -BoosterGlideDistance*0.24 then { 
-        if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-(0.6/(Scale^0.7))*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
-        when LngError < -50*Scale then {
-            if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-(0.7/(Scale^0.5))*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-(0.75/(Scale^0.7))*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
+        when LngError > -50*Scale then {
+            if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-(0.8/(Scale^0.5))*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
             when LngError > 12*Scale then {
                 if not LandingBurnStarted lock SteeringVector to lookdirup(-velocity:surface * AngleAxis(-0.65*BoosterGlideFactor*LngCtrl, lookdirup(-velocity:surface, up:vector):starvector) * AngleAxis(LatCtrl, up:vector), ApproachVector * AngleAxis(2 * LatCtrl, up:vector)).
             }
@@ -3360,7 +3359,7 @@ function Boostback {
 
     function ClosingAngle {
         set EarlyAngle to (40/(1+constant:e^(-2.5*((RadarRatio) - 3)))) + 10.
-        set LateAngle to (1.5/(1+constant:e^(-8*((RadarRatio) - 0.4)))).
+        set LateAngle to (1.5/(1+constant:e^(-8*((RadarRatio) - 0.3)))).
 
         set angle to LateAngle*EarlyAngle.
         if BoosterLanded set angle to 0.
@@ -3456,9 +3455,9 @@ FUNCTION SteeringCorrections {
             //Block 3 Landing Profile
             if Bl3LndProf and defined maxDecel5 {
                 if LandingBurnStarted {
-                    set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.75)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) ))) , 160).
+                    if not MiddleEnginesShutdown and not downToThree set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.7)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) ))) , 160).
                     set stopTime3 to 10 / (maxDecel3*0.7).
-                    set stopTime5 to (MidShutdownSpeed-10) / (maxDecel5*0.75).
+                    set stopTime5 to (MidShutdownSpeed-10) / (maxDecel5*0.7).
                     set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
     
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
@@ -3470,15 +3469,15 @@ FUNCTION SteeringCorrections {
     
                     set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
                 } else {
-                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.75)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.75) - 1/maxDecel) )) , 160).
+                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.7)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) )) , 160).
                     set stopTime3 to 10 / (maxDecel3*0.65).
                     set stopTime5 to 132 / (maxDecel5*0.7).
                     set stopTime13 to (airspeed - 142) / maxDecel.
 
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
 
-                    set stopDist3 to 6 * stopTime3.
-                    set stopDist5 to 56 * stopTime5.
+                    set stopDist3 to 5 * stopTime3.
+                    set stopDist5 to 66 * stopTime5.
                     set stopDist13 to ((airspeed - 142)/2)*stopTime13.
                     set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
 
@@ -3490,15 +3489,15 @@ FUNCTION SteeringCorrections {
                 //Decel 13 Engines
                 if not MiddleEnginesShutdown and not downToThree {
                     set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(0.1, RadarAlt - (TargetMidShutdown+stopDist3+stopDist5)/2))) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(-velocity:surface, up:vector)))) + 0.02.
+                    set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(facing:forevector, up:vector)))).
                 }//Decel 5 Engines
                 else if not downToThree {
-                    set ReqDecel to (max(10,airspeed)^2 - 10^2)/(2*(max(0.1, RadarAlt - stopDist3*1.5))) - DragDecel*0.96.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(-velocity:surface, up:vector)))) - 0.01.
+                    set ReqDecel to (max(10,airspeed)^2 - 10^2)/(2*(max(0.1, RadarAlt - stopDist3*1.8 - 1*Scale))).
+                    set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(facing:forevector, up:vector)))).
                 }//Decel 3 Engines
                 else {
                     set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.1, RadarAlt - 0.75*Scale))).
-                    set landingRatio to max(0,  ReqDecel / (maxDecel3  * cos(vang(-velocity:surface, up:vector)))).
+                    set landingRatio to max(0,  ReqDecel / (maxDecel3  * cos(vang(facing:forevector, up:vector)))).
                 }
 
             //Block 2 Landing Profile
@@ -3533,12 +3532,12 @@ FUNCTION SteeringCorrections {
 
                 //Decel 13 Engines
                 if not MiddleEnginesShutdown {
-                    set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(stopDist3+0.1, RadarAlt)-stopDist3)) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel * cos(vang(-velocity:surface, up:vector)))).
+                    set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(stopDist3+0.1, RadarAlt)-stopDist3*1.3)) - DragDecel.
+                    set landingRatio to max(0,  ReqDecel / (maxDecel * cos(vang(facing:forevector, up:vector)))).
                 }//Decel 3 Engines
                 else {
-                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.5*Scale+0.1, RadarAlt) - 0.5*Scale)).
-                    set landingRatio to max(0,  ReqDecel / (maxDecel3 * cos(vang(-velocity:surface, up:vector)))).
+                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.5*Scale+0.1, RadarAlt) - 0.75*Scale)).
+                    set landingRatio to max(0,  ReqDecel / (maxDecel3 * cos(vang(facing:forevector, up:vector)))).
                 }
             }
             
@@ -3559,7 +3558,7 @@ FUNCTION SteeringCorrections {
         //print " ".
 
         if not LandingBurnStarted {
-            set LandingBurnAlt to min(max(750 + airspeed*IgnitionTime, TotalstopDist*cos(vang(-velocity:surface, up:vector)) + airspeed*IgnitionTime) , 7000).
+            set LandingBurnAlt to min(max(750 + airspeed*IgnitionTime, ((TotalstopDist*0.7+TargetMidShutdown*1.3)/2)*cos(vang(-velocity:surface, up:vector)*0.75) + airspeed*IgnitionTime) , 7000).
         }
         
 
@@ -3650,19 +3649,19 @@ function LandingGuidance {
 
     // === Guidance ===
     set MainVector to 
-        (CatchPins - CatchPos + 0.5 * OffsetPosVec):normalized * max(0,RadarRatio-2.5) * min(1,airspeed/120)
+        (CatchPins - CatchPos + 0.55 * OffsetPosVec):normalized * max(0,RadarRatio-2.5) * min(1,airspeed/120)
         + up:vector * 3/max(1,RadarRatio^1.5) * 140/max(140,airspeed).
 
     set tgtError to max(1.75*Scale,TargetError:mag)/(1.75*Scale) * max(1, 1/max(0.75,abs(RadarRatio-1))).
-    if RadarRatio > 0.5 set TargetReachFactor to max(max(-RadarRatio+1.1, -1), 1.06 - OffsetPosVec:mag/max(1,GSVec:mag*max(0.8,TotalstopTime-0.8))).
-    else set TargetReachFactor to 1.1.
+    if RadarRatio > 0.5 set TargetReachFactor to max(max(-RadarRatio+1.1, -1), 1.06 - OffsetPosVec:mag/max(1,GSVec:mag*max(0.9,TotalstopTime-0.9))).
+    else set TargetReachFactor to 1.04.
     set GSCancel to GSVec * 1.4/max(0.6,RadarRatio) * TargetReachFactor.
     set GuidVec to
-        TargetError:normalized * tgtError
+        TargetError:normalized * tgtError * max(0.5,collisionAvoider)/max(collisionAvoider/1.5,min(1,RadarRatio-1.5))
         - GSCancel
-        + PositionError:normalized * min(4,tgtError) * 1/max(1,RadarRatio-4) * min(1,RadarRatio-0.5) * collisionAvoider.
+        + PositionError:normalized * min(4,tgtError) * 1/max(1,RadarRatio-4) * min(1,RadarRatio-0.5) * collisionAvoider/max(collisionAvoider,min(1,RadarRatio-1)).
 
-    set FinalVec to MainVector:normalized * BoosterHeight/min(max(0.8,RadarRatio^0.7), 1 * 150/max(150,airspeed)) + GuidVec * 160/max(160,airspeed) + facing:forevector * BoosterHeight/4 - velocity:surface * max(0,airspeed-150)/max(1,airspeed/2).
+    set FinalVec to MainVector:normalized * BoosterHeight/min(max(0.8,RadarRatio^0.75), 1 * 150/max(150,airspeed)) + GuidVec * 160/max(160,airspeed) + facing:forevector * BoosterHeight/4 - velocity:surface * max(0,airspeed-150)/max(1,airspeed/2).
 
     // == Debug ==
     //set vMain to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight/2, MainVector, grey, "Main", 1, true, 0.2).

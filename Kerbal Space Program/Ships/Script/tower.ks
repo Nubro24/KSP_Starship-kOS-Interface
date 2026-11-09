@@ -122,7 +122,7 @@ clearscreen.
 //-------------Get Module Order-------------//
 
 set oldArms to false.
-if Mechazilla:modules:length > 16 {
+if Mechazilla:modules:length > 16 or ship:partstitled("Pad B Chopsticks"):length > 0 {
     set oldArms to false.
     print("Arms new").
     print(Mechazilla:modules:length).
