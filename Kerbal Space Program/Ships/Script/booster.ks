@@ -3088,7 +3088,7 @@ function Boostback {
                             set x to x + 1.
                         }
                     }
-                    when time:seconds > ShutdownTime + 3.08 and airspeed < 10*Scale or verticalSpeed > -9*Scale and stopDist3 < RadarAlt then {
+                    when time:seconds > ShutdownTime + 3.08 and airspeed < 6 or verticalSpeed > -5*Scale and stopDist3 < RadarAlt then {
                         set downToThree to true.
                         if BoosterSingleEnginesRC[5+Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(6+Block2Offset) {
                             BoosterSingleEnginesRC[5+Block2Offset]:shutdown.
@@ -3455,31 +3455,31 @@ FUNCTION SteeringCorrections {
             //Block 3 Landing Profile
             if Bl3LndProf and defined maxDecel5 {
                 if LandingBurnStarted {
-                    if not MiddleEnginesShutdown and not downToThree set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.7)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) ))) , 160).
-                    set stopTime3 to 10 / (maxDecel3*0.7).
+                    if not MiddleEnginesShutdown and not downToThree set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (6^2)/(maxDecel5*0.7)  - (6^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) ))) , 160).
+                    set stopTime3 to 6 / (maxDecel3*0.7).
                     set stopTime5 to (MidShutdownSpeed-10) / (maxDecel5*0.7).
                     set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
     
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
     
-                    set stopDist3 to 6 * stopTime3.
-                    set stopDist5 to ((MidShutdownSpeed - 10)/2) * stopTime5.
+                    set stopDist3 to 3 * stopTime3.
+                    set stopDist5 to ((MidShutdownSpeed - 6)/2) * stopTime5.
                     set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
                     set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
     
                     set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
                 } else {
-                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (10^2)/(maxDecel5*0.7)  - (10^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) )) , 160).
-                    set stopTime3 to 10 / (maxDecel3*0.65).
-                    set stopTime5 to 132 / (maxDecel5*0.7).
+                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (6^2)/(maxDecel5*0.7)  - (6^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) )) , 160).
+                    set stopTime3 to 6 / (maxDecel3*0.65).
+                    set stopTime5 to 136 / (maxDecel5*0.7).
                     set stopTime13 to (airspeed - 142) / maxDecel.
 
                     set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
 
-                    set stopDist3 to 5 * stopTime3.
-                    set stopDist5 to 66 * stopTime5.
+                    set stopDist3 to 3 * stopTime3.
+                    set stopDist5 to 69 * stopTime5.
                     set stopDist13 to ((airspeed - 142)/2)*stopTime13.
-                    set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
+                    set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 6^2)/(2*maxDecel5) + (6^2)/(2*maxDecel3).
 
                     set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
                 }
@@ -3655,7 +3655,7 @@ function LandingGuidance {
     set tgtError to max(1.75*Scale,TargetError:mag)/(1.75*Scale) * max(1, 1/max(0.75,abs(RadarRatio-1))).
     if RadarRatio > 0.5 set TargetReachFactor to max(max(-RadarRatio+1.1, -1), 1.06 - OffsetPosVec:mag/max(1,GSVec:mag*max(0.9,TotalstopTime-0.9))).
     else set TargetReachFactor to 1.04.
-    set GSCancel to GSVec * 1.4/max(0.6,RadarRatio) * TargetReachFactor.
+    set GSCancel to GSVec * 1.6/max(0.6,RadarRatio) * TargetReachFactor.
     set GuidVec to
         TargetError:normalized * tgtError * max(0.5,collisionAvoider)/max(collisionAvoider/1.5,min(1,RadarRatio-1.5))
         - GSCancel
