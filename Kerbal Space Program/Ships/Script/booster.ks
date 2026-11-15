@@ -1194,7 +1194,7 @@ set maxAoA to 12.
 if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
 
 if BoosterType:contains("Block3") {
-    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 0.9.
+    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.275/(Scale^0.8).
     set BoosterHeight to 45.4*Scale.
     if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
     else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.15*Scale.
