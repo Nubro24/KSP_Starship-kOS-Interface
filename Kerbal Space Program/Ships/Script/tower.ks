@@ -402,7 +402,11 @@ function LiftOff {
                 if OLM:getmodulebyindex(y):hasevent("shutdown engine") {
                     OLM:getmodulebyindex(y):doevent("shutdown engine").
                 }
-            }
+            } else
+            if x = "DualEngineModule" 
+                if OLM:getmodulebyindex(y):hasevent("shutdown DSS") {
+                    OLM:getmodulebyindex(y):doevent("shutdown DSS").
+                }
             set y to y+1.
         }
     }
