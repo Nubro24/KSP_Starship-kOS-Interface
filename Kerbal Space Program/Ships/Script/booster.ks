@@ -3603,7 +3603,6 @@ FUNCTION SteeringCorrections {
             if defined TowerHeading print "Tower Heading: " + TowerHeading.
             print " ".
             print "IgnThr: " + round(cgThrReqIgn,2) + "  hG: " + round(cgHG) + " m".
-            if defined missPrint print missPrint.
             if defined CatchThrot print "Phase: " + cgPhase + "  Thr: " + round(CatchThrot,2) + "  tgo: " + round(cgTgo,1).
             print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s   | ".
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
@@ -3619,7 +3618,6 @@ FUNCTION SteeringCorrections {
             print "Dist.: " + round(landDistance,1) + " m     | " + RadarRatio.
             if defined tgtError print "TgtError: " + round(tgtError,1) + " m".
             print " ".
-            if defined cgDbg print cgDbg.
         }
     }
     else {
@@ -3742,7 +3740,6 @@ function CatchGuidance {
             local miss is rH + vH*(tau/2).
             local aH   is -vH/tau - 2*miss/(tau*cgTauM).
             set aCmd to upV*vdot(12*(rT - rel)/tau^2 - 6*(vel + vT)/tau, upV) + aH.
-            set missPrint to miss.
         }
         set aThr to aCmd + upV*gMag - dVec.
 
@@ -3753,7 +3750,6 @@ function CatchGuidance {
         local aZ  is min(max(vdot(aThr, upV), cgThrMin*aMax), aMax).
         local aH2 is vxcl(upV, aThr).
         local hMax is min(aZ*tan(tiltLim), sqrt(max(0, aMax^2 - aZ^2))).
-        set cgDbg to list(round(aH2:mag,2), round(hMax,2), round(tiltLim,1)).
         if aH2:mag > hMax set aH2 to aH2:normalized*hMax.
         set aThr to upV*aZ + aH2.
     }
