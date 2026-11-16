@@ -35,7 +35,6 @@ set RSS to false.
 set KSRSS to false.
 set STOCK to false.
 set AfterLaunch to false.
-set oldArms to true.
 set onOLM to false.
 set shipOnOLM to false.
 set LiftOffTime to -999.
@@ -489,16 +488,6 @@ function LandingDeluge {
 }
 
 function ArmVersion {
-    set oldArms to false.
-    if Mechazilla:modules:length > 16 or Mechazilla:name:contains("PadB") {
-        set oldArms to false.
-        print("Arms new").
-        print(Mechazilla:modules:length).
-    }
-    else {
-        set oldArms to true.
-        print("Arms old").
-    }
     if not AfterLaunch and oldArms and onOLM {
         sendMessage(processor(volume("Booster")), "Arms,true").
         sendMessage(processor(volume("Starship")), "Arms,true").

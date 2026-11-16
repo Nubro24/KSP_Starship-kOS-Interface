@@ -1257,6 +1257,121 @@ if exists("0:/BoosterFlightData.csv") {
     deletepath("0:/BoosterFlightData.csv").
 }
 
+
+//catchVarIni
+set cgThrFloorA to 0.9.    
+set cgThrLow    to 0.8.    
+set cgThrMin    to 0.33.   
+set cgPhaseDrop to 0.6.    
+set cgRetroUp   to 0.0.    
+set cgRetroDev  to 8.      
+set cgMissGain  to 0.5.    
+set cgGateDecel to 3.      
+set cgTgoMin    to 1.6.    
+set cgLead      to 0.1.    
+set cgDistTau   to 0.5.    
+set cgDistGain  to 0.7.    
+set cgTiltMax   to 20.     
+set cgTiltMin   to 3.      
+set cgEndHeight to 3*Scale.
+set cgFloor     to -2.     
+set cgActive    to false.  
+set cgTgo       to 0.      
+set cgThrReq    to 0.      
+set cgPhase     to "A".    
+
+set cgIgnExtra  to 0.3.   
+set cgV3        to 6.     
+set cgThrReqIgn to 0.     
+set cgHG        to 0.     
+set cgGateFixed to false.
+
+//catchFuncs
+function cgToSurf {
+    parameter vec.
+    return v(vdot(vec, up:vector), vdot(vec, north:vector), vdot(vec, vcrs(up:vector, north:vector))).
+}
+function cgFromSurf {
+    parameter c.
+    return up:vector*c:x + north:vector*c:y + vcrs(up:vector, north:vector)*c:z.
+}
+
+function cgLimitAngle {
+    parameter vec, ref, maxAng.
+    if vang(vec, ref) <= maxAng return vec.
+    local perp is vxcl(ref, vec).
+    if perp:mag < 0.0001 return ref:normalized * vec:mag.
+    return (ref:normalized*cos(maxAng) + perp:normalized*sin(maxAng)) * vec:mag.
+}
+
+function cgHeightAboveArms {
+    local h is RadarAlt.
+    if GfC and not LandSomewhereElse and abs((alt:radar - RadarAltOffset) - RadarAlt) < 5*Scale
+        set h to h - MZHeight.
+    return h.
+}
+
+function cgGateMass {
+    parameter vG, gMag, aMax13. 
+    local isp is 350.           
+    if BoosterSingleEngines {if BoosterSingleEnginesRC[0]:hassuffix("slisp")
+        set isp to max(200, BoosterSingleEnginesRC[0]:slisp).}
+    else set isp to max(200, BoosterEngines[0]:slisp).
+    local cosT is max(0.2, vdot(-velocity:surface:normalized, up:vector)).
+    local dvB is max(0, velocity:surface:mag - vG).
+    local tA  is dvB / max(1, cgThrFloorA*aMax13 - gMag).
+    local dv  is max(0, dvB + (gMag*cosT - DragDecel)*tA).
+    return ship:mass * constant:e^(-dv/(isp*9.80665)).
+}
+
+function cgGateHeight {
+    parameter vG, gMag, aMax13.
+    local mG is cgGateMass(vG, gMag, aMax13).
+    local a3 is max(0.5, cgThrLow*(3*BoosterRaptorThrust3/mG) - gMag).
+    local a5 is max(0.5, cgThrLow*(5*BoosterRaptorThrust3/mG) - gMag).
+    local a3 is 0.5.
+    if defined maxDecel3 set a3 to max(0.5, cgThrLow*(maxDecel3 + gMag) - gMag).
+    local vT2 is CatchVS^2.
+    if defined maxDecel5 {
+        local a5 is max(0.5, cgThrLow*(maxDecel5 + gMag) - gMag).
+        local v3 is min(cgV3, vG).
+        return (vG^2 - v3^2)/(2*a5) + (v3^2 - vT2)/(2*a3) + cgEndHeight.
+    }
+    return (vG^2 - vT2)/(2*a3) + cgEndHeight.
+}
+
+
+function CatchIgnitionCheck {
+    if not (defined maxDecel3) return false.
+    local upV  is up:vector.
+    local gMag is body:mu / body:position:sqrmagnitude.
+    local vel  is velocity:surface.
+    local tI   is IgnitionTime + cgIgnExtra.
+
+    // coast prediction to the moment the engines are lit
+    local aCoast is -upV*gMag - vel:normalized*DragDecel.
+    local velP is vel + aCoast*tI.
+    local dz   is cgHeightAboveArms() - cgEndHeight + vdot(vel, upV)*tI + 0.5*vdot(aCoast, upV)*tI^2.
+
+    local vG   is MidShutdownSpeed + 4*Scale.
+    set cgHG to cgGateHeight(vG, gMag, maxDecel + 9.805).
+
+    if vdot(velP, upV) >= 0 or velP:mag <= vG { set cgThrReqIgn to 0. return false. }
+
+    local cosT is max(0.2, vdot(-velP:normalized, upV)).
+    local s    is (dz - (cgHG - cgEndHeight))/cosT.
+    local aMax is maxDecel + gMag.
+    if s <= 1 set cgThrReqIgn to 99.                                   // below gate -> late
+    else set cgThrReqIgn to ((velP:mag^2 - vG^2)/(2*s) + gMag*cosT - DragDecel)/aMax.
+
+    if cgThrReqIgn >= cgThrFloorA {
+        set cgVGate to vG.
+        set cgGateFixed to true.
+        return true.
+    }
+    return false.
+}
+
 clearscreen.
 print "Booster Nominal Operation, awaiting command..".
 
@@ -1404,6 +1519,7 @@ until False {
     }
     else if command = "Arms" {
         set oldArms to MesParameter.
+        print oldArms.
         if oldArms print "Old Arms".
         else print "New Arms".
     }
@@ -2439,6 +2555,8 @@ function Boostback {
         }
     } else if not GfC and rebooted {
         setLandingZone().
+        setTargetOLM().
+        SteeringCorrections().
         set landingzone to offshoreSite.
         addons:tr:settarget(landingzone).
         NoGo:hide().
@@ -2459,6 +2577,7 @@ function Boostback {
         }
     }
     if rebooted {
+        setTargetOLM().
         if not Bl3LndProf {
             set LFBoosterFuelCutOff to LFBoosterFuelCutOff*1.07.
         }
@@ -2731,7 +2850,7 @@ function Boostback {
     }
     
     set once to false.
-    until alt:radar < LandingBurnAlt {
+    until CatchIgnitionCheck() {
         SteeringCorrections().
         if kuniverse:timewarp:warp > 0 {
             set once to true.
@@ -2753,6 +2872,14 @@ function Boostback {
         if config:ipu < 1800   set config:ipu to 1800.
         wait 0.05.
     }
+    LandingGuidance().
+    CatchGuidanceInit().
+    wait 0.
+    set cgOffset to CatchPos - landingzone:position - MZHeight*up:vector.
+    set MidShutdownSpeed to cgVGate - 4*Scale.
+    when true then { CatchGuidance(cgOffset). return cgActive. }
+    lock steering to CatchSteer.
+    lock throttle to CatchThrot.
     set config:ipu to 2000.
     set fastSticks to false.
     if BoosterSingleEngines {
@@ -2765,8 +2892,6 @@ function Boostback {
         set LandSomewhereElse to true.
     } 
 
-    set tgtErrorPID to pidLoop(0.042*(Scale^0.7), 0.0005*(Scale^0.5), 0.075/(Scale), -7, 7).
-
     if not BoosterSingleEngines {
         until BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Center Three" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Raptor_3_Core" or BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):getfield("Mode") = "Core" {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
@@ -2778,7 +2903,6 @@ function Boostback {
     if not BoosterSingleEngines MidGimbMod:doaction("free gimbal", true).
     if not BoosterSingleEngines and Block3Cluster Mid2GimbMod:doaction("free gimbal", true).
     if not BoosterSingleEngines CtrGimbMod:doaction("free gimbal", true).
-    lock throttle to max(0.33,LandingThrottle()).
 
     if BoosterSingleEngines {
         set x to 1.
@@ -2832,9 +2956,6 @@ function Boostback {
     hudtext(throttle, 3, 2, 10, white, false).
 
     when velocity:surface:mag < 360 or ErrorVector:mag < 0.5 * BoosterHeight or LngError < 0 or RadarAlt < 1000 then {
-        set LandingVector to LandingGuidance().
-        lock steering to LandingVector.
-        unlock SteeringVector.
         wait 0.
         if vAng(-OffsetPosVec,TheTowerHeadingVector) > 24 set fastSticks to true.
     }
@@ -2849,6 +2970,7 @@ function Boostback {
 
     if not offshoreDivert when cAbort then {
         set GoForCatch to false.
+        set cgActive to false.
         if not BoosterLanded and (RadarAlt > 5 or PositionError:mag > 10) {
             HUDTEXT("Abort! Landing somewhere else..", 10, 2, 20, red, false).
             set abortTime to time:seconds.
@@ -3215,7 +3337,7 @@ function Boostback {
         wait 0.05.
     }
 
-
+    set cgActive to false.
     lock steering to lookDirUp(up:vector, RollVector).
     set throttleTime to time:seconds.
     set startThrottle to max(minThrottle,throttle).
@@ -3450,104 +3572,106 @@ FUNCTION SteeringCorrections {
                 set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
             }
 
+            if Bl3LndProf and defined maxDecel5 if not cgGateFixed and not MiddleEnginesShutdown and not downToThree set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (6^2)/(maxDecel5*0.7)  - (6^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) ))) , 160).
+            else if not cgGateFixed and not MiddleEnginesShutdown set MidShutdownSpeed to min(max(12,sqrt(max(0, (2*RadarAlt - airspeed^2/maxDecel)/(1/(maxDecel3*0.84) - 1/maxDecel) ))) , 80).
             
             set DragDecel to ((airspeed^2)/9000) * min(1,305/airspeed).
-
-            //Block 3 Landing Profile
-            if Bl3LndProf and defined maxDecel5 {
-                if LandingBurnStarted {
-                    if not MiddleEnginesShutdown and not downToThree set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (6^2)/(maxDecel5*0.7)  - (6^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) ))) , 160).
-                    set stopTime3 to 6 / (maxDecel3*0.7).
-                    set stopTime5 to (MidShutdownSpeed-10) / (maxDecel5*0.7).
-                    set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
-    
-                    set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
-    
-                    set stopDist3 to 3 * stopTime3.
-                    set stopDist5 to ((MidShutdownSpeed - 6)/2) * stopTime5.
-                    set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
-                    set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
-    
-                    set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
-                } else {
-                    set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (6^2)/(maxDecel5*0.7)  - (6^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) )) , 160).
-                    set stopTime3 to 6 / (maxDecel3*0.65).
-                    set stopTime5 to 136 / (maxDecel5*0.7).
-                    set stopTime13 to (airspeed - 142) / maxDecel.
-
-                    set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
-
-                    set stopDist3 to 3 * stopTime3.
-                    set stopDist5 to 69 * stopTime5.
-                    set stopDist13 to ((airspeed - 142)/2)*stopTime13.
-                    set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 6^2)/(2*maxDecel5) + (6^2)/(2*maxDecel3).
-
-                    set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
-                }
-
-
-
-                //Decel 13 Engines
-                if not MiddleEnginesShutdown and not downToThree {
-                    set ReqDecel to (max(MidShutdownSpeed-5,airspeed)^2 - (MidShutdownSpeed-5)^2)/(2*(max(0.1, RadarAlt - (TargetMidShutdown+stopDist3+stopDist5)/2))) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(facing:forevector, up:vector)))).
-                }//Decel 5 Engines
-                else if not downToThree {
-                    set ReqDecel to (max(10,airspeed)^2 - 10^2)/(2*(max(0.1, RadarAlt - stopDist3*1.8 - 1*Scale))).
-                    set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(facing:forevector, up:vector)))).
-                }//Decel 3 Engines
-                else {
-                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.1, RadarAlt - 0.75*Scale))).
-                    set landingRatio to max(0,  ReqDecel / (maxDecel3  * cos(vang(facing:forevector, up:vector)))).
-                }
-
-            //Block 2 Landing Profile
-            } else {
-                if LandingBurnStarted {
-                    set MidShutdownSpeed to min(max(12,sqrt(max(0, (2*RadarAlt - airspeed^2/maxDecel)/(1/(maxDecel3*0.84) - 1/maxDecel) ))) , 80).
-                    set stopTime3 to MidShutdownSpeed / (maxDecel3*0.85).
-                    set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
-
-                    set TotalstopTime to stopTime3 + stopTime13.
-
-                    set stopDist3 to MidShutdownSpeed/2 * (stopTime3).
-                    set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
-                    set TargetMidShutdown to (airspeed^2 - 69^2)/(2*maxDecel) + (69^2)/(2*maxDecel3).
-
-                    set TotalstopDist to stopDist3 + stopDist13.
-                }
-                else {
-                    set MidShutdownSpeed to min(sqrt(max(0, (2*RadarAlt - airspeed^2/maxDecel)/(1/(maxDecel3*0.85) - 1/maxDecel) )) , 80).
-                    set stopTime3 to 69 / (maxDecel3*0.8).
-                    set stopTime13 to (airspeed - 75) / maxDecel.
-
-                    set TotalstopTime to stopTime3 + stopTime13.
-
-                    set stopDist3 to 37.5 * (stopTime3).
-                    set stopDist13 to ((airspeed - 75)/2)*stopTime13.
-                    set TargetMidShutdown to (airspeed^2 - 69^2)/(2*maxDecel) + (69^2)/(2*maxDecel3).
-
-                    set TotalstopDist to stopDist3 + stopDist13.
-                }
-
-
-                //Decel 13 Engines
-                if not MiddleEnginesShutdown {
-                    set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(stopDist3+0.1, RadarAlt)-stopDist3*1.3)) - DragDecel.
-                    set landingRatio to max(0,  ReqDecel / (maxDecel * cos(vang(facing:forevector, up:vector)))).
-                }//Decel 3 Engines
-                else {
-                    set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.5*Scale+0.1, RadarAlt) - 0.75*Scale)).
-                    set landingRatio to max(0,  ReqDecel / (maxDecel3 * cos(vang(facing:forevector, up:vector)))).
-                }
-            }
+//
+            ////Block 3 Landing Profile
+            //if Bl3LndProf and defined maxDecel5 {
+            //    if LandingBurnStarted {
+            //        if not MiddleEnginesShutdown and not downToThree set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (6^2)/(maxDecel5*0.7)  - (6^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) ))) , 160).
+            //        set stopTime3 to 6 / (maxDecel3*0.75).
+            //        set stopTime5 to (MidShutdownSpeed-10) / (maxDecel5*0.8).
+            //        set stopTime13 to (airspeed - MidShutdownSpeed) / (maxDecel*0.85).
+    //
+            //        set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
+    //
+            //        set stopDist3 to 3 * stopTime3.
+            //        set stopDist5 to ((MidShutdownSpeed - 6)/2) * stopTime5.
+            //        set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
+            //        set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 10^2)/(2*maxDecel5) + (10^2)/(2*maxDecel3).
+    //
+            //        set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
+            //    } else {
+            //        set MidShutdownSpeed to min(sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (6^2)/(maxDecel5*0.7)  - (6^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) )) , 160).
+            //        set stopTime3 to 6 / (maxDecel3*0.75).
+            //        set stopTime5 to 136 / (maxDecel5*0.8).
+            //        set stopTime13 to (airspeed - 142) / (maxDecel*0.85).
+//
+            //        set TotalstopTime to stopTime3 + stopTime5 + stopTime13.
+//
+            //        set stopDist3 to 3 * stopTime3.
+            //        set stopDist5 to 69 * stopTime5.
+            //        set stopDist13 to ((airspeed - 142)/2)*stopTime13.
+            //        set TargetMidShutdown to (airspeed^2 - 142^2)/(2*maxDecel) + (142^2 - 6^2)/(2*maxDecel5) + (6^2)/(2*maxDecel3).
+//
+            //        set TotalstopDist to stopDist3 + stopDist5 + stopDist13.
+            //    }
+//
+//
+//
+            //    //Decel 13 Engines
+            //    if not MiddleEnginesShutdown and not downToThree {
+            //        set ReqDecel to (max(MidShutdownSpeed-5,airspeed)^2 - (MidShutdownSpeed-5)^2)/(2*(max(0.1, RadarAlt - (TargetMidShutdown+stopDist3+stopDist5)/2))) - DragDecel.
+            //        set landingRatio to max(0,  ReqDecel / (maxDecel  * cos(vang(facing:forevector, up:vector)))).
+            //    }//Decel 5 Engines
+            //    else if not downToThree {
+            //        set ReqDecel to (max(10,airspeed)^2 - 10^2)/(2*(max(0.1, RadarAlt - stopDist3*1.8 - 1*Scale))).
+            //        set landingRatio to max(0,  ReqDecel / (maxDecel5  * cos(vang(facing:forevector, up:vector)))).
+            //    }//Decel 3 Engines
+            //    else {
+            //        set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.1, RadarAlt - 0.75*Scale))).
+            //        set landingRatio to max(0,  ReqDecel / (maxDecel3  * cos(vang(facing:forevector, up:vector)))).
+            //    }
+//
+            ////Block 2 Landing Profile
+            //} else {
+            //    if LandingBurnStarted {
+            //        if not cgActive set MidShutdownSpeed to min(max(12,sqrt(max(0, (2*RadarAlt - airspeed^2/maxDecel)/(1/(maxDecel3*0.84) - 1/maxDecel) ))) , 80).
+            //        set stopTime3 to MidShutdownSpeed / (maxDecel3*0.85).
+            //        set stopTime13 to (airspeed - MidShutdownSpeed) / maxDecel.
+//
+            //        set TotalstopTime to stopTime3 + stopTime13.
+//
+            //        set stopDist3 to MidShutdownSpeed/2 * (stopTime3).
+            //        set stopDist13 to ((airspeed - MidShutdownSpeed)/2)*stopTime13.
+            //        set TargetMidShutdown to (airspeed^2 - 69^2)/(2*maxDecel) + (69^2)/(2*maxDecel3).
+//
+            //        set TotalstopDist to stopDist3 + stopDist13.
+            //    }
+            //    else {
+            //        set MidShutdownSpeed to min(sqrt(max(0, (2*RadarAlt - airspeed^2/maxDecel)/(1/(maxDecel3*0.85) - 1/maxDecel) )) , 80).
+            //        set stopTime3 to 69 / (maxDecel3*0.8).
+            //        set stopTime13 to (airspeed - 75) / maxDecel.
+//
+            //        set TotalstopTime to stopTime3 + stopTime13.
+//
+            //        set stopDist3 to 37.5 * (stopTime3).
+            //        set stopDist13 to ((airspeed - 75)/2)*stopTime13.
+            //        set TargetMidShutdown to (airspeed^2 - 69^2)/(2*maxDecel) + (69^2)/(2*maxDecel3).
+//
+            //        set TotalstopDist to stopDist3 + stopDist13.
+            //    }
+//
+//
+            //    //Decel 13 Engines
+            //    if not MiddleEnginesShutdown {
+            //        set ReqDecel to (max(MidShutdownSpeed,airspeed)^2 - MidShutdownSpeed^2)/(2*(max(stopDist3+0.1, RadarAlt)-stopDist3*1.3)) - DragDecel.
+            //        set landingRatio to max(0,  ReqDecel / (maxDecel * cos(vang(facing:forevector, up:vector)))).
+            //    }//Decel 3 Engines
+            //    else {
+            //        set ReqDecel to (max(1,airspeed)^2 - 1^2)/(2*(max(0.5*Scale+0.1, RadarAlt) - 0.75*Scale)).
+            //        set landingRatio to max(0,  ReqDecel / (maxDecel3 * cos(vang(facing:forevector, up:vector)))).
+            //    }
+            //}
             
             if CorrFactor * groundspeed < LngCtrlPID:setpoint and alt:radar < 8000 and not downToThree {
                 set LngCtrlPID:setpoint to CorrFactor * groundspeed.
             }
             else if LandingBurnStarted set LngCtrlPID:setpoint to 0.
             if dbactive and not LandingBurnStarted {
-                set LatCtrlPID:setpoint to (vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90)/2.
+                set LatCtrlPID:setpoint to (vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90).
             }
             else if LandingBurnStarted set LatCtrlPID:setpoint to 0.
         } 
@@ -3558,9 +3682,9 @@ FUNCTION SteeringCorrections {
         print "Radar Alt: " + round(RadarAlt) + "m".
         //print " ".
 
-        if not LandingBurnStarted {
-            set LandingBurnAlt to min(max(850 + airspeed*IgnitionTime, max(TotalstopDist,TargetMidShutdown)*cos(vang(-velocity:surface, up:vector)*0.75) + airspeed*IgnitionTime) , 7000).
-        }
+        //if not LandingBurnStarted {
+        //    set LandingBurnAlt to min(max(850 + airspeed*IgnitionTime, max(TotalstopDist,TargetMidShutdown)*cos(vang(-velocity:surface, up:vector)*0.75) + airspeed*IgnitionTime) , 7000).
+        //}
         
 
         if altitude < 30000 and not (RSS) or altitude < 50000 and RSS {
@@ -3568,18 +3692,20 @@ FUNCTION SteeringCorrections {
             print "LatCtrl: " + round(LatCtrl, 2) + " / " + round(LatCtrlPID:maxoutput, 1).
             if defined TowerHeading print "Tower Heading: " + TowerHeading.
             print " ".
-            print "Landing Burn Alt: " + round(LandingBurnAlt, 1) + " m".
-            print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s   | " + TargetMidShutdown.
+            //print "Landing Burn Alt: " + round(LandingBurnAlt, 1) + " m".
+            print "IgnThr: " + round(cgThrReqIgn,2) + "  hG: " + round(cgHG) + " m".
+            if defined CatchThrot print "Phase: " + cgPhase + "  Thr: " + round(CatchThrot,2) + "  tgo: " + round(cgTgo,1).
+            print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s   | ".
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
             print " ".
-            print "Drag Decel: " + round(DragDecel,1).
+            //print "Drag Decel: " + round(DragDecel,1).
             print "Max Decel: " + round(maxDecel, 2).
-            if defined ReqDecel print "ReqDecel: " + round(ReqDecel,2).
-            print "Stop Time: " + round(TotalstopTime, 2).
-            print "Stop Distance: " + round(TotalstopDist, 2).
-            if defined stopDist5 print "Stop Distance 5: " + round(stopDist5, 2).
-            print "Stop Distance 3: " + round(stopDist3, 2).
-            print "Landing Ratio: " + round(landingRatio, 2).
+            //if defined ReqDecel print "ReqDecel: " + round(ReqDecel,2).
+            //print "Stop Time: " + round(TotalstopTime, 2).
+            //print "Stop Distance: " + round(TotalstopDist, 2).
+            //if defined stopDist5 print "Stop Distance 5: " + round(stopDist5, 2).
+            //print "Stop Distance 3: " + round(stopDist3, 2).
+            //print "Landing Ratio: " + round(landingRatio, 2).
             print " ".
             print "MZ Rotation: " + Round(BoosterRot,1).
             print "Booster Mass: " + round(ship:mass,3).
@@ -3617,9 +3743,145 @@ FUNCTION SteeringCorrections {
     //LogBoosterFlightData().
 }
 
+function CatchGuidanceInit {
+    local aMax is ship:availablethrust / max(ship:mass, 0.001).
+    set cgAMax0      to max(aMax, 0.001).
+    if not (defined cgGateFixed) or not cgGateFixed set cgVGate to MidShutdownSpeed + 4*Scale.
+    set cgPhase      to "A".
+    set cgTerminal   to false.
+    set cgHT         to cgEndHeight.
+    set cgLastT      to time:seconds.
+    set cgDist       to v(0,0,0).
+    set cgLastVel    to cgToSurf(velocity:surface).
+    set cgLastThrAcc to cgToSurf(facing:forevector * throttle * aMax).
+    set cgLastAtot   to v(0,0,0).
+    set CatchThrot   to max(cgThrFloorA, throttle).
+    set CatchSteer   to lookDirUp(-velocity:surface, RollVector).
+    set cgActive     to true.
+}
+
+function CatchGuidance {
+    parameter TgtOffset.
+
+    local now is time:seconds.
+    local dt is now - cgLastT.
+    if dt < 0.001 return.
+    set cgLastT to now.
+
+    local upV  is up:vector.
+    local gMag is body:mu / body:position:sqrmagnitude.
+    local aMax is max(ship:availablethrust / max(ship:mass, 0.001), 0.001).
+
+    // phase switch on PHYSICAL thrust drop, not on the flag
+    if cgPhase = "A" and MiddleEnginesShutdown set cgPhase to "B".
+
+    // --- disturbance ---
+    local velS  is cgToSurf(velocity:surface).
+    local aMeas is (velS - cgLastVel) / dt.
+    local alpha is dt / (cgDistTau + dt).
+    set cgDist    to cgDist + (aMeas - cgLastThrAcc - v(-gMag,0,0) - cgDist) * alpha.
+    set cgLastVel to velS.
+    local dVec is cgFromSurf(cgDist) * cgDistGain.
+    local dZ is vdot(dVec, upV).
+
+    // --- state ---
+    local pins is BoosterCore:position + BoosterHeight*0.4*facing:forevector.
+    local tgt  is landingzone:position + TgtOffset.
+    local rel  is vxcl(upV, pins - tgt) + upV*cgHeightAboveArms(). 
+    local vel  is velocity:surface.
+    local aLast is cgFromSurf(cgLastAtot).
+    set rel to rel + vel*cgLead + aLast*(0.5*cgLead^2).
+    set vel to vel + aLast*cgLead.
+
+    if cgTerminal set cgHT to max(cgFloor, cgHT + CatchVS*dt).
+    local dz  is vdot(rel, upV) - cgHT.
+    local vz  is vdot(vel, upV).
+    local vTz is CatchVS.
+    local rH  is vxcl(upV, rel).
+    local vH  is vxcl(upV, vel).
+
+    local aThr is v(0,0,0).
+
+    if cgPhase = "A" {
+        // ---------- PHASE A ----------
+        local hG   is cgGateHeight(cgVGate, gMag, aMax).
+        set cgHG to hG.
+        local dzA  is dz + cgHT - hG.       
+        local spd  is vel:mag.                           
+        local retro is -vel:normalized.
+        local cosT is max(0.2, vdot(retro, upV)).
+        local dPath is vdot(dVec, retro).               
+
+        local aPath is 0.
+        local useFloor is false.
+        if vz >= 0 {
+            set aPath to -1e6.                
+        } else if spd <= cgVGate {
+            set aPath to cgGateDecel.            
+        } else if dzA > 1 {
+            set aPath to (spd^2 - cgVGate^2)/(2*dzA/cosT).
+            set useFloor to true.
+        } else {
+            set aPath to 1e6.              
+        }
+
+        set cgTgo to 2*max(0, dzA/cosT)/max(1, spd + cgVGate) + 2*max(0, hG - cgEndHeight)/max(1, cgVGate - vTz).
+        local tau is max(cgTgo, cgTgoMin).
+
+        local base is (retro + upV*cgRetroUp):normalized.
+        if vz >= 0 set base to upV.                               
+        local miss is rH + vH*(tau/2).
+        local aCorr is -2*miss/tau^2 * cgMissGain.
+        local dir is cgLimitAngle(base*aMax + aCorr, base, cgRetroDev):normalized.
+
+        local aMag is aPath + gMag*cosT - dPath.
+        set cgThrReq to aMag/aMax.
+        if useFloor set aMag to max(cgThrFloorA*aMax, aMag).
+        set aMag to min(aMax, max(cgThrMin*aMax, aMag)).
+        set aThr to dir*aMag.
+    } else {
+        // ---------- PHASE B ----------
+        local aReq is 0.
+        if dz > 0.5 and vz < vTz set aReq to (vz^2 - vTz^2)/(2*dz).
+        set cgTgo to 2*max(0, dz)/max(1, -vz - vTz).
+        if cgTgo < cgTgoMin set cgTerminal to true.
+
+        if cgTerminal {
+            local tau is cgTgoMin.
+            set aThr to -12*(rel - upV*cgHT)/tau^2 - 6*(vel - upV*vTz)/tau + upV*gMag - dVec.
+        } else {
+            local tau is max(cgTgo, cgTgoMin).
+            local aH is -6*rH/tau^2 - 4*vH/tau - vxcl(upV, dVec).
+            set aThr to upV*(aReq + gMag - dZ) + aH.
+        }
+
+        local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(4*BoosterHeight))).
+        local aZ is min(max(vdot(aThr, upV), cgThrMin*aMax), aMax).
+        local aH2 is vxcl(upV, aThr).
+        local hMax is min(aZ*tan(tiltLim), sqrt(max(0, aMax^2 - aZ^2))).
+        if aH2:mag > hMax set aH2 to aH2:normalized*hMax.
+        set aThr to upV*aZ + aH2.
+        set cgThrReq to aThr:mag/aMax.
+    }
+
+    // --- outputs ---
+    set CatchThrot to min(1, max(cgThrMin, aThr:mag/aMax)).
+    set CatchSteer to lookDirUp(aThr, RollVector).
+
+    local aThrExp is facing:forevector * CatchThrot * aMax.
+    set cgLastThrAcc to cgToSurf(aThrExp).
+    set cgLastAtot   to cgToSurf(aThrExp + upV*(-gMag) + dVec).
+
+    // == Debug ==
+    //set cgDrawThr to vecDraw(BoosterCore:position, aThr:normalized*BoosterHeight, green, "aThr " + cgPhase, 1, true, 0.2).
+    //set cgDrawRet to vecDraw(BoosterCore:position, -velocity:surface:normalized*BoosterHeight, yellow, "retro", 1, true, 0.2).
+}
+
+
 
 function LandingThrottle {
     set minThrottle to 0.33.
+    set landingRatio to Planet1G*ship:mass/ship:availableThrust + (-verticalSpeed+CatchVS)/80.
     set thro to max(0.33, landingRatio).
     if verticalSpeed > -5 set thro to minThrottle * min(min(3,landingRatio/0.33),verticalSpeed/(CatchVS*1.5)).
     if verticalSpeed > CatchVS*1.5 set thro to minThrottle.
@@ -3642,27 +3904,27 @@ function LandingGuidance {
         + vxcl(up:vector, facing:forevector):normalized*vAng(facing:forevector, up:vector)*min(13,ActiveRC)/(Scale*(min(7,ActiveRC)-1.3)). 
 
     // === Future Offset from Target ===
-    if addons:tr:hasimpact and RadarAlt > 3*Scale set myFuturePos to addons:tr:impactpos:position + MZHeight*(CatchPins-addons:tr:impactpos:position + velocity:surface/9.81):normalized*1/cos(vAng((CatchPins-addons:tr:impactpos:position + velocity:surface/9.81), up:vector)).
-    else set myFuturePos to CatchPos.
-    set TargetError to CatchPos - myFuturePos - PredictGSVec.
-    if defined TowerHeadingVector set collisionAvoider to min(1,vAng(TargetError,TowerHeadingVector)/69)^4.
-    else set collisionAvoider to 1.
-
-    // === Guidance ===
-    set MainVector to 
-        (CatchPins - CatchPos + 0.55 * OffsetPosVec):normalized * max(0,RadarRatio-2.5) * min(1,airspeed/120)
-        + up:vector * 3/max(1,RadarRatio^1.5) * 140/max(140,airspeed).
-
-    set tgtError to max(1.75*Scale,TargetError:mag)/(1.75*Scale) * max(1, 1/max(0.75,abs(RadarRatio-1))).
-    if RadarRatio > 0.5 set TargetReachFactor to max(max(-RadarRatio+1.1, -1), 1.06 - OffsetPosVec:mag/max(1,GSVec:mag*max(0.9,TotalstopTime-0.9))).
-    else set TargetReachFactor to 1.04.
-    set GSCancel to GSVec * 1.6/max(0.6,RadarRatio) * TargetReachFactor.
-    set GuidVec to
-        TargetError:normalized * tgtError * max(0.5,collisionAvoider)/max(collisionAvoider/1.5,min(1,RadarRatio-1.5))
-        - GSCancel
-        + PositionError:normalized * min(4,tgtError) * 1/max(1,RadarRatio-4) * min(1,RadarRatio-0.5) * collisionAvoider/max(collisionAvoider,min(1,RadarRatio-1)).
-
-    set FinalVec to MainVector:normalized * BoosterHeight/min(max(0.8,RadarRatio^0.75), 1 * 150/max(150,airspeed)) + GuidVec * 160/max(160,airspeed) + facing:forevector * BoosterHeight/4 - velocity:surface * max(0,airspeed-150)/max(1,airspeed/2).
+//    if addons:tr:hasimpact and RadarAlt > 3*Scale set myFuturePos to addons:tr:impactpos:position + MZHeight*(CatchPins-addons:tr:impactpos:position + velocity:surface/9.81):normalized*1/cos(vAng((CatchPins-addons:tr:impactpos:position + velocity:surface/9.81), up:vector)).
+//    else set myFuturePos to CatchPos.
+//    set TargetError to CatchPos - myFuturePos - PredictGSVec.
+//    if defined TowerHeadingVector set collisionAvoider to min(1,vAng(TargetError,TowerHeadingVector)/69)^4.
+//    else set collisionAvoider to 1.
+//
+//    // === Guidance ===
+//    set MainVector to 
+//        (CatchPins - CatchPos + 0.55 * OffsetPosVec):normalized * max(0,RadarRatio-2.5) * min(1,airspeed/120)
+//        + up:vector * 3/max(1,RadarRatio^1.5) * 140/max(140,airspeed).
+//
+//    set tgtError to max(1.75*Scale,TargetError:mag)/(1.75*Scale) * max(1, 1/max(0.75,abs(RadarRatio-1))).
+//    if RadarRatio > 0.5 set TargetReachFactor to max(max(-RadarRatio+1.1, -1), 1.06 - OffsetPosVec:mag/max(1,GSVec:mag*max(0.9,TotalstopTime-0.9))).
+//    else set TargetReachFactor to 1.04.
+//    set GSCancel to GSVec * 1.6/max(0.6,RadarRatio) * TargetReachFactor.
+//    set GuidVec to
+//        TargetError:normalized * tgtError * max(0.5,collisionAvoider)/max(collisionAvoider/1.5,min(1,RadarRatio-1.5))
+//        - GSCancel
+//        + PositionError:normalized * min(4,tgtError) * 1/max(1,RadarRatio-4) * min(1,RadarRatio-0.5) * collisionAvoider/max(collisionAvoider,min(1,RadarRatio-1)).
+//
+//    set FinalVec to MainVector:normalized * BoosterHeight/min(max(0.8,RadarRatio^0.75), 1 * 150/max(150,airspeed)) + GuidVec * 160/max(160,airspeed) + facing:forevector * BoosterHeight/4 - velocity:surface * max(0,airspeed-150)/max(1,airspeed/2).
 
     // == Debug ==
     //set vMain to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight/2, MainVector, grey, "Main", 1, true, 0.2).
@@ -3672,7 +3934,8 @@ function LandingGuidance {
     //set vFinal to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight/2, FinalVec, white, "Final", 1, true, 0.2).
     //set vOffset to vecDraw(myFuturePos + PredictGSVec, TargetError, yellow, "Error", 1, true, 0.1).
 
-    return lookDirUp(FinalVec, RollVector).
+//    return lookDirUp(FinalVec, RollVector).
+    return.
 }
 
 
