@@ -601,8 +601,8 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
         set TRJCorrection to -2.
     }
     set trCompensation to 3000.
-    set maxLatChange to 0.7.
-    set maxLngChange to 0.7.
+    set maxLatChange to 0.32.
+    set maxLngChange to 0.18.
     set SLEThrust to 555.
 }
 else {       // Stock Kerbin
