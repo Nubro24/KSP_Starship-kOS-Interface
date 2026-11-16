@@ -119,7 +119,7 @@ clearscreen.
 
 
 //-------------Get Module Order-------------//
-
+set printOnce to true.
 set oldArms to false.
 if Mechazilla:modules:length > 16 or ship:partstitled("Pad B Chopsticks"):length > 0 {
     set oldArms to false.
@@ -489,11 +489,13 @@ function LandingDeluge {
 
 function ArmVersion {
     if not AfterLaunch and oldArms and onOLM {
-        sendMessage(processor(volume("Booster")), "Arms,true").
-        sendMessage(processor(volume("Starship")), "Arms,true").
+        if printOnce sendMessage(processor(volume("Booster")), "Arms,true").
+        if printOnce sendMessage(processor(volume("Starship")), "Arms,true").
+        set printOnce to false.
     } else if not AfterLaunch and not oldArms and onOLM {
-        sendMessage(processor(volume("Booster")), "Arms,false").
-        sendMessage(processor(volume("Starship")), "Arms,false").
+        if printOnce sendMessage(processor(volume("Booster")), "Arms,false").
+        if printOnce sendMessage(processor(volume("Starship")), "Arms,false").
+        set printOnce to false.
     }
 }
 

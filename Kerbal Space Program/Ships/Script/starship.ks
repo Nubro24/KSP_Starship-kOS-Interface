@@ -9051,11 +9051,11 @@ function Launch {
                 set SteeringManager:ROLLCONTROLANGLERANGE to 14.
                 if kuniverse:timewarp:warp > 2 set kuniverse:timewarp:warp to 2.
                 if ShipSubType:contains("Block2") or ShipType:contains("Block2") {
-                    if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
+                    if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
                     set LaunchRollVector to up:vector.
                 } 
                 else if ShipType:contains("Block3") {
-                    if kuniverse:timewarp:warp > 0 set kuniverse:timewarp:warp to 0.
+                    if kuniverse:timewarp:warp > 1 set kuniverse:timewarp:warp to 1.
                     set LaunchRollVector to -up:vector.
                 }
                 if HSRJet {

@@ -535,11 +535,7 @@ when EnginesFound then {
 wait until EnginesFound.
 set InitialError to -9999.
 set maxDecel to 0.00001.
-set TotalstopTime to 0.
-set TotalstopDist to 0.
-set stopDist3 to 0.
 set landingRatio to 0.
-set GS to 0.
 set BoostBackComplete to false.
 set lastVesselChange to time:seconds.
 set LandingBurnStarted to false.
@@ -1266,22 +1262,21 @@ set cgPhaseDrop to 0.6.
 set cgRetroUp   to 0.2.
 set cgRetroDev  to 8.
 set cgCorrGainA to 0.4.
-set cgGateDecel to 13.
+set cgGateDecel to 24.
 set cgTgoMin    to 1.6.
 set cgLead      to 0.5.
 set cgDistTau   to 0.7.
 set cgDistGain  to 0.5.
-set cgTiltMax   to 20.
-set cgTiltMin   to 4.
+set cgTiltMax   to 32.
+set cgTiltMin   to 6.
 set cgEndHeight to 2*Scale.
 set cgFloor     to -1.
 if Bl3LndProf set cgVGateDes  to 124 * Scale^0.5.
 else set cgVGateDes  to 69.
 set cgTauM      to 3.
-set cgDistGainH to 0.
+set cgDistGainH to 0.04.
 set cgActive    to false.
 set cgTgo       to 0.
-set cgThrReq    to 0.
 set cgPhase     to "A".
 set cgIgnExtra  to 0.3.
 set cgV3        to 6.
@@ -1546,7 +1541,6 @@ until False {
     }
     else if command = "Arms" {
         set oldArms to MesParameter.
-        print oldArms.
         print "Old Arms: " + oldArms.
     }
     else if RECEIVED:CONTENT = "Depot" {
@@ -1870,7 +1864,7 @@ function Boostback {
         if not BoosterType:contains("Block3") when time:seconds > SeparationTime + 0.5 then {lock throttle to 0.95.}
         sas off.
         set SteeringManager:ROLLCONTROLANGLERANGE to 3.
-        set SteeringManager:rollts to 5.
+        set SteeringManager:rollts to 4.
         wait 0.1.
         HUDTEXT("Performing Boostback Burn..", 30, 2, 20, green, false).
         set ship:name to "Booster".
@@ -2849,26 +2843,6 @@ function Boostback {
         }
     }
     
-    when RadarAlt < LandingBurnAlt * 1.25 then {
-        set LngCtrlPID:setpoint to LngCtrlPID:setpoint+(LandingBurnAlt/(950*Scale))^2.
-        set steeringManager:pitchpid:kd to 0.25.
-        set steeringManager:yawpid:kd to 0.4.
-    }
-
-    when RadarAlt < LandingBurnAlt * 1.12 then {
-        if dbactive {
-            set ApproachAngle to vAng(BoosterCore:position - landingzone:position, TheTowerHeadingVector).
-            if vAng(lookDirUp(TheTowerHeadingVector,up:vector):starvector, BoosterCore:position - landingzone:position) > 90 set ApproachAngle to -ApproachAngle.
-        }
-        else set ApproachAngle to 0.
-
-        lock SteeringVector to lookdirup(-0.47 * velocity:surface * max(1,airspeed/300) + up:vector * max(1,airspeed/12), ApproachVector).
-        lock steering to SteeringVector.
-    }
-
-    when RadarAlt < LandingBurnAlt * 1.8 then {
-        set CorrFactor to vAng(up:vector, BoosterCore:position - landingzone:position)/30.
-    }
     
     set once to false.
     until CatchIgnitionCheck() {
@@ -2897,7 +2871,7 @@ function Boostback {
     CatchGuidanceInit().
     wait 0.
     set cgOffset to CatchPos - landingzone:position - MZHeight*up:vector.
-    set MidShutdownSpeed to cgVGate - 4*Scale.
+    set MidShutdownSpeed to cgVGate - 1*Scale.
     when true then { CatchGuidance(cgOffset). return cgActive. }
     lock steering to CatchSteer.
     lock throttle to CatchThrot.
@@ -2906,6 +2880,11 @@ function Boostback {
 
     set steeringManager:pitchts to 1.75.
     set steeringManager:yawts to 1.75.
+    set SteeringManager:rollts to 3.2.
+    set steeringManager:pitchpid:kd to 0.25.
+    set steeringManager:yawpid:kd to 0.4.
+
+
     if BoosterSingleEngines {
         for gimbalEng in BoosterSingleEnginesRC {
             if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 32).
@@ -3093,6 +3072,9 @@ function Boostback {
                     }
                 }
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
+                set CatchZone to landingzone:position - 1.2*Scale*TowerHeadingVector:normalized.
+                set landingzone to latlng(ship:body:geopositionof(CatchZone):lat,ship:body:geopositionof(CatchZone):lng).
+                addons:tr:settarget(landingzone).
 
                 when Vessel(TargetOLM):distance < 1000 then {sendMessage(Vessel(TargetOLM), ("RetractSQD")).}
 
@@ -3234,7 +3216,7 @@ function Boostback {
                             set x to x + 1.
                         }
                     }
-                    when time:seconds > ShutdownTime + 3.08 and airspeed < 6 or verticalSpeed > -5*Scale and stopDist3 < RadarAlt then {
+                    when time:seconds > ShutdownTime + 3.08 and airspeed < 6 or verticalSpeed > -5*Scale then {
                         set downToThree to true.
                         if BoosterSingleEnginesRC[5+Block2Offset]:hassuffix("activate") and not NrCounterEngine:contains(6+Block2Offset) {
                             BoosterSingleEnginesRC[5+Block2Offset]:shutdown.
@@ -3278,7 +3260,7 @@ function Boostback {
             BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
             MidGimbMod:doaction("lock gimbal", true).
             if Block3Cluster { 
-                when time:seconds > ShutdownTime + 3 and airspeed < 10*Scale or verticalSpeed > -9*Scale and stopDist3 < RadarAlt or not Bl3LndProf then {
+                when time:seconds > ShutdownTime + 3 and airspeed < 7*Scale or verticalSpeed > -5*Scale or not Bl3LndProf then {
                     set downToThree to true.
                     BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
                     Mid2GimbMod:doaction("lock gimbal", true).
@@ -3507,7 +3489,7 @@ function Boostback {
 
     function ClosingAngle {
         set EarlyAngle to (40/(1+constant:e^(-2.5*((RadarRatio) - 3)))) + 10.
-        set LateAngle to (1.5/(1+constant:e^(-8*((RadarRatio) - 0.3)))).
+        set LateAngle to (1.5/(1+constant:e^(-8*((RadarRatio) - 0.33)))).
 
         set angle to LateAngle*EarlyAngle.
         if BoosterLanded set angle to 0.
@@ -3621,6 +3603,7 @@ FUNCTION SteeringCorrections {
             if defined TowerHeading print "Tower Heading: " + TowerHeading.
             print " ".
             print "IgnThr: " + round(cgThrReqIgn,2) + "  hG: " + round(cgHG) + " m".
+            if defined missPrint print missPrint.
             if defined CatchThrot print "Phase: " + cgPhase + "  Thr: " + round(CatchThrot,2) + "  tgo: " + round(cgTgo,1).
             print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s   | ".
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
@@ -3636,6 +3619,7 @@ FUNCTION SteeringCorrections {
             print "Dist.: " + round(landDistance,1) + " m     | " + RadarRatio.
             if defined tgtError print "TgtError: " + round(tgtError,1) + " m".
             print " ".
+            if defined cgDbg print cgDbg.
         }
     }
     else {
@@ -3728,7 +3712,6 @@ function CatchGuidance {
         else                    set aPath to 1e6.
 
         local aMag is aPath + gMag*cosT - dPath.
-        set cgThrReq to aMag/aMax.
         if useFloor set aMag to max(cgThrFloorA*aMax, aMag).
         set aMag to min(aMax, max(cgThrMin*aMax, aMag)).
 
@@ -3759,19 +3742,20 @@ function CatchGuidance {
             local miss is rH + vH*(tau/2).
             local aH   is -vH/tau - 2*miss/(tau*cgTauM).
             set aCmd to upV*vdot(12*(rT - rel)/tau^2 - 6*(vel + vT)/tau, upV) + aH.
+            set missPrint to miss.
         }
         set aThr to aCmd + upV*gMag - dVec.
 
         if not cgTerminal and aThr:mag > (1 - cgThrMargin)*aMax
             set cgTgo to cgSolveTgo(dz, S, (1 - cgThrMargin)*aMax - gMag + DragDecel*cosT).
 
-        local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(4*BoosterHeight))).
+        local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(2.4*BoosterHeight))).
         local aZ  is min(max(vdot(aThr, upV), cgThrMin*aMax), aMax).
         local aH2 is vxcl(upV, aThr).
         local hMax is min(aZ*tan(tiltLim), sqrt(max(0, aMax^2 - aZ^2))).
+        set cgDbg to list(round(aH2:mag,2), round(hMax,2), round(tiltLim,1)).
         if aH2:mag > hMax set aH2 to aH2:normalized*hMax.
         set aThr to upV*aZ + aH2.
-        set cgThrReq to aThr:mag/aMax.
     }
 
     // --- outputs ---
@@ -3783,8 +3767,8 @@ function CatchGuidance {
     set cgLastAtot   to cgToSurf(aThrExp + upV*(-gMag) + dVec).
 
     // == Debug ==
-    //set cgDrawThr to vecDraw(BoosterCore:position, aThr:normalized*BoosterHeight, green, "aThr " + cgPhase, 1, true, 0.2).
-    //set cgDrawRet to vecDraw(BoosterCore:position, -velocity:surface:normalized*BoosterHeight, yellow, "retro", 1, true, 0.2).
+    //set cgDrawThr to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight*0.5, aThr:normalized*BoosterHeight, green, "aThr " + cgPhase, 1, true, 0.2).
+    //set cgDrawRet to vecDraw(BoosterCore:position+facing:forevector*BoosterHeight*0.5, -velocity:surface:normalized*BoosterHeight, yellow, "retro", 1, true, 0.2).
 }
 
 
@@ -4437,18 +4421,18 @@ function GetBoosterRotation {
         if PadB {
             if RadarAlt < 0.9*BoosterHeight {
                 set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + min(3,TotalstopTime)*GSVec*0.5).
+                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + min(3,cgTgo)*GSVec*0.5).
             } else {
                 set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + TotalstopTime*GSVec*0.65).
+                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + cgTgo*GSVec*0.65).
             }
         } else {
             if RadarAlt < 0.9*BoosterHeight {
                 set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + min(3,TotalstopTime)*GSVec*0.5).
+                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + min(3,cgTgo)*GSVec*0.5).
             } else {
                 set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + TotalstopTime*GSVec*0.65).
+                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + cgTgo *GSVec*0.65).
             }
         }
         set varVecFinal to varVec + varPredctVec/2.
