@@ -1,15 +1,16 @@
-# V3.6.1 (2026-08-24)
+# V3.6.1 (2026-11-16)
 - Updated Block 3 Flight Profile and Engine Timings
-- **Updated to SEP v3.2.3**
+- **Updated to SEP v3.3.2**
 - **Added Support for F3's Stage Zero (Pad B)**
-- Reworked Booster Return Calculations
-- **Reworked Ship & Booster Catch Guidance**
+- Reworked Booster Return Calculations (twice)
+- **Reworked Ship & Booster Catch Guidance** (using Klumpp guidance law)
 - Improved Gimbal Module find-function for Cluster
-- Improved Ship Descent Guidance
+- Improved Ship Reentry & Descent Guidance
 - Improved High Altitude FLight Test Ascent Guidance
-- Increased Booster Descent Lng PID kd
 - Fixed Ship not targeting the OLM
+- Fixed GSE not scaling correctly
 - Fixed some Errors
+
 
 # V3.6.0 (2026-05-04)
 - **Reworked Catch Guidance for Booster and Ship** 

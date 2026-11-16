@@ -622,12 +622,8 @@ set LZchange to false.
 set BoosterStaticFireRunning to false.
 set TMinusCountdown to 17.
 set rebooted to false.
-set HighLandingBurn to false.
 set downToThree to false.
-set HighAngleVec to facing:forevector.
-set haVstrength to 0.
 set MidShutdownSpeed to 69.
-set TargetMidShutdown to 300.
 
 if TFinstalled {
     set BBIgn to 100.
@@ -1258,32 +1254,38 @@ if exists("0:/BoosterFlightData.csv") {
 }
 
 
-//catchVarIni
-set cgThrFloorA to 0.9.    
-set cgThrLow    to 0.8.    
-set cgThrMin    to 0.33.   
-set cgPhaseDrop to 0.6.    
-set cgRetroUp   to 0.0.    
-set cgRetroDev  to 8.      
-set cgMissGain  to 0.5.    
-set cgGateDecel to 3.      
-set cgTgoMin    to 1.6.    
-set cgLead      to 0.1.    
-set cgDistTau   to 0.5.    
-set cgDistGain  to 0.7.    
-set cgTiltMax   to 20.     
-set cgTiltMin   to 3.      
-set cgEndHeight to 3*Scale.
-set cgFloor     to -2.     
-set cgActive    to false.  
-set cgTgo       to 0.      
-set cgThrReq    to 0.      
-set cgPhase     to "A".    
 
-set cgIgnExtra  to 0.3.   
-set cgV3        to 6.     
-set cgThrReqIgn to 0.     
-set cgHG        to 0.     
+//catchVarIni
+set cgThrFloorA to 0.9.
+set cgThrLow    to 0.8.
+set cgThrB      to 0.7.
+set cgThrMargin to 0.05.
+set cgThrMin    to 0.33.
+set cgPhaseDrop to 0.6.
+set cgRetroUp   to 0.2.
+set cgRetroDev  to 8.
+set cgCorrGainA to 0.34.
+set cgGateDecel to 13.
+set cgTgoMin    to 1.6.
+set cgLead      to 0.7.
+set cgDistTau   to 0.7.
+set cgDistGain  to 0.5.
+set cgTiltMax   to 20.
+set cgTiltMin   to 4.
+set cgEndHeight to 1.5*Scale.
+set cgFloor     to -2.
+if Bl3LndProf set cgVGateDes  to 124 * Scale^0.5.
+else set cgVGateDes  to 69.
+set cgTauH      to 12.  
+set cgKvH       to 1.4. 
+set cgActive    to false.
+set cgTgo       to 0.
+set cgThrReq    to 0.
+set cgPhase     to "A".
+set cgIgnExtra  to 0.3.
+set cgV3        to 6.
+set cgThrReqIgn to 0.
+set cgHG        to 0.
 set cgGateFixed to false.
 
 //catchFuncs
@@ -1294,6 +1296,15 @@ function cgToSurf {
 function cgFromSurf {
     parameter c.
     return up:vector*c:x + north:vector*c:y + vcrs(up:vector, north:vector)*c:z.
+}
+
+function cgSolveTgo {
+    parameter dz, S, c.               
+    if dz <= 0 return cgTgoMin.
+    set S to max(S, 1).
+    local D is 36*S^2 - 48*c*dz.
+    if D < 0 return 4*dz/S.
+    return 24*dz/(6*S + sqrt(D)).
 }
 
 function cgLimitAngle {
@@ -1329,17 +1340,13 @@ function cgGateHeight {
     local mG is cgGateMass(vG, gMag, aMax13).
     local a3 is max(0.5, cgThrLow*(3*BoosterRaptorThrust3/mG) - gMag).
     local a5 is max(0.5, cgThrLow*(5*BoosterRaptorThrust3/mG) - gMag).
-    local a3 is 0.5.
-    if defined maxDecel3 set a3 to max(0.5, cgThrLow*(maxDecel3 + gMag) - gMag).
     local vT2 is CatchVS^2.
-    if defined maxDecel5 {
-        local a5 is max(0.5, cgThrLow*(maxDecel5 + gMag) - gMag).
+    if Bl3LndProf {
         local v3 is min(cgV3, vG).
         return (vG^2 - v3^2)/(2*a5) + (v3^2 - vT2)/(2*a3) + cgEndHeight.
     }
     return (vG^2 - vT2)/(2*a3) + cgEndHeight.
 }
-
 
 function CatchIgnitionCheck {
     if not (defined maxDecel3) return false.
@@ -1353,7 +1360,7 @@ function CatchIgnitionCheck {
     local velP is vel + aCoast*tI.
     local dz   is cgHeightAboveArms() - cgEndHeight + vdot(vel, upV)*tI + 0.5*vdot(aCoast, upV)*tI^2.
 
-    local vG   is MidShutdownSpeed + 4*Scale.
+    local vG   is cgVGateDes.
     set cgHG to cgGateHeight(vG, gMag, maxDecel + 9.805).
 
     if vdot(velP, upV) >= 0 or velP:mag <= vG { set cgThrReqIgn to 0. return false. }
@@ -1371,6 +1378,25 @@ function CatchIgnitionCheck {
     }
     return false.
 }
+
+function CatchGuidanceInit {
+    local aMax is ship:availablethrust / max(ship:mass, 0.001).
+    set cgAMax0      to max(aMax, 0.001).     // running max, updated in phase A
+    if not cgGateFixed set cgVGate to cgVGateDes.
+    set cgPhase      to "A".
+    set cgBInit      to false.
+    set cgTerminal   to false.
+    set cgHT         to cgEndHeight.
+    set cgLastT      to time:seconds.
+    set cgDist       to v(0,0,0).
+    set cgLastVel    to cgToSurf(velocity:surface).
+    set cgLastThrAcc to cgToSurf(facing:forevector * throttle * aMax).
+    set cgLastAtot   to v(0,0,0).
+    set CatchThrot   to cgThrFloorA.
+    set CatchSteer   to lookDirUp(-velocity:surface, RollVector).
+    set cgActive     to true.
+}
+
 
 clearscreen.
 print "Booster Nominal Operation, awaiting command..".
@@ -1520,8 +1546,7 @@ until False {
     else if command = "Arms" {
         set oldArms to MesParameter.
         print oldArms.
-        if oldArms print "Old Arms".
-        else print "New Arms".
+        print "Old Arms: " + oldArms.
     }
     else if RECEIVED:CONTENT = "Depot" {
         set Depot to true.
@@ -1781,7 +1806,6 @@ function Boostback {
     set steeringManager:pitchpid:kd to 0.5.
     set steeringManager:yawpid:kd to 0.5.
 
-    set HighLandingBurn to false.
 
     if RandomFlip set targetAp to ship:apoapsis - 200*Scale.
     else set targetAp to ship:apoapsis + 800*(Scale^1.5).
@@ -2189,10 +2213,6 @@ function Boostback {
             SetBoosterActive().
             wait 0.05.
         }
-
-        if BoosterSingleEngines
-            if missingCount > 1 
-                set HighLandingBurn to true.
 
 
         if BoosterSingleEngines {
@@ -2882,6 +2902,9 @@ function Boostback {
     lock throttle to CatchThrot.
     set config:ipu to 2000.
     set fastSticks to false.
+
+    set steeringManager:pitchts to 1.75.
+    set steeringManager:yawts to 1.75.
     if BoosterSingleEngines {
         for gimbalEng in BoosterSingleEnginesRC {
             if gimbalEng:hassuffix("activate") gimbalEng:getmodule("ModuleGimbal"):SetField("gimbal limit", 32).
@@ -3028,7 +3051,7 @@ function Boostback {
     when airspeed < 18 then for finGrid in Gridfins finGrid:getmodule("ModuleControlSurface"):SetField("authority limiter", 0).
 
     when RadarAlt < 2000 and not (LandSomewhereElse) then {
-        set steeringManager:maxstoppingtime to 1.2.
+        set steeringManager:maxstoppingtime to 1.5.
         if not (TargetOLM = "false") and TowerExists {
             //setTowerHeadingVector().
             PollUpdate().
@@ -3339,6 +3362,7 @@ function Boostback {
 
     set cgActive to false.
     lock steering to lookDirUp(up:vector, RollVector).
+    set minThrottle to 0.33/(Scale^0.7).
     set throttleTime to time:seconds.
     set startThrottle to max(minThrottle,throttle).
     clearScreen.
@@ -3535,7 +3559,7 @@ FUNCTION SteeringCorrections {
             }
             set LngCtrlPID:maxoutput to max(min(abs(LngError - LngCtrlPID:setpoint) / (PIDFactor), maxAoA), 2.5) * max(0.8,min(1, abs(LngError - LngCtrlPID:setpoint)*20/max(1,RadarAlt))).
             set LngCtrlPID:minoutput to -LngCtrlPID:maxoutput.
-            set LatCtrlPID:maxoutput to max(min(abs(LatError) / (10 * Scale), maxRoll), 0.5).
+            set LatCtrlPID:maxoutput to max(min(abs(LatError - LatCtrlPID:setpoint) / (10 * Scale), maxRoll), 0.5).
             set LatCtrlPID:minoutput to -LatCtrlPID:maxoutput.
 
             set LngCtrl to -LngCtrlPID:UPDATE(time:seconds, LngError).
@@ -3571,9 +3595,6 @@ FUNCTION SteeringCorrections {
                 set maxDecel to max((13 * BoosterRaptorThrust / ship:mass) - 9.805, 0.00001).
                 set maxDecel3 to (3 * BoosterRaptorThrust3 / min(ship:mass, BoosterReturnMass - 12.5 * Scale)) - 9.805.
             }
-
-            if Bl3LndProf and defined maxDecel5 if not cgGateFixed and not MiddleEnginesShutdown and not downToThree set MidShutdownSpeed to min(max(60, sqrt(max(10, (2*RadarAlt - (airspeed^2)/maxDecel + (6^2)/(maxDecel5*0.7)  - (6^2)/(maxDecel3*0.7)) / (1/(maxDecel5*0.7) - 1/maxDecel) ))) , 160).
-            else if not cgGateFixed and not MiddleEnginesShutdown set MidShutdownSpeed to min(max(12,sqrt(max(0, (2*RadarAlt - airspeed^2/maxDecel)/(1/(maxDecel3*0.84) - 1/maxDecel) ))) , 80).
             
             set DragDecel to ((airspeed^2)/9000) * min(1,305/airspeed).
 //
@@ -3672,6 +3693,7 @@ FUNCTION SteeringCorrections {
             else if LandingBurnStarted set LngCtrlPID:setpoint to 0.
             if dbactive and not LandingBurnStarted {
                 set LatCtrlPID:setpoint to (vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90).
+                set LngCtrlPID:setpoint to min(100*Scale, LngCtrlPID:setpoint * ((vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector))-90)/36)^0.4).
             }
             else if LandingBurnStarted set LatCtrlPID:setpoint to 0.
         } 
@@ -3743,22 +3765,6 @@ FUNCTION SteeringCorrections {
     //LogBoosterFlightData().
 }
 
-function CatchGuidanceInit {
-    local aMax is ship:availablethrust / max(ship:mass, 0.001).
-    set cgAMax0      to max(aMax, 0.001).
-    if not (defined cgGateFixed) or not cgGateFixed set cgVGate to MidShutdownSpeed + 4*Scale.
-    set cgPhase      to "A".
-    set cgTerminal   to false.
-    set cgHT         to cgEndHeight.
-    set cgLastT      to time:seconds.
-    set cgDist       to v(0,0,0).
-    set cgLastVel    to cgToSurf(velocity:surface).
-    set cgLastThrAcc to cgToSurf(facing:forevector * throttle * aMax).
-    set cgLastAtot   to v(0,0,0).
-    set CatchThrot   to max(cgThrFloorA, throttle).
-    set CatchSteer   to lookDirUp(-velocity:surface, RollVector).
-    set cgActive     to true.
-}
 
 function CatchGuidance {
     parameter TgtOffset.
@@ -3772,8 +3778,10 @@ function CatchGuidance {
     local gMag is body:mu / body:position:sqrmagnitude.
     local aMax is max(ship:availablethrust / max(ship:mass, 0.001), 0.001).
 
-    // phase switch on PHYSICAL thrust drop, not on the flag
-    if cgPhase = "A" and MiddleEnginesShutdown set cgPhase to "B".
+    if cgPhase = "A" {
+        set cgAMax0 to max(cgAMax0, aMax).
+        if MiddleEnginesShutdown and aMax < cgPhaseDrop*cgAMax0 set cgPhase to "B".
+    }
 
     // --- disturbance ---
     local velS  is cgToSurf(velocity:surface).
@@ -3782,12 +3790,11 @@ function CatchGuidance {
     set cgDist    to cgDist + (aMeas - cgLastThrAcc - v(-gMag,0,0) - cgDist) * alpha.
     set cgLastVel to velS.
     local dVec is cgFromSurf(cgDist) * cgDistGain.
-    local dZ is vdot(dVec, upV).
 
     // --- state ---
     local pins is BoosterCore:position + BoosterHeight*0.4*facing:forevector.
     local tgt  is landingzone:position + TgtOffset.
-    local rel  is vxcl(upV, pins - tgt) + upV*cgHeightAboveArms(). 
+    local rel  is vxcl(upV, pins - tgt) + upV*cgHeightAboveArms().
     local vel  is velocity:surface.
     local aLast is cgFromSurf(cgLastAtot).
     set rel to rel + vel*cgLead + aLast*(0.5*cgLead^2).
@@ -3799,64 +3806,68 @@ function CatchGuidance {
     local vTz is CatchVS.
     local rH  is vxcl(upV, rel).
     local vH  is vxcl(upV, vel).
+    local rT  is upV*cgHT.
+    local vT  is upV*vTz.
 
     local aThr is v(0,0,0).
 
     if cgPhase = "A" {
-        // ---------- PHASE A ----------
-        local hG   is cgGateHeight(cgVGate, gMag, aMax).
+        // ---------- PHASE A: gate magnitude + retro with weak Klumpp ----------
+        local hG    is cgGateHeight(cgVGate, gMag, aMax).
         set cgHG to hG.
-        local dzA  is dz + cgHT - hG.       
-        local spd  is vel:mag.                           
+        local dzA   is dz + cgHT - hG.
+        local spd   is vel:mag.
         local retro is -vel:normalized.
-        local cosT is max(0.2, vdot(retro, upV)).
-        local dPath is vdot(dVec, retro).               
+        local cosT  is max(0.2, vdot(retro, upV)).
+        local dPath is vdot(dVec, retro).
 
         local aPath is 0.
         local useFloor is false.
-        if vz >= 0 {
-            set aPath to -1e6.                
-        } else if spd <= cgVGate {
-            set aPath to cgGateDecel.            
-        } else if dzA > 1 {
-            set aPath to (spd^2 - cgVGate^2)/(2*dzA/cosT).
-            set useFloor to true.
-        } else {
-            set aPath to 1e6.              
-        }
-
-        set cgTgo to 2*max(0, dzA/cosT)/max(1, spd + cgVGate) + 2*max(0, hG - cgEndHeight)/max(1, cgVGate - vTz).
-        local tau is max(cgTgo, cgTgoMin).
-
-        local base is (retro + upV*cgRetroUp):normalized.
-        if vz >= 0 set base to upV.                               
-        local miss is rH + vH*(tau/2).
-        local aCorr is -2*miss/tau^2 * cgMissGain.
-        local dir is cgLimitAngle(base*aMax + aCorr, base, cgRetroDev):normalized.
+        if vz >= 0              set aPath to -1e6.
+        else if spd <= cgVGate  set aPath to cgGateDecel.
+        else if dzA > 1 { set aPath to (spd^2 - cgVGate^2)/(2*dzA/cosT). set useFloor to true. }
+        else                    set aPath to 1e6.
 
         local aMag is aPath + gMag*cosT - dPath.
         set cgThrReq to aMag/aMax.
         if useFloor set aMag to max(cgThrFloorA*aMax, aMag).
         set aMag to min(aMax, max(cgThrMin*aMax, aMag)).
+
+        set cgTgo to 2*max(0, dzA/cosT)/max(1, spd + cgVGate) + 2*max(0, hG - cgEndHeight)/max(1, cgVGate - vTz).
+        local tau is max(cgTgo, cgTgoMin).
+
+        local base is (retro + upV*cgRetroUp):normalized.
+        if vz >= 0 set base to upV.
+        local aNom  is base*aMag.
+        local aHK   is -12*rH/tau^2 - 6*vH/tau - vxcl(upV, dVec).
+        local aCorr is (aHK - vxcl(upV, aNom)) * cgCorrGainA.
+        local dir   is cgLimitAngle(aNom + aCorr, base, cgRetroDev):normalized.
         set aThr to dir*aMag.
     } else {
-        // ---------- PHASE B ----------
-        local aReq is 0.
-        if dz > 0.5 and vz < vTz set aReq to (vz^2 - vTz^2)/(2*dz).
-        set cgTgo to 2*max(0, dz)/max(1, -vz - vTz).
+        // ---------- PHASE B: Klumpp ----------
+        local cosT is max(0.2, vdot(-vel:normalized, upV)).
+        local S    is -(vz + vTz).
+        if not cgBInit {
+            set cgTgo to cgSolveTgo(dz, S, cgThrB*aMax - gMag + DragDecel*cosT).
+            set cgBInit to true.
+        } else set cgTgo to cgTgo - dt.
         if cgTgo < cgTgoMin set cgTerminal to true.
+        local tau is max(cgTgo, cgTgoMin).
 
-        if cgTerminal {
-            local tau is cgTgoMin.
-            set aThr to -12*(rel - upV*cgHT)/tau^2 - 6*(vel - upV*vTz)/tau + upV*gMag - dVec.
-        } else {
-            local tau is max(cgTgo, cgTgoMin).
-            local aH is -6*rH/tau^2 - 4*vH/tau - vxcl(upV, dVec).
-            set aThr to upV*(aReq + gMag - dZ) + aH.
+        local aCmd is v(0,0,0).
+        if cgTerminal set aCmd to -12*(rel - rT)/tau^2 - 6*(vel - vT)/tau.
+        else {
+            local tauH is min(tau, cgTauH).
+            set aCmd to upV*vdot(12*(rT - rel)/tau^2 - 6*(vel + vT)/tau, upV)
+                      + vxcl(upV, -12*rel/tauH^2 - cgKvH*6*vel/tauH).
         }
+        set aThr to aCmd + upV*gMag - dVec.
+
+        if not cgTerminal and aThr:mag > (1 - cgThrMargin)*aMax
+            set cgTgo to cgSolveTgo(dz, S, (1 - cgThrMargin)*aMax - gMag + DragDecel*cosT).
 
         local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(4*BoosterHeight))).
-        local aZ is min(max(vdot(aThr, upV), cgThrMin*aMax), aMax).
+        local aZ  is min(max(vdot(aThr, upV), cgThrMin*aMax), aMax).
         local aH2 is vxcl(upV, aThr).
         local hMax is min(aZ*tan(tiltLim), sqrt(max(0, aMax^2 - aZ^2))).
         if aH2:mag > hMax set aH2 to aH2:normalized*hMax.
