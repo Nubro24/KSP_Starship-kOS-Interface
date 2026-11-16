@@ -1268,7 +1268,7 @@ set cgLead      to 0.5.
 set cgDistTau   to 0.7.
 set cgDistGain  to 0.5.
 set cgTiltMax   to 32.
-set cgTiltMin   to 6.
+set cgTiltMin   to 10.
 set cgEndHeight to 2*Scale.
 set cgFloor     to -1.
 if Bl3LndProf set cgVGateDes  to 124 * Scale^0.5.
@@ -1849,13 +1849,14 @@ function Boostback {
             if not RSS set FlipTime to 4.4.
             else set FlipTime to 4.2.
         } else {
-            if BoosterType:contains("Block3") set ship:control:pitch to -2.4 * 1.6/(Scale^1.2) * PitchStrength. else 
-            set ship:control:pitch to 2.4 * 1.6/Scale * PitchStrength.
+            if BoosterType:contains("Block3") set ship:control:pitch to -3.8 * PitchStrength. else 
+            set ship:control:pitch to 3.8 * PitchStrength.
             set ship:control:yaw to 0.
             if not RSS set FlipTime to 4.5.
             else set FlipTime to 5.4.
-
         }
+        set steeringManager:pitchts to 3.
+        set steeringManager:yawts to 3.
         unlock steering.
         set ship:name to "Booster".
         wait 0.
@@ -3072,7 +3073,7 @@ function Boostback {
                     }
                 }
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
-                set CatchZone to landingzone:position - 2.69*Scale*TowerHeadingVector:normalized.
+                set CatchZone to landingzone:position - 5*Scale*TowerHeadingVector:normalized.
                 set landingzone to latlng(ship:body:geopositionof(CatchZone):lat,ship:body:geopositionof(CatchZone):lng).
                 addons:tr:settarget(landingzone).
 
@@ -3746,7 +3747,7 @@ function CatchGuidance {
         if not cgTerminal and aThr:mag > (1 - cgThrMargin)*aMax
             set cgTgo to cgSolveTgo(dz, S, (1 - cgThrMargin)*aMax - gMag + DragDecel*cosT).
 
-        local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(2.4*BoosterHeight))).
+        local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(2*BoosterHeight))).
         local aZ  is min(max(vdot(aThr, upV), cgThrMin*aMax), aMax).
         local aH2 is vxcl(upV, aThr).
         local hMax is min(aZ*tan(tiltLim), sqrt(max(0, aMax^2 - aZ^2))).
@@ -4417,21 +4418,21 @@ function GetBoosterRotation {
         if PadB {
             if RadarAlt < 0.9*BoosterHeight {
                 set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + min(3,cgTgo)*GSVec*0.5).
+                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + min(3,cgTgo)*GSVec*0.2).
             } else {
                 set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + cgTgo*GSVec*0.65).
+                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + cgTgo*GSVec*0.3).
             }
         } else {
             if RadarAlt < 0.9*BoosterHeight {
                 set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + min(3,cgTgo)*GSVec*0.5).
+                set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + min(3,cgTgo)*GSVec*0.2).
             } else {
                 set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + cgTgo *GSVec*0.65).
+                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + cgTgo *GSVec*0.3).
             }
         }
-        set varVecFinal to varVec + varPredctVec/2.
+        set varVecFinal to varVec + varVec/2.
         set varFinal to vang(varVecFinal, TowerHeadingVector).
 
         if vAng(vCrs(TowerHeadingVector,up:vector),varVecFinal) < 90 set varFinal to -varFinal.

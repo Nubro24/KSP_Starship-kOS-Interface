@@ -7,6 +7,7 @@
 - Improved Gimbal Module find-function for Cluster
 - Improved Ship Reentry & Descent Guidance
 - Improved High Altitude FLight Test Ascent Guidance
+- Added the option to not show the Telemetry
 - Fixed Ship not targeting the OLM
 - Fixed GSE not scaling correctly
 - Fixed some Errors
