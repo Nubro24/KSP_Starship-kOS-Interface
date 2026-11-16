@@ -9769,18 +9769,18 @@ Function LaunchSteering {
         else if KSRSS {
             if RESCALE {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                    set targetpitch to 90 - (8.1 * SQRT(max((altitude - 250 - LaunchElev), 0)/1250)).
                 }
                 else {
-                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050))*min(1, (30000/max(30000,CargoMass))^0.6).
+                    set targetpitch to 90 - (8.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150))*min(1, (30000/max(30000,CargoMass))^0.6).
                 }
             }
             else {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                    set targetpitch to 90 - (9.05 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
                 }
                 else {
-                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000))*min(1, (30000/max(30000,CargoMass))^0.6).
+                    set targetpitch to 90 - (9.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, (30000/max(30000,CargoMass))^0.6).
                 }
             }
         }
@@ -9806,18 +9806,18 @@ Function LaunchSteering {
         else if KSRSS {
             if RESCALE {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (8.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
+                    set targetpitch to 90 - (8.1 * SQRT(max((altitude - 250 - LaunchElev), 0)/1150)).
                 }
                 else {
-                    set targetpitch to 90 - (8.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000))*min(1, (30000/max(30000,CargoMass))^0.6).
+                    set targetpitch to 90 - (8.35 * SQRT(max((altitude - 250 - LaunchElev), 0)/1000))*min(1, (30000/max(30000,CargoMass))^0.6).
                 }
             }
             else {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (9.45 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
+                    set targetpitch to 90 - (9.25 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100)).
                 }
                 else {
-                    set targetpitch to 90 - (9.8 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050))*min(1, (30000/max(30000,CargoMass))^0.6).
+                    set targetpitch to 90 - (9.4 * SQRT(max((altitude - 250 - LaunchElev), 0)/1050))*min(1, (30000/max(30000,CargoMass))^0.6).
                 }
             }
         }

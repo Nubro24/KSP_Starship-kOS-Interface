@@ -1069,7 +1069,7 @@ if bodyexists("Earth") {
         set offshoreSite to latlng(28.50895,-80.4).
         set BoosterHeight to 42.2.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 3000. //3000
+        set LFBoosterFuelCutOff to 3200. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
