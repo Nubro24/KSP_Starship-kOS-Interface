@@ -3072,7 +3072,7 @@ function Boostback {
                     }
                 }
                 sendMessage(Vessel(TargetOLM), ("RetractSQD")).
-                set CatchZone to landingzone:position - 1.2*Scale*TowerHeadingVector:normalized.
+                set CatchZone to landingzone:position - 2.69*Scale*TowerHeadingVector:normalized.
                 set landingzone to latlng(ship:body:geopositionof(CatchZone):lat,ship:body:geopositionof(CatchZone):lng).
                 addons:tr:settarget(landingzone).
 
