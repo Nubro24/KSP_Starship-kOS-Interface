@@ -553,9 +553,6 @@ if RSS {         // Real Solar System
     else {
         set TRJCorrection to -2.
     }
-    set trCompensation to -10000.
-    set maxLatChange to 0.085.
-    set maxLngChange to 0.3.
     set SLEThrust to 2130.
 }
 else if KSRSS {      // 2.5-2.7x scaled Kerbin
@@ -608,9 +605,6 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     else {
         set TRJCorrection to -2.
     }
-    set trCompensation to 3000.
-    set maxLatChange to 0.32.
-    set maxLngChange to 0.18.
     set SLEThrust to 555.
 }
 else {       // Stock Kerbin
@@ -654,9 +648,6 @@ else {       // Stock Kerbin
     else {
         set TRJCorrection to -2.
     }
-    set trCompensation to 2000.
-    set maxLatChange to 0.4.
-    set maxLngChange to 0.24.
     set SLEThrust to 555.
 }
 
@@ -1690,7 +1681,7 @@ function FindParts {
 //-------------Initial Program Start-Up--------------------//
 
 set rePhiPlan  to 30.      // [deg]  bank used to size the turn (margin to φ_max)
-set rePhiMax   to 50.      // [deg]  max bank (≈ your YawPID limit)
+set rePhiMax   to 50.      // [deg]  max bank
 set reKL1      to 0.8.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
 set reRCap     to 0.45.    // [-]    R_t ≤ reRCap · distance to target
@@ -1700,7 +1691,7 @@ set reYawSign  to 1.       // [-]    flip to −1 if the ship turns AWAY from th
 set reApprSign to 1.       // [-]    final approach along +TowerHeadingVector (−1 = opposite)
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
 set reVEnd     to 330.     // [m/s]  path mode ends below this (terminal mode takes over)
-set reAltEnd   to 800.     // [m]    everything off below this (≈ FlipAltitude + margin)
+set reAltEnd   to 750.     // [m]    everything off below this (≈ FlipAltitude + margin)
 set reAccTau   to 1.0.     // [s]    aero accel filter
 set reRTau     to 5.0.     // [s]    turn radius filter
 set reVTerm    to 330.     // [m/s]  below: terminal glide-slope mode
@@ -1709,6 +1700,10 @@ set reOffTau   to 15.      // [s]    learning time constant of the glide offset
 set reGamTau   to 0.5.     // [s]    γ filter
 set reAoARate  to 4.       // [deg/s] AoA command rate limit
 set reKL1T     to 0.5.     // [-]    terminal L1 ≤ k·(distance to aim point)
+set reKA       to 1.0.     // [-]    Δα [deg] = K·ε·57.3   (ε = 5 % too long -> ≈ +3°)
+set reKAd      to 8.0.     // [s]    damping on dε/dt (fights Trajectories lag)
+set reEpsTau   to 2.0.     // [s]    filter on dε/dt
+set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -1721,15 +1716,19 @@ function reToSurf {
     parameter vec.
     return v(vdot(vec, up:vector), vdot(vec, north:vector), vdot(vec, vcrs(up:vector, north:vector))).
 }
+
 function reFromSurf {
     parameter c.
     return up:vector*c:x + north:vector*c:y + vcrs(up:vector, north:vector)*c:z.
 }
+
 function reWrap360 { parameter a. return a - 360*floor(a/360). }
-function reArc {   
+
+function reArc {                                    // great-circle distance [m]
     parameter pA, pB.
     return body:radius * vang(pA - body:position, pB - body:position) * constant:pi/180.
 }
+
 function ReGuidInit {
     set reLastT   to time:seconds.
     set reLastVel to reToSurf(velocity:surface).
@@ -1741,6 +1740,9 @@ function ReGuidInit {
     set reGamF    to -1.
     set reOff     to -999.
     set reE1Term  to v(0,0,0).
+    set reE1Path  to v(0,0,0).
+    set reEpsF    to -999.
+    set reEpsDF   to 0.
     set reInit    to true.
 }
 
@@ -12674,10 +12676,6 @@ function ReEntryAndLand {
         set PitchInputOld to 0.
         set lastFuelBalanc to time:seconds.
         set Bellyflop to false.
-        set Once to false.
-        set LastLZChange to time:seconds.
-        set maxPitchPID to 38.
-        when airspeed < 310 then set maxPitchPID to 24.
         set SteeringManager:ROLLCONTROLANGLERANGE to 42.
         set steeringManager:pitchpid:kp to 0.55/Scale. //85
         set steeringManager:pitchpid:ki to 0.3. //45
@@ -12688,15 +12686,6 @@ function ReEntryAndLand {
         set steeringManager:rollpid:kp to 0.5/Scale. //1
         set steeringManager:rollpid:kd to 0.5. //36
         set LandingFlipStart to time:seconds.
-        if RSS {
-            set PitchPID_kp to 0.09.
-        }
-        else if KSRSS {
-            set PitchPID_kp to 0.2.
-        }
-        else {
-            set PitchPID_kp to 0.03.
-        }
 
         set addons:tr:descentmodes to list(true, true, true, true).
         set addons:tr:descentgrades to list(false, false, false, false).
@@ -12799,7 +12788,6 @@ function ReEntryAndLand {
         
         if DynamicBanking {
             set timesChecked to 0.
-            set trCompensation to trCompensation + 7000*(Scale^1.2).
             when alt:radar < 64000 * Scale then {
                 set timesChecked to timesChecked + 1.
                 //hudtext("Searching Tower..",3,2,16,yellow,true).
@@ -12844,7 +12832,6 @@ function ReEntryAndLand {
                         else if vAng(TowerHeadingVector, vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector)) < 42 set TowerHeading to "East".
                         else set TowerHeading to "West".
                         set dbactive to true.
-                        set reGActive to true.
                         set Vessel(TargetedOLM):loaddistance:landed:unpack to 1200.
                         wait 0.
                         set Vessel(TargetedOLM):loaddistance:landed:pack to 1250.
@@ -12862,7 +12849,6 @@ function ReEntryAndLand {
                         set Vessel(TargetedOLM):loaddistance:prelaunch:unload to 3250.
                         wait 0.001.
                         //hudtext("Unloading Tower.",3,2,16,green,true).
-                        if STOCK set trCompensation to 3600 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/60).
                     }
                 }
                 else hudtext("No Tower Found..",3,2,16,red,true).
@@ -12878,43 +12864,9 @@ function ReEntryAndLand {
             }
         }
 
-        set PitchPID to PIDLOOP(0.00005, 0.000001, 0.00001, -10, 10 - TRJCorrection).
-        set ChangeOverSensitivity to ship:body:radius * sqrt(9.81 / (ship:body:radius + ship:body:atm:height)) * 1.1.
-
         LngLatError().
 
-        if RSS {
-            when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.00005, 0.000001, 0.00002, -15, 17 - TRJCorrection). // 0.000025, 0, 0, -25, 30 - 
-            }
-            set YawPID to PIDLOOP(0.001, 0.000001, 0.000001, -42, 42).
-            when airspeed < 7000 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 3000 and ship:body:atm:sealevelpressure < 0.5 then {
-                set PitchPID to PIDLOOP(0.00005, 0.0000007, 0.00003, -25, 27 - TRJCorrection).
-                set YawPID to PIDLOOP(0.0018, 0.0000001, 0.001, -50, 50).
-            }
-        }
-        else if KSRSS {
-            when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.0005, 0, 0, -25, 27 + TRJCorrection). // 0.0025, 0, 0, -25, 30 + 
-            }
-            set YawPID to PIDLOOP(0.0035, 0, 0.00002, -50, 50).
-        }
-        else {
-            when airspeed < ChangeOverSensitivity then {
-                set PitchPID to PIDLOOP(0.0005, 0.000001, 0.00003, -25, 27 - TRJCorrection). // 0.0025, 0, 0, -25, 30 - 
-            }
-            set YawPID to PIDLOOP(0.004, 0.0000012, 0.002, -50, 50).
-        }
-        if AFTONLY {
-            set PitchPID:kp to PitchPID:kp * 0.95.
-            set PitchPID:ki to PitchPID:ki * 0.9.
-            set PitchPID:kd to PitchPID:kd * 1.2.
-            set YawPID:kp to YawPID:kp * 0.9.
-            set YawPID:ki to YawPID:ki * 0.9.
-            set YawPID:kd to YawPID:kd * 1.0.
-        }
-
-        when defined PitchPID then set ReentryVector to ReEntrySteering().
+        set ReentryVector to ReEntrySteering().
         when alt:radar < ship:body:atm:height * 1.1 then lock STEERING to ReentryVector.
 
 
@@ -12926,27 +12878,9 @@ function ReEntryAndLand {
                 set t to time:seconds.
                 if ship:body:atm:sealevelpressure < 0.5 {
                     setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 16).
-                    if RSS {
-                        set YawPID to PIDLOOP(0.0175, 0.015, 0.005, -50, 50).
-                    }
-                    else {
-                        set PitchPID:kp to 0.0005. //0.0025
-                    }
                 }
                 else {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 18).
-                    if not RSS set PitchPID:kp to 0.0004.
-                    else set PitchPID:kp to 0.00005.
-                }
-
-
-                if RSS and DynamicBanking when airspeed < 2435 then 
-                        set trCompensation to trCompensation + 6000 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-                if STOCK and DynamicBanking when airspeed < 1300 then
-                    set trCompensation to trCompensation + 4200 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-                if DynamicBanking when airspeed < 1200 or airspeed < 1800 and RSS then {
-                    set trCompensation to trCompensation + 2000/Scale * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-
                 }
                 when airspeed < 850 * Scale then {
                     set steeringManager:pitchpid:kp to 0.85.
@@ -12957,97 +12891,24 @@ function ReEntryAndLand {
                     set steeringManager:yawpid:kd to 0.75.
                     set steeringManager:rollpid:kp to 0.66.
                     set steeringManager:rollpid:kd to 0.36. 
-                    if DynamicBanking set YawBank to 3 * max(0.2,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-                    else set YawBank to 1.
-                    if RSS {
-                        set trCompensation to trCompensation + 5000 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-                        set PitchPID to PIDLOOP(0.0005, 0.0001, 0.001, -25, 26 - TRJCorrection).
-                        set YawPID to PIDLOOP(0.0026*YawBank, 0.00016*YawBank, 0.0008*YawBank, -50, 50).
-                    }
-                    else if KSRSS {
-                        set trCompensation to trCompensation + 4000 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-                        set PitchPID to PIDLOOP(0.001, 0, 0, -25, 26 + TRJCorrection).
-                        set YawPID to PIDLOOP(0.0045*YawBank, 0, 0.0002*YawBank, -50, 50).
-                    }
-                    else {
-                        set trCompensation to trCompensation + 3600 * (vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-                        set PitchPID to PIDLOOP(0.0008, 0.0001, 0.001, -25, 26 - TRJCorrection). 
-                        set YawPID to PIDLOOP(0.0028*YawBank, 0.0002*YawBank, 0.0006*YawBank, -50, 50).
-                    }
                 }
                 when airspeed < 900 then {
-                    if not DynamicBanking set trCompensation to trCompensation/1.5.
                     set PlotAoA to (currentAoA + PlotAoA + aoa)/3.
                 }
                 when airspeed < 600 then {
                     set aoa to LandingAoA.
                     set DescentAngles to list(aoa, aoa, aoa, aoa).
-                    set trCompensation to trCompensation/1.6.
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
                 }
 
                 when airspeed < 310 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 750 and ship:body:atm:sealevelpressure < 0.5 and KSRSS or airspeed < 2000 and ship:body:atm:sealevelpressure < 0.5 and RSS or airspeed < 450 and ship:body:atm:sealevelpressure < 0.5 and STOCK then {
                     set FuelBalanceSpeed to FuelBalanceSpeed*0.65.
                     set t to time:seconds.
-                    set trCompensation to 0.
                     if ship:body:atm:sealevelpressure > 0.5 {
-                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
-                        if RSS {
-                            set PitchPID:kp to 0.085.
-                            set PitchPID_kp to 0.085.
-                            set PitchPID:ki to 0.042. 
-                            set PitchPID:kd to 0.16. 
-                            set YawPID:kp to 0.03.
-                            set YawPID:ki to 0.018. 
-                            set YawPID:kd to 0.015. 
-                            set maxDeltaV to 480.
-                        }
-                        else if KSRSS {
-                            set PitchPID:kp to 0.2. //0.25
-                            set PitchPID_kp to 0.2.
-                            set PitchPID:ki to 0.02. //0.0225
-                            set PitchPID:kd to 0.03. //0.03
-                            set YawPID:kp to 0.02. //0.1
-                            set YawPID:ki to 0.025. //0.75
-                            set YawPID:kd to 0.012. //0.25
-                            set maxDeltaV to 440.
-                        }
-                        else {
-                            set PitchPID:kp to 0.03. //0.03
-                            set PitchPID_kp to 0.03.
-                            set PitchPID:ki to 0.016. //0.035
-                            set PitchPID:kd to 0.06. //0.028
-                            set YawPID:kp to 0.1. //0.1
-                            set YawPID:ki to 0.06. //0.075
-                            set YawPID:kd to 0.03. //0.025
-                            set maxDeltaV to 400.
-                        }
-                        if AFTONLY {
-                            set PitchPID:kp to PitchPID:kp * 0.95.
-                            set PitchPID:ki to PitchPID:ki * 0.9.
-                            set PitchPID:kd to PitchPID:kd * 1.2.
-                            set YawPID:kp to YawPID:kp * 0.9.
-                            set YawPID:ki to YawPID:ki * 0.9.
-                            set YawPID:kd to YawPID:kd * 1.0.
-                        }
+                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).                        
                     }
                     else {
                         setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 8).
-                        if RSS {
-                            //set PitchPID:kp to 0.01.
-                            set PitchPID:ki to 0.00005.
-                            set PitchPID:kd to 0.00001.
-                        }
-                        else if KSRSS {
-                            //set PitchPID:kp to 0.005.
-                            set PitchPID:ki to 0.0001.
-                            set PitchPID:kd to 0.00005.
-                        }
-                        else {
-                            set PitchPID:kp to 0.01.
-                            set PitchPID:ki to 0.0075.
-                            set PitchPID:kd to 0.005.
-                        }
                     }
                     set runningprogram to "Final Approach".
                     wait 0.1.
@@ -13196,40 +13057,28 @@ function ReEntrySteering {
         if RadarAlt > FlipAltitude + 100 {
             lock throttle to 0.
         }
-        set lastYaw to yawctrl.
 
+        set LngLatErrorList to LngLatError(). 
         ReGuidUpdate().
 
-        set LngLatErrorList to LngLatError().
-        if reGActive set LngLatErrorList[0] to reRangeErr.
-        local lngAoA is LngLatErrorList[0] - trCompensation.
-        if reGActive set lngAoA to reRangeErr.
-
-        if airspeed > 320 {
-            set aoa_adjust to min(max(-2 ,round(0.005*(lngAoA/(1000*Scale))^3 + 0.05*(lngAoA/1000),1)/2), 2).
-            set aoa to min(max(PlotAoA - 5 ,aoa + aoa_adjust), PlotAoA + 5).
-        }
-        else {
-            set aoa_adjust to min(max(0 , round(lngAoA/80, 1)),2).
-            set aoa to PlotAoA + aoa_adjust.
-        }
         if airspeed < 320 and currentAoA > 74 and time:seconds - ProgramStartTime > 2 set Bellyflop to true.
         else set Bellyflop to false.
-        if Bellyflop {
-            set PitchPID:kp to PitchPID_kp * max(0.5,(abs(LngLatErrorList[0])/50)^0.3) * max(1,5/max(1,abs(LngLatErrorList[0]))).
-            if abs(pitchctrl) > 0.5 * PitchPID:maxoutput and abs(yawctrl) > 0.5 * YawPID:maxoutput or abs(yawctrl) > 0.75 * YawPID:maxoutput or abs(pitchctrl) > 0.75 * PitchPID:maxoutput 
-                setflaps(FWDFlapDefault, AFTFlapDefault, 1, 40).
-            set minAoA to 70 - min(5,abs(LngLatErrorList[0])/50).
-        } else set minAoA to 42.
+        if Bellyflop set minAoA to 70.
+        else set minAoA to 42.
 
-        set PitchPID:maxoutput to min(abs(LngLatErrorList[0] / (60 * Scale) + 2), maxPitchPID).
-        set PitchPID:minoutput to -PitchPID:maxoutput.
-        set YawPID:maxoutput to min(abs(LngLatErrorList[1] / 30), 80).
-        if DynamicBanking and airspeed < 430 set YawPID:maxoutput to max( min(20,LngLatErrorList[1] / 18) ,   min(abs(LngLatErrorList[1] / 10), 55*(Scale^0.5) * max(0.7,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90))).
-        set YawPID:minoutput to -YawPID:maxoutput.
+        // --- guidance outputs ---
+        if reGActive or reTerm {
+            set yawctrl to round(reYawCmd, 1).
+            set DesiredAoA to reAoACmd.
+        }
+        else {  
+            set yawctrl to 0.
+            set DesiredAoA to aoa.
+        }
+        set maxAoA to round(90 * 32/max(32,min(abs(yawctrl),42)),1).
+        set DesiredAoA to min(max(minAoA, DesiredAoA), maxAoA).
+        set pitchctrl to DesiredAoA - aoa. 
 
-        set pitchctrl to round(-PitchPID:UPDATE(TIME:SECONDS, LngLatErrorList[0]),1).
-        set yawctrl to round(YawPID:UPDATE(TIME:SECONDS, LngLatErrorList[1]),1).
         if RadarAlt > 5000 {
             set SRFPRGD to srfprograde.
         }
@@ -13237,19 +13086,11 @@ function ReEntrySteering {
             set t to time:seconds.
             set SRFPRGD to srfprograde.
         }
-        if abs(LngLatErrorList[1]) > 8*Scale and yawctrl < min(40,abs(LngLatErrorList[1]))/2 set yawctrl to yawctrl * 2.
-        set yawctrl to (yawctrl+lastYaw)/2.
-        if yawctrl > YawPID:maxoutput set yawctrl to YawPID:maxoutput.
-        else if yawctrl < YawPID:minoutput set yawctrl to YawPID:minoutput.
-        if reGActive or reTerm set yawctrl to reYawCmd.
-        set maxAoA to round(90 * 32/max(32,min(abs(yawctrl),42)),1).
-        set DesiredAoA to min(max(minAoA , aoa + pitchctrl), maxAoA).
-        if reTerm set DesiredAoA to min(max(minAoA, reAoACmd), maxAoA).
 
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
 
-        //SteeringCompensation
+        //SteeringCompensation (unchanged)
         set steeringOffset to vAng(vxcl(facing:starvector, GuidVec:vector),facing:forevector).
         set yawOffset to vAng(vxcl(facing:topvector, GuidVec:vector),facing:forevector).
         if currentAoA > 77 set yawIncrease to min((max((yawOffset - 0.2) / 2, 0.05))^1.4, 1).
@@ -13269,49 +13110,30 @@ function ReEntrySteering {
 
         set resultVec to GuidVec:vector:normalized + vxcl(up:vector, vxcl(facing:forevector, GuidVec:vector:normalized))*yawIncrease + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
 
-        //set GuidVec to vecDraw(HeaderTank:position, 0.5 * GuidVec:vector, red, "Guid Vector", 25, true, 0.005, true, true).
-        //set ReentryVec to vecDraw(HeaderTank:position, 1 * resultVec, green, "Re-Entry Vector", 25, true, 0.005, true, true).
-
         if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + (resultVec:normalized - facing:forevector).
         else set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) + (resultVec:normalized - facing:forevector).
-        
-        //set ReentryRollVec to vecDraw(Tank:position, 1 * ReentryRoll, green, "Re-Entry Vector", 25, true, 0.005, true, true).
+
         set result to lookdirup(resultVec, ReentryRoll).
         set steeringOffsetFinal to vang(result:forevector, facing:forevector).
 
         clearscreen.
-        //set ReEntryVector to vecdraw(v(0, 0, 0), 1.5 * result:vector, green, "Re-Entry Vector", 25, true, 0.005, true, true).
-        print "LngError: " + round(LngLatErrorList[0]).
-        print "LatError: " + round(LngLatErrorList[1]).
-        print "AoA - Desired: " + round(DesiredAoA, 1).
+        print "Mode: " + reMode.
+        print "Range Err: " + round(reRangeErr) + " m   |  R_t: " + round(reRt) + " m".
+        print "AoA - Desired: " + round(DesiredAoA, 1) + "  (plan " + round(aoa,1) + ", Δ " + round(pitchctrl,1) + ")".
         print " |    Current: " + round(currentAoA,1).
-        print " |    Plotted: " + round(PlotAoA,1) + "  |  Planned: " + round(aoa,1).
-        print " ".
-        print "PitchCtrl: " + round(pitchctrl, 2).
-        print "MaxOutput: " + round(PitchPID:maxoutput, 2).
-        print "YawCtrl: " + round(yawctrl, 2).
-        print "MaxOutput: " + round(YawPID:maxoutput, 2).
+        print "Bank (yawctrl): " + round(yawctrl, 1).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
         print " ".
-        print "Current Mode: " + reMode.
-        print "AoA Cmd: " + round(reAoACmd, 1).
-        print "New Guid Err: " + round(reRangeErr,1).
-        print "New Guid Rt: " + round(reRt,1).
-        print " ".
-        print "TRJCorrection: " + round(TRJCorrection, 1).
+        print "LngError: " + round(LngLatErrorList[0]) + "  |  LatError: " + round(LngLatErrorList[1]).
         print "LngLatOffset: " + round(LngLatOffset,1).
         print "DistanceToTarget: " + round(DistanceToTarget,1).
-        print " ".
         print "Angular Velocity: " + round(ship:angularvel:mag,3).
-        if DynamicBanking and DBactive {
-            print "Tower Rotation: " + TowerHeading.
-        }
+        if DynamicBanking and DBactive print "Tower Rotation: " + TowerHeading.
 
         if ship:body:atm:sealevelpressure < 0.5 {
             print " ".
             print "Mass: " + round(ship:mass).
-            print " ".
             print "CancelTime: " + round(CancelTime).
             print "CancelDist: " + round(CancelDist).
             print "Dist: " + round(vxcl(up:vector, ship:position - landingzone:position):mag).
@@ -13326,6 +13148,7 @@ function ReEntrySteering {
         return result.
     }
 }
+
 
 
 function ReEntryData {
@@ -13667,7 +13490,6 @@ function ReEntryData {
 }
 
 
-// ---------- TERMINAL: glide slope (AoA) + L1 on the final line (bank) ----------
 function ReTermUpdate {
     parameter dt, L.
     local upV is up:vector.
@@ -13748,18 +13570,24 @@ function ReGuidUpdate {
         return.
     }
 
-    // --- path window ---
-    local active is DynamicBanking and dbactive and airspeed > reVEnd and RadarAlt > reAltEnd
+    // --- path window (any atmosphere, tower optional) ---
+    local active is ship:body:atm:exists and airspeed > reVEnd and RadarAlt > reAltEnd
                     and L > reLMin and addons:tr:hasimpact.
     if not active {
         if reGActive { set reGActive to false. set landingzone to TgtLandingzone. }
         return.
     }
-    if not reGActive { set reGActive to true. set landingzone to TgtLandingzone. }
+    if not reGActive {
+        set reGActive to true.
+        set landingzone to TgtLandingzone.
+        set reE1Path to vxcl(upV, TgtLandingzone:position - ship:position):normalized.   // straight-in fallback
+    }
+    local useHAC is DynamicBanking and dbactive.
 
     // --- 2D frame at the target ---
     local T   is TgtLandingzone:position.
-    local e1  is vxcl(upV, TowerHeadingVector):normalized * reApprSign.     // final approach
+    local e1  is reE1Path.
+    if useHAC set e1 to vxcl(upV, TowerHeadingVector):normalized * reApprSign.  // final approach
     local e2  is vxcl(upV, vcrs(upV, e1)):normalized.                        // across
     local rel is vxcl(upV, ship:position - T).
     local px  is vdot(rel, e1).
@@ -13809,6 +13637,7 @@ function ReGuidUpdate {
     // --- mode + reference point (L1) ---
     local thS  is atan2(dyc, dxc).
     local remS is reWrap360((thE - thS)*sig).            // remaining arc angle [deg]
+    if not useHAC { set reFinal to true. set L1 to min(L1, reKL1T*max(dT, 1)). }
     if not reFinal and (dC < R + L1) and (remS < 5 or remS > 300) set reFinal to true.
     if not reFinal and abs(py) < 0.3*R and vang(vh, e1) < 15 and px < 0 set reFinal to true.
 
@@ -13846,6 +13675,16 @@ function ReGuidUpdate {
     local sPred is reArc(ship:position, addons:tr:impactpos:position).
     set reRangeErr to sPred - sTg - LngLatOffset.
     local phiE is min(rePhiEMax, max(0, reKE*reRangeErr/max(sTg, R) * 57.3)).
+
+    // --- pitch: normalized range error -> AoA around the planned profile ---
+    local eps is reRangeErr/max(sTg, R).                                   // [-]
+    if reEpsF < -900 set reEpsF to eps.
+    local epsDot is (eps - reEpsF)/dt.
+    set reEpsF to eps.
+    set reEpsDF to reEpsDF + (epsDot - reEpsDF)*min(1, dt/(reEpsTau + dt)).
+    local dAoA is min(reDAoAMax, max(-reDAoAMax, reKA*eps*57.3 + reKAd*reEpsDF*57.3)).
+    if reAoACmd = 0 set reAoACmd to vang(facing:forevector, vel).
+    set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, (aoa + dAoA) - reAoACmd)).
 
     // --- bank command ---
     local rightV is vcrs(vel, upV):normalized.
