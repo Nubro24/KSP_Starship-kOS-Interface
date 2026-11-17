@@ -12,6 +12,7 @@ set TScale to 1.
 //_________________________________________
 
 set MissionName to "".
+set showTelemetry to true.
 
 set TFinstalled to false.
 for engines in ship:engines {
@@ -53,6 +54,13 @@ if homeconnection:isconnected if exists("0:/settings.json") {
         set TScale to L["TelemetryScale"].
     }
 }
+
+if homeconnection:isconnected if exists("0:/settings.json") {
+    set L to readjson("0:/settings.json").
+    if L:haskey("showTelemetry") {
+        set showTelemetry to L["showTelemetry"].
+    }
+} 
 
 if homeconnection:isconnected {
     if config:arch {
@@ -1069,7 +1077,7 @@ if bodyexists("Earth") {
         set offshoreSite to latlng(28.50895,-80.4).
         set BoosterHeight to 42.2.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 3200. //3000
+        set LFBoosterFuelCutOff to 2100. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -1110,7 +1118,7 @@ else {
         }
         set BoosterHeight to 42.2.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 3000. //3000
+        set LFBoosterFuelCutOff to 2100. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -1144,7 +1152,7 @@ else {
         set offshoreSite to latlng(-0.097,-73).
         set BoosterHeight to 42.2.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2750.
+        set LFBoosterFuelCutOff to 2900.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
@@ -1187,7 +1195,7 @@ set maxAoA to 12.
 if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
 
 if BoosterType:contains("Block3") {
-    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.275/(Scale^0.8).
+    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.17/(Scale^0.8).
     set BoosterHeight to 45.4*Scale.
     if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
     else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.15*Scale.
@@ -1253,9 +1261,11 @@ if exists("0:/BoosterFlightData.csv") {
 
 
 //catchVarIni
-set cgThrFloorA to 0.9.
-set cgThrLow    to 0.8.
-set cgThrB      to 0.7.
+set cgThrFloorA to 0.95.
+if Bl3LndProf set cgThrLow    to 0.8.
+else set cgThrLow    to 0.92.
+if Bl3LndProf set cgThrB      to 0.75.
+else set cgThrB      to 0.9.
 set cgThrMargin to 0.05.
 set cgThrMin    to 0.33.
 set cgPhaseDrop to 0.6.
@@ -1351,7 +1361,6 @@ function CatchIgnitionCheck {
     local vel  is velocity:surface.
     local tI   is IgnitionTime + cgIgnExtra.
 
-    // coast prediction to the moment the engines are lit
     local aCoast is -upV*gMag - vel:normalized*DragDecel.
     local velP is vel + aCoast*tI.
     local dz   is cgHeightAboveArms() - cgEndHeight + vdot(vel, upV)*tI + 0.5*vdot(aCoast, upV)*tI^2.
@@ -1364,7 +1373,7 @@ function CatchIgnitionCheck {
     local cosT is max(0.2, vdot(-velP:normalized, upV)).
     local s    is (dz - (cgHG - cgEndHeight))/cosT.
     local aMax is maxDecel + gMag.
-    if s <= 1 set cgThrReqIgn to 99.                                   // below gate -> late
+    if s <= 1 set cgThrReqIgn to 99. 
     else set cgThrReqIgn to ((velP:mag^2 - vG^2)/(2*s) + gMag*cosT - DragDecel)/aMax.
 
     if cgThrReqIgn >= cgThrFloorA {
@@ -1496,7 +1505,7 @@ until False {
         set starship to ship:name.
         set OnceShipName to true.
     }
-    bTelemetry:show().
+    if showTelemetry bTelemetry:show().
     if ShipConnectedToBooster = "false" and not (ship:status = "LANDED") and altitude > 10000 {
         Boostback().
     }
@@ -1523,6 +1532,7 @@ until False {
     set command to "".
     UNTIL NOT CORE:MESSAGES:EMPTY {}
     SET RECEIVED TO CORE:MESSAGES:POP.
+    print "Message: " + RECEIVED:CONTENT.
         if RECEIVED:CONTENT:CONTAINS(",") {
             set message to RECEIVED:CONTENT:SPLIT(",").
             set command to message[0].
@@ -1570,6 +1580,13 @@ until False {
     else if command = "fullAuto" {
         if MesParameter = "true" set fullAuto to true.
         else set fullAuto to false.
+    }
+    else if command = "showTelemetry" {
+        if MesParameter = "True" set showTelemetry to true.
+        else set showTelemetry to false.
+        wait 0.
+        if showTelemetry bTelemetry:show().
+        else bTelemetry:hide().
     }
     else if command = "highSplash" {
         if MesParameter = "true" set highSplash to true.
@@ -3587,7 +3604,7 @@ FUNCTION SteeringCorrections {
             else if LandingBurnStarted set LngCtrlPID:setpoint to 0.
             if dbactive and not LandingBurnStarted {
                 set LatCtrlPID:setpoint to (vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90).
-                set LngCtrlPID:setpoint to min(100*Scale, LngCtrlPID:setpoint * ((vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector))-90)/36)^0.4).
+                set LngCtrlPID:setpoint to min(100*Scale, LngCtrlPID:setpoint * max(0.7,(-vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector))+180)/60)^0.4).
             }
             else if LandingBurnStarted set LatCtrlPID:setpoint to 0.
         } 
@@ -4414,14 +4431,13 @@ function setTowerHeadingVector {
 
 function GetBoosterRotation {
     if not (TargetOLM = "false") and RadarAlt < 240 * Scale and GfC and not LandSomewhereElse and not cAbort {
-        //set TowerHeadingVector to vxcl(up:vector, Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position - Vessel(TargetOLM):PARTSTITLED("Starship Orbital Launch Integration Tower Base")[0]:position).
         if PadB {
             if RadarAlt < 0.9*BoosterHeight {
                 set varVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.3-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position).
                 set varPredctVec to vxcl(up:vector, BoosterCore:position + BoosterCore:facing:forevector*(BoosterHeight*0.4-RadarAlt) - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + min(3,cgTgo)*GSVec*0.2).
             } else {
                 set varVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position).
-                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + cgTgo*GSVec*0.3).
+                set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position + cgTgo*GSVec*0.5).
             }
         } else {
             if RadarAlt < 0.9*BoosterHeight {
@@ -4432,13 +4448,14 @@ function GetBoosterRotation {
                 set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + cgTgo *GSVec*0.3).
             }
         }
-        set varVecFinal to varVec + varVec/2.
+        set varVecFinal to varVec + varPredctVec/2.
         set varFinal to vang(varVecFinal, TowerHeadingVector).
 
         if vAng(vCrs(TowerHeadingVector,up:vector),varVecFinal) < 90 set varFinal to -varFinal.
 
+        set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position,varVecFinal,yellow,"Arm Angle",2,true,0.05).
+        set drawTHV to vecDraw(Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position,2.1*TowerHeadingVector:normalized,red,"THV",1,true, 0.1).
         //set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,varVecFinal,yellow,"Arm Angle",2,true,0.05).
-
         //set drawTHV to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,2.1*TowerHeadingVector:normalized,red,"THV",1,true, 0.1).
 
         return min(max(varFinal, -64), 48).

@@ -1705,8 +1705,8 @@ set slDistTau   to 0.7.
 set slDistGainV to 0.5.
 set slDistGainH to 0.
 set slTiltMax   to 55.
-set slTiltMin   to 6.
-set slTiltH     to 6.        // [ShipHeights] damp start
+set slTiltMin   to 8.
+set slTiltH     to 4.        // [ShipHeights] damp start
 set slEndHeight to 1.5*Scale.
 set slFloor     to -1.
 set slTauHMin  to 12.      // [s]   horizontal stiffness 
@@ -2497,7 +2497,7 @@ set HideInterfaceSetting:onclick to {
     else set HISettingLabel:text to "Currently Off".
 }.
 
-local ShowTelemetrySetting is FlightSettingsLayout:addbutton(" Show Telemtry").
+local ShowTelemetrySetting is FlightSettingsLayout:addbutton(" Show Telemetry").
     set ShowTelemetrySetting:style:fontsize to 16.
     set ShowTelemetrySetting:style:margin:left to 24.
     set ShowTelemetrySetting:style:margin:top to 24.
@@ -2516,10 +2516,12 @@ set ShowTelemetrySetting:onclick to {
     SaveToSettings("showTelemetry", showTelemetry).
     if showTelemetry {
         set STSettingLabel:text to "Currently On".
+        if Boosterconnected sendMessage(processor(Volume("Booster")),"showTelemetry,"+showTelemetry).
         sTelemetry:show().
     }
     else {
         set STSettingLabel:text to "Currently Off".
+        if Boosterconnected sendMessage(processor(Volume("Booster")),"showTelemetry,"+showTelemetry).
         sTelemetry:hide().
     }
 }.
@@ -8761,6 +8763,7 @@ function Launch {
             if not BoosterType:contains("Block3") {
                 set EngineStartTime to time:seconds.
                 if PadB lock throttle to 0 + min(0.5,(time:seconds-EngineStartTime)*1.1).
+                else lock throttle to 0.5.
                 if not BoosterSingleEngines BoosterEngines[0]:getmodule("ModuleSEPEngineSwitch"):DOACTION("next engine mode", true).
 
                 wait 0.02. 
