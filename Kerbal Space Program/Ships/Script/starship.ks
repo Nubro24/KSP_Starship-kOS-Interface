@@ -1680,15 +1680,41 @@ function FindParts {
 
 //-------------Initial Program Start-Up--------------------//
 
-set rePhiMaxP  to 32.      // [deg]  max bank in PURSUIT (lead-in, away from target)
-set rePhiMaxH  to 80.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
+
+set rsKpP   to 0.04.    // [1/deg]  stiffness
+set rsKdP   to 0.06.    // [s/deg]  damping
+set rsKpY   to 0.04.
+set rsKdY   to 0.06.
+set rsKpR   to 0.03.
+set rsKdR   to 0.05.
+set rsSlew  to 0.8.     // [1/s]    max change of the control input per second
+set rsTauU  to 0.25.    // [s]      output smoothing
+set rsTauD  to 0.6.     // [s]      derivative filter
+set rsSgnP  to 1.
+set rsSgnY  to 1.
+set rsSgnR  to 1.
+set rsActive to false.
+
+function ReRawSteerInit {
+    set rsLastT to time:seconds.
+    set rsLastE to v(0,0,0).
+    set rsED    to v(0,0,0).
+    set rsU     to v(0,0,0).
+    set rsUS    to v(0,0,0).
+    set rsActive to true.
+    unlock steering.
+}
+
+
+set rePhiMaxP  to 42.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
 set rePhiPlan  to 50.      // [deg]  bank the turn circle is sized for (margin to 75°)
-set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
-set rePhiMax   to 32.      // [deg]  max bank
-set reKL1      to 0.8.     // [-]    L1 = k·R_t   (larger = smoother, slower)
+set reBankRate to 3.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
+set rePhiMax   to 45.      // [deg]  max bank
+set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
-set reRCap     to 1.0.    // [-]    R_t ≤ reRCap · distance to target
-set reKE       to 0.8.     // [-]    energy-bank gain
+set reRCap     to 0.8.    // [-]    R_t ≤ reRCap · distance to target
+set reKE       to 0.6.     // [-]    energy-bank gain
 set rePhiEMax  to 45.      // [deg]  max energy bank
 set reYawSign  to 1.
 set reApprSign to 1.       // [-]    final approach along +TowerHeadingVector (−1 = opposite)
@@ -1696,7 +1722,7 @@ set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off
 set reVEnd     to 330.
 set reAltEnd   to 750.
 set reAccTau   to 1.0.     // [s]    aero accel filter
-set reRTau     to 5.0.     // [s]    turn radius filter
+set reRTau     to 8.0.     // [s]    turn radius filter
 set reVTerm    to 330.     // [m/s]  below: terminal glide-slope mode
 set reKGam     to 1.5.     // [-]    path-angle feedback (deg AoA per deg γ error)
 set reOffTau   to 15.      // [s]    learning time constant of the glide offset
@@ -1709,9 +1735,11 @@ set reEpsTau   to 2.0.     // [s]    filter on dε/dt
 set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
-set reBankExp  to 1.0.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 8.  // [deg]  deorbit aims this far past the target
-set reVHac     to 750*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
+set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
+set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
+set reVHac     to 650*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
+set reAoAMinT to 74.
+set reAoAMaxT to 86.
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -1753,7 +1781,8 @@ function ReGuidInit {
     set reEpsDF   to 0.
     set reLastVelO to velocity:orbit.
     set reAeroV    to v(0,0,0).
-    set reApprHdg to vxcl(up:vector, velocity:surface).
+    if not (defined reApprHdg) set reApprHdg to 0.
+    set reSPred to 0.
     set rePhiF to 0.
     set reHACLatch to false.
     set reInit    to true.
@@ -12689,16 +12718,6 @@ function ReEntryAndLand {
         set PitchInputOld to 0.
         set lastFuelBalanc to time:seconds.
         set Bellyflop to false.
-        set SteeringManager:ROLLCONTROLANGLERANGE to 42.
-        set steeringManager:pitchpid:kp to 0.3.
-        set steeringManager:pitchpid:ki to 0.5. 
-        set steeringManager:pitchpid:kd to 0.32.
-        set steeringManager:yawpid:kp to 0.3. 
-        set steeringManager:yawpid:ki to 0.5. 
-        set steeringManager:yawpid:kd to 0.32.
-        set steeringManager:rollpid:kp to 0.3.
-        set steeringManager:rollpid:ki to 0.3.
-        set steeringManager:rollpid:kd to 0.5.
         set LandingFlipStart to time:seconds.
 
         set addons:tr:descentmodes to list(true, true, true, true).
@@ -12884,7 +12903,10 @@ function ReEntryAndLand {
         LngLatError().
 
         set ReentryVector to ReEntrySteering().
-        when alt:radar < ship:body:atm:height * 1.1 then lock STEERING to ReentryVector.
+        when alt:radar < ship:body:atm:height * 1.1 then {
+            ReRawSteerInit().
+            when true then { if rsActive ReRawSteer(result). return rsActive. }
+        }
 
 
 
@@ -12899,20 +12921,10 @@ function ReEntryAndLand {
                 else {
                     setflaps(FWDFlapDefault, AFTFlapDefault, 1, 18).
                 }
-                when airspeed < 850 * Scale then {
-                    set steeringManager:pitchpid:kp to 0.85.
-                    set steeringManager:pitchpid:ki to 0.42. 
-                    set steeringManager:pitchpid:kd to 0.75.
-                    set steeringManager:yawpid:kp to 0.75. 
-                    set steeringManager:yawpid:ki to 0.42. 
-                    set steeringManager:yawpid:kd to 0.75.
-                    set steeringManager:rollpid:kp to 0.66.
-                    set steeringManager:rollpid:kd to 0.36. 
-                }
-                when airspeed < 900 then {
+                when airspeed < 1000*Scale then {
                     set PlotAoA to (currentAoA + PlotAoA + aoa)/3.
                 }
-                when airspeed < 600 then {
+                when airspeed < 700*Scale then {
                     set aoa to LandingAoA.
                     set DescentAngles to list(aoa, aoa, aoa, aoa).
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
@@ -13063,7 +13075,7 @@ function ReEntrySteering {
     if not SteeringIsRunning {
         set SteeringIsRunning to true.
         if aoa:typename = "String" {set aoa to (aoa):toscalar.}
-        if steeringManager:angleerror > 4 or (airspeed < 124 and alt:radar > 7000) {
+        if steeringManager:angleerror > 4 and alt:radar > 12000 or (airspeed < 124 and alt:radar > 7000) {
             rcs on.
         }
         else if angularVel:mag < 0.02 {
@@ -13507,6 +13519,45 @@ function ReEntryData {
 }
 
 
+function ReRawSteer {
+    parameter tgt. 
+    local now is time:seconds.
+    local dt is now - rsLastT.
+    if dt < 0.001 return.
+    set rsLastT to now.
+
+    local rawtF is tgt:forevector.
+    local rawtT is tgt:topvector.
+    local rawe is v(arctan2(vdot(rawtF, facing:topvector),  vdot(rawtF, facing:forevector)),
+                 arctan2(vdot(rawtF, facing:starvector), vdot(rawtF, facing:forevector)),
+                 arctan2(vdot(rawtT, facing:starvector), vdot(rawtT, facing:topvector))).
+
+    set rsED to rsED + ((rawe - rsLastE)/dt - rsED)*min(1, dt/(rsTauD + dt)).
+    set rsLastE to rawe.
+
+    local uStar is v(rsSgnP*(rsKpP*rawe:x + rsKdP*rsED:x),
+                     rsSgnY*(rsKpY*rawe:y + rsKdY*rsED:y),
+                     rsSgnR*(rsKpR*rawe:z + rsKdR*rsED:z)).
+    // clamp to ±1
+    set uStar to v(min(1,max(-1,uStar:x)), min(1,max(-1,uStar:y)), min(1,max(-1,uStar:z))).
+
+    // slew limit (flap speed) then first-order smoothing
+    local rawd is uStar - rsUS.
+    local rawm is rsSlew*dt.
+    set rsUS to rsUS + v(min(rawm,max(-rawm,rawd:x)), min(rawm,max(-rawm,rawd:y)), min(rawm,max(-rawm,rawd:z))).
+    set rsU  to rsU + (rsUS - rsU)*min(1, dt/(rsTauU + dt)).
+
+    set ship:control:pitch to rsU:x.
+    set ship:control:yaw   to rsU:y.
+    set ship:control:roll  to rsU:z.
+}
+
+function ReRawSteerStop {
+    set rsActive to false.
+    set ship:control:neutralize to true.
+}
+
+
 function ReTermUpdate {
     parameter dt, reLift.
     local upV is up:vector.
@@ -13515,7 +13566,9 @@ function ReTermUpdate {
 
     // final approach direction: tower heading if known, else frozen velocity heading
     if reE1Term:mag < 0.5 {
-        if dbactive set reE1Term to vxcl(upV, TowerHeadingVector):normalized * reApprSign.
+        local upT is (landingzone:position - body:position):normalized.
+        local nT2  is vxcl(upT, latlng(90,0):position - landingzone:position):normalized.
+        if dbactive set reE1Term to vxcl(upV, nT2*cos(reApprHdg) + vcrs(upT, nT2)*sin(reApprHdg)):normalized * reApprSign.
         else set reE1Term to vh:normalized.
     }
     local e1 is reE1Term.
@@ -13539,6 +13592,7 @@ function ReTermUpdate {
     set reOff to reOff + ((reGamF - aoaNow) - reOff)*min(1, dt/(reOffTau + dt)).
 
     local aoaRaw is gReq - reOff - reKGam*(reGamF - gReq).
+    set aoaRaw to min(reAoAMaxT, max(reAoAMinT, aoaRaw)).
     if reAoACmd = 0 set reAoACmd to aoaNow.
     set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, aoaRaw - reAoACmd)).
 
@@ -13588,8 +13642,9 @@ function ReGuidUpdate {
     }
 
     // --- path window (any atmosphere, tower optional) ---
-    local active is ship:body:atm:exists and airspeed > reVEnd and RadarAlt > reAltEnd
-                    and reLift > reLMin and addons:tr:hasimpact.
+    local mustEnd is airspeed < reVEnd or RadarAlt < reAltEnd or not ship:body:atm:exists.
+    local canStart is reLift > reLMin and addons:tr:hasimpact.
+    local active is not mustEnd and (reGActive or canStart).
     if not active {
         if reGActive { set reGActive to false. set landingzone to TgtLandingzone. }
         return.
@@ -13599,7 +13654,7 @@ function ReGuidUpdate {
         set landingzone to TgtLandingzone.
         set reE1Path to vxcl(upV, TgtLandingzone:position - ship:position):normalized.
     }
-    local useHAC is DynamicBanking and dbactive.
+    local useHAC is DynamicBanking and dbactive or RadarAlt > 0.8*ship:body:atm:height.
 
     // --- 2D frame at the target ---
     local reT   is TgtLandingzone:position.
@@ -13659,7 +13714,7 @@ function ReGuidUpdate {
     // --- mode + reference point (L1) ---
     local thS  is arctan2(dyc, dxc).
     local remS is reWrap360((thE - thS)*sig).
-    if not useHAC { set reFinal to true. set L1 to min(L1, reKL1T*max(dTgt)). }
+    if not useHAC { set reFinal to true. set L1 to min(L1, reKL1T*max(dTgt, 1)). }
     if not reFinal and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
     if not reFinal and abs(py) < 0.3*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
 
@@ -13703,7 +13758,8 @@ function ReGuidUpdate {
     local cCur is max(0.2, cos(rePhiF)^reBankExp).
     local cArc is max(0.2, cos(rePhiPlan)^reBankExp).
     local sReq is sCur/cCur + sArc/cArc + Df.
-    local sPred is reArc(ship:position, addons:tr:impactpos:position).
+    if addons:tr:hasimpact set reSPred to reArc(ship:position, addons:tr:impactpos:position).
+    local sPred is reSPred.
     set reRangeErr to sPred - sReq - LngLatOffset.
     local epsSat is reDAoAMax/(57.3*max(reKA, 0.01)).
     local phiE is min(rePhiEMax, max(0, reKE*(reRangeErr/max(sTg, reRt2) - epsSat)*57.3)).
@@ -13733,8 +13789,8 @@ function ReGuidUpdate {
     set reYawCmd to reYawCmd + max(-reBankRate*dt, min(reBankRate*dt, yawRaw - reYawCmd)).
 
     // == Debug ==
-    //set reDrawC to vecDraw(T + e1*cx + e2*cy, upV*reRt2*0.1, yellow, "HAC c", 1, true, 1).
-    //set reDrawR to vecDraw(v(0,0,0), (T + e1*rx + e2*ry) - ship:position, green, "ref " + reMode, 1, true, 0.5).
+    //set reDrawC to vecDraw(reT + e1*cx + e2*cy, upV*reRt2*0.1, yellow, "HAC c", 1, true, 1).
+    //set reDrawR to vecDraw(v(0,0,0), (reT + e1*rx + e2*ry) - ship:position, green, "ref " + reMode, 1, true, 0.5).
 }
 
 
@@ -13749,6 +13805,7 @@ function ReGuidUpdate {
             unlock throttle.
             rcs off.
             set steeringManager:maxstoppingtime to 6.5*(Scale^0.6).
+            ReRawSteerStop().
 
             set FlipCancelRunning to true.
             set goVert to false.
