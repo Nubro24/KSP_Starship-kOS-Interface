@@ -1687,7 +1687,7 @@ set reKf       to 0.6.     // [-]    straight final = k·R_t
 set reRCap     to 0.45.    // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 1.5.     // [-]    energy-bank gain
 set rePhiEMax  to 45.      // [deg]  max energy bank
-set reYawSign  to 1.       // [-]    flip to −1 if the ship turns AWAY from the path
+set reYawSign  to -1.       // [-]    flip to −1 if the ship turns AWAY from the path
 set reApprSign to 1.       // [-]    final approach along +TowerHeadingVector (−1 = opposite)
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
 set reVEnd     to 330.     // [m/s]  path mode ends below this (terminal mode takes over)
@@ -12934,7 +12934,7 @@ function ReEntryAndLand {
                         }
                         if ship:body:atm:sealevelpressure > 0.5 {
                             when RadarAlt < 1800 then {
-                                if (currentdeltav > maxDeltaV*1.03 or LFShip > 0.75*FuelVentCutOffValue) and ship:body:atm:sealevelpressure > 0.5 {
+                                if LFShip > 0.8*FuelVentCutOffValue and ship:body:atm:sealevelpressure > 0.5 {
                                     sCMNTank:activate.
                                     when currentdeltav < maxDeltaV and LFShip < 0.75*FuelVentCutOffValue then {
                                         sCMNTank:shutdown.
@@ -13508,13 +13508,13 @@ function ReTermUpdate {
     local py is vdot(rel, e2).
     local vx is vdot(vh, e1).
     local vy is vdot(vh, e2).
-    local V  is max(1, vh:mag).
+    local reVh  is max(1, vh:mag).
 
     // --- glide slope ---
     local s    is max(1, LngLatOffset - px).                   // [m] to aim point along final
     local h    is max(1, RadarAlt).
     local gReq is arctan(h/s).
-    local gRaw is arctan(max(0, -verticalspeed)/V).
+    local gRaw is arctan(max(0, -verticalspeed)/reVh).
     if reGamF < 0 set reGamF to gRaw.
     set reGamF to reGamF + (gRaw - reGamF)*min(1, dt/(reGamTau + dt)).
     local aoaNow is vang(facing:forevector, vel).
@@ -13526,14 +13526,14 @@ function ReTermUpdate {
     set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, aoaRaw - reAoACmd)).
 
     // --- lateral: L1 on the final line ---
-    local Rt  is V^2/(max(L, 0.1)*sin(rePhiPlan)).
+    local Rt  is reVh^2/(max(L, 0.1)*sin(rePhiPlan)).
     local L1  is max(50, min(reKL1*Rt, reKL1T*s)).
     local rx  is px + max(sqrt(max(0, L1^2 - py^2)), 0.2*L1).
     local dx  is rx - px.
     local dy  is -py.
     local dRef is max(1, sqrt(dx^2 + dy^2)).
-    local sinEta is (vx*dy - vy*dx)/(V*dRef).
-    local aLat is 2*V^2/max(L1, dRef)*sinEta.
+    local sinEta is (vx*dy - vy*dx)/(reVh*dRef).
+    local aLat is 2*reVh^2/max(L1, dRef)*sinEta.
     local aVec is (e1*(-vy) + e2*vx):normalized * aLat.
     local sgn is 1.
     if vdot(aVec, vcrs(vel, upV)) < 0 set sgn to -1.
@@ -13595,51 +13595,51 @@ function ReGuidUpdate {
     local vh  is vxcl(upV, vel).
     local vx  is vdot(vh, e1).
     local vy  is vdot(vh, e2).
-    local V   is max(1, vh:mag).
+    local reVh   is max(1, vh:mag).
     local dT  is reArc(ship:position, T).
 
     // --- turn radius (filtered, capped) ---
-    local Rraw is min(V^2/(L*sin(rePhiPlan)), reRCap*dT).
+    local Rraw is min(reVh^2/(L*sin(rePhiPlan)), reRCap*dT).
     if reRt <= 0 set reRt to Rraw.
     set reRt to reRt + (Rraw - reRt)*min(1, dt/(reRTau + dt)).
-    local R  is max(reRt, 1).
-    local Df is reKf*R.
-    local L1 is reKL1*R.
+    local reRt2  is max(reRt, 1).
+    local Df is reKf*reRt2.
+    local L1 is reKL1*reRt2.
 
     // side: frozen on first activation
     if reSide = 0 { if py >= 0 set reSide to 1. else set reSide to -1. }
     local cx is -Df.
-    local cy is reSide*R.
-    local sig is reSide.                                  // circulation sense
-    local thE is atan2(-reSide*R, 0).
+    local cy is reSide*reRt2.
+    local sig is reSide. 
+    local thE is arctan2(-reSide*reRt2, 0).
 
     // --- tangent point from the ship onto the circle ---
     local dxc is px - cx.
     local dyc is py - cy.
     local dC  is sqrt(dxc^2 + dyc^2).
-    local qx is cx. local qy is cy + R.  local arcQ is 0.
-    if dC > R {
-        local beta is arccos(R/dC).
-        local thP  is atan2(dyc, dxc).
+    local qx is cx. local qy is cy + reRt2.  local arcQ is 0.
+    if dC > reRt2 {
+        local beta is arccos(reRt2/dC).
+        local thP  is arctan2(dyc, dxc).
         local best is -1e9.
         for th in list(thP + beta, thP - beta) {
-            local tx is cx + R*cos(th).
-            local ty is cy + R*sin(th).
-            local tvx is -sig*sin(th).                    // circulation tangent
+            local tx is cx + reRt2*cos(th).
+            local ty is cy + reRt2*sin(th).
+            local tvx is -sig*sin(th).
             local tvy is  sig*cos(th).
             local score is (tx - px)*tvx + (ty - py)*tvy.
             if score > best { set best to score. set qx to tx. set qy to ty. }
         }
     }
-    local thQ is atan2(qy - cy, qx - cx).
-    set arcQ to R*reWrap360((thE - thQ)*sig)*constant:pi/180.
+    local thQ is arctan2(qy - cy, qx - cx).
+    set arcQ to reRt2*reWrap360((thE - thQ)*sig)*constant:pi/180.
 
     // --- mode + reference point (L1) ---
-    local thS  is atan2(dyc, dxc).
+    local thS  is arctan2(dyc, dxc).
     local remS is reWrap360((thE - thS)*sig).            // remaining arc angle [deg]
     if not useHAC { set reFinal to true. set L1 to min(L1, reKL1T*max(dT, 1)). }
-    if not reFinal and (dC < R + L1) and (remS < 5 or remS > 300) set reFinal to true.
-    if not reFinal and abs(py) < 0.3*R and vang(vh, e1) < 15 and px < 0 set reFinal to true.
+    if not reFinal and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
+    if not reFinal and abs(py) < 0.3*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
 
     local rx is qx. local ry is qy.
     local sTg is 0.
@@ -13649,35 +13649,35 @@ function ReGuidUpdate {
         set rx to px + max(ahead, 0.2*L1).
         set ry to 0.
         set sTg to max(0, -px).
-    } else if dC > R + L1 {
+    } else if dC > reRt2 + L1 {
         set reMode to "PURSUIT".
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else {
         set reMode to "HAC".
         // point on the circle at distance L1 ahead of the ship's angular position
-        local L1e is max(L1, abs(dC - R) + 1).
-        local cosA is max(-1, min(1, (dC^2 + R^2 - L1e^2)/(2*dC*R))).
+        local L1e is max(L1, abs(dC - reRt2) + 1).
+        local cosA is max(-1, min(1, (dC^2 + reRt2^2 - L1e^2)/(2*dC*reRt2))).
         local thR is thS + sig*arccos(cosA).
-        set rx to cx + R*cos(thR).
-        set ry to cy + R*sin(thR).
-        set sTg to R*remS*constant:pi/180 + Df.
+        set rx to cx + reRt2*cos(thR).
+        set ry to cy + reRt2*sin(thR).
+        set sTg to reRt2*remS*constant:pi/180 + Df.
     }
 
     // --- L1 lateral acceleration ---
     local dx is rx - px.
     local dy is ry - py.
     local dRef is max(1, sqrt(dx^2 + dy^2)).
-    local sinEta is (vx*dy - vy*dx)/(V*dRef).
-    local aLat is 2*V^2/max(L1, dRef)*sinEta.             // [m/s²], + = toward CCW-perp
+    local sinEta is (vx*dy - vy*dx)/(reVh*dRef).
+    local aLat is 2*reVh^2/max(L1, dRef)*sinEta.             // [m/s²], + = toward CCW-perp
     local aVec is (e1*(-vy) + e2*vx):normalized * aLat.   // 3D, horizontal
 
     // --- downrange / energy ---
     local sPred is reArc(ship:position, addons:tr:impactpos:position).
     set reRangeErr to sPred - sTg - LngLatOffset.
-    local phiE is min(rePhiEMax, max(0, reKE*reRangeErr/max(sTg, R) * 57.3)).
+    local phiE is min(rePhiEMax, max(0, reKE*reRangeErr/max(sTg, reRt2) * 57.3)).
 
     // --- pitch: normalized range error -> AoA around the planned profile ---
-    local eps is reRangeErr/max(sTg, R).                                   // [-]
+    local eps is reRangeErr/max(sTg, reRt2).                                   // [-]
     if reEpsF < -900 set reEpsF to eps.
     local epsDot is (eps - reEpsF)/dt.
     set reEpsF to eps.

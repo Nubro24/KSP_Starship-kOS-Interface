@@ -1262,9 +1262,9 @@ if exists("0:/BoosterFlightData.csv") {
 
 //catchVarIni
 set cgThrFloorA to 0.95.
-if Bl3LndProf set cgThrLow    to 0.8.
+if Bl3LndProf set cgThrLow    to 0.85.
 else set cgThrLow    to 0.92.
-if Bl3LndProf set cgThrB      to 0.75.
+if Bl3LndProf set cgThrB      to 0.8.
 else set cgThrB      to 0.9.
 set cgThrMargin to 0.05.
 set cgThrMin    to 0.33.
@@ -1968,7 +1968,7 @@ function Boostback {
 
         set flipStartTime to time:seconds.
 
-        when time:seconds > flipStartTime + FlipTime*0.6 then {
+        when time:seconds > flipStartTime + FlipTime*0.8 then {
             lock SteeringVector to lookdirup(vxcl(up:vector, -ErrorVector), up:vector + facing:topvector*1.1).
             lock steering to SteeringVector.
         }
