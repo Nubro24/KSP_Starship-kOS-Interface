@@ -13306,8 +13306,6 @@ function ReEntrySteering {
         print "Angular Velocity: " + round(ship:angularvel:mag,3).
         if DynamicBanking and DBactive {
             print "Tower Rotation: " + TowerHeading.
-            if defined bankLAT print "TgtMovLAT: " + bank*bankLAT.
-            if defined bankLNG print "TgtMovLNG: " + bankLNG.
         }
 
         if ship:body:atm:sealevelpressure < 0.5 {
