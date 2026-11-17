@@ -884,7 +884,7 @@ when NOT CORE:MESSAGES:EMPTY then {
 
 function FindParts {
     wait 0.
-    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 or ship:partsnamed("SEP.24.SHIP.CORE"):length > 0 or ship:partsnamed("SEP.26.SHIP.CORE"):length > 0) if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0  and SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE"):length = 0 {
+    if ship:partsnamed("SEP.24.SHIP.PROTO.BODY"):length < 1 and (ship:partsnamed("SEP.23.SHIP.BODY"):length > 0 or ship:partsnamed("SEP.24.SHIP.CORE"):length > 0 or ship:partsnamed("SEP.26.SHIP.DOCKING.HARDWARE.M"):length > 0 or ship:partsnamed("SEP.26.SHIP.DOCKING.HARDWARE.F"):length > 0) if ship:dockingports[0]:haspartner and SHIP:PARTSNAMED("SEP.23.BOOSTER.INTEGRATED"):length = 0  and SHIP:PARTSNAMED("SEP.25.BOOSTER.CORE"):length = 0  and SHIP:PARTSNAMED("SEP.26.BOOSTER.CORE"):length = 0 {
         set ShipIsDocked to true.
     }
     else {
@@ -1680,11 +1680,14 @@ function FindParts {
 
 //-------------Initial Program Start-Up--------------------//
 
-set rePhiPlan  to 24.      // [deg]  bank used to size the turn (margin to φ_max)
+set rePhiMaxP  to 25.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
+set rePhiPlan  to 50.      // [deg]  bank the turn circle is sized for (margin to 75°)
+set reBankRate to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set rePhiMax   to 32.      // [deg]  max bank
 set reKL1      to 0.8.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
-set reRCap     to 0.45.    // [-]    R_t ≤ reRCap · distance to target
+set reRCap     to 1.0.    // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.8.     // [-]    energy-bank gain
 set rePhiEMax  to 45.      // [deg]  max energy bank
 set reYawSign  to 1.
@@ -1707,6 +1710,8 @@ set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 1.0.     // [-]    exponent on cos(φ̄), calibration knob
+set reDobMarginDeg to 12.  // [deg]  deorbit aims this far past the target
+set reVHac     to 1200.    // [m/s] expected speed during the final turn (sizes the HAC)
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -1749,6 +1754,7 @@ function ReGuidInit {
     set reLastVelO to velocity:orbit.
     set reAeroV    to v(0,0,0).
     set rePhiF to 0.
+    set reHACLatch to false.
     set reInit    to true.
 }
 
@@ -12683,14 +12689,15 @@ function ReEntryAndLand {
         set lastFuelBalanc to time:seconds.
         set Bellyflop to false.
         set SteeringManager:ROLLCONTROLANGLERANGE to 42.
-        set steeringManager:pitchpid:kp to 0.55/Scale. //85
-        set steeringManager:pitchpid:ki to 0.3. //45
-        set steeringManager:pitchpid:kd to 0.78.
-        set steeringManager:yawpid:kp to 0.4/Scale. //75
-        set steeringManager:yawpid:ki to 0.2. //5
-        set steeringManager:yawpid:kd to 0.76.
-        set steeringManager:rollpid:kp to 0.5/Scale. //1
-        set steeringManager:rollpid:kd to 0.5. //36
+        set steeringManager:pitchpid:kp to 0.3.
+        set steeringManager:pitchpid:ki to 0.5. 
+        set steeringManager:pitchpid:kd to 0.32.
+        set steeringManager:yawpid:kp to 0.3. 
+        set steeringManager:yawpid:ki to 0.5. 
+        set steeringManager:yawpid:kd to 0.32.
+        set steeringManager:rollpid:kp to 0.3.
+        set steeringManager:rollpid:ki to 0.3.
+        set steeringManager:rollpid:kd to 0.5.
         set LandingFlipStart to time:seconds.
 
         set addons:tr:descentmodes to list(true, true, true, true).
@@ -13605,7 +13612,8 @@ function ReGuidUpdate {
     local dT  is reArc(ship:position, T).
 
     // --- turn radius (filtered, capped) ---
-    local Rraw is min(reVh^2/(L*sin(rePhiPlan)), reRCap*dT).
+    local Rhac is reVHac^2/(gMag*tan(rePhiPlan)).
+    local Rraw is min(min(reVh^2/(L*sin(rePhiPlan)), Rhac), reRCap*dT).
     if reRt <= 0 set reRt to Rraw.
     set reRt to reRt + (Rraw - reRt)*min(1, dt/(reRTau + dt)).
     local reRt2  is max(reRt, 1).
@@ -13655,10 +13663,11 @@ function ReGuidUpdate {
         set rx to px + max(ahead, 0.2*L1).
         set ry to 0.
         set sTg to max(0, -px).
-    } else if dC > reRt2 + L1 {
+    } else if not reHACLatch and dC > reRt2 and sqrt((qx - px)^2 + (qy - py)^2) > L1 {
         set reMode to "PURSUIT".
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else {
+        set reHACLatch to true.
         set reMode to "HAC".
         local L1e is max(L1, abs(dC - reRt2) + 1).
         local cosA is max(-1, min(1, (dC^2 + reRt2^2 - L1e^2)/(2*dC*reRt2))).
@@ -13678,8 +13687,16 @@ function ReGuidUpdate {
 
     // --- downrange / energy ---
     set rePhiF to rePhiF + (abs(reYawCmd) - rePhiF)*min(1, dt/(rePhiTau + dt)).
-    local sPred is reArc(ship:position, addons:tr:impactpos:position) * cos(rePhiF)^reBankExp.
-    set reRangeErr to sPred - sTg - LngLatOffset.
+    local sArc is 0.
+    if reMode = "PURSUIT" set sArc to arcQ.
+    else if reMode = "HAC" set sArc to reRt2*remS*constant:pi/180.
+    local sCur is max(0, sTg - sArc - Df).
+    if reMode = "FINAL" set sCur to sTg.
+    local cCur is max(0.2, cos(rePhiF)^reBankExp).
+    local cArc is max(0.2, cos(rePhiPlan)^reBankExp).
+    local sReq is sCur/cCur + sArc/cArc + Df.
+    local sPred is reArc(ship:position, addons:tr:impactpos:position).
+    set reRangeErr to sPred - sReq - LngLatOffset.
     local epsSat is reDAoAMax/(57.3*max(reKA, 0.01)).
     local phiE is min(rePhiEMax, max(0, reKE*(reRangeErr/max(sTg, reRt2) - epsSat)*57.3)).
 
@@ -13697,12 +13714,15 @@ function ReGuidUpdate {
     local rightV is vcrs(vel, upV):normalized.
     local sgn is 1.
     if vdot(aVec, rightV) < 0 set sgn to -1.
-    local phiLat is arcsin(min(abs(aLat)/max(L, 0.1), sin(rePhiMax))).
+    local phiMaxM is rePhiMaxH.
+    if reMode = "PURSUIT" set phiMaxM to rePhiMaxP.
+    local phiLat is arcsin(min(abs(aLat)/max(L, 0.1), sin(phiMaxM))).
     local etaDeg is arcsin(max(-1, min(1, sinEta))).
     if phiLat >= phiE { if phiLat > 2 set rePhiSign to sgn. }
     else if sgn <> rePhiSign and abs(etaDeg) > reRevDb set rePhiSign to sgn.
-    local phi is min(rePhiMax, max(phiLat, phiE)).
-    set reYawCmd to reYawSign * rePhiSign * phi.
+    local phi is min(phiMaxM, max(phiLat, phiE)).
+    local yawRaw is reYawSign * rePhiSign * phi.
+    set reYawCmd to reYawCmd + max(-reBankRate*dt, min(reBankRate*dt, yawRaw - reYawCmd)).
 
     // == Debug ==
     //set reDrawC to vecDraw(T + e1*cx + e2*cy, upV*reRt2*0.1, yellow, "HAC c", 1, true, 1).
@@ -15055,7 +15075,7 @@ function DeOrbitVelocity {
                 //set errvec to vecdraw(NewPos, 2 * ErrorVector, Blue, "Error Vector", 1, true).
                 wait 0.001.
 
-                set LngError to vdot(ApproachVector, vxcl(ApproachUPVector, ErrorVector)).
+                set LngError to vdot(ApproachVector, vxcl(ApproachUPVector, ErrorVector)) - body:radius*reDobMarginDeg*constant:pi/180.
                 //set message2:text to "<b>Longitudinal Error: </b>" + round(LngError / 1000, 1) + "km".
                 print "Lng Error: " + round(LngError).
 
@@ -15085,7 +15105,7 @@ function DeOrbitVelocity {
             wait until not (addons:tr:hasimpact).
         }
         if addons:tr:hasimpact {
-            if (landingzone:position - addons:tr:impactpos:position):mag > LateralAcceptanceLimit {
+            if sqrt(max(0, (landingzone:position - addons:tr:impactpos:position):sqrmagnitude - (body:radius*reDobMarginDeg*constant:pi/180)^2)) > LateralAcceptanceLimit {
                 //wait 3.
                 remove burn.
                 //print TimeToBurn.
