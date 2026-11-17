@@ -3604,7 +3604,7 @@ FUNCTION SteeringCorrections {
             else if LandingBurnStarted set LngCtrlPID:setpoint to 0.
             if dbactive and not LandingBurnStarted {
                 set LatCtrlPID:setpoint to (vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90).
-                set LngCtrlPID:setpoint to min(100*Scale, LngCtrlPID:setpoint * max(0.7,(-vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector))+180)/60)^0.4).
+                set LngCtrlPID:setpoint to min(150*Scale, LngCtrlPID:setpoint * max(0.7,(-vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector))+180)/75)^0.4).
             }
             else if LandingBurnStarted set LatCtrlPID:setpoint to 0.
         } 
