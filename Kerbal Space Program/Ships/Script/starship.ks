@@ -1680,16 +1680,21 @@ function FindParts {
 
 //-------------Initial Program Start-Up--------------------//
 
-
-set rsKpP   to 0.04.    // [1/deg]  stiffness
-set rsKdP   to 0.06.    // [s/deg]  damping
-set rsKpY   to 0.04.
-set rsKdY   to 0.06.
-set rsKpR   to 0.03.
-set rsKdR   to 0.05.
+set rsWMax   to 6.      // [deg/s]   max pitch/yaw rate
+set rsWMaxR  to 4.      // [deg/s]   max roll rate
+set rsAlphaB to 0.6.    // [deg/s²]  usable braking acceleration (braking curve)
+set rsTs     to 6.      // [s]       settling time near the target
+set rsKw     to 0.12.   // [1/(deg/s)] rate loop pitch/yaw
+set rsKwR    to 0.10.   // [1/(deg/s)] rate loop roll
+set rsKi     to 0.002.  // [1/(deg·s)] trim integrator
+set rsIRange to 10.     // [deg]     integrator only below this error
+set rsIMax   to 0.6.    // [-]       max trim input
 set rsSlew  to 0.8.     // [1/s]    max change of the control input per second
 set rsTauU  to 0.25.    // [s]      output smoothing
-set rsTauD  to 0.6.     // [s]      derivative filter
+set rsRollRange to 30.   // [deg] roll position control only below this pointing error
+set rsTauW to 0.1.       // [s]   body-rate filter (short! replaces rsTauD)
+set rsSlew to 2.0.       // [1/s] full deflection in 0.5 s
+set rsTauU to 0.1.       // [s]
 set rsSgnP  to 1.
 set rsSgnY  to 1.
 set rsSgnR  to 1.
@@ -1701,6 +1706,10 @@ function ReRawSteerInit {
     set rsED    to v(0,0,0).
     set rsU     to v(0,0,0).
     set rsUS    to v(0,0,0).
+    set rsLastF   to facing:forevector.
+    set rsLastTop to facing:topvector.
+    set rsW       to v(0,0,0).
+    set rsI to v(0,0,0).
     set rsActive to true.
     unlock steering.
 }
@@ -12965,7 +12974,7 @@ function ReEntryAndLand {
                             when RadarAlt < 1800 then {
                                 if LFShip > 0.8*FuelVentCutOffValue and ship:body:atm:sealevelpressure > 0.5 {
                                     sCMNTank:activate.
-                                    when currentdeltav < maxDeltaV and LFShip < 0.75*FuelVentCutOffValue then {
+                                    when LFShip < 0.75*FuelVentCutOffValue then {
                                         sCMNTank:shutdown.
                                     }
                                 }
@@ -13518,30 +13527,50 @@ function ReEntryData {
     }
 }
 
+function rsWRef {
+    parameter e, wMax.
+    local s is 1. if e < 0 set s to -1.
+    return s*min(wMax, min(sqrt(2*rsAlphaB*abs(e)), abs(e)/rsTs)).
+}
 
 function ReRawSteer {
-    parameter tgt. 
+    parameter tgt.
     local now is time:seconds.
     local dt is now - rsLastT.
     if dt < 0.001 return.
     set rsLastT to now.
 
+    // --- measured body rates [deg/s] from the change of facing ---
+    local rawFw is facing:forevector.
+    local rawTp is facing:topvector.
+    local rawSt is facing:starvector.
+    local rawW is v(vdot(rawFw - rsLastF, rawTp), vdot(rawFw - rsLastF, rawSt), vdot(rawTp - rsLastTop, rawSt)) * (57.3/dt).
+    set rsLastF to rawFw.
+    set rsLastTop to rawTp.
+    set rsW to rsW + (rawW - rsW)*min(1, dt/(rsTauW + dt)).
+
+    // --- errors [deg] in the body frame ---
     local rawtF is tgt:forevector.
     local rawtT is tgt:topvector.
-    local rawe is v(arctan2(vdot(rawtF, facing:topvector),  vdot(rawtF, facing:forevector)),
-                 arctan2(vdot(rawtF, facing:starvector), vdot(rawtF, facing:forevector)),
-                 arctan2(vdot(rawtT, facing:starvector), vdot(rawtT, facing:topvector))).
+    local rawe is v(arctan2(vdot(rawtF, rawTp), vdot(rawtF, rawFw)),
+                    arctan2(vdot(rawtF, rawSt), vdot(rawtF, rawFw)),
+                    arctan2(vdot(rawtT, rawSt), vdot(rawtT, rawTp))).
+    local angErr is vang(rawtF, rawFw).
+    local wR is max(0, min(1, (rsRollRange - angErr)/(0.5*rsRollRange))).
 
-    set rsED to rsED + ((rawe - rsLastE)/dt - rsED)*min(1, dt/(rsTauD + dt)).
-    set rsLastE to rawe.
+    // outer loop: angle error -> target rate (braking curve)
+    local rawWr is v(rsWRef(rawe:x, rsWMax), rsWRef(rawe:y, rsWMax), wR*rsWRef(rawe:z, rsWMaxR)).
 
-    local uStar is v(rsSgnP*(rsKpP*rawe:x + rsKdP*rsED:x),
-                     rsSgnY*(rsKpY*rawe:y + rsKdY*rsED:y),
-                     rsSgnR*(rsKpR*rawe:z + rsKdR*rsED:z)).
-    // clamp to ±1
+    // inner loop: rate error -> input, plus protected integrator (trim)
+    local rawUp is v(rsKw*(rawWr:x - rsW:x), rsKw*(rawWr:y - rsW:y), rsKwR*(rawWr:z - rsW:z)) + rsI.
+    if abs(rawe:x) < rsIRange and abs(rawUp:x) < 1 set rsI:x to max(-rsIMax, min(rsIMax, rsI:x + rsKi*rawe:x*dt)).
+    if abs(rawe:y) < rsIRange and abs(rawUp:y) < 1 set rsI:y to max(-rsIMax, min(rsIMax, rsI:y + rsKi*rawe:y*dt)).
+    if wR >= 1 and abs(rawe:z) < rsIRange and abs(rawUp:z) < 1 set rsI:z to max(-rsIMax, min(rsIMax, rsI:z + rsKi*rawe:z*dt)).
+
+    local uStar is v(rsSgnP*rawUp:x, rsSgnY*rawUp:y, rsSgnR*rawUp:z).
     set uStar to v(min(1,max(-1,uStar:x)), min(1,max(-1,uStar:y)), min(1,max(-1,uStar:z))).
 
-    // slew limit (flap speed) then first-order smoothing
+    // --- fast actuator, smoothness comes from the target filter ---
     local rawd is uStar - rsUS.
     local rawm is rsSlew*dt.
     set rsUS to rsUS + v(min(rawm,max(-rawm,rawd:x)), min(rawm,max(-rawm,rawd:y)), min(rawm,max(-rawm,rawd:z))).
@@ -13756,7 +13785,8 @@ function ReGuidUpdate {
     local sCur is max(0, sTg - sArc - Df).
     if reMode = "FINAL" set sCur to sTg.
     local cCur is max(0.2, cos(rePhiF)^reBankExp).
-    local cArc is max(0.2, cos(rePhiPlan)^reBankExp).
+    local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
+    local cArc is max(0.2, cos(phiArc)^reBankExp).
     local sReq is sCur/cCur + sArc/cArc + Df.
     if addons:tr:hasimpact set reSPred to reArc(ship:position, addons:tr:impactpos:position).
     local sPred is reSPred.
