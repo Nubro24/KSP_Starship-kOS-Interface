@@ -1680,8 +1680,8 @@ function FindParts {
 
 //-------------Initial Program Start-Up--------------------//
 
-set rePhiPlan  to 30.      // [deg]  bank used to size the turn (margin to φ_max)
-set rePhiMax   to 50.      // [deg]  max bank
+set rePhiPlan  to 24.      // [deg]  bank used to size the turn (margin to φ_max)
+set rePhiMax   to 32.      // [deg]  max bank
 set reKL1      to 0.8.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
 set reRCap     to 0.45.    // [-]    R_t ≤ reRCap · distance to target
@@ -1705,6 +1705,8 @@ set reKAd      to 8.0.     // [s]    damping on dε/dt (fights Trajectories lag)
 set reEpsTau   to 2.0.     // [s]    filter on dε/dt
 set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
+set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
+set reBankExp  to 1.0.     // [-]    exponent on cos(φ̄), calibration knob
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -1746,6 +1748,7 @@ function ReGuidInit {
     set reEpsDF   to 0.
     set reLastVelO to velocity:orbit.
     set reAeroV    to v(0,0,0).
+    set rePhiF to 0.
     set reInit    to true.
 }
 
@@ -13674,7 +13677,8 @@ function ReGuidUpdate {
     local aVec is (e1*(-vy) + e2*vx):normalized * aLat.  
 
     // --- downrange / energy ---
-    local sPred is reArc(ship:position, addons:tr:impactpos:position).
+    set rePhiF to rePhiF + (abs(reYawCmd) - rePhiF)*min(1, dt/(rePhiTau + dt)).
+    local sPred is reArc(ship:position, addons:tr:impactpos:position) * cos(rePhiF)^reBankExp.
     set reRangeErr to sPred - sTg - LngLatOffset.
     local epsSat is reDAoAMax/(57.3*max(reKA, 0.01)).
     local phiE is min(rePhiEMax, max(0, reKE*(reRangeErr/max(sTg, reRt2) - epsSat)*57.3)).
