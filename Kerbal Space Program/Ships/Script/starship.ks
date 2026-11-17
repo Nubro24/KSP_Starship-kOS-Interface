@@ -1685,13 +1685,13 @@ set rePhiMax   to 50.      // [deg]  max bank
 set reKL1      to 0.8.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
 set reRCap     to 0.45.    // [-]    R_t ≤ reRCap · distance to target
-set reKE       to 1.5.     // [-]    energy-bank gain
+set reKE       to 0.8.     // [-]    energy-bank gain
 set rePhiEMax  to 45.      // [deg]  max energy bank
-set reYawSign  to -1.       // [-]    flip to −1 if the ship turns AWAY from the path
+set reYawSign  to 1.
 set reApprSign to 1.       // [-]    final approach along +TowerHeadingVector (−1 = opposite)
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
-set reVEnd     to 330.     // [m/s]  path mode ends below this (terminal mode takes over)
-set reAltEnd   to 750.     // [m]    everything off below this (≈ FlipAltitude + margin)
+set reVEnd     to 330.
+set reAltEnd   to 750.
 set reAccTau   to 1.0.     // [s]    aero accel filter
 set reRTau     to 5.0.     // [s]    turn radius filter
 set reVTerm    to 330.     // [m/s]  below: terminal glide-slope mode
@@ -1704,6 +1704,7 @@ set reKA       to 1.0.     // [-]    Δα [deg] = K·ε·57.3   (ε = 5 % too lo
 set reKAd      to 8.0.     // [s]    damping on dε/dt (fights Trajectories lag)
 set reEpsTau   to 2.0.     // [s]    filter on dε/dt
 set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
+set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -1743,6 +1744,8 @@ function ReGuidInit {
     set reE1Path  to v(0,0,0).
     set reEpsF    to -999.
     set reEpsDF   to 0.
+    set reLastVelO to velocity:orbit.
+    set reAeroV    to v(0,0,0).
     set reInit    to true.
 }
 
@@ -13555,12 +13558,12 @@ function ReGuidUpdate {
     local gMag is body:mu / body:position:sqrmagnitude.
 
     // --- measured aero acceleration and lift ---
-    local velS is reToSurf(velocity:surface).
-    local aM   is (velS - reLastVel)/dt - v(-gMag,0,0).
-    set reLastVel to velS.
-    set reAero to reAero + (aM - reAero)*min(1, dt/(reAccTau + dt)).
+    local velO is velocity:orbit.
+    local aM   is (velO - reLastVelO)/dt + upV*gMag. 
+    set reLastVelO to velO.
+    set reAeroV to reAeroV + (aM - reAeroV)*min(1, dt/(reAccTau + dt)).
     local vel  is velocity:surface.
-    local L    is vxcl(vel, reFromSurf(reAero)):mag.                          // [m/s²]
+    local L    is vxcl(vel, reAeroV):mag. 
 
     // --- terminal window (independent of Dynamic Banking) ---
     set reTerm to ship:body:atm:sealevelpressure > 0.5 and airspeed < reVTerm and RadarAlt > reAltEnd.
@@ -13580,15 +13583,15 @@ function ReGuidUpdate {
     if not reGActive {
         set reGActive to true.
         set landingzone to TgtLandingzone.
-        set reE1Path to vxcl(upV, TgtLandingzone:position - ship:position):normalized.   // straight-in fallback
+        set reE1Path to vxcl(upV, TgtLandingzone:position - ship:position):normalized.
     }
     local useHAC is DynamicBanking and dbactive.
 
     // --- 2D frame at the target ---
     local T   is TgtLandingzone:position.
     local e1  is reE1Path.
-    if useHAC set e1 to vxcl(upV, TowerHeadingVector):normalized * reApprSign.  // final approach
-    local e2  is vxcl(upV, vcrs(upV, e1)):normalized.                        // across
+    if useHAC set e1 to vxcl(upV, TowerHeadingVector):normalized * reApprSign. 
+    local e2  is vxcl(upV, vcrs(upV, e1)):normalized.
     local rel is vxcl(upV, ship:position - T).
     local px  is vdot(rel, e1).
     local py  is vdot(rel, e2).
@@ -13636,7 +13639,7 @@ function ReGuidUpdate {
 
     // --- mode + reference point (L1) ---
     local thS  is arctan2(dyc, dxc).
-    local remS is reWrap360((thE - thS)*sig).            // remaining arc angle [deg]
+    local remS is reWrap360((thE - thS)*sig).
     if not useHAC { set reFinal to true. set L1 to min(L1, reKL1T*max(dT, 1)). }
     if not reFinal and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
     if not reFinal and abs(py) < 0.3*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
@@ -13654,7 +13657,6 @@ function ReGuidUpdate {
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else {
         set reMode to "HAC".
-        // point on the circle at distance L1 ahead of the ship's angular position
         local L1e is max(L1, abs(dC - reRt2) + 1).
         local cosA is max(-1, min(1, (dC^2 + reRt2^2 - L1e^2)/(2*dC*reRt2))).
         local thR is thS + sig*arccos(cosA).
@@ -13668,16 +13670,17 @@ function ReGuidUpdate {
     local dy is ry - py.
     local dRef is max(1, sqrt(dx^2 + dy^2)).
     local sinEta is (vx*dy - vy*dx)/(reVh*dRef).
-    local aLat is 2*reVh^2/max(L1, dRef)*sinEta.             // [m/s²], + = toward CCW-perp
-    local aVec is (e1*(-vy) + e2*vx):normalized * aLat.   // 3D, horizontal
+    local aLat is 2*reVh^2/max(L1, dRef)*sinEta. 
+    local aVec is (e1*(-vy) + e2*vx):normalized * aLat.  
 
     // --- downrange / energy ---
     local sPred is reArc(ship:position, addons:tr:impactpos:position).
     set reRangeErr to sPred - sTg - LngLatOffset.
-    local phiE is min(rePhiEMax, max(0, reKE*reRangeErr/max(sTg, reRt2) * 57.3)).
+    local epsSat is reDAoAMax/(57.3*max(reKA, 0.01)).
+    local phiE is min(rePhiEMax, max(0, reKE*(reRangeErr/max(sTg, reRt2) - epsSat)*57.3)).
 
     // --- pitch: normalized range error -> AoA around the planned profile ---
-    local eps is reRangeErr/max(sTg, reRt2).                                   // [-]
+    local eps is reRangeErr/max(sTg, reRt2). 
     if reEpsF < -900 set reEpsF to eps.
     local epsDot is (eps - reEpsF)/dt.
     set reEpsF to eps.
@@ -13691,12 +13694,14 @@ function ReGuidUpdate {
     local sgn is 1.
     if vdot(aVec, rightV) < 0 set sgn to -1.
     local phiLat is arcsin(min(abs(aLat)/max(L, 0.1), sin(rePhiMax))).
-    if phiLat > 2 set rePhiSign to sgn.
+    local etaDeg is arcsin(max(-1, min(1, sinEta))).
+    if phiLat >= phiE { if phiLat > 2 set rePhiSign to sgn. }
+    else if sgn <> rePhiSign and abs(etaDeg) > reRevDb set rePhiSign to sgn.
     local phi is min(rePhiMax, max(phiLat, phiE)).
     set reYawCmd to reYawSign * rePhiSign * phi.
 
     // == Debug ==
-    //set reDrawC to vecDraw(T + e1*cx + e2*cy, upV*R*0.1, yellow, "HAC c", 1, true, 1).
+    //set reDrawC to vecDraw(T + e1*cx + e2*cy, upV*reRt2*0.1, yellow, "HAC c", 1, true, 1).
     //set reDrawR to vecDraw(v(0,0,0), (T + e1*rx + e2*ry) - ship:position, green, "ref " + reMode, 1, true, 0.5).
 }
 
