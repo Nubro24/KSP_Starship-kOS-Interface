@@ -1689,6 +1689,61 @@ function FindParts {
 
 //-------------Initial Program Start-Up--------------------//
 
+set rePhiPlan  to 30.      // [deg]  bank used to size the turn (margin to φ_max)
+set rePhiMax   to 50.      // [deg]  max bank (≈ your YawPID limit)
+set reKL1      to 0.8.     // [-]    L1 = k·R_t   (larger = smoother, slower)
+set reKf       to 0.6.     // [-]    straight final = k·R_t
+set reRCap     to 0.45.    // [-]    R_t ≤ reRCap · distance to target
+set reKE       to 1.5.     // [-]    energy-bank gain
+set rePhiEMax  to 45.      // [deg]  max energy bank
+set reYawSign  to 1.       // [-]    flip to −1 if the ship turns AWAY from the path
+set reApprSign to 1.       // [-]    final approach along +TowerHeadingVector (−1 = opposite)
+set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
+set reVEnd     to 330.     // [m/s]  path mode ends below this (terminal mode takes over)
+set reAltEnd   to 800.     // [m]    everything off below this (≈ FlipAltitude + margin)
+set reAccTau   to 1.0.     // [s]    aero accel filter
+set reRTau     to 5.0.     // [s]    turn radius filter
+set reVTerm    to 330.     // [m/s]  below: terminal glide-slope mode
+set reKGam     to 1.5.     // [-]    path-angle feedback (deg AoA per deg γ error)
+set reOffTau   to 15.      // [s]    learning time constant of the glide offset
+set reGamTau   to 0.5.     // [s]    γ filter
+set reAoARate  to 4.       // [deg/s] AoA command rate limit
+set reKL1T     to 0.5.     // [-]    terminal L1 ≤ k·(distance to aim point)
+set reTerm     to false.
+set reAoACmd   to 0.
+set reGActive  to false.
+set reYawCmd   to 0.
+set reRangeErr to 0.
+set reMode     to "-".
+
+
+function reToSurf {
+    parameter vec.
+    return v(vdot(vec, up:vector), vdot(vec, north:vector), vdot(vec, vcrs(up:vector, north:vector))).
+}
+function reFromSurf {
+    parameter c.
+    return up:vector*c:x + north:vector*c:y + vcrs(up:vector, north:vector)*c:z.
+}
+function reWrap360 { parameter a. return a - 360*floor(a/360). }
+function reArc {   
+    parameter pA, pB.
+    return body:radius * vang(pA - body:position, pB - body:position) * constant:pi/180.
+}
+function ReGuidInit {
+    set reLastT   to time:seconds.
+    set reLastVel to reToSurf(velocity:surface).
+    set reAero    to v(0,0,0).
+    set reRt      to 0.
+    set reSide    to 0.
+    set rePhiSign to 1.
+    set reFinal   to false.
+    set reGamF    to -1.
+    set reOff     to -999.
+    set reE1Term  to v(0,0,0).
+    set reInit    to true.
+}
+
 
 // ---------- CG tuning ----------
 set slThrDes    to 0.75.     // [-]    start throttle of the Klumpp plan
@@ -12789,6 +12844,7 @@ function ReEntryAndLand {
                         else if vAng(TowerHeadingVector, vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector)) < 42 set TowerHeading to "East".
                         else set TowerHeading to "West".
                         set dbactive to true.
+                        set reGActive to true.
                         set Vessel(TargetedOLM):loaddistance:landed:unpack to 1200.
                         wait 0.
                         set Vessel(TargetedOLM):loaddistance:landed:pack to 1250.
@@ -12928,28 +12984,6 @@ function ReEntryAndLand {
                     set DescentAngles to list(aoa, aoa, aoa, aoa).
                     set trCompensation to trCompensation/1.6.
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
-                    //if DynamicBanking set YawBank to 3 * max(0.5,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/90)^2.
-                    //else set YawBank to 1.
-                    //if RSS {
-                    //    set PitchPID to PIDLOOP(0.005, 0.0001, 0.001, -25, 26 - TRJCorrection).
-                    //    set YawPID to PIDLOOP(0.0042*YawBank, 0.00024*YawBank, 0.001*YawBank, -50, 50).
-                    //}
-                    //else if KSRSS {
-                    //    set PitchPID to PIDLOOP(0.005, 0, 0, -25, 26 + TRJCorrection).
-                    //    set YawPID to PIDLOOP(0.00085*YawBank, 0, 0.0002*YawBank, -50, 50).
-                    //}
-                    //else {
-                    //    set PitchPID to PIDLOOP(0.001, 0.0001, 0.001, -25, 26 - TRJCorrection). 
-                    //    set YawPID to PIDLOOP(0.0069*YawBank, 0.0002*YawBank, 0.0006*YawBank, -50, 50).
-                    //}
-                    //if AFTONLY {
-                    //    set PitchPID:kp to PitchPID:kp * 0.95.
-                    //    set PitchPID:ki to PitchPID:ki * 0.9.
-                    //    set PitchPID:kd to PitchPID:kd * 1.2.
-                    //    set YawPID:kp to YawPID:kp * 0.9.
-                    //    set YawPID:ki to YawPID:ki * 0.9.
-                    //    set YawPID:kd to YawPID:kd * 1.0.
-                    //}
                 }
 
                 when airspeed < 310 and ship:body:atm:sealevelpressure > 0.5 or airspeed < 750 and ship:body:atm:sealevelpressure < 0.5 and KSRSS or airspeed < 2000 and ship:body:atm:sealevelpressure < 0.5 and RSS or airspeed < 450 and ship:body:atm:sealevelpressure < 0.5 and STOCK then {
@@ -13164,59 +13198,19 @@ function ReEntrySteering {
         }
         set lastYaw to yawctrl.
 
-        if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and airspeed > 400 {
-            set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
-            
-            if STOCK set OvershootFactor to ApproachRatio * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/80).
-            else set OvershootFactor to 2 * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/80).
-            set bankLNG to min(max(-2.6*maxLngChange, maxLngChange * (min(90,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65)^2 * OvershootFactor/min(2,ApproachRatio) * min(1,(50000*Scale^1.6)/(DistanceToTarget^2))), 2.6*maxLngChange).
-            if RSS set LngMove to min(max(0,DistanceToTarget-500/500)^1.5,1) * bankLNG * min(max(0,550/max(550,DistanceToTarget)),1) * min(max(0, (airspeed - 260)/(500 * max(0.75,min(50/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5))))^1.5, 1).
-            else set LngMove to min(max(0,DistanceToTarget-70/70),1) * bankLNG * min(max(0,180/max(180,DistanceToTarget)),1) * min(max(0, (airspeed - 280)/(470 * max(0.8,min(50/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5)))), 1).
-
-            if STOCK set OvershootReducer to min(1,(100/vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface)))^3).
-            else set OvershootReducer to min(1,(100/vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface)))^2).
-            set bankLAT to min(max(-2.4*maxLatChange, maxLatChange * (min(90,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/65)^2 * OvershootReducer*ApproachRatio * min(1,(50000*Scale^1.6)/(DistanceToTarget^2))), 2.4*maxLatChange).
-            if RSS set LatMove to min(max(0,DistanceToTarget-510/510)^1.5,1) * bank * bankLAT * min(max(0, 550/max(550,DistanceToTarget)),1) * min(max(0, (airspeed - 300)/(1300 * max(0.75,min(50/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5))))^1.5, 1).
-            else set LatMove to min(max(0,DistanceToTarget-80/80),1) * bank * bankLAT * min(max(0, 180/max(180,DistanceToTarget)),1) * min(max(0, (airspeed - 320)/(690 * max(0.8,min(50/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5)))), 1).
-
-            set landingzone to latlng(TgtLandingzone:lat + LatMove, TgtLandingzone:lng + LngMove).
-            set LastLZChange to time:seconds.
-            set Once to true.
-        }
-        else if DynamicBanking and LastLZchange + 0.3 < time:seconds and dbactive and alt:radar > 7500 {
-            if vAng(TowerHeadingVector, vCrs(up:vector,vxcl(up:vector,velocity:surface))) > 90 set bank to -1.
-            else set bank to 1.
-            set ApproachRatio to min(vAng(north:vector,vxcl(up:vector,velocity:surface))/max(1,vAng(vCrs(up:vector,north:vector),vxcl(up:vector,velocity:surface))),8).
-            
-            if STOCK set OvershootFactor to ApproachRatio * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/24).
-            else set OvershootFactor to 2 * max(1,vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))/24).
-            set bankLNG to min(max(-0.2*maxLngChange, maxLngChange * (min(24,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/2)^2 * OvershootFactor * min(1,(12000*Scale^1.6)/(alt:radar^2))), 0.2*maxLngChange).
-            if RSS set LngMove to min(max(0,alt:radar-14000/14000)^1.5,1) * -bankLNG * min(max(0,15500/max(15500,alt:radar)),1) * min(max(0, (airspeed - 130)/(70 * max(0.75,min(50/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5))))^1.5, 1).
-            else set LngMove to min(max(0,alt:radar-9000/9000),1) * -bankLNG * min(max(0,9000/max(9000,alt:radar)),1) * min(max(0, (airspeed - 130)/(70 * max(0.8,min(50/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5)))), 1).
-
-            if STOCK set OvershootReducer to min(1,(24/vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface)))^3).
-            else set OvershootReducer to min(1,(24/vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface)))^2).
-            set bankLAT to min(max(-0.4*maxLatChange, maxLatChange * (min(24,vAng(vxcl(up:vector,velocity:surface),TowerHeadingVector))/2)^2 * OvershootReducer*ApproachRatio * min(1,(12000*Scale^1.6)/(alt:radar^2))), 0.4*maxLatChange).
-            if RSS set LatMove to min(max(0,alt:radar-14000/14000)^1.5,1) * bank * bankLAT * min(max(0, 15500/max(15500,alt:radar)),1) * min(max(0, (airspeed - 130)/(70 * max(0.75,min(50/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5))))^1.5, 1).
-            else set LatMove to min(max(0,alt:radar-9000/9000),1) * bank * bankLAT * min(max(0, 9500/max(9500,alt:radar)),1) * min(max(0, (airspeed - 130)/(70 * max(0.8,min(50/(vAng(TowerHeadingVector, vxcl(up:vector, velocity:surface))),1.5)))), 1).
-
-            set landingzone to latlng(TgtLandingzone:lat + LatMove, TgtLandingzone:lng + LngMove).
-            set LastLZChange to time:seconds.
-            set Once to true.
-        }
-        else if Once {
-            set Once to false.
-            set landingzone to TgtLandingzone.
-        }
+        ReGuidUpdate().
 
         set LngLatErrorList to LngLatError().
+        if reGActive set LngLatErrorList[0] to reRangeErr.
+        local lngAoA is LngLatErrorList[0] - trCompensation.
+        if reGActive set lngAoA to reRangeErr.
 
         if airspeed > 320 {
-            set aoa_adjust to min(max(-2 ,round(0.005*((LngLatErrorList[0] - trCompensation)/(1000*Scale))^3 + 0.05*((LngLatErrorList[0] - trCompensation)/1000),1)/2), 2).
+            set aoa_adjust to min(max(-2 ,round(0.005*(lngAoA/(1000*Scale))^3 + 0.05*(lngAoA/1000),1)/2), 2).
             set aoa to min(max(PlotAoA - 5 ,aoa + aoa_adjust), PlotAoA + 5).
         }
         else {
-            set aoa_adjust to min(max(0 , round(LngLatErrorList[0]/80, 1)),2).
+            set aoa_adjust to min(max(0 , round(lngAoA/80, 1)),2).
             set aoa to PlotAoA + aoa_adjust.
         }
         if airspeed < 320 and currentAoA > 74 and time:seconds - ProgramStartTime > 2 set Bellyflop to true.
@@ -13247,8 +13241,10 @@ function ReEntrySteering {
         set yawctrl to (yawctrl+lastYaw)/2.
         if yawctrl > YawPID:maxoutput set yawctrl to YawPID:maxoutput.
         else if yawctrl < YawPID:minoutput set yawctrl to YawPID:minoutput.
+        if reGActive or reTerm set yawctrl to reYawCmd.
         set maxAoA to round(90 * 32/max(32,min(abs(yawctrl),42)),1).
         set DesiredAoA to min(max(minAoA , aoa + pitchctrl), maxAoA).
+        if reTerm set DesiredAoA to min(max(minAoA, reAoACmd), maxAoA).
 
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
@@ -13297,6 +13293,11 @@ function ReEntrySteering {
         print "MaxOutput: " + round(YawPID:maxoutput, 2).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
+        print " ".
+        print "Current Mode: " + reMode.
+        print "AoA Cmd: " + round(reAoACmd, 1).
+        print "New Guid Err: " + round(reRangeErr,1).
+        print "New Guid Rt: " + round(reRt,1).
         print " ".
         print "TRJCorrection: " + round(TRJCorrection, 1).
         print "LngLatOffset: " + round(LngLatOffset,1).
@@ -13665,6 +13666,201 @@ function ReEntryData {
         }
         else {set message3:style:textcolor to white.}
     }
+}
+
+
+// ---------- TERMINAL: glide slope (AoA) + L1 on the final line (bank) ----------
+function ReTermUpdate {
+    parameter dt, L.
+    local upV is up:vector.
+    local vel is velocity:surface.
+    local vh  is vxcl(upV, vel).
+
+    // final approach direction: tower heading if known, else frozen velocity heading
+    if reE1Term:mag < 0.5 {
+        if dbactive set reE1Term to vxcl(upV, TowerHeadingVector):normalized * reApprSign.
+        else set reE1Term to vh:normalized.
+    }
+    local e1 is reE1Term.
+    local e2 is vxcl(upV, vcrs(upV, e1)):normalized.
+    local rel is vxcl(upV, ship:position - landingzone:position).    // live target (LandAtOLM may move it)
+    local px is vdot(rel, e1).
+    local py is vdot(rel, e2).
+    local vx is vdot(vh, e1).
+    local vy is vdot(vh, e2).
+    local V  is max(1, vh:mag).
+
+    // --- glide slope ---
+    local s    is max(1, LngLatOffset - px).                   // [m] to aim point along final
+    local h    is max(1, RadarAlt).
+    local gReq is arctan(h/s).
+    local gRaw is arctan(max(0, -verticalspeed)/V).
+    if reGamF < 0 set reGamF to gRaw.
+    set reGamF to reGamF + (gRaw - reGamF)*min(1, dt/(reGamTau + dt)).
+    local aoaNow is vang(facing:forevector, vel).
+    if reOff < -900 set reOff to reGamF - aoaNow.
+    set reOff to reOff + ((reGamF - aoaNow) - reOff)*min(1, dt/(reOffTau + dt)).
+
+    local aoaRaw is gReq - reOff - reKGam*(reGamF - gReq).
+    if reAoACmd = 0 set reAoACmd to aoaNow.
+    set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, aoaRaw - reAoACmd)).
+
+    // --- lateral: L1 on the final line ---
+    local Rt  is V^2/(max(L, 0.1)*sin(rePhiPlan)).
+    local L1  is max(50, min(reKL1*Rt, reKL1T*s)).
+    local rx  is px + max(sqrt(max(0, L1^2 - py^2)), 0.2*L1).
+    local dx  is rx - px.
+    local dy  is -py.
+    local dRef is max(1, sqrt(dx^2 + dy^2)).
+    local sinEta is (vx*dy - vy*dx)/(V*dRef).
+    local aLat is 2*V^2/max(L1, dRef)*sinEta.
+    local aVec is (e1*(-vy) + e2*vx):normalized * aLat.
+    local sgn is 1.
+    if vdot(aVec, vcrs(vel, upV)) < 0 set sgn to -1.
+    local phi is arcsin(min(abs(aLat)/max(L, 0.1), sin(rePhiMax))).
+    set reYawCmd to reYawSign * sgn * phi.
+    set reMode to "TERM".
+}
+
+
+// call every ReEntrySteering cycle (replaces the DynamicBanking block)
+function ReGuidUpdate {
+    if not (defined reInit) ReGuidInit().
+    local now is time:seconds.
+    local dt is now - reLastT.
+    if dt < 0.001 return.
+    set reLastT to now.
+
+    local upV  is up:vector.
+    local gMag is body:mu / body:position:sqrmagnitude.
+
+    // --- measured aero acceleration and lift ---
+    local velS is reToSurf(velocity:surface).
+    local aM   is (velS - reLastVel)/dt - v(-gMag,0,0).
+    set reLastVel to velS.
+    set reAero to reAero + (aM - reAero)*min(1, dt/(reAccTau + dt)).
+    local vel  is velocity:surface.
+    local L    is vxcl(vel, reFromSurf(reAero)):mag.                          // [m/s²]
+
+    // --- terminal window (independent of Dynamic Banking) ---
+    set reTerm to ship:body:atm:sealevelpressure > 0.5 and airspeed < reVTerm and RadarAlt > reAltEnd.
+    if reTerm {
+        if reGActive { set reGActive to false. set landingzone to TgtLandingzone. }
+        ReTermUpdate(dt, L).
+        return.
+    }
+
+    // --- path window ---
+    local active is DynamicBanking and dbactive and airspeed > reVEnd and RadarAlt > reAltEnd
+                    and L > reLMin and addons:tr:hasimpact.
+    if not active {
+        if reGActive { set reGActive to false. set landingzone to TgtLandingzone. }
+        return.
+    }
+    if not reGActive { set reGActive to true. set landingzone to TgtLandingzone. }
+
+    // --- 2D frame at the target ---
+    local T   is TgtLandingzone:position.
+    local e1  is vxcl(upV, TowerHeadingVector):normalized * reApprSign.     // final approach
+    local e2  is vxcl(upV, vcrs(upV, e1)):normalized.                        // across
+    local rel is vxcl(upV, ship:position - T).
+    local px  is vdot(rel, e1).
+    local py  is vdot(rel, e2).
+    local vh  is vxcl(upV, vel).
+    local vx  is vdot(vh, e1).
+    local vy  is vdot(vh, e2).
+    local V   is max(1, vh:mag).
+    local dT  is reArc(ship:position, T).
+
+    // --- turn radius (filtered, capped) ---
+    local Rraw is min(V^2/(L*sin(rePhiPlan)), reRCap*dT).
+    if reRt <= 0 set reRt to Rraw.
+    set reRt to reRt + (Rraw - reRt)*min(1, dt/(reRTau + dt)).
+    local R  is max(reRt, 1).
+    local Df is reKf*R.
+    local L1 is reKL1*R.
+
+    // side: frozen on first activation
+    if reSide = 0 { if py >= 0 set reSide to 1. else set reSide to -1. }
+    local cx is -Df.
+    local cy is reSide*R.
+    local sig is reSide.                                  // circulation sense
+    local thE is atan2(-reSide*R, 0).
+
+    // --- tangent point from the ship onto the circle ---
+    local dxc is px - cx.
+    local dyc is py - cy.
+    local dC  is sqrt(dxc^2 + dyc^2).
+    local qx is cx. local qy is cy + R.  local arcQ is 0.
+    if dC > R {
+        local beta is arccos(R/dC).
+        local thP  is atan2(dyc, dxc).
+        local best is -1e9.
+        for th in list(thP + beta, thP - beta) {
+            local tx is cx + R*cos(th).
+            local ty is cy + R*sin(th).
+            local tvx is -sig*sin(th).                    // circulation tangent
+            local tvy is  sig*cos(th).
+            local score is (tx - px)*tvx + (ty - py)*tvy.
+            if score > best { set best to score. set qx to tx. set qy to ty. }
+        }
+    }
+    local thQ is atan2(qy - cy, qx - cx).
+    set arcQ to R*reWrap360((thE - thQ)*sig)*constant:pi/180.
+
+    // --- mode + reference point (L1) ---
+    local thS  is atan2(dyc, dxc).
+    local remS is reWrap360((thE - thS)*sig).            // remaining arc angle [deg]
+    if not reFinal and (dC < R + L1) and (remS < 5 or remS > 300) set reFinal to true.
+    if not reFinal and abs(py) < 0.3*R and vang(vh, e1) < 15 and px < 0 set reFinal to true.
+
+    local rx is qx. local ry is qy.
+    local sTg is 0.
+    if reFinal {
+        set reMode to "FINAL".
+        local ahead is sqrt(max(0, L1^2 - py^2)).
+        set rx to px + max(ahead, 0.2*L1).
+        set ry to 0.
+        set sTg to max(0, -px).
+    } else if dC > R + L1 {
+        set reMode to "PURSUIT".
+        set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
+    } else {
+        set reMode to "HAC".
+        // point on the circle at distance L1 ahead of the ship's angular position
+        local L1e is max(L1, abs(dC - R) + 1).
+        local cosA is max(-1, min(1, (dC^2 + R^2 - L1e^2)/(2*dC*R))).
+        local thR is thS + sig*arccos(cosA).
+        set rx to cx + R*cos(thR).
+        set ry to cy + R*sin(thR).
+        set sTg to R*remS*constant:pi/180 + Df.
+    }
+
+    // --- L1 lateral acceleration ---
+    local dx is rx - px.
+    local dy is ry - py.
+    local dRef is max(1, sqrt(dx^2 + dy^2)).
+    local sinEta is (vx*dy - vy*dx)/(V*dRef).
+    local aLat is 2*V^2/max(L1, dRef)*sinEta.             // [m/s²], + = toward CCW-perp
+    local aVec is (e1*(-vy) + e2*vx):normalized * aLat.   // 3D, horizontal
+
+    // --- downrange / energy ---
+    local sPred is reArc(ship:position, addons:tr:impactpos:position).
+    set reRangeErr to sPred - sTg - LngLatOffset.
+    local phiE is min(rePhiEMax, max(0, reKE*reRangeErr/max(sTg, R) * 57.3)).
+
+    // --- bank command ---
+    local rightV is vcrs(vel, upV):normalized.
+    local sgn is 1.
+    if vdot(aVec, rightV) < 0 set sgn to -1.
+    local phiLat is arcsin(min(abs(aLat)/max(L, 0.1), sin(rePhiMax))).
+    if phiLat > 2 set rePhiSign to sgn.
+    local phi is min(rePhiMax, max(phiLat, phiE)).
+    set reYawCmd to reYawSign * rePhiSign * phi.
+
+    // == Debug ==
+    //set reDrawC to vecDraw(T + e1*cx + e2*cy, upV*R*0.1, yellow, "HAC c", 1, true, 1).
+    //set reDrawR to vecDraw(v(0,0,0), (T + e1*rx + e2*ry) - ship:position, green, "ref " + reMode, 1, true, 0.5).
 }
 
 
