@@ -1699,6 +1699,8 @@ function rePredInit {
     set reJob    to 0.        // 0 idle, 1 = α run, 2 = α+3° run, 3 = correct
     set reS1     to 0.
     set reJobTgt to 0.
+    set reDProf to list().  set reDProfNew to list().
+    set reDProfA to 60.     set reDIdx to 0.
     set rePRun   to false.
 }
 
@@ -1744,27 +1746,30 @@ function rePredStart {
     set rePV to reP0V.  set rePG to reP0G.  set rePH to reP0H.
     set rePS to 0.      set rePN to 0.
     set rePRun to reP0KD > 1e-12.
+    set reDProfNew to list().
     if not rePRun set rePS to 0.
 }
 
 
 set rsWMax   to 6.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 3.      // [deg/s]   max roll rate
-set rsAlphaB to 0.5.    // [deg/s²]  usable braking acceleration (braking curve)
+set rsAlphaB to 1.0.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 6.      // [s]       settling time near the target
 set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
 set rsKwR    to 0.08.   // [1/(deg/s)] rate loop roll
-set rsKi     to 0.0025.  // [1/(deg·s)] trim integrator
+set rsKi     to 0.0025. // [1/(deg·s)] trim integrator
 set rsTsB     to 2.5.   // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.5.   // [deg/s²]  braking acceleration in the bellyflop
 set rsWMaxB   to 8.     // [deg/s]   max rate in the bellyflop
-set rsKqMax   to 2.4.     // [-]       max gain increase at low dynamic pressure
-set rsIRange to 14.     // [deg]     integrator only below this error
+set rsKqMax   to 2.4.   // [-]       max gain increase at low dynamic pressure
+set rsIRange to 12.     // [deg]     integrator only below this error
 set rsIMax   to 0.6.    // [-]       max trim input
 set rsSlew  to 3.       // [1/s]    max change of the control input per second
-set rsTauU  to 0.3.     // [s]      output smoothing
-set rsRollRange to 36.   // [deg] roll position control only below this pointing error
-set rsTauW to 0.1.       // [s]   body-rate filter
+set rsTauU  to 0.2.     // [s]      output smoothing
+set rsRollRange to 36.  // [deg] roll position control only below this pointing error
+set rsTauW to 0.1.      // [s]   body-rate filter
+set reKFb       to 0.5.   // [-]   drag feedback gain (1 = cancel the full drag deviation)
+set reDAoAFbMax to 6.     // [deg] max feedback contribution
 set rsSgnP  to 1.
 set rsSgnY  to 1.
 set rsSgnR  to 1.
@@ -1784,10 +1789,10 @@ function ReRawSteerInit {
 }
 
 
-set rePhiMaxP  to 24.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxP  to 32.      // [deg]  max bank in PURSUIT (lead-in, away from target)
 set rePhiMaxH  to 65.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
 set rePhiPlan  to 65.      // [deg]  bank the turn circle is sized for
-set reBankRate to 3.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
+set reBankRate to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set rePhiMax   to 45.      // [deg]  max bank
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
@@ -1813,7 +1818,7 @@ set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
 set reDobMarginDeg to 6.  // [deg]  deorbit aims this far past the target
-set reVHac     to 750*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
+set reVHac     to 800*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reAoAMinT to 74.
 set reAoAMaxT to 86.
@@ -12937,21 +12942,21 @@ function ReEntryAndLand {
                         else if vAng(TowerHeadingVector, vCrs(Vessel(TargetedOLM):up:vector, Vessel(TargetedOLM):north:vector)) < 42 set TowerHeading to "East".
                         else set TowerHeading to "West".
                         set dbactive to true.
-                        set Vessel(TargetedOLM):loaddistance:landed:unpack to 1200.
+                        set Vessel(TargetedOLM):loaddistance:landed:unpack to 2200.
                         wait 0.
-                        set Vessel(TargetedOLM):loaddistance:landed:pack to 1250.
+                        set Vessel(TargetedOLM):loaddistance:landed:pack to 3250.
                         wait 0.001.
-                        set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to 1200.
+                        set Vessel(TargetedOLM):loaddistance:prelaunch:unpack to 2200.
                         wait 0.
-                        set Vessel(TargetedOLM):loaddistance:prelaunch:pack to 1250.
+                        set Vessel(TargetedOLM):loaddistance:prelaunch:pack to 3250.
                         wait 0.001.
-                        set Vessel(TargetedOLM):loaddistance:landed:load to 2200.
+                        set Vessel(TargetedOLM):loaddistance:landed:load to 3200.
                         wait 0.
-                        set Vessel(TargetedOLM):loaddistance:landed:unload to 3250.
+                        set Vessel(TargetedOLM):loaddistance:landed:unload to 4250.
                         wait 0.001.
-                        set Vessel(TargetedOLM):loaddistance:prelaunch:load to 2200.
+                        set Vessel(TargetedOLM):loaddistance:prelaunch:load to 3200.
                         wait 0.
-                        set Vessel(TargetedOLM):loaddistance:prelaunch:unload to 3250.
+                        set Vessel(TargetedOLM):loaddistance:prelaunch:unload to 4250.
                         wait 0.001.
                         //hudtext("Unloading Tower.",3,2,16,green,true).
                     }
@@ -13163,7 +13168,6 @@ function ReEntrySteering {
         ReGuidUpdate().
 
         if airspeed < 320 and currentAoA > 74 and time:seconds - ProgramStartTime > 2 set Bellyflop to true.
-        else set Bellyflop to false.
         if Bellyflop set minAoA to 70.
         else set minAoA to 42.
 
@@ -13180,13 +13184,7 @@ function ReEntrySteering {
         set DesiredAoA to min(max(minAoA, DesiredAoA), maxAoA).
         set pitchctrl to DesiredAoA - aoa. 
 
-        if RadarAlt > 5000 {
-            set SRFPRGD to srfprograde.
-        }
-        else if time:seconds > t + 5 {
-            set t to time:seconds.
-            set SRFPRGD to srfprograde.
-        }
+        set SRFPRGD to srfprograde.
 
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
@@ -13590,6 +13588,17 @@ function ReEntryData {
 }
 
 
+function reDRef {
+    parameter rdV.
+    if reDProf:length < 2 return -1.
+    until reDIdx >= reDProf:length - 2 or reDProf[reDIdx+1][0] <= rdV { set reDIdx to reDIdx + 1. }
+    local rdA is reDProf[reDIdx].
+    local rdB is reDProf[reDIdx+1].
+    if rdA[0] - rdB[0] < 0.1 return rdA[1].
+    local rdF is max(0, min(1, (rdA[0] - rdV)/(rdA[0] - rdB[0]))).
+    return rdA[1] + (rdB[1] - rdA[1])*rdF.
+}
+
 function rePredStep {
     parameter psMaxSteps.
     if not rePRun return true.
@@ -13620,6 +13629,7 @@ function rePredStep {
         local psHdotA  is rePV*sin(rePG).
         local psSdotA  is rePV*cos(rePG)*psBodyR/psRadA.
         local psStep   is min(reStepMax, max(1, 0.12*rePV/max(psDragA, 0.1))).
+        if reJob = 1 reDProfNew:add(list(rePV, psDragA)).
 
         // Euler predictor state
         local psVelB   is max(1, rePV + psVdotA*psStep).
@@ -13933,6 +13943,7 @@ function ReGuidUpdate {
     }
     if reJob > 0 and rePredStep(reStepsPerCall) {
         if reJob = 1 {
+            set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
             set reS1 to rePS.
             set reSlopeN to reSlopeN + 1.
             if reSlopeN >= 3 or reSlope = 0 {
@@ -13957,8 +13968,19 @@ function ReGuidUpdate {
     }
     local phiE is min(rePhiEMax, max(0, reKE*reResid/max(sTg, reRt2)*57.3)).
 
+    local fbAlpha is aoa + reDAoASol.
+    local fbDm is -vdot(reAeroV, vel:normalized).
+    local fbDr is reDRef(vel:mag).
+    local fbDA is 0.
+    if fbDr > 0 and fbDm > 0.2 {
+        set fbDr to fbDr*sin(fbAlpha)^3/max(sin(reDProfA)^3, 0.01).
+        local fbCot is cos(fbAlpha)/max(sin(fbAlpha), 0.01).
+        set fbDA to reKFb*57.3*(fbDr - fbDm)/(3*fbDm*max(fbCot, 0.05)).
+        set fbDA to min(reDAoAFbMax, max(-reDAoAFbMax, fbDA)).
+    }
+    local fbTotal is min(reDAoAMax, max(-reDAoAMax, reDAoASol + fbDA)).
     if reAoACmd = 0 set reAoACmd to vang(facing:forevector, vel).
-    set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, (aoa + reDAoASol) - reAoACmd)).
+    set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, (aoa + fbTotal) - reAoACmd)).
 
     // --- bank command ---
     local rightV is vcrs(vel, upV):normalized.

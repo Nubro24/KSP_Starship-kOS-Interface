@@ -2679,21 +2679,21 @@ function Boostback {
             else if vAng(TheTowerHeadingVector, vCrs(Vessel(TargetOLM):up:vector, Vessel(TargetOLM):north:vector)) < 42 set TowerHeading to "East".
             else set TowerHeading to "West".
             set dbactive to true.
-            set Vessel(TargetOLM):loaddistance:landed:unpack to 1200.
+            set Vessel(TargetOLM):loaddistance:landed:unpack to 2200.
             wait 0.
-            set Vessel(TargetOLM):loaddistance:landed:pack to 1250.
+            set Vessel(TargetOLM):loaddistance:landed:pack to 3250.
             wait 0.001.
-            set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 1200.
+            set Vessel(TargetOLM):loaddistance:prelaunch:unpack to 2200.
             wait 0.
-            set Vessel(TargetOLM):loaddistance:prelaunch:pack to 1250.
+            set Vessel(TargetOLM):loaddistance:prelaunch:pack to 3250.
             wait 0.001.
-            set Vessel(TargetOLM):loaddistance:landed:load to 2200.
+            set Vessel(TargetOLM):loaddistance:landed:load to 4200.
             wait 0.
-            set Vessel(TargetOLM):loaddistance:landed:unload to 3250.
+            set Vessel(TargetOLM):loaddistance:landed:unload to 5250.
             wait 0.001.
-            set Vessel(TargetOLM):loaddistance:prelaunch:load to 2200.
+            set Vessel(TargetOLM):loaddistance:prelaunch:load to 4200.
             wait 0.
-            set Vessel(TargetOLM):loaddistance:prelaunch:unload to 3250.
+            set Vessel(TargetOLM):loaddistance:prelaunch:unload to 5250.
             wait 0.001.
             //hudtext("Unloading Tower.",3,2,16,green,true).
         }
