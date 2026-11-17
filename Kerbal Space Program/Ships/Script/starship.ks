@@ -1680,6 +1680,41 @@ function FindParts {
 
 //-------------Initial Program Start-Up--------------------//
 
+set reVAoASw    to 700*Scale.   // [m/s] below: predictor uses LandingAoA (your profile switch)
+set reStepMax   to 8.           // [s]   max predictor step
+set rePredPeriod to 2.          // [s]   predictor update period
+set reKDMin     to 1e-12.       // guard
+
+function rePredInit {
+    set reKD     to 0.
+    set reLD0    to 0.3.
+    set reA0     to 60.
+    set reLastPred to 0.
+    set reDAoASol to 0.
+    set reSlope  to 0.
+    set reResid  to 0.
+}
+
+// learn the aero coefficients from the measured aero acceleration (call every guidance tick)
+function reLearnAero {
+    parameter aeroV.
+    local vel is velocity:surface.
+    local pV  is vel:mag.
+    local pP  is body:atm:altitudepressure(altitude).
+    local pD  is -vdot(aeroV, vel:normalized).
+    local pL  is vxcl(vel, aeroV):mag.
+    if pP > 1e-6 and pD > 0.2 {
+        local a0 is max(20, vang(facing:forevector, vel)).
+        local kNew  is pD/(pP*pV^2).
+        local ldNew is pL/pD.
+        if reKD <= 0 set reKD to kNew.
+        set reKD  to reKD  + (kNew  - reKD) *0.1.     // ~ 2 s low-pass at 0.2 s calls
+        set reLD0 to reLD0 + (ldNew - reLD0)*0.1.
+        set reA0  to reA0  + (a0    - reA0) *0.1.
+    }
+}
+
+
 set rsWMax   to 6.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 4.      // [deg/s]   max roll rate
 set rsAlphaB to 0.5.    // [deg/s²]  usable braking acceleration (braking curve)
@@ -1687,14 +1722,16 @@ set rsTs     to 6.      // [s]       settling time near the target
 set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
 set rsKwR    to 0.10.   // [1/(deg/s)] rate loop roll
 set rsKi     to 0.0025.  // [1/(deg·s)] trim integrator
+set rsTsB     to 2.5.   // [s]       settling time in the bellyflop 
+set rsAlphaBB to 1.5.   // [deg/s²]  braking acceleration in the bellyflop
+set rsWMaxB   to 8.     // [deg/s]   max rate in the bellyflop
+set rsKqMax   to 2.4.     // [-]       max gain increase at low dynamic pressure
 set rsIRange to 14.     // [deg]     integrator only below this error
 set rsIMax   to 0.6.    // [-]       max trim input
-set rsSlew  to 0.75.     // [1/s]    max change of the control input per second
-set rsTauU  to 0.25.    // [s]      output smoothing
+set rsSlew  to 3.       // [1/s]    max change of the control input per second
+set rsTauU  to 0.3.     // [s]      output smoothing
 set rsRollRange to 36.   // [deg] roll position control only below this pointing error
 set rsTauW to 0.1.       // [s]   body-rate filter
-set rsSlew to 2.0.       // [1/s] full deflection in 0.5 s
-set rsTauU to 0.1.       // [s]
 set rsSgnP  to 1.
 set rsSgnY  to 1.
 set rsSgnR  to 1.
@@ -1710,6 +1747,7 @@ function ReRawSteerInit {
     set rsLastTop to facing:topvector.
     set rsW       to v(0,0,0).
     set rsI to v(0,0,0).
+    set rsQRef to 0.
     set rsActive to true.
     unlock steering.
 }
@@ -1795,6 +1833,7 @@ function ReGuidInit {
     set reSPred to 0.
     set rePhiF to 0.
     set reHACLatch to false.
+    rePredInit().
     set reInit    to true.
 }
 
@@ -12720,7 +12759,7 @@ function ReEntryAndLand {
         set FindNewTarget to false.
         set LZsettoOLM to false.
         set tt to time:seconds.
-        set config:ipu to CPUSPEED*1.5.
+        set config:ipu to 2000.
         set LandSomewhereElse to false.
         set DistanceToTarget to 5000.
         SetPlanetData().
@@ -12950,12 +12989,6 @@ function ReEntryAndLand {
                         setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 8).
                     }
                     set runningprogram to "Final Approach".
-                    set rsAlphaB to 0.8.
-                    set rsTs     to 5.
-                    set rsKw     to 0.2.
-                    set rsKwR    to 0.14.
-                    set rsKi     to 0.003.
-                    set rsIRange to 24.
                     wait 0.1.
                     set below300Time to time:seconds.
                     if not DynamicBanking when time:seconds > below300Time + 1.2 then CheckLZReachable().
@@ -13534,10 +13567,75 @@ function ReEntryData {
     }
 }
 
+
+
+// predicted ground distance [m] until FlipAltitude
+function rePredict {
+    parameter aTest, phiCur, phiArc, sCurP, sArcP.
+    if reKD <= reKDMin return 0.
+    local pR  is body:radius.
+    local pMu is body:mu.
+    local vel is velocity:surface.
+    local pV  is vel:mag.
+    local pGam is arcsin(max(-1, min(1, verticalspeed/max(pV,1)))).
+    local pH  is altitude.
+    local pS  is 0.
+    local vRot is vdot(velocity:orbit - velocity:surface, vxcl(up:vector, vel):normalized).
+    local hEnd is altitude - RadarAlt + FlipAltitude.          // target-relative end height
+    local s3a0 is sin(reA0)^3.
+    local ct0  is cos(reA0)/max(sin(reA0), 0.01).
+    local n is 0.
+
+    until pH <= hEnd or pV < 30 or n > 400 {
+        // AoA + bank schedule
+        local al is aTest.
+        if pV < reVAoASw set al to LandingAoA.
+        local ph is 0.
+        if pS < sCurP set ph to phiCur.
+        else if pS < sCurP + sArcP set ph to phiArc.
+        local kd is reKD*sin(al)^3/s3a0.
+        local ld is reLD0*(cos(al)/max(sin(al),0.01))/ct0.
+
+        // derivative at the current state
+        local r1 is pR + pH.
+        local g1 is pMu/r1^2.
+        local D1 is kd*body:atm:altitudepressure(pH)*pV^2.
+        local vi1 is pV*cos(pGam) + vRot.
+        local dV1 is -D1 - g1*sin(pGam).
+        local dG1 is (ld*D1*cos(ph) - (g1 - vi1^2/r1)*cos(pGam))/pV * 57.2958.
+        local dH1 is pV*sin(pGam).
+        local dS1 is pV*cos(pGam)*pR/r1.
+
+        local st is min(reStepMax, max(0.5, 0.05*pV/max(D1, 0.1))).
+
+        // predictor step
+        local V2 is max(1, pV + dV1*st).
+        local G2 is pGam + dG1*st.
+        local H2 is pH + dH1*st.
+        local r2 is pR + H2.
+        local g2 is pMu/r2^2.
+        local D2 is kd*body:atm:altitudepressure(max(H2,0))*V2^2.
+        local vi2 is V2*cos(G2) + vRot.
+        local dV2 is -D2 - g2*sin(G2).
+        local dG2 is (ld*D2*cos(ph) - (g2 - vi2^2/r2)*cos(G2))/V2 * 57.2958.
+        local dH2 is V2*sin(G2).
+        local dS2 is V2*cos(G2)*pR/r2.
+
+        // Heun corrector
+        set pV   to max(1, pV + 0.5*(dV1 + dV2)*st).
+        set pGam to max(-89, min(89, pGam + 0.5*(dG1 + dG2)*st)).
+        set pH   to pH + 0.5*(dH1 + dH2)*st.
+        set pS   to pS + 0.5*(dS1 + dS2)*st.
+        set n to n + 1.
+    }
+    return pS.
+}
+
+
 function rsWRef {
-    parameter e, wMax.
+    parameter e, wMax, ts, ab.
     local s is 1. if e < 0 set s to -1.
-    return s*min(wMax, min(sqrt(2*rsAlphaB*abs(e)), abs(e)/rsTs)).
+    return s*min(wMax, min(sqrt(2*ab*abs(e)), abs(e)/ts)).
 }
 
 function ReRawSteer {
@@ -13565,11 +13663,16 @@ function ReRawSteer {
     local angErr is vang(rawtF, rawFw).
     local wR is max(0, min(1, (rsRollRange - angErr)/(0.5*rsRollRange))).
 
+    local rawTs is rsTs.  local rawAB is rsAlphaB.  local rawWM is rsWMax.
+    if Bellyflop { set rawTs to rsTsB. set rawAB to rsAlphaBB. set rawWM to rsWMaxB. }
+    if rsQRef <= 0 and ship:q > 0 set rsQRef to ship:q.            // reference q at controller start
+    local rawKq is min(rsKqMax, max(1, rsQRef/max(ship:q, 1e-6))).
+
     // outer loop: angle error -> target rate (braking curve)
-    local rawWr is v(rsWRef(rawe:x, rsWMax), rsWRef(rawe:y, rsWMax), wR*rsWRef(rawe:z, rsWMaxR)).
+    local rawWr is v(rsWRef(rawe:x, rawWM, rawTs, rawAB), rsWRef(rawe:y, rawWM, rawTs, rawAB), wR*rsWRef(rawe:z, rsWMaxR, rawTs, rawAB)).
 
     // inner loop: rate error -> input, plus protected integrator (trim)
-    local rawUp is v(rsKw*(rawWr:x - rsW:x), rsKw*(rawWr:y - rsW:y), rsKwR*(rawWr:z - rsW:z)) + rsI.
+    local rawUp is v(rawKq*rsKw*(rawWr:x - rsW:x), rawKq*rsKw*(rawWr:y - rsW:y), rsKwR*(rawWr:z - rsW:z)) + rsI.
     if abs(rawe:x) < rsIRange and abs(rawUp:x) < 1 set rsI:x to max(-rsIMax, min(rsIMax, rsI:x + rsKi*rawe:x*dt)).
     if abs(rawe:y) < rsIRange and abs(rawUp:y) < 1 set rsI:y to max(-rsIMax, min(rsIMax, rsI:y + rsKi*rawe:y*dt)).
     if wR >= 1 and abs(rawe:z) < rsIRange and abs(rawUp:z) < 1 set rsI:z to max(-rsIMax, min(rsIMax, rsI:z + rsKi*rawe:z*dt)).
@@ -13679,7 +13782,7 @@ function ReGuidUpdate {
 
     // --- path window (any atmosphere, tower optional) ---
     local mustEnd is airspeed < reVEnd or RadarAlt < reAltEnd or not ship:body:atm:exists.
-    local canStart is reLift > reLMin and addons:tr:hasimpact.
+    local canStart is reLift > reLMin.
     local active is not mustEnd and (reGActive or canStart).
     if not active {
         if reGActive { set reGActive to false. set landingzone to TgtLandingzone. }
@@ -13791,7 +13894,8 @@ function ReGuidUpdate {
     local aLat is 2*reVh^2/max(L1, dRef)*sinEta. 
     local aVec is (e1*(-vy) + e2*vx):normalized * aLat.  
 
-    // --- downrange / energy ---
+    // --- downrange / energy (onboard predictor) ---
+    reLearnAero(reAeroV).
     set rePhiF to rePhiF + (abs(reYawCmd) - rePhiF)*min(1, dt/(rePhiTau + dt)).
     local sArc is 0.
     if reMode = "PURSUIT" set sArc to arcQ.
@@ -13800,25 +13904,26 @@ function ReGuidUpdate {
     set reSCurL  to sCur.
     set reThRemL to sArc/reRt2.
     if reMode = "FINAL" set sCur to sTg.
-    local cCur is max(0.2, cos(rePhiF)^reBankExp).
     local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
-    local cArc is max(0.2, cos(phiArc)^reBankExp).
-    local sReq is sCur/cCur + sArc/cArc + Df.
-    if addons:tr:hasimpact set reSPred to reArc(ship:position, addons:tr:impactpos:position).
-    local sPred is reSPred.
-    set reRangeErr to sPred - sReq - LngLatOffset.
-    local epsSat is reDAoAMax/(57.3*max(reKA, 0.01)).
-    local phiE is min(rePhiEMax, max(0, reKE*(reRangeErr/max(sTg, reRt2) - epsSat)*57.3)).
+    local sTarget is sTg + LngLatOffset.
 
-    // --- pitch: normalized range error -> AoA around the planned profile ---
-    local eps is reRangeErr/max(sTg, reRt2). 
-    if reEpsF < -900 set reEpsF to eps.
-    local epsDot is (eps - reEpsF)/dt.
-    set reEpsF to eps.
-    set reEpsDF to reEpsDF + (epsDot - reEpsDF)*min(1, dt/(reEpsTau + dt)).
-    local dAoA is min(reDAoAMax, max(-reDAoAMax, reKA*eps*57.3 + reKAd*reEpsDF*57.3)).
+    if time:seconds > reLastPred + rePredPeriod {
+        set reLastPred to time:seconds.
+        local s1 is rePredict(aoa + reDAoASol,     rePhiF, phiArc, sCur, sArc).
+        local s2 is rePredict(aoa + reDAoASol + 3, rePhiF, phiArc, sCur, sArc).
+        set reSlope to (s2 - s1)/3.
+        set reSPred to s1.
+        local dNew is reDAoASol.
+        if abs(reSlope) > 1 set dNew to reDAoASol + (sTarget - s1)/reSlope.
+        local dClamp is min(reDAoAMax, max(-reDAoAMax, dNew)).
+        set reResid to s1 + reSlope*(dClamp - reDAoASol) - sTarget. 
+        set reDAoASol to reDAoASol + (dClamp - reDAoASol)*reKA.
+    }
+    set reRangeErr to reSPred - sTarget.
+    local phiE is min(rePhiEMax, max(0, reKE*reResid/max(sTg, reRt2)*57.3)).
+
     if reAoACmd = 0 set reAoACmd to vang(facing:forevector, vel).
-    set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, (aoa + dAoA) - reAoACmd)).
+    set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, (aoa + reDAoASol) - reAoACmd)).
 
     // --- bank command ---
     local rightV is vcrs(vel, upV):normalized.
