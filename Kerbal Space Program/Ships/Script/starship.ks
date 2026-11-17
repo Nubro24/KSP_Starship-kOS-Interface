@@ -1682,17 +1682,17 @@ function FindParts {
 
 set rsWMax   to 6.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 4.      // [deg/s]   max roll rate
-set rsAlphaB to 0.6.    // [deg/s²]  usable braking acceleration (braking curve)
+set rsAlphaB to 0.5.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 6.      // [s]       settling time near the target
-set rsKw     to 0.12.   // [1/(deg/s)] rate loop pitch/yaw
+set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
 set rsKwR    to 0.10.   // [1/(deg/s)] rate loop roll
-set rsKi     to 0.002.  // [1/(deg·s)] trim integrator
-set rsIRange to 10.     // [deg]     integrator only below this error
+set rsKi     to 0.0025.  // [1/(deg·s)] trim integrator
+set rsIRange to 14.     // [deg]     integrator only below this error
 set rsIMax   to 0.6.    // [-]       max trim input
-set rsSlew  to 0.8.     // [1/s]    max change of the control input per second
+set rsSlew  to 0.75.     // [1/s]    max change of the control input per second
 set rsTauU  to 0.25.    // [s]      output smoothing
-set rsRollRange to 30.   // [deg] roll position control only below this pointing error
-set rsTauW to 0.1.       // [s]   body-rate filter (short! replaces rsTauD)
+set rsRollRange to 36.   // [deg] roll position control only below this pointing error
+set rsTauW to 0.1.       // [s]   body-rate filter
 set rsSlew to 2.0.       // [1/s] full deflection in 0.5 s
 set rsTauU to 0.1.       // [s]
 set rsSgnP  to 1.
@@ -1715,9 +1715,9 @@ function ReRawSteerInit {
 }
 
 
-set rePhiMaxP  to 42.      // [deg]  max bank in PURSUIT (lead-in, away from target)
-set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 50.      // [deg]  bank the turn circle is sized for (margin to 75°)
+set rePhiMaxP  to 24.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxH  to 65.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
+set rePhiPlan  to 65.      // [deg]  bank the turn circle is sized for
 set reBankRate to 3.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set rePhiMax   to 45.      // [deg]  max bank
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
@@ -1726,7 +1726,7 @@ set reRCap     to 0.8.    // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.6.     // [-]    energy-bank gain
 set rePhiEMax  to 45.      // [deg]  max energy bank
 set reYawSign  to 1.
-set reApprSign to 1.       // [-]    final approach along +TowerHeadingVector (−1 = opposite)
+set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
 set reVEnd     to 330.
 set reAltEnd   to 750.
@@ -1746,7 +1746,8 @@ set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
 set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
-set reVHac     to 650*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
+set reVHac     to 750*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
+set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reAoAMinT to 74.
 set reAoAMaxT to 86.
 set reTerm     to false.
@@ -1776,8 +1777,6 @@ function reArc {                                    // great-circle distance [m]
 
 function ReGuidInit {
     set reLastT   to time:seconds.
-    set reLastVel to reToSurf(velocity:surface).
-    set reAero    to v(0,0,0).
     set reRt      to 0.
     set reSide    to 0.
     set rePhiSign to 1.
@@ -1791,6 +1790,8 @@ function ReGuidInit {
     set reLastVelO to velocity:orbit.
     set reAeroV    to v(0,0,0).
     if not (defined reApprHdg) set reApprHdg to 0.
+    set reSCurL  to 0.
+    set reThRemL to 0.
     set reSPred to 0.
     set rePhiF to 0.
     set reHACLatch to false.
@@ -12949,6 +12950,12 @@ function ReEntryAndLand {
                         setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 8).
                     }
                     set runningprogram to "Final Approach".
+                    set rsAlphaB to 0.8.
+                    set rsTs     to 5.
+                    set rsKw     to 0.2.
+                    set rsKwR    to 0.14.
+                    set rsKi     to 0.003.
+                    set rsIRange to 24.
                     wait 0.1.
                     set below300Time to time:seconds.
                     if not DynamicBanking when time:seconds > below300Time + 1.2 then CheckLZReachable().
@@ -13706,6 +13713,13 @@ function ReGuidUpdate {
     // --- turn radius (filtered, capped) ---
     local Rhac is reVHac^2/(gMag*tan(rePhiPlan)).
     local Rraw is min(min(reVh^2/(reLift*sin(rePhiPlan)), Rhac), reRCap*dTgt).
+    if reSPred > 0 {
+        local Rmin is reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH)).
+        local cC   is max(0.2, cos(rePhiF)^reBankExp).
+        local cA   is max(0.2, cos(min(rePhiMaxH, arctan(reVHac^2/(gMag*max(reRt,1)))))^reBankExp).
+        local Ren  is (reSPred*(1 - reEMargin) - reSCurL/cC) / (reThRemL/cA + reKf).
+        set Rraw to min(Rraw, max(Rmin, Ren)).
+    }
     if reRt <= 0 set reRt to Rraw.
     set reRt to reRt + (Rraw - reRt)*min(1, dt/(reRTau + dt)).
     local reRt2  is max(reRt, 1).
@@ -13783,6 +13797,8 @@ function ReGuidUpdate {
     if reMode = "PURSUIT" set sArc to arcQ.
     else if reMode = "HAC" set sArc to reRt2*remS*constant:pi/180.
     local sCur is max(0, sTg - sArc - Df).
+    set reSCurL  to sCur.
+    set reThRemL to sArc/reRt2.
     if reMode = "FINAL" set sCur to sTg.
     local cCur is max(0.2, cos(rePhiF)^reBankExp).
     local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
