@@ -1681,9 +1681,11 @@ function FindParts {
 //-------------Initial Program Start-Up--------------------//
 
 set reVAoASw       to 700*Scale.  // [m/s] below: predictor uses LandingAoA
-set reStepMax      to 8.          // [s]   max predictor step
+set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
-set reStepsPerCall to 8.          // [-]   integration steps per guidance call (IPU knob)
+set reStepsPerCall to 12.          // [-]   integration steps per guidance call (IPU knob)
+set reKDLow        to 1.0.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
+set reLDLow        to 0.1.        // [-]  max L/D in the bellyflop
 
 function rePredInit {
     set reKD     to 0.
@@ -1708,12 +1710,12 @@ function reLearnAero {
     local pP  is body:atm:altitudepressure(altitude).
     local pD  is -vdot(aeroV, vel:normalized).
     local pL  is vxcl(vel, aeroV):mag.
-    if pP > 1e-6 and pD > 0.2 {
+    if pP > 1e-6 and pD > 0.2 and not rcs {
         local a0 is max(20, vang(facing:forevector, vel)).
         local kNew  is pD/(pP*pV^2).
         local ldNew is pL/pD.
         if reKD <= 0 set reKD to kNew.
-        set reKD  to reKD  + (kNew  - reKD) *0.1.     // ~ 2 s low-pass at 0.2 s calls
+        set reKD  to reKD  + (kNew  - reKD) *0.1.
         set reLD0 to reLD0 + (ldNew - reLD0)*0.1.
         set reA0  to reA0  + (a0    - reA0) *0.1.
     }
@@ -1747,11 +1749,11 @@ function rePredStart {
 
 
 set rsWMax   to 6.      // [deg/s]   max pitch/yaw rate
-set rsWMaxR  to 4.      // [deg/s]   max roll rate
+set rsWMaxR  to 3.      // [deg/s]   max roll rate
 set rsAlphaB to 0.5.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 6.      // [s]       settling time near the target
 set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
-set rsKwR    to 0.10.   // [1/(deg/s)] rate loop roll
+set rsKwR    to 0.08.   // [1/(deg/s)] rate loop roll
 set rsKi     to 0.0025.  // [1/(deg·s)] trim integrator
 set rsTsB     to 2.5.   // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.5.   // [deg/s²]  braking acceleration in the bellyflop
@@ -1810,7 +1812,7 @@ set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
+set reDobMarginDeg to 6.  // [deg]  deorbit aims this far past the target
 set reVHac     to 750*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reAoAMinT to 74.
@@ -1848,6 +1850,7 @@ function ReGuidInit {
     set reThRemL to 0.
     set reSPred to 0.
     set rePhiF to 0.
+    set reSTgtL to 0.
     set reHACLatch to false.
     rePredInit().
     set reInit    to true.
@@ -13604,6 +13607,8 @@ function rePredStep {
         else if rePS < rePSc + rePSa set psBank to rePPa.
         local psKDrag is reP0KD*sin(psAoA)^3/reP0S3.
         local psLoD   is reP0LD*(cos(psAoA)/max(sin(psAoA),0.01))/reP0Ct.
+        if rePV < reVAoASw set psKDrag to psKDrag*reKDLow.
+        if rePV < reVTerm  set psLoD to min(psLoD, reLDLow).
 
         // derivatives at the current state
         local psRadA   is psBodyR + rePH.
@@ -13614,7 +13619,7 @@ function rePredStep {
         local psGdotA  is (psLoD*psDragA*cos(psBank) - (psGravA - psVInA^2/psRadA)*cos(rePG))/rePV * 57.2958.
         local psHdotA  is rePV*sin(rePG).
         local psSdotA  is rePV*cos(rePG)*psBodyR/psRadA.
-        local psStep   is min(reStepMax, max(0.5, 0.05*rePV/max(psDragA, 0.1))).
+        local psStep   is min(reStepMax, max(1, 0.12*rePV/max(psDragA, 0.1))).
 
         // Euler predictor state
         local psVelB   is max(1, rePV + psVdotA*psStep).
@@ -13831,7 +13836,7 @@ function ReGuidUpdate {
         local Rmin is reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH)).
         local cC   is max(0.2, cos(rePhiF)^reBankExp).
         local cA   is max(0.2, cos(min(rePhiMaxH, arctan(reVHac^2/(gMag*max(reRt,1)))))^reBankExp).
-        local Ren  is (reSPred*(1 - reEMargin) - reSCurL/cC) / (reThRemL/cA + reKf).
+        local Ren is ((reSTgtL + reRangeErr)*(1 - reEMargin) - reSCurL/cC) / (reThRemL/cA + reKf).
         set Rraw to min(Rraw, max(Rmin, Ren)).
     }
     if reRt <= 0 set reRt to Rraw.
@@ -13917,13 +13922,14 @@ function ReGuidUpdate {
     if reMode = "FINAL" set sCur to sTg.
     local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
     local sTarget is sTg + LngLatOffset.
+    set reSTgtL to sTarget.
 
     if reJob = 0 and time:seconds > reLastPred + rePredPeriod {
-     set reLastPred to time:seconds.
-     rePredSnap().
-     rePredStart(aoa + reDAoASol, rePhiF, phiArc, sCur, sArc).
-     set reJobTgt to sTarget.
-     set reJob to 1.
+    set reLastPred to time:seconds.
+    rePredSnap().
+    rePredStart(aoa + reDAoASol, rePhiF, phiArc, sCur, sArc).
+    set reJobTgt to sTarget.
+    set reJob to 1.
     }
     if reJob > 0 and rePredStep(reStepsPerCall) {
         if reJob = 1 {
@@ -13940,6 +13946,7 @@ function ReGuidUpdate {
         }
         if reJob = 3 {
             set reSPred to reS1.
+            set reRangeErr to reS1 - reJobTgt.
             local dNew is reDAoASol.
             if abs(reSlope) > 1 set dNew to reDAoASol + (reJobTgt - reS1)/reSlope.
             local dClamp is min(reDAoAMax, max(-reDAoAMax, dNew)).
@@ -13948,7 +13955,6 @@ function ReGuidUpdate {
             set reJob to 0.
         }
     }
-    set reRangeErr to reSPred - sTarget.
     local phiE is min(rePhiEMax, max(0, reKE*reResid/max(sTg, reRt2)*57.3)).
 
     if reAoACmd = 0 set reAoACmd to vang(facing:forevector, vel).

@@ -4448,13 +4448,13 @@ function GetBoosterRotation {
                 set varPredctVec to vxcl(up:vector, BoosterEngines[0]:position - Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position + cgTgo *GSVec*0.3).
             }
         }
-        set varVecFinal to varVec + varPredctVec/2.
+        set varVecFinal to (varVec + varPredctVec)/2.
         set varFinal to vang(varVecFinal, TowerHeadingVector).
 
         if vAng(vCrs(TowerHeadingVector,up:vector),varVecFinal) < 90 set varFinal to -varFinal.
 
-        set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position,varVecFinal,yellow,"Arm Angle",2,true,0.05).
-        set drawTHV to vecDraw(Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position,2.1*TowerHeadingVector:normalized,red,"THV",1,true, 0.1).
+        //set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position,varVecFinal,yellow,"Arm Angle",2,true,0.05).
+        //set drawTHV to vecDraw(Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position,2.1*TowerHeadingVector:normalized,red,"THV",1,true, 0.1).
         //set drawMZA to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,varVecFinal,yellow,"Arm Angle",2,true,0.05).
         //set drawTHV to vecDraw(Vessel(TargetOLM):PARTSNAMED("SLE.SS.OLIT.MZ")[0]:position,2.1*TowerHeadingVector:normalized,red,"THV",1,true, 0.1).
 
