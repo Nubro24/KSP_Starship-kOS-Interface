@@ -1690,7 +1690,7 @@ set reStepsPerCall to 12.          // [-]   integration steps per guidance call 
 set reKDLow        to 1.0.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reLDLow        to 0.1.        // [-]  max L/D in the bellyflop
 set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
-set reDTermMin     to 800*Scale.       // [m] lower bound
+set reDTermMin     to 1200*Scale.       // [m] lower bound
 
 function rePredInit {
     set reKD     to 0.
@@ -1781,16 +1781,16 @@ set rsWMaxB   to 6/Scale.     // [deg/s]   max rate in the bellyflop
 set rsKqMax   to 2.   // [-]       max gain increase at low dynamic pressure
 set rsIRange to 12.     // [deg]     integrator only below this error
 set rsIMax   to 0.6.    // [-]       max trim input
-set rsSlew  to 3.       // [1/s]    max change of the control input per second
-set rsTauU  to 0.3.     // [s]      output smoothing
+set rsSlew  to 2.       // [1/s]    max change of the control input per second
+set rsTauU  to 0.24.     // [s]      output smoothing
 set rsRollRange to 42.  // [deg] roll position control only below this pointing error
-set rsTauW to 0.2.      // [s]   body-rate filter
+set rsTauW to 0.1.      // [s]   body-rate filter
 set reKFb       to 0.5.   // [-]   drag feedback gain
 set reDAoAFbMax to 5.     // [deg] max feedback contribution
-set rsKthB to 0.2.    // [1/deg]     direct stiffness in the bellyflop
-set rsKiB  to 0.015.    // [1/(deg·s)] trim integrator in the bellyflop
-set reYawRollK to 8.   // [-] yaw per degree of roll
-set rsAlphaFrac to 0.5.    // [-] use half the measured authority for braking (margin)
+set rsKthB to 0.069.    // [1/deg]     direct stiffness in the bellyflop
+set rsKiB  to 0.012.    // [1/(deg·s)] trim integrator in the bellyflop
+set reYawRollK to 9.   // [-] yaw per degree of roll
+set rsAlphaFrac to 0.4.    // [-] use half the measured authority for braking (margin)
 set rsAlphaMin  to 0.1.    // [deg/s²]
 set rsAlphaMaxL to 5.      // [deg/s²]
 set reFrameBlend to 8.
@@ -1821,9 +1821,9 @@ function ReRawSteerInit {
 //-------------  Reentry Guidance ---------------------
 
 set rePhiMaxP  to 32.      // [deg]  max bank in PURSUIT (lead-in, away from target)
-set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
-set reBankRate to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
+set rePhiMaxH  to 77.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
+set rePhiPlan  to 64.      // [deg]  bank the turn circle is sized for
+set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
 set reRCap     to 0.8.    // [-]    R_t ≤ reRCap · distance to target
@@ -1844,11 +1844,11 @@ set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
-set reVHac     to 750*Scale.    // [m/s] expected speed during the final turn
+set reDobMarginDeg to 2.6.  // [deg]  deorbit aims this far past the target
+set reVHac     to 850*Scale^0.7.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
-set reDTerm to 1500*Scale.    // [m] desired remaining distance at the bellyflop start
+set reDTerm to 2500*Scale.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT to 72.
 set reAoAMaxT to 88.
 set reGamMinT to 50.    // [deg] shallowest allowed descent angle
@@ -1857,11 +1857,12 @@ set reKpV      to 0.5.    // [deg/(m/s)] speed feedback
 set reKiV      to 0.05.   // [deg/m]     trim learning
 set reAoARateT to 2.      // [deg/s] AoA rate in the bellyflop
 set reRollMaxT to 5.    // [deg] max belly roll in the bellyflop
-set reRollRate to 3.     // [deg/s] roll command rate
+set reRollRate to 2.     // [deg/s] roll command rate
 set reRollSign to 1.     // [-]  flip if the ship rolls AWAY from the aim point
 set reKVFinal to 0.5.    // [-] FINAL may only latch below this fraction of orbital speed
 set reKEq      to 1.0.   // [-]   1 = keep exactly enough vertical lift for equilibrium glide
 set rePhiEqMin to 15.    // [deg] minimum steering authority even when lift is short
+set reSteerTau to 1.0.    // [s]         target filter (new)
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -13267,7 +13268,12 @@ function ReEntrySteering {
         else if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + (resultVec:normalized - facing:forevector).
         else set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) + (resultVec:normalized - facing:forevector).
 
-        set result to lookdirup(resultVec, ReentryRoll).
+        local stDt is max(0.01, time:seconds - TimeSinceLastSteering).
+        if not (defined reResF) { set reResF to resultVec:normalized. set reRollF to ReentryRoll:normalized. }
+        local stK is min(1, stDt/reSteerTau).
+        set reResF  to (reResF  + (resultVec:normalized   - reResF) *stK):normalized.
+        set reRollF to (reRollF + (ReentryRoll:normalized - reRollF)*stK):normalized.
+        set result to lookdirup(reResF, reRollF).
         set steeringOffsetFinal to vang(result:forevector, facing:forevector).
 
         clearscreen.
