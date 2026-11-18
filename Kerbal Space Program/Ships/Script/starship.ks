@@ -1824,7 +1824,7 @@ set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
 set reAoARetMax to 70.     // [deg]  max AoA at full bank 
 set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
-set reKf       to 0.6.     // [-]    straight final = k·R_t
+set reKf       to 0.4.     // [-]    straight final = k·R_t
 set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.8.     // [-]    energy-bank gain
 set reKRev     to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
@@ -1872,6 +1872,7 @@ set rePhiEqMin to 15.    // [deg] minimum steering authority even when lift is s
 set reSteerTau to 1.0.    // [s]         target filter (new)
 set reRemSLast to 360.
 set reTerm     to false.
+set reNoPursuit to true. 
 set reAoACmd   to 0.
 set reGActive  to false.
 set reYawCmd   to 0.
@@ -13602,7 +13603,7 @@ function rePredStep {
         // AoA + bank schedule
         local psAoA is rePA.
         if rePV < reVAoASw set psAoA to LandingAoA.
-        else if rePS >= rePSc and rePS < rePSc + rePSa set psAoA to min(psAoA, 90 - (90 - reAoARetMax)*sin(min(rePPa, rePhiMaxH))/sin(rePhiMaxH)).
+        if rePS >= rePSc and rePS < rePSc + rePSa set psAoA to min(psAoA, 90 - (90 - reAoARetMax)*sin(min(rePPa, rePhiMaxH))/sin(rePhiMaxH)).
         local psBank is 0.
         if rePS < rePSc set psBank to rePPc.
         else if rePS < rePSc + rePSa set psBank to rePPa.
@@ -13978,7 +13979,7 @@ function ReGuidUpdate {
         set rx to px + max(ahead, 0.2*L1).
         set ry to 0.
         set sTg to max(0, -px).
-    } else if not reHACLatch and not reAwayLatch and dC > reRt2 and sqrt((qx - px)^2 + (qy - py)^2) > reKHacSw*L1 {
+    } else if not reNoPursuit and not reHACLatch and not reAwayLatch and dC > reRt2 and sqrt((qx - px)^2 + (qy - py)^2) > reKHacSw*L1 {
         set reMode to "PURSUIT".
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else if not reHACLatch {
@@ -14019,7 +14020,7 @@ function ReGuidUpdate {
             local dQ is sqrt((tqx - px)^2 + (tqy - py)^2).
             set rx to tqx.  set ry to tqy.
             set reDbgDQ to dQ.
-            if dQ <= reVh*reTLead set goRet to true.
+            if reRSol > 0 and dQ <= reVh*reTLead set goRet to true.
             local thQ2 is arctan2(tqy - reRetCy, tqx - reRetCx).
             set reAwSCur to dQ.
             set reAwSArc to rB*reWrap360(sA*(arctan2(-sA, 0) - thQ2))*constant:pi/180.
@@ -14027,8 +14028,14 @@ function ReGuidUpdate {
         }
         else {
             // inside: lead-out, fly away from the centre until there is room
-            set rx to px + dxR/dR*L1.
-            set ry to py + dyR/dR*L1.
+            if reRSol > 0 {
+                set rx to px + dxR/dR*L1.                // lead-out from the centre
+                set ry to py + dyR/dR*L1.
+            }
+            else {
+                set rx to px + vx/reVh*L1.               // no solved radius yet -> straight
+                set ry to py + vy/reVh*L1.
+            }
             set reDbgDQ to -1.
             set reAwSCur to rB*reAwayMar + max(0, rB - dR).          // rough distance until there is room
             set reAwSArc to rB*constant:pi.
