@@ -1042,7 +1042,7 @@ if bodyexists("Earth") {
         set offshoreSite to latlng(28.549,-80.5).
         set BoosterHeight to 70.6.
         set LiftingPointToGridFinDist to 4.5.
-        set LFBoosterFuelCutOff to 12000.
+        set LFBoosterFuelCutOff to 14000.
         if not BoosterSingleEngines set LFBoosterFuelCutOff to 15000.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.45, 0.27, -10, 10).
@@ -1261,22 +1261,22 @@ if exists("0:/BoosterFlightData.csv") {
 
 
 //catchVarIni
-set cgThrFloorA to 0.95.
+set cgThrFloorA to 0.95/Scale^1.2.
 if Bl3LndProf set cgThrLow    to 0.85.
 else set cgThrLow    to 0.92.
-if Bl3LndProf set cgThrB      to 0.8.
+if Bl3LndProf set cgThrB      to 0.9 - Scale/10.
 else set cgThrB      to 0.9.
 set cgThrMargin to 0.05.
 set cgThrMin    to 0.33.
 set cgPhaseDrop to 0.6.
 set cgRetroUp   to 0.2.
 set cgRetroDev  to 8.
-set cgCorrGainA to 0.4.
+set cgCorrGainA to 0.6.
 set cgGateDecel to 24.
 set cgTgoMin    to 1.6.
 set cgLead      to 0.5.
 set cgDistTau   to 0.7.
-set cgDistGain  to 0.5.
+set cgDistGain  to 0.6.
 set cgTiltMax   to 32.
 set cgTiltMin   to 10.
 set cgEndHeight to 2*Scale.
@@ -1376,7 +1376,7 @@ function CatchIgnitionCheck {
     if s <= 1 set cgThrReqIgn to 99. 
     else set cgThrReqIgn to ((velP:mag^2 - vG^2)/(2*s) + gMag*cosT - DragDecel)/aMax.
 
-    if cgThrReqIgn >= cgThrFloorA {
+    if cgThrReqIgn >= cgThrFloorA or RadarAlt < 1200 {
         set cgVGate to vG.
         set cgGateFixed to true.
         return true.
@@ -2827,6 +2827,7 @@ function Boostback {
                 set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24/Scale.
                 set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position) * (1.6/Scale)^0.4 * (airspeed/600).
             }
+            if LngCtrlPID:setpoint <= 0 set LngCtrlPID:setpoint to 10.
             
             if not (TargetOLM = "false") {
                 if PadB {
@@ -3064,7 +3065,7 @@ function Boostback {
                         if not RSS 
                             lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - LiftingPointToGridFinDist - 2.8.
                         else 
-                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - LiftingPointToGridFinDist - 1.5.
+                            lock RadarAlt to vdot(up:vector, GridFins[0]:position - Vessel(TargetOLM):PARTSNAMED("PadB.Chopsticks")[0]:position) - LiftingPointToGridFinDist + 1.5.
                     }
                     else {
                         if not RSS 

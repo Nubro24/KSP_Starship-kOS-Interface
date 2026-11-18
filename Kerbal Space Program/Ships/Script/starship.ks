@@ -1680,6 +1680,9 @@ function FindParts {
 
 //-------------Initial Program Start-Up--------------------//
 
+
+//-------------  Reentry Trajectory Prediction ---------------------
+
 set reVAoASw       to 700*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
@@ -1750,17 +1753,18 @@ function rePredStart {
     if not rePRun set rePS to 0.
 }
 
+//-------------  Reentry Steering Controller ---------------------
 
-set rsWMax   to 6.      // [deg/s]   max pitch/yaw rate
-set rsWMaxR  to 3.      // [deg/s]   max roll rate
-set rsAlphaB to 1.0.    // [deg/s²]  usable braking acceleration (braking curve)
+set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
+set rsWMaxR  to 3/Scale^0.5.      // [deg/s]   max roll rate
+set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 6.      // [s]       settling time near the target
 set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
-set rsKwR    to 0.08.   // [1/(deg/s)] rate loop roll
+set rsKwR    to 0.07.   // [1/(deg/s)] rate loop roll
 set rsKi     to 0.0025. // [1/(deg·s)] trim integrator
 set rsTsB     to 2.5.   // [s]       settling time in the bellyflop 
-set rsAlphaBB to 1.5.   // [deg/s²]  braking acceleration in the bellyflop
-set rsWMaxB   to 8.     // [deg/s]   max rate in the bellyflop
+set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
+set rsWMaxB   to 8/Scale.     // [deg/s]   max rate in the bellyflop
 set rsKqMax   to 2.4.   // [-]       max gain increase at low dynamic pressure
 set rsIRange to 12.     // [deg]     integrator only below this error
 set rsIMax   to 0.6.    // [-]       max trim input
@@ -1770,9 +1774,13 @@ set rsRollRange to 36.  // [deg] roll position control only below this pointing 
 set rsTauW to 0.1.      // [s]   body-rate filter
 set reKFb       to 0.5.   // [-]   drag feedback gain (1 = cancel the full drag deviation)
 set reDAoAFbMax to 6.     // [deg] max feedback contribution
+set rsKthB to 0.1.    // [1/deg]     direct stiffness in the bellyflop
+set rsKiB  to 0.02.    // [1/(deg·s)] trim integrator in the bellyflop
+set reYawRollK to 4.   // [-] yaw per degree of roll
 set rsSgnP  to 1.
 set rsSgnY  to 1.
 set rsSgnR  to 1.
+set rsQRcs to 0.003.   // [atm] dynamic pressure below which RCS is always on (≈ 0.3 kPa)
 set rsActive to false.
 
 function ReRawSteerInit {
@@ -1789,15 +1797,16 @@ function ReRawSteerInit {
 }
 
 
+//-------------  Reentry Guidance ---------------------
+
 set rePhiMaxP  to 32.      // [deg]  max bank in PURSUIT (lead-in, away from target)
-set rePhiMaxH  to 65.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 65.      // [deg]  bank the turn circle is sized for
+set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
+set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
 set reBankRate to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
-set rePhiMax   to 45.      // [deg]  max bank
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
 set reRCap     to 0.8.    // [-]    R_t ≤ reRCap · distance to target
-set reKE       to 0.6.     // [-]    energy-bank gain
+set reKE       to 0.8.     // [-]    energy-bank gain
 set rePhiEMax  to 45.      // [deg]  max energy bank
 set reYawSign  to 1.
 set reApprSign to 1.
@@ -1807,9 +1816,6 @@ set reAltEnd   to 750.
 set reAccTau   to 1.0.     // [s]    aero accel filter
 set reRTau     to 8.0.     // [s]    turn radius filter
 set reVTerm    to 330.     // [m/s]  below: terminal glide-slope mode
-set reKGam     to 1.5.     // [-]    path-angle feedback (deg AoA per deg γ error)
-set reOffTau   to 15.      // [s]    learning time constant of the glide offset
-set reGamTau   to 0.5.     // [s]    γ filter
 set reAoARate  to 4.       // [deg/s] AoA command rate limit
 set reKL1T     to 0.5.     // [-]    terminal L1 ≤ k·(distance to aim point)
 set reKA       to 1.0.     // [-]    Δα [deg] = K·ε·57.3   (ε = 5 % too long -> ≈ +3°)
@@ -1817,11 +1823,21 @@ set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 6.  // [deg]  deorbit aims this far past the target
-set reVHac     to 800*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
+set reDobMarginDeg to 5.5.  // [deg]  deorbit aims this far past the target
+set reVHac     to 790*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
+set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop (larger = calmer)
+set reDTerm to 7000*Scale.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT to 74.
 set reAoAMaxT to 86.
+set reGamMinT to 50.    // [deg] shallowest allowed descent angle
+set reVhFloor to 40.    // [m/s] never goes below this
+set reKpV      to 0.5.    // [deg/(m/s)] speed feedback
+set reKiV      to 0.05.   // [deg/m]     trim learning
+set reAoARateT to 2.      // [deg/s] AoA rate in the bellyflop
+set reRollMaxT to 8.    // [deg] max belly roll in the bellyflop
+set reRollRate to 3.     // [deg/s] roll command rate
+set reRollSign to 1.     // [-]  flip if the ship rolls AWAY from the aim point
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -1856,6 +1872,8 @@ function ReGuidInit {
     set reSPred to 0.
     set rePhiF to 0.
     set reSTgtL to 0.
+    set reAoATrim to -1.
+    set reRollCmd to 0.
     set reHACLatch to false.
     rePredInit().
     set reInit    to true.
@@ -13011,7 +13029,7 @@ function ReEntryAndLand {
                         setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).                        
                     }
                     else {
-                        setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 8).
+                        setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 24).
                     }
                     set runningprogram to "Final Approach".
                     wait 0.1.
@@ -13149,10 +13167,12 @@ function ReEntrySteering {
     if not SteeringIsRunning {
         set SteeringIsRunning to true.
         if aoa:typename = "String" {set aoa to (aoa):toscalar.}
-        if steeringManager:angleerror > 4 and alt:radar > 12000 or (airspeed < 124 and alt:radar > 7000) {
+        local rcsErr is 0.
+        if result:typename = "Direction" set rcsErr to vang(facing:forevector, result:forevector).
+        if ship:q < rsQRcs or rcsErr > 8 or (airspeed < 124 and alt:radar > 7000) {
             rcs on.
         }
-        else if angularVel:mag < 0.02 {
+        else if rcsErr < 3 and angularVel:mag < 0.02 {
             rcs off.
         }
         set currentAoA to round(vAng(facing:forevector, velocity:surface),1).
@@ -13184,7 +13204,8 @@ function ReEntrySteering {
         set DesiredAoA to min(max(minAoA, DesiredAoA), maxAoA).
         set pitchctrl to DesiredAoA - aoa. 
 
-        set SRFPRGD to srfprograde.
+        if reTerm and reE1Term:mag > 0.5 set SRFPRGD to lookdirup(velocity:surface, vxcl(velocity:surface, up:vector + reE1Term)).
+        else set SRFPRGD to srfprograde.
 
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
@@ -13209,7 +13230,8 @@ function ReEntrySteering {
 
         set resultVec to GuidVec:vector:normalized + vxcl(up:vector, vxcl(facing:forevector, GuidVec:vector:normalized))*yawIncrease + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
 
-        if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + (resultVec:normalized - facing:forevector).
+        if Bellyflop and reTerm set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(reRollCmd, resultVec) + (resultVec:normalized - facing:forevector).
+        else if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + (resultVec:normalized - facing:forevector).
         else set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) + (resultVec:normalized - facing:forevector).
 
         set result to lookdirup(resultVec, ReentryRoll).
@@ -13606,7 +13628,7 @@ function rePredStep {
     local psMu     is body:mu.
     local psCount  is 0.
     until psCount >= psMaxSteps {
-        if rePH <= reP0HEnd or rePV < 30 or rePN > 400 { set rePRun to false. return true. }
+        if rePH <= reP0HEnd or rePV < reVTerm or rePN > 400 { set rePRun to false. return true. }
 
         // AoA + bank schedule
         local psAoA is rePA.
@@ -13691,6 +13713,8 @@ function ReRawSteer {
 
     local rawTs is rsTs.  local rawAB is rsAlphaB.  local rawWM is rsWMax.
     if Bellyflop { set rawTs to rsTsB. set rawAB to rsAlphaBB. set rawWM to rsWMaxB. }
+    local rawKth is 0.  local rawKi is rsKi.
+    if Bellyflop { set rawKth to rsKthB. set rawKi to rsKiB. }
     if rsQRef <= 0 and ship:q > 0 set rsQRef to ship:q.            // reference q at controller start
     local rawKq is min(rsKqMax, max(1, rsQRef/max(ship:q, 1e-6))).
 
@@ -13698,7 +13722,7 @@ function ReRawSteer {
     local rawWr is v(rsWRef(rawe:x, rawWM, rawTs, rawAB), rsWRef(rawe:y, rawWM, rawTs, rawAB), wR*rsWRef(rawe:z, rsWMaxR, rawTs, rawAB)).
 
     // inner loop: rate error -> input, plus protected integrator (trim)
-    local rawUp is v(rawKq*rsKw*(rawWr:x - rsW:x), rawKq*rsKw*(rawWr:y - rsW:y), rsKwR*(rawWr:z - rsW:z)) + rsI.
+    local rawUp is v(rawKq*rsKw*(rawWr:x - rsW:x) + rawKth*rawe:x, rawKq*rsKw*(rawWr:y - rsW:y) + rawKth*rawe:y, rsKwR*(rawWr:z - rsW:z)) + rsI.
     if abs(rawe:x) < rsIRange and abs(rawUp:x) < 1 set rsI:x to max(-rsIMax, min(rsIMax, rsI:x + rsKi*rawe:x*dt)).
     if abs(rawe:y) < rsIRange and abs(rawUp:y) < 1 set rsI:y to max(-rsIMax, min(rsIMax, rsI:y + rsKi*rawe:y*dt)).
     if wR >= 1 and abs(rawe:z) < rsIRange and abs(rawUp:z) < 1 set rsI:z to max(-rsIMax, min(rsIMax, rsI:z + rsKi*rawe:z*dt)).
@@ -13745,36 +13769,32 @@ function ReTermUpdate {
     local vy is vdot(vh, e2).
     local reVh  is max(1, vh:mag).
 
-    // --- glide slope ---
-    local s    is max(1, LngLatOffset - px).                   // [m] to aim point along final
-    local h    is max(1, RadarAlt).
-    local gReq is arctan(h/s).
-    local gRaw is arctan(max(0, -verticalspeed)/reVh).
-    if reGamF < 0 set reGamF to gRaw.
-    set reGamF to reGamF + (gRaw - reGamF)*min(1, dt/(reGamTau + dt)).
+    // --- along-track: horizontal speed command toward the aim point ---
+    local sAim is LngLatOffset - px.                              // [m]  + = aim point ahead
+    local tGo  is max(5, RadarAlt/max(5, -verticalspeed)).        // [s]
+    local vhMax is max(reVhFloor, abs(verticalspeed)/tan(reGamMinT)).   // [m/s]
+    local vDes  is max(-vhMax, min(vhMax, sAim/tGo)).                   // [m/s] capped
+    local vAl  is vdot(vh, e1).
+    local vErr is vAl - vDes.                                     // + = too fast toward the aim
     local aoaNow is vang(facing:forevector, vel).
-    if reOff < -900 set reOff to reGamF - aoaNow.
-    set reOff to reOff + ((reGamF - aoaNow) - reOff)*min(1, dt/(reOffTau + dt)).
-
-    local aoaRaw is gReq - reOff - reKGam*(reGamF - gReq).
-    set aoaRaw to min(reAoAMaxT, max(reAoAMinT, aoaRaw)).
+    if reAoATrim < 0 set reAoATrim to aoaNow.
+    set reAoATrim to min(reAoAMaxT, max(reAoAMinT, reAoATrim + reKiV*vErr*dt)).
+    local aoaRaw is min(reAoAMaxT, max(reAoAMinT, reAoATrim + reKpV*vErr)).
     if reAoACmd = 0 set reAoACmd to aoaNow.
-    set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, aoaRaw - reAoACmd)).
+    set reAoACmd to reAoACmd + max(-reAoARateT*dt, min(reAoARateT*dt, aoaRaw - reAoACmd)).
 
-    // --- lateral: L1 on the final line ---
-    local Rt  is reVh^2/(max(reLift, 0.1)*sin(rePhiPlan)).
-    local L1  is max(50, min(reKL1*Rt, reKL1T*s)).
-    local rx  is px + max(sqrt(max(0, L1^2 - py^2)), 0.2*L1).
-    local dx  is rx - px.
-    local dy  is -py.
-    local dRef is max(1, sqrt(dx^2 + dy^2)).
-    local sinEta is (vx*dy - vy*dx)/(reVh*dRef).
-    local aLat is 2*reVh^2/max(L1, dRef)*sinEta.
-    local aVec is (e1*(-vy) + e2*vx):normalized * aLat.
-    local sgn is 1.
-    if vdot(aVec, vcrs(vel, upV)) < 0 set sgn to -1.
-    local phi is arcsin(min(abs(aLat)/max(reLift, 0.1), sin(rePhiMax))).
-    set reYawCmd to reYawSign * sgn * phi.
+    // --- lateral: PD on the aim point in a non-singular bank frame ---
+    local vn   is vel:normalized.
+    local L0   is vxcl(vel, upV + e1):normalized.          // zero-bank lift direction
+    local cDir is vcrs(vel, L0):normalized.                 // lateral direction (same convention as path mode)
+    local rErr is rel - e1*LngLatOffset.                    // to the aim point
+    local rC   is vdot(rErr, cDir).
+    local vC   is vdot(vel, cDir).
+    local aC   is -(rC/reTauC^2 + 2*vC/reTauC).
+    local gT   is body:mu / body:position:sqrmagnitude.
+    local rollT is reRollSign * max(-reRollMaxT, min(reRollMaxT, arctan(aC/gT))).
+    set reRollCmd to reRollCmd + max(-reRollRate*dt, min(reRollRate*dt, rollT - reRollCmd)).
+    set reYawCmd to reYawRollK * reRollCmd.
     set reMode to "TERM".
 }
 
@@ -13931,7 +13951,7 @@ function ReGuidUpdate {
     set reThRemL to sArc/reRt2.
     if reMode = "FINAL" set sCur to sTg.
     local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
-    local sTarget is sTg + LngLatOffset.
+    local sTarget is sTg + LngLatOffset - reDTerm.
     set reSTgtL to sTarget.
 
     if reJob = 0 and time:seconds > reLastPred + rePredPeriod {
@@ -14034,7 +14054,7 @@ function ReGuidUpdate {
             set steeringManager:yawpid:kd to 0.64.
             set steeringManager:rollpid:kd to 0.55.
 
-            if abs(LngLatErrorList[0]) > 100*Scale or abs(LngLatErrorList[1]) > 30*Scale when addons:tr:hasimpact then {
+            if abs(LngLatErrorList[0]) > 160*Scale or abs(LngLatErrorList[1]) > 69*Scale when addons:tr:hasimpact then {
                 set landingzone to ship:body:geopositionof(addons:tr:IMPACTPOS:position + facing:forevector:normalized*ShipHeight).
                 addons:tr:settarget(landingzone).
                 set LandSomewhereElse to true.
@@ -16097,7 +16117,7 @@ function SetRadarAltitude {
     }
     if ShipType:contains("SN") set ShipBottomRadarHeight to ShipBottomRadarHeight + 0.75*Scale.
     if ShipType:contains("Block2") set ShipBottomRadarHeight to ShipBottomRadarHeight + 1.2*Scale.
-    if ShipType:contains("Block3") set ShipBottomRadarHeight to ShipBottomRadarHeight + 0.4*Scale.
+    if ShipType:contains("Block3") set ShipBottomRadarHeight to ShipBottomRadarHeight + 4.4*Scale.
     if FNBship and ShipType:contains("Block2") set ShipBottomRadarHeight to ShipBottomRadarHeight + 2*Scale.
     else set ShipBottomRadarHeight to ShipBottomRadarHeight - 1*Scale.
     if TargetOLM and not (LandSomewhereElse) {
