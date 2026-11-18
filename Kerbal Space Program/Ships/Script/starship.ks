@@ -536,7 +536,7 @@ if RSS {         // Real Solar System
     set VentRate to 180.55.
     when partsfound then {
         if Methane {
-            set VentRate to 954.745.
+            set VentRate to 940.
             set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
         }
         if core:part:name:contains("FNB") set FuelVentCutOffValue to FuelVentCutOffValue * 1.1.
@@ -588,7 +588,7 @@ else if KSRSS {      // 2.5-2.7x scaled Kerbin
     set VentRate to 91.775.
     when partsfound then {
         if Methane {
-            set VentRate to 487.3725.
+            set VentRate to 488.
             set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
         }
         if core:part:name:contains("FNB") set FuelVentCutOffValue to FuelVentCutOffValue * 1.1.
@@ -631,7 +631,7 @@ else {       // Stock Kerbin
     set VentRate to 39.71.
     when partsfound then {
         if Methane {
-            set VentRate to 194.949.
+            set VentRate to 198.
             set FuelVentCutOffValue to FuelVentCutOffValue * 5.310536.
         }
         if core:part:name:contains("FNB") set FuelVentCutOffValue to FuelVentCutOffValue * 1.2.
@@ -1836,11 +1836,11 @@ set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 5.5.  // [deg]  deorbit aims this far past the target
+set reDobMarginDeg to 2.43.  // [deg]  deorbit aims this far past the target
 set reVHac     to 790*Scale.    // [m/s] expected speed during the final turn (sizes the HAC)
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop (larger = calmer)
-set reDTerm to 7000*Scale.    // [m] desired remaining distance at the bellyflop start
+set reDTerm to 5000*Scale.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT to 72.
 set reAoAMaxT to 88.
 set reGamMinT to 50.    // [deg] shallowest allowed descent angle
@@ -1852,6 +1852,8 @@ set reRollMaxT to 5.    // [deg] max belly roll in the bellyflop
 set reRollRate to 3.     // [deg/s] roll command rate
 set reRollSign to 1.     // [-]  flip if the ship rolls AWAY from the aim point
 set reKVFinal to 0.5.    // [-] FINAL may only latch below this fraction of orbital speed
+set reKEq      to 1.0.   // [-]   1 = keep exactly enough vertical lift for equilibrium glide
+set rePhiEqMin to 15.    // [deg] minimum steering authority even when lift is short
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -1888,6 +1890,7 @@ function ReGuidInit {
     set reSTgtL to 0.
     set reAoATrim to -1.
     set reRollCmd to 0.
+    set reRCapAbs to 0.
     set reHACLatch to false.
     rePredInit().
     set reInit    to true.
@@ -13183,7 +13186,7 @@ function ReEntrySteering {
         if aoa:typename = "String" {set aoa to (aoa):toscalar.}
         local rcsErr is 0.
         if result:typename = "Direction" set rcsErr to vang(facing:forevector, result:forevector).
-        if ship:q < rsQRcs or rcsErr > 8 or (airspeed < 124 and alt:radar > 7000) {
+        if ship:q < rsQRcs and not reTerm or rcsErr > 8 and not reTerm {
             rcs on.
         }
         else if rcsErr < 3 and angularVel:mag < 0.02 {
@@ -13880,7 +13883,14 @@ function ReGuidUpdate {
     // --- turn radius (filtered, capped) ---
     local Rhac is reVHac^2/(gMag*tan(rePhiPlan)).
     if reVArc > 0 set Rhac to reVArc^2/(reLArc*sin(rePhiPlan)).
-    local Rraw is min(min(reVh^2/(reLift*sin(rePhiPlan)), Rhac), reRCap*dTgt).
+    local capA is 1 + reKf^2.
+    local capQ is capA - 1 - reKL1^2.            // quadratic: capQ·c² − 2·√capA·c + 1 = 0
+    local capMax is 0.4.
+    if abs(capQ) > 1e-6 set capMax to (sqrt(capA) - sqrt(max(0, capA - capQ)))/capQ.
+    local capUse is min(reRCap, 0.8*capMax).
+    local capAbs is capUse*dTgt.
+    if reRCapAbs > 0 set capAbs to reRCapAbs.
+    local Rraw is min(min(reVh^2/(reLift*sin(rePhiPlan)), Rhac), capAbs).
     if reSPred > 0 {
         local Rmin is reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH)).
         local cC   is max(0.2, cos(rePhiF)^reBankExp).
@@ -13895,7 +13905,11 @@ function ReGuidUpdate {
     local L1 is reKL1*reRt2.
 
     // side: frozen on first activation
-    if useHAC and reSide = 0 { if py >= 0 set reSide to 1. else set reSide to -1. }
+    if useHAC and reSide = 0 { 
+        if py >= 0 set reSide to 1. 
+        else set reSide to -1.
+        set reRCapAbs to capUse*dTgt.
+    }
     local cx is -Df.
     local cy is reSide*reRt2.
     local sig is reSide. 
@@ -14032,8 +14046,19 @@ function ReGuidUpdate {
     local rightV is vcrs(vel, upV):normalized.
     local sgn is 1.
     if vdot(aVec, rightV) < 0 set sgn to -1.
-    local phiMaxM is rePhiMaxH.
-    if reMode = "PURSUIT" set phiMaxM to rePhiMaxP.
+    // direction of the turn relative to the target
+    local crossT is px*vy - py*vx.
+    local towardTgt is aLat*crossT > 0.
+    // equilibrium-glide bank limit
+    local viH  is vxcl(upV, velocity:orbit):mag.
+    local gNet is gMag - viH^2/(body:radius + altitude).
+    local phiEq is 90.
+    if reLift > 0.1 set phiEq to arccos(max(-1, min(1, reKEq*gNet/reLift))).
+    set phiEq to max(rePhiEqMin, phiEq).
+    // strong bank only toward the target (not in PURSUIT)
+    local phiMaxM is rePhiMaxP.
+    if towardTgt and reMode <> "PURSUIT" set phiMaxM to rePhiMaxH.
+    if not towardTgt or reRangeErr < 0 set phiMaxM to min(phiMaxM, phiEq).
     local phiLat is arcsin(min(abs(aLat)/max(reLift, 0.1), sin(phiMaxM))).
     local etaDeg is arcsin(max(-1, min(1, sinEta))).
     if phiLat >= phiE { if phiLat > 2 set rePhiSign to sgn. }
@@ -14080,7 +14105,7 @@ function ReGuidUpdate {
             set steeringManager:yawpid:kd to 0.64.
             set steeringManager:rollpid:kd to 0.55.
 
-            if abs(LngLatErrorList[0]) > 160*Scale or abs(LngLatErrorList[1]) > 69*Scale when addons:tr:hasimpact then {
+            if abs(LngLatErrorList[0]) > 320*Scale or abs(LngLatErrorList[1]) > 90*Scale when addons:tr:hasimpact then {
                 set landingzone to ship:body:geopositionof(addons:tr:IMPACTPOS:position + facing:forevector:normalized*ShipHeight).
                 addons:tr:settarget(landingzone).
                 set LandSomewhereElse to true.
@@ -14211,7 +14236,7 @@ function ReGuidUpdate {
                 when vAng(facing:forevector, up:vector) < 5 and Vessel(TargetOLM):distance < 2000 then {
                     HUDTEXT("Distance Check 1", 3, 2, 15, white, false).
                     if PadB {
-                        if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):mag > 2.5*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position - Tank:position), LandingForwardDirection) < 90 {
+                        if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position):mag > 4*ShipHeight and vAng(vxcl(up:vector, Vessel(TargetOLM):partstitled("Starship Orbital Launch Mount 2")[0]:position - Tank:position), LandingForwardDirection) < 90 {
                             set LandSomewhereElse to true.
                             set cAbort to true.
                             SetRadarAltitude().
@@ -14224,7 +14249,7 @@ function ReGuidUpdate {
                                 set steeringManager:pitchpid:kp to 1.2.
                                 set steeringManager:pitchpid:ki to 0.2.
                                 set steeringManager:pitchpid:kd to 0.6.
-                                if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("PadB.Chopsticks")[0]:position):mag > 2.4*ShipHeight {
+                                if vxcl(up:vector, Tank:position - Vessel(TargetOLM):partsnamed("PadB.Chopsticks")[0]:position):mag > 2.6*ShipHeight {
                                     set LandSomewhereElse to true.
                                     set cAbort to true.
                                     SetRadarAltitude().
