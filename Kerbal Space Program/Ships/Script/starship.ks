@@ -1689,6 +1689,8 @@ set rePredPeriod   to 2.          // [s]   min time between prediction starts
 set reStepsPerCall to 12.          // [-]   integration steps per guidance call (IPU knob)
 set reKDLow        to 1.0.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reLDLow        to 0.1.        // [-]  max L/D in the bellyflop
+set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
+set reDTermMin     to 1000.       // [m] lower bound
 
 function rePredInit {
     set reKD     to 0.
@@ -1702,6 +1704,12 @@ function rePredInit {
     set reJob    to 0.        // 0 idle, 1 = α run, 2 = α+3° run, 3 = correct
     set reS1     to 0.
     set reJobTgt to 0.
+    set reHHand to 0.
+    set reP0Gnd to 0.
+    set reVArc to -1. 
+    set reLArc to 0. 
+    set reVArcNew to -1. 
+    set reLArcNew to 0.
     set reDProf to list().  set reDProfNew to list().
     set reDProfA to 60.     set reDIdx to 0.
     set rePRun   to false.
@@ -1720,8 +1728,8 @@ function reLearnAero {
         local kNew  is pD/(pP*pV^2).
         local ldNew is pL/pD.
         if reKD <= 0 set reKD to kNew.
-        set reKD  to reKD  + (kNew  - reKD) *0.1.
-        set reLD0 to reLD0 + (ldNew - reLD0)*0.1.
+        if kNew > 0.5*reKD and kNew < 2*reKD set reKD to reKD + (kNew - reKD)*0.1.
+        if abs(ldNew - reLD0) < 0.5*reLD0 + 0.2 set reLD0 to reLD0 + (ldNew - reLD0)*0.1.
         set reA0  to reA0  + (a0    - reA0) *0.1.
     }
 }
@@ -1735,6 +1743,7 @@ function rePredSnap {
     set reP0HEnd to altitude - RadarAlt + FlipAltitude.
     set reP0S3   to sin(reA0)^3.
     set reP0Ct   to cos(reA0)/max(sin(reA0), 0.01).
+    set reP0Gnd to altitude - RadarAlt.
     set reP0KD   to reKD.
     set reP0LD   to reLD0.
 }
@@ -1746,8 +1755,12 @@ function rePredStart {
     set rePPa to phiArc.
     set rePSc to sCurP.
     set rePSa to sArcP.
-    set rePV to reP0V.  set rePG to reP0G.  set rePH to reP0H.
-    set rePS to 0.      set rePN to 0.
+    set rePV to reP0V.  
+    set rePG to reP0G.  
+    set rePH to reP0H.
+    set rePS to 0.      
+    set rePN to 0.
+    set reVArcNew to -1.
     set rePRun to reP0KD > 1e-12.
     set reDProfNew to list().
     if not rePRun set rePS to 0.
@@ -1776,7 +1789,7 @@ set reKFb       to 0.5.   // [-]   drag feedback gain (1 = cancel the full drag 
 set reDAoAFbMax to 6.     // [deg] max feedback contribution
 set rsKthB to 0.1.    // [1/deg]     direct stiffness in the bellyflop
 set rsKiB  to 0.02.    // [1/(deg·s)] trim integrator in the bellyflop
-set reYawRollK to 4.   // [-] yaw per degree of roll
+set reYawRollK to 8.   // [-] yaw per degree of roll
 set rsSgnP  to 1.
 set rsSgnY  to 1.
 set rsSgnR  to 1.
@@ -1828,16 +1841,17 @@ set reVHac     to 790*Scale.    // [m/s] expected speed during the final turn (s
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop (larger = calmer)
 set reDTerm to 7000*Scale.    // [m] desired remaining distance at the bellyflop start
-set reAoAMinT to 74.
-set reAoAMaxT to 86.
+set reAoAMinT to 72.
+set reAoAMaxT to 88.
 set reGamMinT to 50.    // [deg] shallowest allowed descent angle
 set reVhFloor to 40.    // [m/s] never goes below this
 set reKpV      to 0.5.    // [deg/(m/s)] speed feedback
 set reKiV      to 0.05.   // [deg/m]     trim learning
 set reAoARateT to 2.      // [deg/s] AoA rate in the bellyflop
-set reRollMaxT to 8.    // [deg] max belly roll in the bellyflop
+set reRollMaxT to 5.    // [deg] max belly roll in the bellyflop
 set reRollRate to 3.     // [deg/s] roll command rate
 set reRollSign to 1.     // [-]  flip if the ship rolls AWAY from the aim point
+set reKVFinal to 0.5.    // [-] FINAL may only latch below this fraction of orbital speed
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -13651,6 +13665,10 @@ function rePredStep {
         local psHdotA  is rePV*sin(rePG).
         local psSdotA  is rePV*cos(rePG)*psBodyR/psRadA.
         local psStep   is min(reStepMax, max(1, 0.12*rePV/max(psDragA, 0.1))).
+        if reJob = 1 and reVArcNew < 0 and rePS >= rePSc {
+            set reVArcNew to rePV.
+            set reLArcNew to psLoD*psDragA.
+        }
         if reJob = 1 reDProfNew:add(list(rePV, psDragA)).
 
         // Euler predictor state
@@ -13839,7 +13857,7 @@ function ReGuidUpdate {
         set landingzone to TgtLandingzone.
         set reE1Path to vxcl(upV, TgtLandingzone:position - ship:position):normalized.
     }
-    local useHAC is DynamicBanking and dbactive or RadarAlt > 0.8*ship:body:atm:height.
+    local useHAC is DynamicBanking and dbactive.
 
     // --- 2D frame at the target ---
     local reT   is TgtLandingzone:position.
@@ -13861,6 +13879,7 @@ function ReGuidUpdate {
 
     // --- turn radius (filtered, capped) ---
     local Rhac is reVHac^2/(gMag*tan(rePhiPlan)).
+    if reVArc > 0 set Rhac to reVArc^2/(reLArc*sin(rePhiPlan)).
     local Rraw is min(min(reVh^2/(reLift*sin(rePhiPlan)), Rhac), reRCap*dTgt).
     if reSPred > 0 {
         local Rmin is reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH)).
@@ -13876,7 +13895,7 @@ function ReGuidUpdate {
     local L1 is reKL1*reRt2.
 
     // side: frozen on first activation
-    if reSide = 0 { if py >= 0 set reSide to 1. else set reSide to -1. }
+    if useHAC and reSide = 0 { if py >= 0 set reSide to 1. else set reSide to -1. }
     local cx is -Df.
     local cy is reSide*reRt2.
     local sig is reSide. 
@@ -13906,14 +13925,17 @@ function ReGuidUpdate {
     // --- mode + reference point (L1) ---
     local thS  is arctan2(dyc, dxc).
     local remS is reWrap360((thE - thS)*sig).
-    if not useHAC { set reFinal to true. set L1 to min(L1, reKL1T*max(dTgt, 1)). }
-    if not reFinal and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
-    if not reFinal and abs(py) < 0.3*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
+    local straight is not useHAC.
+    local finalOK is reVh < reKVFinal*sqrt(body:mu/(body:radius + altitude)).
+    if straight set L1 to min(L1, reKL1T*max(dTgt, 1)).
+    if not straight and not reFinal and finalOK and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
+    if not straight and not reFinal and finalOK and abs(py) < 0.3*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
 
     local rx is qx. local ry is qy.
     local sTg is 0.
-    if reFinal {
-        set reMode to "FINAL".
+    if reFinal or straight {
+        if straight set reMode to "STRAIGHT".
+        else set reMode to "FINAL".
         local ahead is sqrt(max(0, L1^2 - py^2)).
         set rx to px + max(ahead, 0.2*L1).
         set ry to 0.
@@ -13951,7 +13973,9 @@ function ReGuidUpdate {
     set reThRemL to sArc/reRt2.
     if reMode = "FINAL" set sCur to sTg.
     local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
-    local sTarget is sTg + LngLatOffset - reDTerm.
+    local dTermDyn is reDTerm.
+    if reHHand > 0 set dTermDyn to max(reDTermMin, reKTerm*max(0, reHHand - reP0Gnd - FlipAltitude)/tan(reGamMinT)).
+    local sTarget is sTg + LngLatOffset - dTermDyn.
     set reSTgtL to sTarget.
 
     if reJob = 0 and time:seconds > reLastPred + rePredPeriod {
@@ -13963,9 +13987,11 @@ function ReGuidUpdate {
     }
     if reJob > 0 and rePredStep(reStepsPerCall) {
         if reJob = 1 {
+            if reVArcNew > 0 and reLArcNew > 0.1 { set reVArc to reVArcNew. set reLArc to reLArcNew. }
             set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
             set reS1 to rePS.
             set reSlopeN to reSlopeN + 1.
+            set reHHand to rePH.
             if reSlopeN >= 3 or reSlope = 0 {
                 set reSlopeN to 0.
                 rePredStart(rePA + 3, rePPc, rePPa, rePSc, rePSa).
@@ -14465,19 +14491,19 @@ function ReGuidUpdate {
 
 //------------------Landing Loop-----------------------///
 function ClosingAngle {
-    set angle1 to (60/(1+constant:e^(-1.8*((RadarRatio) - 3)))) + 28.
-    set angle2 to (1/(1+constant:e^(-6*((RadarRatio) - 0.4)))).
-    set angle to angle1*angle2.
+    set angle1 to (8/(1+constant:e^(-2*((RadarRatio) - 3.2)))) + 4.
+    set angle2 to (4/(1+constant:e^(-8*((RadarRatio) - 1.1)))) + 3.
+    set angle3 to (1/(1+constant:e^(-12*((RadarRatio) - 0.1)))).
+    set angle to angle1*angle2*angle3.
     if angle > 80 set angle to 80.
     
-    if time:seconds > lastAngleTime + 0.2 set lastAngle to angle.
+    if time:seconds > lastAngleTime + 0.1 set lastAngle to angle.
     set lastAngleTime to time:seconds.
     return round(angle,1).
 }
 
 function ClosingSpeed {
-    //set speed to min(max(10,((10*RadarRatio+2)/(0.4+constant:e^(-3*((RadarRatio) - 1)))) + 0.06*(max(0,RadarRatio)+1)^3.5 + 12), 25).
-    set speed to 12.
+    set speed to 14. //probably doesnt matter >10
 
     return round(speed,1).
 }

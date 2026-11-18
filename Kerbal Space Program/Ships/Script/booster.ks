@@ -1192,10 +1192,10 @@ set t2 to 0.
 set DragDecel to 0.
 set maxAoA to 12.
 
-if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.25.
+if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
 
 if BoosterType:contains("Block3") {
-    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.17/(Scale^0.8).
+    set LFBoosterFuelCutOff to LFBoosterFuelCutOff * Scale.
     set BoosterHeight to 45.4*Scale.
     if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
     else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.15*Scale.
@@ -1276,7 +1276,7 @@ set cgGateDecel to 24.
 set cgTgoMin    to 1.6.
 set cgLead      to 0.5.
 set cgDistTau   to 0.7.
-set cgDistGain  to 0.6.
+set cgDistGain  to 0.9.
 set cgTiltMax   to 32.
 set cgTiltMin   to 10.
 set cgEndHeight to 2*Scale.
@@ -3507,25 +3507,17 @@ function Boostback {
 
 
     function ClosingAngle {
-        set EarlyAngle to (40/(1+constant:e^(-2.5*((RadarRatio) - 3)))) + 10.
-        set LateAngle to (1.5/(1+constant:e^(-8*((RadarRatio) - 0.33)))).
+        set EarlyAngle to (5/(1+constant:e^(-2.5*((RadarRatio) - 3.2)))) + 3.
+        set MidAngle to (4/(1+constant:e^(-8*((RadarRatio) - 1)))) + 3.
+        set LateAngle to (1.5/(1+constant:e^(-12*((RadarRatio) - 0.1)))).
 
-        set angle to LateAngle*EarlyAngle.
+        set angle to LateAngle*MidAngle*EarlyAngle.
         if BoosterLanded set angle to 0.
         return round(angle,2).
     }
 
     function ClosingSpeed {
-        if angle > 20 set speed to 10.
-        else if angle > 10 set speed to 7.
-        else set speed to 4.
-        if HighIncl set speed to speed*2.4.
-        else if BoosterRot > 15 or BoosterRot < 2 set speed to speed * 2.
-        else if BoosterRot > 12 or BoosterRot < 5 set speed to speed * 1.5.
-        if fastSticks set speed to speed * 2.4.
-
-        return 10.
-        //return min(max(round(speed,1),3.2),10).
+        return 12.
     }
 
 }
