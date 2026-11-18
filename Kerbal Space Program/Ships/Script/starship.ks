@@ -1773,7 +1773,7 @@ set rsWMaxR  to 3/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 6.      // [s]       settling time near the target
 set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
-set rsKwR    to 0.07.   // [1/(deg/s)] rate loop roll
+set rsKwR    to 0.06.   // [1/(deg/s)] rate loop roll
 set rsKi     to 0.0025. // [1/(deg·s)] trim integrator
 set rsTsB     to 4.   // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
@@ -1787,9 +1787,9 @@ set rsRollRange to 42.  // [deg] roll position control only below this pointing 
 set rsTauW to 0.1.      // [s]   body-rate filter
 set reKFb       to 0.5.   // [-]   drag feedback gain
 set reDAoAFbMax to 5.     // [deg] max feedback contribution
-set rsKthB to 0.1.    // [1/deg]     direct stiffness in the bellyflop
-set rsKiB  to 0.014.    // [1/(deg·s)] trim integrator in the bellyflop
-set reYawRollK to 9.   // [-] yaw per degree of roll
+set rsKthB to 0.09.    // [1/deg]     direct stiffness in the bellyflop
+set rsKiB  to 0.012.    // [1/(deg·s)] trim integrator in the bellyflop
+set reYawRollK to 7.   // [-] yaw per degree of roll
 set rsAlphaFrac to 0.4.    // [-] use half the measured authority for braking (margin)
 set rsAlphaMin  to 0.1.    // [deg/s²]
 set rsAlphaMaxL to 5.      // [deg/s²]
@@ -1822,7 +1822,7 @@ function ReRawSteerInit {
 
 set rePhiMaxP  to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
 set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 60.      // [deg]  bank the turn circle is sized for
+set rePhiPlan  to 69.      // [deg]  bank the turn circle is sized for
 set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
@@ -1845,12 +1845,13 @@ set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
 set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
-set reVHac     to 850*Scale^0.7.    // [m/s] expected speed during the final turn
+set reVHac     to 810*Scale^0.7.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
+set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
 set reDTerm to 6000*Scale.    // [m] desired remaining distance at the bellyflop start
-set reAoAMinT to 72.
-set reAoAMaxT to 88.
+set reAoAMinT to 74.
+set reAoAMaxT to 87.
 set reGamMinT to 50.    // [deg] shallowest allowed descent angle
 set reVhFloor to 40.    // [m/s] never goes below this
 set reKpV      to 0.5.    // [deg/(m/s)] speed feedback
@@ -1885,8 +1886,6 @@ function ReGuidInit {
     set reSide    to 0.
     set rePhiSign to 1.
     set reFinal   to false.
-    set reGamF    to -1.
-    set reOff     to -999.
     set reE1Term  to v(0,0,0).
     set reE1Path  to v(0,0,0).
     set reLastVelO to velocity:orbit.
@@ -1901,6 +1900,10 @@ function ReGuidInit {
     set reRollCmd to 0.
     set reRCapAbs to 0.
     set reFrameT0 to -1.
+    set reAwayLatch to false.
+    set reRetR to 0.  
+    set reRetCx to 0.  
+    set reRetCy to 0.
     set reHACLatch to false.
     rePredInit().
     set reInit    to true.
@@ -13879,6 +13882,15 @@ function ReGuidUpdate {
     local sig is reSide. 
     local thE is arctan2(-reSide*reRt2, 0).
 
+    // frozen return circle (RETURN phase)
+    if reHACLatch and reRetR > 0 {
+        set cx to reRetCx.  set cy to reRetCy.
+        set reRt2 to reRetR.
+        set Df to -reRetCx.
+        set L1 to reKL1*reRetR.
+        set thE to arctan2(-sig*reRetR, 0).
+    }
+
     // --- tangent point from the ship onto the circle ---
     local dxc is px - cx.
     local dyc is py - cy.
@@ -13918,12 +13930,25 @@ function ReGuidUpdate {
         set rx to px + max(ahead, 0.2*L1).
         set ry to 0.
         set sTg to max(0, -px).
-    } else if not reHACLatch and dC > reRt2 and sqrt((qx - px)^2 + (qy - py)^2) > L1 {
+    } else if not reHACLatch and not reAwayLatch and dC > reRt2 and sqrt((qx - px)^2 + (qy - py)^2) > reKHacSw*L1 {
         set reMode to "PURSUIT".
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
+    } else if not reHACLatch {
+        // AWAY: hold heading until a return turn ends tangent to the final line
+        set reAwayLatch to true.
+        set reMode to "AWAY".
+        local rB  is reVh^2/(max(reLift, 0.1)*sin(rePhiPlan)).
+        local cBx is px + rB*(-sig*vy/reVh).
+        local cBy is py + rB*( sig*vx/reVh).
+        if sig*cBy >= rB {
+            set reHACLatch to true.
+            set reRetCx to cBx.  set reRetCy to cBy.  set reRetR to abs(cBy).
+        }
+        set rx to px + vx/reVh*L1.            // reference straight ahead -> no lateral demand
+        set ry to py + vy/reVh*L1.
+        set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else {
-        set reHACLatch to true.
-        set reMode to "HAC".
+        set reMode to "RETURN".
         local L1e is max(L1, abs(dC - reRt2) + 1).
         local cosA is max(-1, min(1, (dC^2 + reRt2^2 - L1e^2)/(2*dC*reRt2))).
         local thR is thS + sig*arccos(cosA).
@@ -13945,7 +13970,7 @@ function ReGuidUpdate {
     set rePhiF to rePhiF + (abs(reYawCmd) - rePhiF)*min(1, dt/(rePhiTau + dt)).
     local sArc is 0.
     if reMode = "PURSUIT" set sArc to arcQ.
-    else if reMode = "HAC" set sArc to reRt2*remS*constant:pi/180.
+    else if reMode = "AWAY" or reMode = "RETURN" set sArc to reRt2*remS*constant:pi/180.
     local sCur is max(0, sTg - sArc - Df).
     set reSCurL  to sCur.
     set reThRemL to sArc/reRt2.
