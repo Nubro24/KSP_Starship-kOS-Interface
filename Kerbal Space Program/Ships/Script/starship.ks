@@ -1787,8 +1787,8 @@ set rsRollRange to 42.  // [deg] roll position control only below this pointing 
 set rsTauW to 0.1.      // [s]   body-rate filter
 set reKFb       to 0.5.   // [-]   drag feedback gain
 set reDAoAFbMax to 5.     // [deg] max feedback contribution
-set rsKthB to 0.069.    // [1/deg]     direct stiffness in the bellyflop
-set rsKiB  to 0.012.    // [1/(deg·s)] trim integrator in the bellyflop
+set rsKthB to 0.1.    // [1/deg]     direct stiffness in the bellyflop
+set rsKiB  to 0.014.    // [1/(deg·s)] trim integrator in the bellyflop
 set reYawRollK to 9.   // [-] yaw per degree of roll
 set rsAlphaFrac to 0.4.    // [-] use half the measured authority for braking (margin)
 set rsAlphaMin  to 0.1.    // [deg/s²]
@@ -1820,9 +1820,9 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP  to 32.      // [deg]  max bank in PURSUIT (lead-in, away from target)
-set rePhiMaxH  to 77.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 64.      // [deg]  bank the turn circle is sized for
+set rePhiMaxP  to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
+set rePhiPlan  to 60.      // [deg]  bank the turn circle is sized for
 set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
@@ -1832,7 +1832,7 @@ set rePhiEMax  to 45.      // [deg]  max energy bank
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
-set reVEnd     to 330.
+set reVEnd     to 340.
 set reAltEnd   to 750.
 set reAccTau   to 1.0.     // [s]    aero accel filter
 set reRTau     to 8.0.     // [s]    turn radius filter
@@ -1844,11 +1844,11 @@ set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 2.6.  // [deg]  deorbit aims this far past the target
+set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
 set reVHac     to 850*Scale^0.7.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
-set reDTerm to 2500*Scale.    // [m] desired remaining distance at the bellyflop start
+set reDTerm to 6000*Scale.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT to 72.
 set reAoAMaxT to 88.
 set reGamMinT to 50.    // [deg] shallowest allowed descent angle
@@ -13401,56 +13401,7 @@ function ReEntryData {
         }
     }
 
-    if DynamicPitch and altitude < 0.75 * ship:body:atm:height and not Bellyflop {
-        if time:seconds > t + 1 and time:seconds < t + 1.2 set PitchInputOld to SLEngines[0]:gimbal:pitchangle.
-        if time:seconds > t + 2 {
-            set PitchInput to SLEngines[0]:gimbal:pitchangle.
-            set t to time:seconds.
-            if abs(PitchInputOld) > 0.5 and abs(PitchInput) > 0.5 or currentAoA < 55 {
-                set PitchInput to (PitchInput + PitchInputOld)/2.
-                if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") set FWDFlapDefault to max(min(55 - (PitchInput * 20 / Scale),70),40).
-                else set FWDFlapDefault to max(min(75 - (PitchInput * 20 / Scale),85),40).
-                set AFTFlapDefault to max(min(70 + (PitchInput * 20 / Scale),80),50).
-                if AFTONLY {
-                    set AFTFlapDefault to AFTFlapDefault * 0.9.
-                    set authorityAFTONLY to 6.
-                } else set authorityAFTONLY to 0.
-                if airspeed > 400 {
-                    if ship:body:atm:sealevelpressure < 0.5 {
-                        setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 16+authorityAFTONLY).
-                    } else if altitude > 28000 {
-                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 18+authorityAFTONLY).
-                    }
-                    else {
-                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 16+authorityAFTONLY).
-                    }
-                }
-                else if airspeed > 250 {
-                    if ship:body:atm:sealevelpressure < 0.5 {
-                        setflaps(FWDFlapDefault - 10, AFTFlapDefault - 10, 1, 20+authorityAFTONLY).
-                    } else if altitude > 28000 {
-                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 20+authorityAFTONLY).
-                    }
-                    else {
-                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 24+authorityAFTONLY).
-                    }
-                }
-                else {
-                    if ship:body:atm:sealevelpressure < 0.5 {
-                        setflaps(FWDFlapDefault - 20, AFTFlapDefault - 20, 1, 12+authorityAFTONLY).
-                    }
-                    else if not (RSS) or altitude > 10000 {
-                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 16+authorityAFTONLY).
-                    }
-                    else {
-                        setflaps(FWDFlapDefault, AFTFlapDefault, 1, 12+authorityAFTONLY).
-                    }
-                }
-            }
-        }
-    }
-
-    if CoGFuelBalancing {
+    if CoGFuelBalancing and 1=2 {
         if altitude < ship:body:ATM:height - 10000 and RadarAlt > FlipAltitude + 100 {
             if (not (RebalanceCoGox:status = "Transferring") or (RebalanceCoGlf:status = "Transferring")) and time:seconds > lastFuelBalanc + 1 {
                 set PitchInput to SLEngines[0]:gimbal:pitchangle.
@@ -13954,9 +13905,9 @@ function ReGuidUpdate {
     local remS is reWrap360((thE - thS)*sig).
     local straight is not useHAC.
     local finalOK is reVh < reKVFinal*sqrt(body:mu/(body:radius + altitude)).
-    if straight set L1 to min(L1, reKL1T*max(dTgt, 1)).
+    if straight or reFinal set L1 to min(L1, reKL1T*max(dTgt, 1)).
     if not straight and not reFinal and finalOK and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
-    if not straight and not reFinal and finalOK and abs(py) < 0.3*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
+    if not straight and not reFinal and finalOK and abs(py) < 0.1*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
 
     local rx is qx. local ry is qy.
     local sTg is 0.
