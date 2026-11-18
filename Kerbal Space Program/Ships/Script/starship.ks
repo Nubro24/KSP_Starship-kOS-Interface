@@ -681,15 +681,7 @@ when partsfound then {
 }
 set rcsRaptorBoundary to 80.  // Defines the custom burn boundary velocity where the ship will burn either RCS/Single Raptor below it or VAC Raptors above it.
 set CoGFuelBalancing to true.  // Disable this to stop constant fuel transfers during re-entry.
-set DynamicPitch to true.   // Change the flap defaults dynamically during re-entry.
-if homeconnection:isconnected if exists("0:/settings.json") {
-    set L to readjson("0:/settings.json").
-    if L:haskey("DynamicBanking") {
-        set DynamicBanking to L["DynamicBanking"].
-    }
-    else set DynamicBanking to true.
-}
-else set DynamicBanking to false.    //Change if the Ship approaches the OLM from the correct angle or just heads straight (first demonstrated during IFT 11)
+set DynamicBanking to true.
 set DBactive to false.
 set PlotAoA to aoa.
 set steeringmanager:pitchtorquefactor to 0.75.
@@ -1764,6 +1756,9 @@ function rePredStart {
     set reRSolNew to -1.
     set reFPrev   to 1e9.
     set reRPrev   to 0.
+    set reQPrevS to -1.
+    set reSPrevQ to 0.
+    set reLamS   to 1e9.
     set rePRun to reP0KD > 1e-12.
     set reDProfNew to list().
     if not rePRun set rePS to 0.
@@ -1823,20 +1818,23 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP  to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxP  to 45.      // [deg]  max bank in PURSUIT (lead-in, away from target)
 set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 69.      // [deg]  bank the turn circle is sized for
+set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
+set reAoARetMax to 70.     // [deg]  max AoA at full bank 
 set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
 set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.8.     // [-]    energy-bank gain
-set reKRev     to 0.25.    // [-] fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
-set rePhiEMax  to 40.      // [deg]  max energy bank
-set reAwayMar  to 0.05.    // [-] radial margin: inside the circle below rB·(1+mar)
-set reTrigLead to 1.5.     // [s] extra lead for steering lag (attitude has to follow the bank)
-set reEpsOs    to 0.15.    // [-] intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
-set reTauRB    to 3.       // [s] filter of the return radius (fixed-point iteration via predictor)
+set reKRev     to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
+set rePhiEMax  to 45.      // [deg]  max energy bank
+set reAwayMar  to 0.05.    // [-]    radial margin: inside the circle below rB·(1+mar)
+set reTrigLead to 2.       // [s]    extra lead for steering lag (attitude has to follow the bank)
+set reEpsOs    to 0.1.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
+set reTauRB    to 4.       // [s]    filter of the return radius (fixed-point iteration via predictor)
+set reKRetM    to 0.9.     // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
+set reSolEvery to 2.       // [-]    solve check every n-th predictor step (1 = most precise)
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1919,6 +1917,13 @@ function ReGuidInit {
     set reAwSCur to 0. 
     set reAwSArc to 0.
     set reTLead to 0.
+    set reP0Sg to 0.  
+    set reP0Px to 0.  
+    set reP0Py to 0.  
+    set reP0Sin to 1.
+    set reRSol to -1.  
+    set reRSolNew to -1.  
+    set reLastPhiRet to rePhiPlan.
     set reHACLatch to false.
     set reAwayWasPos to false.
     rePredInit().
@@ -2884,27 +2889,6 @@ set MissionCountdownSave:onclick to {
     if Boosterconnected sendMessage(processor(Volume("Booster")),"TMinusCountdown,"+TMinusCountdown).
     if OnOrbitalMount sendMessage(processor(Volume("OrbitalLaunchMount")),"TMinusCountdown,"+TMinusCountdown).
     SaveToSettings("TMinusCountdown", TMinusCountdown).
-}.
-
-local DynBank is FlightSettingsLayout:addbutton(" Dynamic Banking during Reentry").
-    set DynBank:style:fontsize to 16.
-    set DynBank:style:margin:left to 24.
-    set DynBank:style:margin:top to 24.
-    set DynBank:style:margin:right to 16.
-    set DynBank:style:height to 24.
-local DynBankLabel is FlightSettingsLayout:addlabel().
-    set DynBankLabel:style:fontsize to 12.
-    set DynBankLabel:style:margin:left to 24.
-    set DynBankLabel:style:margin:top to 5.
-    set DynBankLabel:style:margin:right to 8.
-    set DynBankLabel:style:height to 18.
-    if DynamicBanking set DynBankLabel:text to "Currently On".
-    else set DynBankLabel:text to "Currently Off".
-set DynBank:onclick to {
-    set DynamicBanking to not DynamicBanking.
-    SaveToSettings("DynamicBanking", DynamicBanking).
-    if DynamicBanking set DynBankLabel:text to "Currently On".
-    else set DynBankLabel:text to "Currently Off".
 }.
 
 local FlSetLaySpace is FlightSettingsLayout2:addlabel("").
@@ -13246,7 +13230,7 @@ function ReEntrySteering {
             set yawctrl to 0.
             set DesiredAoA to aoa.
         }
-        set maxAoA to round(90 * 32/max(32,min(abs(yawctrl),42)),1).
+        set maxAoA to 90 - (90 - reAoARetMax)*sin(min(abs(yawctrl), rePhiMaxH))/sin(rePhiMaxH).
         set DesiredAoA to min(max(minAoA, DesiredAoA), maxAoA).
         set pitchctrl to DesiredAoA - aoa. 
 
@@ -13618,6 +13602,7 @@ function rePredStep {
         // AoA + bank schedule
         local psAoA is rePA.
         if rePV < reVAoASw set psAoA to LandingAoA.
+        else if rePS >= rePSc and rePS < rePSc + rePSa set psAoA to min(psAoA, 90 - (90 - reAoARetMax)*sin(min(rePPa, rePhiMaxH))/sin(rePhiMaxH)).
         local psBank is 0.
         if rePS < rePSc set psBank to rePPc.
         else if rePS < rePSc + rePSa set psBank to rePPa.
@@ -13641,7 +13626,20 @@ function rePredStep {
             set reLArcNew to psLoD*psDragA.
         }
         if reJob = 1 and reP0Sg <> 0 and reRSolNew < 0 and mod(rePN, reSolEvery) = 0 {
-            local psR is rePV^2/max(psLoD*psDragA, 0.01)/(reKRetM*reP0Sin).   // [m] radius of a turn started here
+            local psQ0 is rePV^2/max(psLoD*psDragA, 0.01).               // [m] V²/L here
+            if reQPrevS > 0 and rePS > reSPrevQ {
+                if psQ0 < reQPrevS set reLamS to (rePS - reSPrevQ)/ln(reQPrevS/psQ0).   // [m] per e-fold
+                else set reLamS to 1e9.                                  // q no longer decreasing
+            }
+            set reQPrevS to psQ0.  set reSPrevQ to rePS.
+            local psR0 is psQ0/(reKRetM*reP0Sin).                        // radius at turn start
+            local psR  is psR0.
+            local psI  is 0.
+            until psI >= 2 {                                             // r = r0·(1-e^-x)/x,  x = r·Δψ/λ
+                local psX is psR*reP0Dpsi/max(reLamS, 1).
+                if psX > 0.01 set psR to psR0*(1 - constant:e^(-psX))/psX.
+                set psI to psI + 1.
+            }
             local psQ is reQAt(reP0Px, reP0Py, reP0Sg, psR).
             local psF is 1e9.                                                 // inside circle -> not yet
             if psQ >= 0 set psF to psQ - rePS.
@@ -13680,6 +13678,25 @@ function rePredStep {
     return false.
 }
 
+function reQAt { 
+    parameter qPx, qPy, qS, qR.
+    local qCx is -reKf*qR.
+    local qCy is qS*qR*(1 - reEpsOs).
+    local qDx is qPx - qCx.
+    local qDy is qPy - qCy.
+    local qD  is sqrt(qDx^2 + qDy^2).
+    if qD <= qR*(1 + reAwayMar) return -1.
+    local qB  is arccos(qR/qD).
+    local qTh is arctan2(qDy, qDx).
+    local qBest is -1e9.  local qOut is -1.
+    for qT in list(qTh + qB, qTh - qB) {
+        local tx is qCx + qR*cos(qT).
+        local ty is qCy + qR*sin(qT).
+        local sc is (tx - qPx)*(-qS*sin(qT)) + (ty - qPy)*(qS*cos(qT)).
+        if sc > qBest { set qBest to sc. set qOut to sqrt((tx - qPx)^2 + (ty - qPy)^2). }
+    }
+    return qOut.
+}
 
 function rsWRef {
     parameter e, wMax, ts, ab.
@@ -13973,9 +13990,9 @@ function ReGuidUpdate {
 
         // freeze the return circle once, sized at the predicted turn conditions (uncapped Rhac)
         local phiRet is rePhiPlan.
-        if reRangeErr < 0 set phiRet to min(phiRet, reLastPhiEq).
         set reLastPhiRet to phiRet.
-        local rTgtR is Rhac*sin(rePhiPlan)/sin(phiRet).          // V_Q²/(L_Q·sin φRet), predictor at Q
+        local rTgtR is Rhac*sin(rePhiPlan)/sin(phiRet).
+        if reRSol > 0 set rTgtR to reRSol.
         if reRBF <= 0 set reRBF to rTgtR.
         else set reRBF to reRBF + (rTgtR - reRBF)*min(1, dt/(reTauRB + dt)).
         set reRetCx to -reKf*reRBF.
@@ -14067,6 +14084,7 @@ function ReGuidUpdate {
     rePredSnap().
     if reMode = "AWAY" {
         set reP0Px to px.  set reP0Py to py.  set reP0Sg to reSigA.  set reP0Sin to sin(reLastPhiRet).
+        set reP0Dpsi to max(0.3, reAwSArc/max(reRBF, 1)).        // [rad] planned return turn angle
     }
     else set reP0Sg to 0.
     rePredStart(aoa + reDAoASol, rePhiF, phiArc, sCur, sArc).
@@ -14115,10 +14133,11 @@ function ReGuidUpdate {
     local fbTotal is min(reDAoAMax, max(-reDAoAMax, reDAoASol + fbDA)).
     if reAoACmd = 0 set reAoACmd to vang(facing:forevector, vel).
     set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, (aoa + fbTotal) - reAoACmd)).
+    set reAoACmd to min(reAoACmd, 90 - (90 - reAoARetMax)*sin(min(abs(reYawCmd), rePhiMaxH))/sin(rePhiMaxH)).
 
     // --- bank command ---
     local phiE is min(rePhiEMax, max(0, reKE*reResid/max(sTg, reRt2)*57.3)).
-    //if reMode = "AWAY" or reMode = "RETURN" set phiE to 0. 
+    if reMode = "AWAY" or reMode = "RETURN" set phiE to 0. 
     local rightV is vcrs(vel, upV):normalized.
     local sgn is 1.
     if vdot(aVec, rightV) < 0 set sgn to -1.
@@ -14136,7 +14155,7 @@ function ReGuidUpdate {
     }
     else {
         if towardTgt and reMode <> "PURSUIT" set phiMaxM to rePhiMaxH.
-        if not towardTgt or reRangeErr < 0 set phiMaxM to min(phiMaxM, phiEq).
+        if (not towardTgt or reRangeErr < 0) and reMode <> "AWAY" set phiMaxM to min(phiMaxM, phiEq).
     }
     local phiLat is arcsin(min(abs(aLat)/max(reLift, 0.1), sin(phiMaxM))).
     local etaDeg is arcsin(max(-1, min(1, sinEta))).local psiRate is 57.3*reLift*sin(max(phiE, 1))/reVh. 
