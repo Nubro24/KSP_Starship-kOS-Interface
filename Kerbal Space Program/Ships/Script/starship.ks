@@ -1826,9 +1826,11 @@ set rePhiPlan  to 69.      // [deg]  bank the turn circle is sized for
 set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.6.     // [-]    straight final = k·R_t
-set reRCap     to 0.8.    // [-]    R_t ≤ reRCap · distance to target
+set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.8.     // [-]    energy-bank gain
-set rePhiEMax  to 45.      // [deg]  max energy bank
+set reKRev     to 0.25.    // [-] fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
+set rePhiEMax  to 40.      // [deg]  max energy bank
+set reAwayAng  to 30.      // [deg] one-time rotation of the heading away from the line in AWAY
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1906,6 +1908,8 @@ function ReGuidInit {
     set reRetCx to 0.  
     set reRetCy to 0.
     set reSigA to 0.
+    set reAwayDirX to 0.  
+    set reAwayDirY to 0.
     set reHACLatch to false.
     rePredInit().
     set reInit    to true.
@@ -13940,19 +13944,29 @@ function ReGuidUpdate {
         // AWAY: hold heading until a return turn ends tangent to the final line
         set reAwayLatch to true.
         set reMode to "AWAY".
-        if reSigA = 0 { if vy > 0 set reSigA to -1. else set reSigA to 1. }
+        if reSigA = 0 { if vy < 0 set reSigA to -1. else set reSigA to 1. }
         local sA is reSigA.
         local rB  is reVh^2/(max(reLift, 0.1)*sin(rePhiPlan)).
         local cBx is px + rB*(-sA*vy/reVh).
         local cBy is py + rB*( sA*vx/reVh).
-        if sA*cBy >= rB {
+        if sA*cBy >= rB or airspeed < reVHac {
             set reHACLatch to true.
             set reRetCx to cBx.  set reRetCy to cBy.  set reRetR to abs(cBy).
         }
-        local dNeed is reKAway*rB*(1 - vx/reVh).   
-        set rx to px + vx/reVh*L1.
-        set ry to py + vy/reVh*L1.
-        if sA*py < dNeed set ry to ry + sA*L1.
+        if reAwayDirX = 0 and reAwayDirY = 0 {
+            local hx is vx/reVh.
+            local hy is vy/reVh.
+            set reAwayDirX to hx.  set reAwayDirY to hy.
+            if sA*py < reKAway*rB*(1 - hx) {                         // not enough room -> rotate once
+                local ca is cos(reAwayAng).  local sa is sin(reAwayAng).
+                local ax1 is hx*ca - hy*sa.   local ay1 is hx*sa + hy*ca.     // +reAwayAng
+                local ax2 is hx*ca + hy*sa.   local ay2 is -hx*sa + hy*ca.    // -reAwayAng
+                if sA*ay1 >= sA*ay2 { set reAwayDirX to ax1. set reAwayDirY to ay1. }
+                else                { set reAwayDirX to ax2. set reAwayDirY to ay2. }
+            }
+        }
+        set rx to px + reAwayDirX*L1.        // fixed AWAY direction -> no endless turning
+        set ry to py + reAwayDirY*L1.
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else {
         set reMode to "RETURN".
@@ -14056,9 +14070,10 @@ function ReGuidUpdate {
     if towardTgt and reMode <> "PURSUIT" set phiMaxM to rePhiMaxH.
     if not towardTgt or reRangeErr < 0 set phiMaxM to min(phiMaxM, phiEq).
     local phiLat is arcsin(min(abs(aLat)/max(reLift, 0.1), sin(phiMaxM))).
-    local etaDeg is arcsin(max(-1, min(1, sinEta))).
+    local etaDeg is arcsin(max(-1, min(1, sinEta))).local psiRate is 57.3*reLift*sin(max(phiE, 1))/reVh. 
+    local psiDb   is min(reRevDb, max(2, reKRev*(sTg/reVh)*psiRate/2)). 
     if phiLat >= phiE { if phiLat > 2 set rePhiSign to sgn. }
-    else if sgn <> rePhiSign and abs(etaDeg) > reRevDb set rePhiSign to sgn.
+    else if sgn <> rePhiSign and abs(etaDeg) > psiDb set rePhiSign to sgn.
     local phi is min(phiMaxM, max(phiLat, phiE)).
     local yawRaw is reYawSign * rePhiSign * phi.
     set reYawCmd to reYawCmd + max(-reBankRate*dt, min(reBankRate*dt, yawRaw - reYawCmd)).
