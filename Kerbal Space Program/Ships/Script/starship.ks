@@ -1830,10 +1830,10 @@ set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.8.     // [-]    energy-bank gain
 set reKRev     to 0.25.    // [-] fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
 set rePhiEMax  to 40.      // [deg]  max energy bank
-set reAwayAng  to 30.      // [deg] one-time rotation of the heading away from the line in AWAY
-set reAwayTol to 3.     // [deg] AWAY rotation counts as done below this heading error
+set reAwayMar to 0.05.   // [-] radial margin: inside the circle below rB·(1+mar)
 set reTrigLead to 1.5.   // [s] extra lead for steering lag (attitude has to follow the bank)
 set reEpsOs    to 0.15.    // [-] intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
+set reTauGap   to 2.     // [s] filter for d(gap)/dt (lift noise); trigger enabled after 2·tau in AWAY
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1852,7 +1852,6 @@ set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
 set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
 set reVHac     to 810*Scale^0.7.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
-set reKAway to 1.15.    // [-] safety factor on the required lateral distance
 set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
 set reDTerm to 6000*Scale.    // [m] desired remaining distance at the bellyflop start
@@ -1918,8 +1917,10 @@ function ReGuidInit {
     set reAwayTurn to 0.
     set reAwayNeed to 0.
     set reAwayRotS to 0.
+    set reAwayT0 to -1.
+    set reGapLast to 0.
+    set reGapRate to 0.
     set reHACLatch to false.
-    set reAwayHold to false.
     set reAwayWasPos to false.
     rePredInit().
     set reInit    to true.
@@ -13952,68 +13953,72 @@ function ReGuidUpdate {
         set reMode to "PURSUIT".
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else if not reHACLatch {
-        // AWAY: fly away until a return turn (with intended overshoot) ends on the final line
+        // AWAY: straight line onto the tangent of the planned return circle
         set reAwayLatch to true.
         set reMode to "AWAY".
-        if reSigA = 0 { if vy < 0 set reSigA to -1. else set reSigA to 1. }
+        if reSigA = 0 { if py >= 0 set reSigA to 1. else set reSigA to -1. }
         local sA is reSigA.
-        local hx is vx/reVh.
-        local hy is vy/reVh.
 
-        // planned return radius and trigger lead
+        // return circle sized at the current turn conditions
         local phiRet is rePhiPlan.
         if reRangeErr < 0 set phiRet to min(phiRet, reLastPhiEq).
         local rB    is reVh^2/(max(reLift, 0.1)*sin(phiRet)).
         local tLead is phiRet/(2*max(reBankRate, 0.1)) + reTrigLead.
+        local cRx is -reKf*rB.                          // turn ends at x = -Df
+        local cRy is sA*rB*(1 - reEpsOs).               // ... eps*r past the line
+        local dxR is px - cRx.
+        local dyR is py - cRy.
+        local dR  is max(1, sqrt(dxR^2 + dyR^2)).
 
-        // RETURN trigger: required radius r_req = s*py/(1 - eps - hx) shrinks to rB, or line crossed
-        local pyL is py + vy*tLead.
-        local den is 1 - reEpsOs - hx.
-        local rReqL is 1e9.
-        if den > 0.001 set rReqL to sA*pyL/den.
-        if sA*py > 0 set reAwayWasPos to true.
-        local crossed is reAwayWasPos and sA*py <= 0.
-        if (rReqL > 0 and rReqL <= rB) or crossed or airspeed < reVHac {
-            local rNow is rB.
-            if not crossed and den > 0.001 set rNow to max(sA*py/den, reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH))).
-            set reHACLatch to true.
-            set reRetR  to rNow.
-            set reRetCx to px + rNow*(-sA*hy).
-            set reRetCy to py + rNow*( sA*hx).        // = sA*rNow*(1 - reEpsOs)
-        }
+        // rate of rB from V²/L only (no phiRet jumps)
+        local qB is reVh^2/max(reLift, 0.1).
+        if reAwayT0 < 0 { set reAwayT0 to now. set reQBLast to qB. set reQBRate to 0. }
+        set reQBRate to reQBRate + ((qB - reQBLast)/dt - reQBRate)*min(1, dt/(reTauGap + dt)).
+        set reQBLast to qB.
+        local settled is now - reAwayT0 > 2*reTauGap.
 
-        // one-time decision: rotate away first (not enough room) or hold heading
-        if reAwayDirX = 0 and reAwayDirY = 0 {
-            set reAwayDirX to hx.  set reAwayDirY to hy.
-            set reAwayNeed to 0.
-            if sA*py < reKAway*rB*(1 - hx) {
-                local awCos is cos(reAwayAng).
-                local awSin is sin(reAwayAng).
-                local ay1 is  hx*awSin + hy*awCos.    // y of heading rotated +reAwayAng
-                local ay2 is -hx*awSin + hy*awCos.    // y of heading rotated -reAwayAng
-                if sA*ay1 >= sA*ay2 set reAwayRotS to 1.
-                else set reAwayRotS to -1.
-                set reAwayNeed to reAwayAng.
+        local goRet is false.
+        if dR > rB*(1 + reAwayMar) {
+            // outside: tangent point with turn sense sA
+            local beta is arccos(rB/dR).
+            local thP  is arctan2(dyR, dxR).
+            local best is -1e9.
+            local tqx is cRx.  local tqy is cRy.
+            for th in list(thP + beta, thP - beta) {
+                local tx is cRx + rB*cos(th).
+                local ty is cRy + rB*sin(th).
+                local score is (tx - px)*(-sA*sin(th)) + (ty - py)*(sA*cos(th)).
+                if score > best { set best to score. set tqx to tx. set tqy to ty. }
             }
-        }
-
-        // rotation measured as geodesic turn: psiDot = a_side/V  [deg/s]
-        local sideV is (e1*(-vy*reAwayRotS) + e2*(vx*reAwayRotS)):normalized.
-        if reAwayNeed > 0 and not reAwayHold {
-            set reAwayTurn to reAwayTurn + 57.3*vdot(reAeroV, sideV)/reVh*dt.
-            if reAwayTurn >= reAwayNeed - reAwayTol set reAwayHold to true.
-        }
-        else set reAwayHold to true.
-
-        if reAwayHold {
-            set rx to px + hx*L1.                     // straight ahead: aLat = 0 -> bank 0
-            set ry to py + hy*L1.
+            local dQ is sqrt((tqx - px)^2 + (tqy - py)^2).
+            set rx to tqx.  set ry to tqy.               // straight onto Q
+            set reDbgDQ to dQ.
+            if settled and dQ <= reVh*tLead set goRet to true.
+            set sTg to dQ + rB*reWrap360(sA*(arctan2(-sA, 0) - arctan2(tqy - cRy, tqx - cRx)))*constant:pi/180 + reKf*rB.
         }
         else {
-            set rx to px - hy*reAwayRotS*L1.          // 90° to the side -> rotate with available bank
-            set ry to py + hx*reAwayRotS*L1.
+            // inside: bank away only if waiting (slowing down) does not open the room by itself
+            local dRRate is (dxR*vx + dyR*vy)/dR.        // straight flight
+            local rBRate is reQBRate/sin(phiRet)*(1 + reAwayMar).
+            if dRRate - rBRate <= 0 and settled {
+                set rx to px + dxR/dR*L1.                // away from the centre
+                set ry to py + dyR/dR*L1.
+            }
+            else {
+                set rx to px + vx/reVh*L1.               // hold straight, room is opening
+                set ry to py + vy/reVh*L1.
+            }
+            set reDbgDQ to -1.
+            set sTg to dR + rB*constant:pi + reKf*rB.
         }
-        set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
+
+        if sA*py > 0 set reAwayWasPos to true.
+        local crossed is reAwayWasPos and sA*py <= 0.
+        if goRet or crossed or airspeed < reVHac {
+            set reHACLatch to true.
+            set reRetCx to cRx.  set reRetCy to cRy.  set reRetR to rB.
+        }
+        set reDbgRB to rB.
     } else {
         set reMode to "RETURN".
         local L1e is max(L1, abs(dC - reRt2) + 1).
@@ -14099,7 +14104,7 @@ function ReGuidUpdate {
 
     // --- bank command ---
     local phiE is min(rePhiEMax, max(0, reKE*reResid/max(sTg, reRt2)*57.3)).
-    if reMode = "AWAY" or reMode = "RETURN" set phiE to 0. 
+    //if reMode = "AWAY" or reMode = "RETURN" set phiE to 0. 
     local rightV is vcrs(vel, upV):normalized.
     local sgn is 1.
     if vdot(aVec, rightV) < 0 set sgn to -1.
