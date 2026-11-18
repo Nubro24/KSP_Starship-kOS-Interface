@@ -1847,6 +1847,7 @@ set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
 set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
 set reVHac     to 810*Scale^0.7.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
+set reKAway to 1.15.    // [-] safety factor on the required lateral distance
 set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
 set reDTerm to 6000*Scale.    // [m] desired remaining distance at the bellyflop start
@@ -1904,6 +1905,7 @@ function ReGuidInit {
     set reRetR to 0.  
     set reRetCx to 0.  
     set reRetCy to 0.
+    set reSigA to 0.
     set reHACLatch to false.
     rePredInit().
     set reInit    to true.
@@ -13884,11 +13886,12 @@ function ReGuidUpdate {
 
     // frozen return circle (RETURN phase)
     if reHACLatch and reRetR > 0 {
+        set sig to reSigA.
         set cx to reRetCx.  set cy to reRetCy.
         set reRt2 to reRetR.
         set Df to -reRetCx.
         set L1 to reKL1*reRetR.
-        set thE to arctan2(-sig*reRetR, 0).
+        set thE to arctan2(-reSigA*reRetR, 0).
     }
 
     // --- tangent point from the ship onto the circle ---
@@ -13918,8 +13921,8 @@ function ReGuidUpdate {
     local straight is not useHAC.
     local finalOK is reVh < reKVFinal*sqrt(body:mu/(body:radius + altitude)).
     if straight or reFinal set L1 to min(L1, reKL1T*max(dTgt, 1)).
-    if not straight and not reFinal and finalOK and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
-    if not straight and not reFinal and finalOK and abs(py) < 0.1*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
+    if not straight and not reFinal and reHACLatch and finalOK and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
+    if not straight and not reFinal and reHACLatch and finalOK and abs(py) < 0.1*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
 
     local rx is qx. local ry is qy.
     local sTg is 0.
@@ -13937,15 +13940,19 @@ function ReGuidUpdate {
         // AWAY: hold heading until a return turn ends tangent to the final line
         set reAwayLatch to true.
         set reMode to "AWAY".
+        if reSigA = 0 { if vy > 0 set reSigA to -1. else set reSigA to 1. }
+        local sA is reSigA.
         local rB  is reVh^2/(max(reLift, 0.1)*sin(rePhiPlan)).
-        local cBx is px + rB*(-sig*vy/reVh).
-        local cBy is py + rB*( sig*vx/reVh).
-        if sig*cBy >= rB {
+        local cBx is px + rB*(-sA*vy/reVh).
+        local cBy is py + rB*( sA*vx/reVh).
+        if sA*cBy >= rB {
             set reHACLatch to true.
             set reRetCx to cBx.  set reRetCy to cBy.  set reRetR to abs(cBy).
         }
-        set rx to px + vx/reVh*L1.            // reference straight ahead -> no lateral demand
+        local dNeed is reKAway*rB*(1 - vx/reVh).   
+        set rx to px + vx/reVh*L1.
         set ry to py + vy/reVh*L1.
+        if sA*py < dNeed set ry to ry + sA*L1.
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else {
         set reMode to "RETURN".
