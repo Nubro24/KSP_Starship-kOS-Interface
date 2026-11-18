@@ -1833,6 +1833,7 @@ set rePhiEMax  to 40.      // [deg]  max energy bank
 set reAwayAng  to 30.      // [deg] one-time rotation of the heading away from the line in AWAY
 set reAwayTol to 3.     // [deg] AWAY rotation counts as done below this heading error
 set reTrigLead to 1.5.   // [s] extra lead for steering lag (attitude has to follow the bank)
+set reEpsOs    to 0.15.    // [-] intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1914,8 +1915,12 @@ function ReGuidInit {
     set reAwayDirX to 0.  
     set reAwayDirY to 0.
     set reLastPhiEq to 90.
+    set reAwayTurn to 0.
+    set reAwayNeed to 0.
+    set reAwayRotS to 0.
     set reHACLatch to false.
     set reAwayHold to false.
+    set reAwayWasPos to false.
     rePredInit().
     set reInit    to true.
 }
@@ -13947,44 +13952,66 @@ function ReGuidUpdate {
         set reMode to "PURSUIT".
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else if not reHACLatch {
-        // AWAY: hold heading until a return turn ends tangent to the final line
+        // AWAY: fly away until a return turn (with intended overshoot) ends on the final line
         set reAwayLatch to true.
         set reMode to "AWAY".
         if reSigA = 0 { if vy < 0 set reSigA to -1. else set reSigA to 1. }
         local sA is reSigA.
+        local hx is vx/reVh.
+        local hy is vy/reVh.
+
+        // planned return radius and trigger lead
         local phiRet is rePhiPlan.
         if reRangeErr < 0 set phiRet to min(phiRet, reLastPhiEq).
         local rB    is reVh^2/(max(reLift, 0.1)*sin(phiRet)).
         local tLead is phiRet/(2*max(reBankRate, 0.1)) + reTrigLead.
-        local pxL   is px + vx*tLead.
-        local pyL   is py + vy*tLead.
-        local cBx   is pxL + rB*(-sA*vy/reVh).
-        local cBy   is pyL + rB*( sA*vx/reVh).
-        if sA*cBy >= rB or airspeed < reVHac {
+
+        // RETURN trigger: required radius r_req = s*py/(1 - eps - hx) shrinks to rB, or line crossed
+        local pyL is py + vy*tLead.
+        local den is 1 - reEpsOs - hx.
+        local rReqL is 1e9.
+        if den > 0.001 set rReqL to sA*pyL/den.
+        if sA*py > 0 set reAwayWasPos to true.
+        local crossed is reAwayWasPos and sA*py <= 0.
+        if (rReqL > 0 and rReqL <= rB) or crossed or airspeed < reVHac {
+            local rNow is rB.
+            if not crossed and den > 0.001 set rNow to max(sA*py/den, reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH))).
             set reHACLatch to true.
-            set reRetCx to cBx.  set reRetCy to cBy.  set reRetR to abs(cBy).
+            set reRetR  to rNow.
+            set reRetCx to px + rNow*(-sA*hy).
+            set reRetCy to py + rNow*( sA*hx).        // = sA*rNow*(1 - reEpsOs)
         }
+
+        // one-time decision: rotate away first (not enough room) or hold heading
         if reAwayDirX = 0 and reAwayDirY = 0 {
-            local hx is vx/reVh.
-            local hy is vy/reVh.
             set reAwayDirX to hx.  set reAwayDirY to hy.
-            if sA*py < reKAway*rB*(1 - hx) {                         // not enough room -> rotate once
-                local ca is cos(reAwayAng).  local sa is sin(reAwayAng).
-                local ax1 is hx*ca - hy*sa.   local ay1 is hx*sa + hy*ca.     // +reAwayAng
-                local ax2 is hx*ca + hy*sa.   local ay2 is -hx*sa + hy*ca.    // -reAwayAng
-                if sA*ay1 >= sA*ay2 { set reAwayDirX to ax1. set reAwayDirY to ay1. }
-                else                { set reAwayDirX to ax2. set reAwayDirY to ay2. }
+            set reAwayNeed to 0.
+            if sA*py < reKAway*rB*(1 - hx) {
+                local awCos is cos(reAwayAng).
+                local awSin is sin(reAwayAng).
+                local ay1 is  hx*awSin + hy*awCos.    // y of heading rotated +reAwayAng
+                local ay2 is -hx*awSin + hy*awCos.    // y of heading rotated -reAwayAng
+                if sA*ay1 >= sA*ay2 set reAwayRotS to 1.
+                else set reAwayRotS to -1.
+                set reAwayNeed to reAwayAng.
             }
         }
-        local awayErr is arccos(max(-1, min(1, (vx*reAwayDirX + vy*reAwayDirY)/reVh))).
-        if awayErr < reAwayTol set reAwayHold to true.
+
+        // rotation measured as geodesic turn: psiDot = a_side/V  [deg/s]
+        local sideV is (e1*(-vy*reAwayRotS) + e2*(vx*reAwayRotS)):normalized.
+        if reAwayNeed > 0 and not reAwayHold {
+            set reAwayTurn to reAwayTurn + 57.3*vdot(reAeroV, sideV)/reVh*dt.
+            if reAwayTurn >= reAwayNeed - reAwayTol set reAwayHold to true.
+        }
+        else set reAwayHold to true.
+
         if reAwayHold {
-            set rx to px + vx/reVh*L1.        // straight ahead -> no lateral demand (great circle)
-            set ry to py + vy/reVh*L1.
+            set rx to px + hx*L1.                     // straight ahead: aLat = 0 -> bank 0
+            set ry to py + hy*L1.
         }
         else {
-            set rx to px + reAwayDirX*L1.     // one-time rotation toward the AWAY direction
-            set ry to py + reAwayDirY*L1.
+            set rx to px - hy*reAwayRotS*L1.          // 90° to the side -> rotate with available bank
+            set ry to py + hx*reAwayRotS*L1.
         }
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else {
