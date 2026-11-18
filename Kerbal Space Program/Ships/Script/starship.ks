@@ -1831,6 +1831,8 @@ set reKE       to 0.8.     // [-]    energy-bank gain
 set reKRev     to 0.25.    // [-] fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
 set rePhiEMax  to 40.      // [deg]  max energy bank
 set reAwayAng  to 30.      // [deg] one-time rotation of the heading away from the line in AWAY
+set reAwayTol to 3.     // [deg] AWAY rotation counts as done below this heading error
+set reTrigLead to 1.5.   // [s] extra lead for steering lag (attitude has to follow the bank)
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1867,6 +1869,7 @@ set reKVFinal to 0.5.    // [-] FINAL may only latch below this fraction of orbi
 set reKEq      to 1.0.   // [-]   1 = keep exactly enough vertical lift for equilibrium glide
 set rePhiEqMin to 15.    // [deg] minimum steering authority even when lift is short
 set reSteerTau to 1.0.    // [s]         target filter (new)
+set reRemSLast to 360.
 set reTerm     to false.
 set reAoACmd   to 0.
 set reGActive  to false.
@@ -1910,7 +1913,9 @@ function ReGuidInit {
     set reSigA to 0.
     set reAwayDirX to 0.  
     set reAwayDirY to 0.
+    set reLastPhiEq to 90.
     set reHACLatch to false.
+    set reAwayHold to false.
     rePredInit().
     set reInit    to true.
 }
@@ -13925,7 +13930,8 @@ function ReGuidUpdate {
     local straight is not useHAC.
     local finalOK is reVh < reKVFinal*sqrt(body:mu/(body:radius + altitude)).
     if straight or reFinal set L1 to min(L1, reKL1T*max(dTgt, 1)).
-    if not straight and not reFinal and reHACLatch and finalOK and (dC < reRt2 + L1) and (remS < 5 or remS > 300) set reFinal to true.
+    if not straight and not reFinal and reHACLatch and finalOK and (dC < reRt2 + L1) and (remS < 5 or (reRemSLast < 30 and remS > 300)) set reFinal to true.
+    if reHACLatch set reRemSLast to remS.
     if not straight and not reFinal and reHACLatch and finalOK and abs(py) < 0.1*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
 
     local rx is qx. local ry is qy.
@@ -13946,9 +13952,14 @@ function ReGuidUpdate {
         set reMode to "AWAY".
         if reSigA = 0 { if vy < 0 set reSigA to -1. else set reSigA to 1. }
         local sA is reSigA.
-        local rB  is reVh^2/(max(reLift, 0.1)*sin(rePhiPlan)).
-        local cBx is px + rB*(-sA*vy/reVh).
-        local cBy is py + rB*( sA*vx/reVh).
+        local phiRet is rePhiPlan.
+        if reRangeErr < 0 set phiRet to min(phiRet, reLastPhiEq).
+        local rB    is reVh^2/(max(reLift, 0.1)*sin(phiRet)).
+        local tLead is phiRet/(2*max(reBankRate, 0.1)) + reTrigLead.
+        local pxL   is px + vx*tLead.
+        local pyL   is py + vy*tLead.
+        local cBx   is pxL + rB*(-sA*vy/reVh).
+        local cBy   is pyL + rB*( sA*vx/reVh).
         if sA*cBy >= rB or airspeed < reVHac {
             set reHACLatch to true.
             set reRetCx to cBx.  set reRetCy to cBy.  set reRetR to abs(cBy).
@@ -13965,8 +13976,16 @@ function ReGuidUpdate {
                 else                { set reAwayDirX to ax2. set reAwayDirY to ay2. }
             }
         }
-        set rx to px + reAwayDirX*L1.        // fixed AWAY direction -> no endless turning
-        set ry to py + reAwayDirY*L1.
+        local awayErr is arccos(max(-1, min(1, (vx*reAwayDirX + vy*reAwayDirY)/reVh))).
+        if awayErr < reAwayTol set reAwayHold to true.
+        if reAwayHold {
+            set rx to px + vx/reVh*L1.        // straight ahead -> no lateral demand (great circle)
+            set ry to py + vy/reVh*L1.
+        }
+        else {
+            set rx to px + reAwayDirX*L1.     // one-time rotation toward the AWAY direction
+            set ry to py + reAwayDirY*L1.
+        }
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else {
         set reMode to "RETURN".
@@ -14036,7 +14055,6 @@ function ReGuidUpdate {
             set reJob to 0.
         }
     }
-    local phiE is min(rePhiEMax, max(0, reKE*reResid/max(sTg, reRt2)*57.3)).
 
     local fbAlpha is aoa + reDAoASol.
     local fbDm is -vdot(reAeroV, vel:normalized).
@@ -14053,22 +14071,27 @@ function ReGuidUpdate {
     set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, (aoa + fbTotal) - reAoACmd)).
 
     // --- bank command ---
+    local phiE is min(rePhiEMax, max(0, reKE*reResid/max(sTg, reRt2)*57.3)).
+    if reMode = "AWAY" or reMode = "RETURN" set phiE to 0. 
     local rightV is vcrs(vel, upV):normalized.
     local sgn is 1.
     if vdot(aVec, rightV) < 0 set sgn to -1.
-    // direction of the turn relative to the target
     local crossT is px*vy - py*vx.
     local towardTgt is aLat*crossT > 0.
-    // equilibrium-glide bank limit
     local viH  is vxcl(upV, velocity:orbit):mag.
     local gNet is gMag - viH^2/(body:radius + altitude).
     local phiEq is 90.
     if reLift > 0.1 set phiEq to arccos(max(-1, min(1, reKEq*gNet/reLift))).
     set phiEq to max(rePhiEqMin, phiEq).
-    // strong bank only toward the target (not in PURSUIT)
+    set reLastPhiEq to phiEq.
     local phiMaxM is rePhiMaxP.
-    if towardTgt and reMode <> "PURSUIT" set phiMaxM to rePhiMaxH.
-    if not towardTgt or reRangeErr < 0 set phiMaxM to min(phiMaxM, phiEq).
+    if reMode = "RETURN" {
+        set phiMaxM to rePhiMaxH. 
+    }
+    else {
+        if towardTgt and reMode <> "PURSUIT" set phiMaxM to rePhiMaxH.
+        if not towardTgt or reRangeErr < 0 set phiMaxM to min(phiMaxM, phiEq).
+    }
     local phiLat is arcsin(min(abs(aLat)/max(reLift, 0.1), sin(phiMaxM))).
     local etaDeg is arcsin(max(-1, min(1, sinEta))).local psiRate is 57.3*reLift*sin(max(phiE, 1))/reVh. 
     local psiDb   is min(reRevDb, max(2, reKRev*(sTg/reVh)*psiRate/2)). 
