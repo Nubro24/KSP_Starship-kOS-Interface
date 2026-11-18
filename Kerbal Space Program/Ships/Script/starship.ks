@@ -1761,6 +1761,9 @@ function rePredStart {
     set rePS to 0.      
     set rePN to 0.
     set reVArcNew to -1.
+    set reRSolNew to -1.
+    set reFPrev   to 1e9.
+    set reRPrev   to 0.
     set rePRun to reP0KD > 1e-12.
     set reDProfNew to list().
     if not rePRun set rePS to 0.
@@ -1830,10 +1833,10 @@ set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.8.     // [-]    energy-bank gain
 set reKRev     to 0.25.    // [-] fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
 set rePhiEMax  to 40.      // [deg]  max energy bank
-set reAwayMar to 0.05.   // [-] radial margin: inside the circle below rB·(1+mar)
-set reTrigLead to 1.5.   // [s] extra lead for steering lag (attitude has to follow the bank)
+set reAwayMar  to 0.05.    // [-] radial margin: inside the circle below rB·(1+mar)
+set reTrigLead to 1.5.     // [s] extra lead for steering lag (attitude has to follow the bank)
 set reEpsOs    to 0.15.    // [-] intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
-set reTauGap   to 2.     // [s] filter for d(gap)/dt (lift noise); trigger enabled after 2·tau in AWAY
+set reTauRB    to 3.       // [s] filter of the return radius (fixed-point iteration via predictor)
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1911,15 +1914,11 @@ function ReGuidInit {
     set reRetCx to 0.  
     set reRetCy to 0.
     set reSigA to 0.
-    set reAwayDirX to 0.  
-    set reAwayDirY to 0.
     set reLastPhiEq to 90.
-    set reAwayTurn to 0.
-    set reAwayNeed to 0.
-    set reAwayRotS to 0.
-    set reAwayT0 to -1.
-    set reGapLast to 0.
-    set reGapRate to 0.
+    set reRBF to 0. 
+    set reAwSCur to 0. 
+    set reAwSArc to 0.
+    set reTLead to 0.
     set reHACLatch to false.
     set reAwayWasPos to false.
     rePredInit().
@@ -13302,6 +13301,7 @@ function ReEntrySteering {
         print "AoA - Desired: " + round(DesiredAoA, 1) + "  (plan " + round(aoa,1) + ", Δ " + round(pitchctrl,1) + ")".
         print " |    Current: " + round(currentAoA,1).
         print "Bank (yawctrl): " + round(yawctrl, 1).
+        if defined reDbgDQ and defined reDbgRB and  defined reDbgPy print "AWAY dQ " + round(reDbgDQ/1000,1) + " km  r_ret " + round(reDbgRB/1000,1) + " km  side " + reSigA + "  py " + round(reDbgPy/1000,1).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
         print " ".
@@ -13640,6 +13640,18 @@ function rePredStep {
             set reVArcNew to rePV.
             set reLArcNew to psLoD*psDragA.
         }
+        if reJob = 1 and reP0Sg <> 0 and reRSolNew < 0 and mod(rePN, reSolEvery) = 0 {
+            local psR is rePV^2/max(psLoD*psDragA, 0.01)/(reKRetM*reP0Sin).   // [m] radius of a turn started here
+            local psQ is reQAt(reP0Px, reP0Py, reP0Sg, psR).
+            local psF is 1e9.                                                 // inside circle -> not yet
+            if psQ >= 0 set psF to psQ - rePS.
+            if psF <= 0 {
+                if reFPrev < 1e8 set reRSolNew to reRPrev + (psR - reRPrev)*reFPrev/max(reFPrev - psF, 1e-6).
+                else set reRSolNew to psR.                                    // already late -> turn now
+            }
+            set reFPrev to psF.
+            set reRPrev to psR.
+        }
         if reJob = 1 reDProfNew:add(list(rePV, psDragA)).
 
         // Euler predictor state
@@ -13953,62 +13965,56 @@ function ReGuidUpdate {
         set reMode to "PURSUIT".
         set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else if not reHACLatch {
-        // AWAY: straight line onto the tangent of the planned return circle
+        // AWAY: straight line onto the tangent of a return circle frozen at AWAY entry
         set reAwayLatch to true.
         set reMode to "AWAY".
         if reSigA = 0 { if py >= 0 set reSigA to 1. else set reSigA to -1. }
         local sA is reSigA.
 
-        // return circle sized at the current turn conditions
+        // freeze the return circle once, sized at the predicted turn conditions (uncapped Rhac)
         local phiRet is rePhiPlan.
         if reRangeErr < 0 set phiRet to min(phiRet, reLastPhiEq).
-        local rB    is reVh^2/(max(reLift, 0.1)*sin(phiRet)).
-        local tLead is phiRet/(2*max(reBankRate, 0.1)) + reTrigLead.
-        local cRx is -reKf*rB.                          // turn ends at x = -Df
-        local cRy is sA*rB*(1 - reEpsOs).               // ... eps*r past the line
-        local dxR is px - cRx.
-        local dyR is py - cRy.
+        set reLastPhiRet to phiRet.
+        local rTgtR is Rhac*sin(rePhiPlan)/sin(phiRet).          // V_Q²/(L_Q·sin φRet), predictor at Q
+        if reRBF <= 0 set reRBF to rTgtR.
+        else set reRBF to reRBF + (rTgtR - reRBF)*min(1, dt/(reTauRB + dt)).
+        set reRetCx to -reKf*reRBF.
+        set reRetCy to sA*reRBF*(1 - reEpsOs).
+        set reTLead to phiRet/(2*max(reBankRate, 0.1)) + reTrigLead.
+        local rB  is reRBF.
+        local dxR is px - reRetCx.
+        local dyR is py - reRetCy.
         local dR  is max(1, sqrt(dxR^2 + dyR^2)).
-
-        // rate of rB from V²/L only (no phiRet jumps)
-        local qB is reVh^2/max(reLift, 0.1).
-        if reAwayT0 < 0 { set reAwayT0 to now. set reQBLast to qB. set reQBRate to 0. }
-        set reQBRate to reQBRate + ((qB - reQBLast)/dt - reQBRate)*min(1, dt/(reTauGap + dt)).
-        set reQBLast to qB.
-        local settled is now - reAwayT0 > 2*reTauGap.
 
         local goRet is false.
         if dR > rB*(1 + reAwayMar) {
-            // outside: tangent point with turn sense sA
+            // outside: tangent point with turn sense sA, fly straight onto it
             local beta is arccos(rB/dR).
             local thP  is arctan2(dyR, dxR).
             local best is -1e9.
-            local tqx is cRx.  local tqy is cRy.
+            local tqx is reRetCx.  local tqy is reRetCy.
             for th in list(thP + beta, thP - beta) {
-                local tx is cRx + rB*cos(th).
-                local ty is cRy + rB*sin(th).
+                local tx is reRetCx + rB*cos(th).
+                local ty is reRetCy + rB*sin(th).
                 local score is (tx - px)*(-sA*sin(th)) + (ty - py)*(sA*cos(th)).
                 if score > best { set best to score. set tqx to tx. set tqy to ty. }
             }
             local dQ is sqrt((tqx - px)^2 + (tqy - py)^2).
-            set rx to tqx.  set ry to tqy.               // straight onto Q
+            set rx to tqx.  set ry to tqy.
             set reDbgDQ to dQ.
-            if settled and dQ <= reVh*tLead set goRet to true.
-            set sTg to dQ + rB*reWrap360(sA*(arctan2(-sA, 0) - arctan2(tqy - cRy, tqx - cRx)))*constant:pi/180 + reKf*rB.
+            if dQ <= reVh*reTLead set goRet to true.
+            local thQ2 is arctan2(tqy - reRetCy, tqx - reRetCx).
+            set reAwSCur to dQ.
+            set reAwSArc to rB*reWrap360(sA*(arctan2(-sA, 0) - thQ2))*constant:pi/180.
+            set sTg to dQ + rB*reWrap360(sA*(arctan2(-sA, 0) - thQ2))*constant:pi/180 + reKf*rB.
         }
         else {
-            // inside: bank away only if waiting (slowing down) does not open the room by itself
-            local dRRate is (dxR*vx + dyR*vy)/dR.        // straight flight
-            local rBRate is reQBRate/sin(phiRet)*(1 + reAwayMar).
-            if dRRate - rBRate <= 0 and settled {
-                set rx to px + dxR/dR*L1.                // away from the centre
-                set ry to py + dyR/dR*L1.
-            }
-            else {
-                set rx to px + vx/reVh*L1.               // hold straight, room is opening
-                set ry to py + vy/reVh*L1.
-            }
+            // inside: lead-out, fly away from the centre until there is room
+            set rx to px + dxR/dR*L1.
+            set ry to py + dyR/dR*L1.
             set reDbgDQ to -1.
+            set reAwSCur to rB*reAwayMar + max(0, rB - dR).          // rough distance until there is room
+            set reAwSArc to rB*constant:pi.
             set sTg to dR + rB*constant:pi + reKf*rB.
         }
 
@@ -14016,9 +14022,10 @@ function ReGuidUpdate {
         local crossed is reAwayWasPos and sA*py <= 0.
         if goRet or crossed or airspeed < reVHac {
             set reHACLatch to true.
-            set reRetCx to cRx.  set reRetCy to cRy.  set reRetR to rB.
+            set reRetR to rB.
         }
         set reDbgRB to rB.
+        set reDbgPy to py.
     } else {
         set reMode to "RETURN".
         local L1e is max(L1, abs(dC - reRt2) + 1).
@@ -14044,10 +14051,12 @@ function ReGuidUpdate {
     if reMode = "PURSUIT" set sArc to arcQ.
     else if reMode = "AWAY" or reMode = "RETURN" set sArc to reRt2*remS*constant:pi/180.
     local sCur is max(0, sTg - sArc - Df).
+    if reMode = "AWAY" { set sArc to reAwSArc. set sCur to reAwSCur. }
     set reSCurL  to sCur.
     set reThRemL to sArc/reRt2.
     if reMode = "FINAL" set sCur to sTg.
     local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
+    if reMode = "AWAY" set phiArc to rePhiPlan.
     local dTermDyn is reDTerm.
     if reHHand > 0 set dTermDyn to max(reDTermMin, reKTerm*max(0, reHHand - reP0Gnd - FlipAltitude)/tan(reGamMinT)).
     local sTarget is sTg + LngLatOffset - dTermDyn.
@@ -14056,6 +14065,10 @@ function ReGuidUpdate {
     if reJob = 0 and time:seconds > reLastPred + rePredPeriod {
     set reLastPred to time:seconds.
     rePredSnap().
+    if reMode = "AWAY" {
+        set reP0Px to px.  set reP0Py to py.  set reP0Sg to reSigA.  set reP0Sin to sin(reLastPhiRet).
+    }
+    else set reP0Sg to 0.
     rePredStart(aoa + reDAoASol, rePhiF, phiArc, sCur, sArc).
     set reJobTgt to sTarget.
     set reJob to 1.
@@ -14065,6 +14078,7 @@ function ReGuidUpdate {
             if reVArcNew > 0 and reLArcNew > 0.1 { set reVArc to reVArcNew. set reLArc to reLArcNew. }
             set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
             set reS1 to rePS.
+            if reRSolNew > 0 set reRSol to reRSolNew.
             set reSlopeN to reSlopeN + 1.
             set reHHand to rePH.
             if reSlopeN >= 3 or reSlope = 0 {
