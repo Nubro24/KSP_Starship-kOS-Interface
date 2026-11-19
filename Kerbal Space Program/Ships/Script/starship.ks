@@ -1771,15 +1771,15 @@ set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 3/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 6.      // [s]       settling time near the target
-set rsKw     to 0.18.   // [1/(deg/s)] rate loop pitch/yaw
+set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
 set rsKwR    to 0.05.   // [1/(deg/s)] rate loop roll
-set rsKi     to 0.006.  // [1/(deg·s)] trim integrator
+set rsKi     to 0.005.  // [1/(deg·s)] trim integrator
 set rsTsB     to 5.   // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
 set rsWMaxB   to 6/Scale.     // [deg/s]   max rate in the bellyflop
 set rsKqMax   to 2.   // [-]       max gain increase at low dynamic pressure
 set rsIRange to 12.     // [deg]     integrator only below this error
-set rsIMax   to 0.6.    // [-]       max trim input
+set rsIMax   to 0.8.    // [-]       max trim input
 set rsSlew  to 2.       // [1/s]    max change of the control input per second
 set rsTauU  to 0.24.     // [s]      output smoothing
 set rsRollRange to 42.  // [deg] roll position control only below this pointing error
@@ -1788,7 +1788,9 @@ set reKFb       to 0.5.   // [-]   drag feedback gain
 set reDAoAFbMax to 5.     // [deg] max feedback contribution
 set rsKthB to 0.09.    // [1/deg]     direct stiffness in the bellyflop
 set rsKiB  to 0.012.    // [1/(deg·s)] trim integrator in the bellyflop
-set reYawRollK to 7.   // [-] yaw per degree of roll
+set reYawRollK0 to 1.2.   // [-]   coordination yaw per degree of roll (small)
+set reKYawA     to 0.5.   // [-]   lateral accel per sin(yaw), in g  (smaller = more yaw per demand)
+set reYawMaxT   to 42.    // [deg] max yaw in the bellyflop
 set rsAlphaFrac to 0.4.    // [-] use half the measured authority for braking (margin)
 set rsAlphaMin  to 0.1.    // [deg/s²]
 set rsAlphaMaxL to 5.      // [deg/s²]
@@ -1822,6 +1824,7 @@ function ReRawSteerInit {
 set rePhiMaxP  to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
 set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
 set rePhiPlan  to 69.      // [deg]  bank the turn circle is sized for
+set reFinHdg  to 5.        // [deg] FINAL latches when the remaining heading change is below this
 set reAoARetMax to 60.     // [deg]  max AoA at full bank 
 set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
@@ -1857,7 +1860,7 @@ set reVHac     to 1200.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
-set reDTerm to 3000*Scale.    // [m] desired remaining distance at the bellyflop start
+set reDTerm to 2000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT to 74.
 set reAoAMaxT to 87.
 set reGamMinT to 50.    // [deg] shallowest allowed descent angle
@@ -1928,6 +1931,9 @@ function ReGuidInit {
     set reRSolNew to -1.  
     set reTRem to -1. 
     set rePT to 0.
+    set reRetALat to 0.
+    set reRetSArc to 0. 
+    set reRetPhi to 0.
     set reLastPhiRet to rePhiPlan.
     set reHACLatch to false.
     set reAwayWasPos to false.
@@ -13258,9 +13264,9 @@ function ReEntrySteering {
         if currentAoA > 77 set yawIncrease to min((max((yawOffset - 0.2) / 2, 0.05))^1.4, 1).
         else set yawIncrease to 0.
         set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.4, 1).
-        set stabalizeDamp to min((max((0.25/steeringOffset), 0.8))^1.2, 5).
+        set stabalizeDamp to min((max((0.25/max(0.1,steeringOffset)), 0.8))^1.2, 5).
 
-        if yawctrl < 8 or yawctrl > -8 {
+        if abs(yawctrl) > 8 {
             if currentAoA > 89 set stableDamp to -(currentAoA-89)/40.
             else if currentAoA < 55 {set stableDamp to (55-currentAoA)/40.}
             else set stableDamp to 0.
@@ -13270,7 +13276,12 @@ function ReEntrySteering {
             else set stableDamp to 0.
         }
 
-        set resultVec to GuidVec:vector:normalized + vxcl(up:vector, vxcl(facing:forevector, GuidVec:vector:normalized))*yawIncrease + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
+        if rsActive {
+            set resultVec to GuidVec:vector:normalized + vxcl(up:vector, vxcl(facing:forevector, GuidVec:vector:normalized))*yawIncrease.
+        }
+        else {
+            set resultVec to GuidVec:vector:normalized + vxcl(up:vector, vxcl(facing:forevector, GuidVec:vector:normalized))*yawIncrease + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
+        }
 
         if Bellyflop and reTerm set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(reRollCmd, resultVec) + (resultVec:normalized - facing:forevector).
         else if Bellyflop set ReentryRoll to -vxcl(resultVec, SRFPRGD:vector:normalized) * angleAxis(min(max(-5,1.4*yawctrl),5), resultVec) + (resultVec:normalized - facing:forevector).
@@ -13832,9 +13843,16 @@ function ReTermUpdate {
     local vC   is vdot(vel, cDir).
     local aC   is -(rC/reTauC^2 + 2*vC/reTauC).
     local gT   is body:mu / body:position:sqrmagnitude.
-    local rollT is reRollSign * max(-reRollMaxT, min(reRollMaxT, arctan(aC/gT))).
+    local aRollMax is gT*tan(reRollMaxT).
+    local aAbs     is abs(aC).
+    local sDir is 1.
+    if aC < 0 set sDir to -1.
+    local rollMag  is arctan(min(aAbs, aRollMax)/gT).
+    local yawMag   is reYawRollK0*rollMag + arcsin(min(1, max(0, aAbs - aRollMax)/(reKYawA*gT))).
+    local rollT is reRollSign*sDir*rollMag.
+    local yawT  is reRollSign*sDir*min(reYawMaxT, yawMag).
     set reRollCmd to reRollCmd + max(-reRollRate*dt, min(reRollRate*dt, rollT - reRollCmd)).
-    set reYawCmd to reYawCmd + max(-reBankRate*dt, min(reBankRate*dt, reYawRollK*reRollCmd - reYawCmd)).
+    set reYawCmd  to reYawCmd  + max(-reBankRate*dt, min(reBankRate*dt, yawT - reYawCmd)).
     set reMode to "TERM".
 }
 
@@ -14072,12 +14090,25 @@ function ReGuidUpdate {
         set reDbgPy to py.
     } else {
         set reMode to "RETURN".
-        local L1e is max(L1, abs(dC - reRt2) + 1).
-        local cosA is max(-1, min(1, (dC^2 + reRt2^2 - L1e^2)/(2*dC*reRt2))).
-        local thR is thS + sig*arccos(cosA).
-        set rx to cx + reRt2*cos(thR).
-        set ry to cy + reRt2*sin(thR).
-        set sTg to reRt2*remS*constant:pi/180 + Df.
+        local rHx is vx/reVh.
+        local rHy is vy/reVh.
+        local rDen is 1 - reEpsOs - rHx.
+        local dPsiR is max(0, -sig*arctan2(rHy, rHx)).                 // [deg] remaining heading change
+        local aGeo is 1e6.                                             // line crossed / no solution -> max
+        local rReq is reVh^2/max(reLift, 0.1).
+        if rDen > 0.001 and sig*py > 0 {
+            set rReq to sig*py/rDen.                                   // [m] radius that ends eps*r past the line
+            set aGeo to reVh^2/rReq.
+        }
+        local tLeft is max(1, reTRem - (now - reLastPred)).
+        local aTime is reVh*(dPsiR/57.3)/(reKTurnT*tLeft).
+        set reRetALat to sig*max(aGeo, aTime).
+        if dPsiR < reFinHdg set reFinal to true.
+        local xEnd is px - sig*rReq*rHy.                               // where the turn ends along the line
+        set sTg to rReq*dPsiR/57.3 + max(0, -xEnd).
+        set reRetSArc to rReq*dPsiR/57.3.                                            // [m] remaining turn arc
+        set reRetPhi  to arcsin(min(sin(rePhiMaxH), abs(reRetALat)/max(reLift, 0.1))). // [deg] commanded bank
+        set rx to px + rHx*L1.  set ry to py + rHy*L1.                 // dummy (aLat is set directly)
     }
 
     // --- L1 lateral acceleration ---
@@ -14086,6 +14117,7 @@ function ReGuidUpdate {
     local dRef is max(1, sqrt(dx^2 + dy^2)).
     local sinEta is (vx*dy - vy*dx)/(reVh*dRef).
     local aLat is 2*reVh^2/max(L1, dRef)*sinEta. 
+    if reMode = "RETURN" set aLat to reRetALat.
     local aVec is (e1*(-vy) + e2*vx):normalized * aLat.  
 
     // --- downrange / energy (onboard predictor) ---
@@ -14096,14 +14128,16 @@ function ReGuidUpdate {
     else if reMode = "AWAY" or reMode = "RETURN" set sArc to reRt2*remS*constant:pi/180.
     local sCur is max(0, sTg - sArc - Df).
     if reMode = "AWAY" { set sArc to reAwSArc. set sCur to reAwSCur. }
+    if reMode = "RETURN" { set sArc to reRetSArc. set sCur to 0. }
     set reSCurL  to sCur.
     set reThRemL to sArc/reRt2.
     if reMode = "FINAL" set sCur to sTg.
     local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
-    if reMode = "RETURN" set phiArc to max(rePhiF, arcsin(min(sin(rePhiMaxH), reVh^2/(max(reLift, 0.1)*reRt2)))).
+    if reMode = "RETURN" set phiArc to max(rePhiF, reRetPhi).
     if reMode = "AWAY"   set phiArc to arcsin(min(sin(rePhiMaxH), sin(rePhiPlan)/reKRetM)).
     local dTermDyn is reDTerm.
-    if reHHand > 0 set dTermDyn to max(reDTermMin, reKTerm*max(0, reHHand - reP0Gnd - FlipAltitude)/tan(reGamMinT)).
+    local ldT is reLD0*(cos(reAoAMinT)/max(sin(reAoAMinT),0.01))/max(cos(reA0)/max(sin(reA0),0.01), 0.05).
+    if reHHand > 0 set dTermDyn to max(reDTermMin, reKTerm*max(0, reHHand - reP0Gnd - FlipAltitude)*min(1/tan(reGamMinT), ldT)).
     local sTarget is sTg + LngLatOffset - dTermDyn.
     set reSTgtL to sTarget.
 
