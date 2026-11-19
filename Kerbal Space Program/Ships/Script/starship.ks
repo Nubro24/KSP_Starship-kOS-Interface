@@ -1759,6 +1759,8 @@ function rePredStart {
     set reQPrevS to -1.
     set reSPrevQ to 0.
     set reLamS   to 1e9.
+    set rePTBf to -1. 
+    set rePSBf to -1.
     set rePT to 0.
     set rePRun to reP0KD > 1e-12.
     set reDProfNew to list().
@@ -1821,11 +1823,12 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP  to 34.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxP  to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
 set reDAoADesc to 3.    // [deg] AoA always allowed below plan, even while descending
+set reYawMaxB  to 60.    // [deg] max yaw command (the inverse mapping may exceed φ)
 set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
 set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
-set reFinHdg  to 5.        // [deg]  FINAL latches when the remaining heading change is below this
+set reFinHdg   to 5.        // [deg]  FINAL latches when the remaining heading change is below this
 set reAoARetMax to 60.     // [deg]  max AoA at full bank 
 set reBankRate to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
@@ -1836,7 +1839,7 @@ set reKRev     to 0.25.    // [-]    fraction of the remaining time per half S-t
 set rePhiEMax  to 32.      // [deg]  max energy bank
 set reAwayMar  to 0.05.    // [-]    radial margin: inside the circle below rB·(1+mar)
 set reTrigLead to 4.       // [s]    extra lead for steering lag (attitude has to follow the bank)
-set reEpsOs    to 0.1.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
+set reEpsOs    to 0.2.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
 set reTauRB    to 5.       // [s]    filter of the return radius (fixed-point iteration via predictor)
 set reKRetM    to 0.9.    // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
 set reSolEvery to 1.5.       // [-]    solve check every n-th predictor step (1 = most precise)
@@ -1859,7 +1862,7 @@ set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 4.  // [deg]  deorbit aims this far past the target
+set reDobMarginDeg to 0.8.  // [deg]  deorbit aims this far past the target
 set reVHac     to 1200.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
@@ -1944,6 +1947,11 @@ function ReGuidInit {
     set reDescPhi to 0.  
     set reEtaLat to 1.
     set reDbgDh to 0.
+    set reKPhi to 1.  
+    set reDbgPhiM to 0. 
+    set reTBf to -1. 
+    set rePTBf to -1. 
+    set rePSBf to -1.
     set reLastPhiRet to rePhiPlan.
     set reHACLatch to false.
     set reAwayWasPos to false.
@@ -13316,6 +13324,7 @@ function ReEntrySteering {
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
         print "yEnd " + round(reDbgYEnd/1000,1) + " km |  dh " + round(reDbgDh) + " m".
+        print "phiCmd " + round(reYawCmd) + "  phiEff " + round(reDbgPhiM) + "  kPhi " + round(reKPhi,2).
         if defined reDbgTrig print "Return Mode Trigger: " + reDbgTrig.
         print " ".
         if DynamicBanking and DBactive print "Tower Rotation: " + TowerHeading.
@@ -13672,6 +13681,8 @@ function rePredStep {
             local psQ is reQAt(reP0Px, reP0Py, reP0Sg, psR).
             local psF is 1e9.                                                 // inside circle -> not yet
             if psQ >= 0 set psF to psQ - rePS.
+            local psDbf is max(0, (rePV^2 - reVAoASw^2)/(2*max(psDragA, 0.1))).    // [m] left until bellyflop
+            if psR*reP0Dpsi > psDbf set psF to min(psF, 0).
             if psF <= 0 {
                 if reFPrev < 1e8 set reRSolNew to reRPrev + (psR - reRPrev)*reFPrev/max(reFPrev - psF, 1e-6).
                 else set reRSolNew to psR.                                    // already late -> turn now
@@ -13702,28 +13713,32 @@ function rePredStep {
         set rePH to rePH + 0.5*(psHdotA + psHdotB)*psStep.
         set rePS to rePS + 0.5*(psSdotA + psSdotB)*psStep.
         set rePT to rePT + psStep.
+        if rePTBf < 0 and rePV < reVAoASw { set rePTBf to rePT. set rePSBf to rePS. }
         set rePN to rePN + 1.
         set psCount to psCount + 1.
     }
     return false.
 }
 
-function reTurnSim {     // turn-now test: lateral position [m] when the heading reaches the final heading
+function reTurnSim {     // turn-now test: lateral position [m] at final heading
     parameter tsX, tsY, tsTh, tsSig, tsV, tsL, tsAD, tsLam, tsPhi0.
     local tsQ0 is tsV^2/max(tsL, 0.1).
+    local tsVn is tsV.
     local tsS is 0.  local tsT is 0.  local tsN is 0.
     until tsSig*tsTh >= 0 or tsN >= 80 {
-        local tsPhi is min(rePhiMaxH, tsPhi0 + reBankRate*max(0, tsT - reTrigLead)).
-        local tsVn  is max(50, tsV - tsAD*tsT).
-        local tsK   is reEtaLat*sin(tsPhi)*constant:e^(min(5, tsS/max(tsLam, 1)))/tsQ0.
+        local tsE   is constant:e^(min(5, tsS/max(tsLam, 1))).
+        local tsPhi is min(rePhiMaxH, tsPhi0 + reBankRate*reKPhi*max(0, tsT - reTrigLead)).
+        local tsK   is reEtaLat*sin(tsPhi)*tsE/tsQ0.
         set tsTh to tsTh + tsSig*57.3*tsK*tsVn*reTsDt.
         set tsX  to tsX + tsVn*cos(tsTh)*reTsDt.
         set tsY  to tsY + tsVn*sin(tsTh)*reTsDt.
         set tsS  to tsS + tsVn*reTsDt.
+        set tsVn to tsVn - tsAD*tsE*(tsVn/tsV)^2*reTsDt. 
         set tsT  to tsT + reTsDt.
         set tsN  to tsN + 1.
+        if tsVn < reVAoASw return -tsSig*1e9.                             // turn cannot finish -> start now
     }
-    if tsN >= 80 return tsSig*1e9.         // turn cannot complete yet (thin air) -> no trigger
+    if tsN >= 80 return -tsSig*1e9.
     return tsY.
 }
 
@@ -14127,7 +14142,7 @@ function ReGuidUpdate {
         local crossed is reAwayWasPos and sA*py <= 0.
         local dPsi  is abs(arctan2(vy, vx)).                                         // [deg] remaining turn
         local tTurn is rB*(dPsi/57.3)/reVh.                                           // [s] time on the planned circle
-        local lateT is reRSol > 0 and reTRem > 0 and tTurn >= reKTurnT*max(1, reTRem - (now - reLastPred)).
+        local lateT is reRSol > 0 and reTBf > 0 and tTurn >= reKTurnT*max(1, reTBf - (now - reLastPred)).
         local vGateOK is reVh < reKVRet*sqrt(body:mu/(body:radius + altitude)).
         if vGateOK and (goRet or crossed or lateT or airspeed < reVHac) {
             if goRet set reDbgTrig to "goRet".
@@ -14164,7 +14179,7 @@ function ReGuidUpdate {
         }
         local rDist is rReq.
         if aGeo >= 1e6 set rDist to reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH)).    // no tangent solution: tightest turn
-        local tLeft is max(1, reTRem - (now - reLastPred)).
+        local tLeft is max(1, reTBf - (now - reLastPred)).
         local aTime is reVh*(dPsiR/57.3)/(reKTurnT*tLeft).
         set reRetALat to sig*max(aGeo, aTime).
         if dPsiR < reFinHdg set reFinal to true.
@@ -14191,7 +14206,16 @@ function ReGuidUpdate {
 
     // --- downrange / energy (onboard predictor) ---
     reLearnAero(reAeroV).
-    set rePhiF to rePhiF + (abs(reYawCmd) - rePhiF)*min(1, dt/(rePhiTau + dt)).
+    local LvM   is vxcl(vel, reAeroV).
+    local L0d   is vxcl(vel, upV):normalized.
+    local sideD is vcrs(vel, L0d):normalized.                      // same direction as rightV
+    local phiMeas is arctan2(vdot(LvM, sideD), vdot(LvM, L0d)).   // [deg] effective bank, signed
+    if abs(reYawCmd) > 8 and LvM:mag > 0.5 {
+        local kNew is phiMeas/(reYawSign*reYawCmd).
+        if kNew > 0.2 and kNew < 1.5 set reKPhi to reKPhi + (kNew - reKPhi)*min(1, dt/(reTauEta + dt)).
+    }
+    set reDbgPhiM to phiMeas.
+    set rePhiF to rePhiF + (abs(phiMeas) - rePhiF)*min(1, dt/(rePhiTau + dt)).
     local sArc is 0.
     if reMode = "PURSUIT" set sArc to arcQ.
     else if reMode = "AWAY" or reMode = "RETURN" set sArc to reRt2*remS*constant:pi/180.
@@ -14228,6 +14252,7 @@ function ReGuidUpdate {
             set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
             set reS1 to rePS.
             set reTRem to rePT.
+            set reTBf to rePTBf.
             if reRSolNew > 0 set reRSol to reRSolNew.
             if reRSolNew > 0 set reLamSol to reLamS.
             set reSlopeN to reSlopeN + 1.
@@ -14297,7 +14322,7 @@ function ReGuidUpdate {
     if phiLat >= phiE { if phiLat > 2 set rePhiSign to sgn. }
     else if sgn <> rePhiSign and abs(etaDeg) > psiDb set rePhiSign to sgn.
     local phi is min(phiMaxM, max(phiLat, phiE)).
-    local yawRaw is reYawSign * rePhiSign * phi.
+    local yawRaw is reYawSign * rePhiSign * min(reYawMaxB, phi/max(reKPhi, 0.3)).
     set reYawCmd to reYawCmd + max(-reBankRate*dt, min(reBankRate*dt, yawRaw - reYawCmd)).
 
     // == Debug ==
@@ -16494,10 +16519,10 @@ function CheckSlope {
     if SetNewLZNow {
         if addons:tr:hasimpact {
             set impactpos to addons:tr:impactpos.
-            set landingzone to latlng(ship:body:geopositionOf(impactpos:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lat, ship:body:geopositionOf(impactpos:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lng).
+            set landingzone to latlng(ship:body:geopositionOf(impactpos:position + vxcl(up:vector, facing:forevector)*GSVec:mag*20):lat, ship:body:geopositionOf(impactpos:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lng).
         }
         else {
-            set landingzone to latlng(ship:body:geopositionOf(ship:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lat, ship:body:geopositionOf(ship:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lng).
+            set landingzone to latlng(ship:body:geopositionOf(ship:position + vxcl(up:vector, facing:forevector)*GSVec:mag*20):lat, ship:body:geopositionOf(ship:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lng).
         }
     }
     until IsLandingZoneOkay or cancelconfirmed {
