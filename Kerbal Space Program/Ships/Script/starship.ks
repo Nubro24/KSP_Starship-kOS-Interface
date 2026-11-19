@@ -1675,14 +1675,14 @@ function FindParts {
 
 //-------------  Reentry Trajectory Prediction ---------------------
 
-set reVAoASw       to 700*Scale.  // [m/s] below: predictor uses LandingAoA
+set reVAoASw       to 600*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
 set reStepsPerCall to 12.          // [-]   integration steps per guidance call (IPU knob)
 set reKDLow        to 1.0.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reLDLow        to 0.1.        // [-]  max L/D in the bellyflop
 set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
-set reDTermMin     to 1200*Scale.       // [m] lower bound
+set reDTermMin     to 1000*Scale.       // [m] lower bound
 
 function rePredInit {
     set reKD     to 0.
@@ -1770,10 +1770,10 @@ set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 3/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 6.      // [s]       settling time near the target
-set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
-set rsKwR    to 0.06.   // [1/(deg/s)] rate loop roll
-set rsKi     to 0.0025. // [1/(deg·s)] trim integrator
-set rsTsB     to 4.   // [s]       settling time in the bellyflop 
+set rsKw     to 0.18.   // [1/(deg/s)] rate loop pitch/yaw
+set rsKwR    to 0.05.   // [1/(deg/s)] rate loop roll
+set rsKi     to 0.004.  // [1/(deg·s)] trim integrator
+set rsTsB     to 5.   // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
 set rsWMaxB   to 6/Scale.     // [deg/s]   max rate in the bellyflop
 set rsKqMax   to 2.   // [-]       max gain increase at low dynamic pressure
@@ -1818,22 +1818,22 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP  to 45.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxP  to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
 set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
-set reAoARetMax to 70.     // [deg]  max AoA at full bank 
+set rePhiPlan  to 69.      // [deg]  bank the turn circle is sized for
+set reAoARetMax to 60.     // [deg]  max AoA at full bank 
 set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.4.     // [-]    straight final = k·R_t
 set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.8.     // [-]    energy-bank gain
 set reKRev     to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
-set rePhiEMax  to 45.      // [deg]  max energy bank
+set rePhiEMax  to 38.      // [deg]  max energy bank
 set reAwayMar  to 0.05.    // [-]    radial margin: inside the circle below rB·(1+mar)
 set reTrigLead to 2.       // [s]    extra lead for steering lag (attitude has to follow the bank)
 set reEpsOs    to 0.1.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
-set reTauRB    to 4.       // [s]    filter of the return radius (fixed-point iteration via predictor)
-set reKRetM    to 0.9.     // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
+set reTauRB    to 6.       // [s]    filter of the return radius (fixed-point iteration via predictor)
+set reKRetM    to 0.95.     // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
 set reSolEvery to 2.       // [-]    solve check every n-th predictor step (1 = most precise)
 set reYawSign  to 1.
 set reApprSign to 1.
@@ -1851,11 +1851,11 @@ set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
 set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
-set reVHac     to 810*Scale^0.7.    // [m/s] expected speed during the final turn
+set reVHac     to 1200*Scale^0.65.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
-set reDTerm to 6000*Scale.    // [m] desired remaining distance at the bellyflop start
+set reDTerm to 3000*Scale.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT to 74.
 set reAoAMaxT to 87.
 set reGamMinT to 50.    // [deg] shallowest allowed descent angle
@@ -14018,7 +14018,8 @@ function ReGuidUpdate {
                 if score > best { set best to score. set tqx to tx. set tqy to ty. }
             }
             local dQ is sqrt((tqx - px)^2 + (tqy - py)^2).
-            set rx to tqx.  set ry to tqy.
+            if reRSol > 0 { set rx to tqx.  set ry to tqy. }
+            else { set rx to px + vx/reVh*L1.  set ry to py + vy/reVh*L1. }
             set reDbgDQ to dQ.
             if reRSol > 0 and dQ <= reVh*reTLead set goRet to true.
             local thQ2 is arctan2(tqy - reRetCy, tqx - reRetCx).
@@ -14080,7 +14081,8 @@ function ReGuidUpdate {
     set reThRemL to sArc/reRt2.
     if reMode = "FINAL" set sCur to sTg.
     local phiArc is min(rePhiMaxH, arctan(reVHac^2/(gMag*reRt2))).
-    if reMode = "AWAY" set phiArc to rePhiPlan.
+    if reMode = "RETURN" set phiArc to max(rePhiF, arcsin(min(sin(rePhiMaxH), reVh^2/(max(reLift, 0.1)*reRt2)))).
+    if reMode = "AWAY"   set phiArc to arcsin(min(sin(rePhiMaxH), sin(rePhiPlan)/reKRetM)).
     local dTermDyn is reDTerm.
     if reHHand > 0 set dTermDyn to max(reDTermMin, reKTerm*max(0, reHHand - reP0Gnd - FlipAltitude)/tan(reGamMinT)).
     local sTarget is sTg + LngLatOffset - dTermDyn.
@@ -14157,12 +14159,10 @@ function ReGuidUpdate {
     set phiEq to max(rePhiEqMin, phiEq).
     set reLastPhiEq to phiEq.
     local phiMaxM is rePhiMaxP.
-    if reMode = "RETURN" {
-        set phiMaxM to rePhiMaxH. 
-    }
-    else {
+    if reMode = "RETURN" or reMode = "FINAL" set phiMaxM to rePhiMaxH.
+    else if reMode <> "AWAY" {
         if towardTgt and reMode <> "PURSUIT" set phiMaxM to rePhiMaxH.
-        if (not towardTgt or reRangeErr < 0) and reMode <> "AWAY" set phiMaxM to min(phiMaxM, phiEq).
+        if not towardTgt or reRangeErr < 0 set phiMaxM to min(phiMaxM, phiEq).
     }
     local phiLat is arcsin(min(abs(aLat)/max(reLift, 0.1), sin(phiMaxM))).
     local etaDeg is arcsin(max(-1, min(1, sinEta))).local psiRate is 57.3*reLift*sin(max(phiE, 1))/reVh. 
