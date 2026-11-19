@@ -1821,7 +1821,8 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP  to 42.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxP  to 34.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set reDAoADesc to 3.    // [deg] AoA always allowed below plan, even while descending
 set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
 set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
 set reFinHdg  to 5.        // [deg]  FINAL latches when the remaining heading change is below this
@@ -13714,7 +13715,7 @@ function reTurnSim {     // turn-now test: lateral position [m] when the heading
     until tsSig*tsTh >= 0 or tsN >= 80 {
         local tsPhi is min(rePhiMaxH, tsPhi0 + reBankRate*max(0, tsT - reTrigLead)).
         local tsVn  is max(50, tsV - tsAD*tsT).
-        local tsK   is sin(tsPhi)*constant:e^(min(5, tsS/max(tsLam, 1)))/tsQ0.     // [1/m]
+        local tsK   is reEtaLat*sin(tsPhi)*constant:e^(min(5, tsS/max(tsLam, 1)))/tsQ0.
         set tsTh to tsTh + tsSig*57.3*tsK*tsVn*reTsDt.
         set tsX  to tsX + tsVn*cos(tsTh)*reTsDt.
         set tsY  to tsY + tsVn*sin(tsTh)*reTsDt.
@@ -14066,7 +14067,9 @@ function ReGuidUpdate {
         local aV   is (gMag - reVh^2/(body:radius + altitude)) + (vzDes - verticalspeed)/reTauH.
         set reDescPhi to arccos(max(0, min(1, aV/max(reLift, 0.1)))).
         set reDbgDh to dhNeed.
-        set reAoADnLim to -reDAoAMax*(1 - max(0, min(1, dhNeed/hSc))).
+        local kDh  is max(0, min(1, dhNeed/hSc)).
+        local sSlow is max(0, min(1, (verticalspeed - vzDes)/max(abs(vzDes), 1))).
+        set reAoADnLim to -max(reDAoADesc, reDAoAMax*(1 - kDh*sSlow)).
 
         local dxR is px - reRetCx.
         local dyR is py - reRetCy.
@@ -14260,7 +14263,7 @@ function ReGuidUpdate {
         set fbDA to reKFb*57.3*(fbDr - fbDm)/(3*fbDm*max(fbCot, 0.05)).
         set fbDA to min(reDAoAFbMax, max(-reDAoAFbMax, fbDA)).
     }
-    set reAoADnLim to -reDAoAMax.
+    if reMode <> "AWAY" set reAoADnLim to -reDAoAMax.
     local fbTotal is min(reDAoAMax, max(-reDAoAMax, reDAoASol + fbDA)).
     set fbTotal to max(reAoADnLim, fbTotal).
     if reAoACmd = 0 set reAoACmd to vang(facing:forevector, vel).
@@ -16491,10 +16494,10 @@ function CheckSlope {
     if SetNewLZNow {
         if addons:tr:hasimpact {
             set impactpos to addons:tr:impactpos.
-            set landingzone to latlng(impactpos:lat, impactpos:lng).
+            set landingzone to latlng(ship:body:geopositionOf(impactpos:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lat, ship:body:geopositionOf(impactpos:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lng).
         }
         else {
-            set landingzone to latlng(ship:geoposition:lat, ship:geoposition:lng).
+            set landingzone to latlng(ship:body:geopositionOf(ship:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lat, ship:body:geopositionOf(ship:position + vxcl(up:vector, facing:forevector)*GSVec:mag*10):lng).
         }
     }
     until IsLandingZoneOkay or cancelconfirmed {
