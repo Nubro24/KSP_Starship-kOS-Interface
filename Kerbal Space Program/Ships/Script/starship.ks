@@ -1826,7 +1826,7 @@ set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tow
 set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
 set reFinHdg  to 5.        // [deg]  FINAL latches when the remaining heading change is below this
 set reAoARetMax to 60.     // [deg]  max AoA at full bank 
-set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
+set reBankRate to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
 set reKf       to 0.4.     // [-]    straight final = k·R_t
 set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
@@ -1834,10 +1834,10 @@ set reKE       to 0.8.     // [-]    energy-bank gain
 set reKRev     to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
 set rePhiEMax  to 38.      // [deg]  max energy bank
 set reAwayMar  to 0.05.    // [-]    radial margin: inside the circle below rB·(1+mar)
-set reTrigLead to 2.       // [s]    extra lead for steering lag (attitude has to follow the bank)
-set reEpsOs    to 0.05.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
+set reTrigLead to 4.       // [s]    extra lead for steering lag (attitude has to follow the bank)
+set reEpsOs    to 0.1.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
 set reTauRB    to 5.       // [s]    filter of the return radius (fixed-point iteration via predictor)
-set reKRetM    to 0.98.    // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
+set reKRetM    to 0.9.    // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
 set reSolEvery to 1.5.       // [-]    solve check every n-th predictor step (1 = most precise)
 set reKTurnT   to 0.9.    // [-] turn may use at most this fraction of the predicted remaining flight time
 set reYawSign  to 1.
@@ -1876,7 +1876,7 @@ set reKEq      to 1.0.   // [-]   1 = keep exactly enough vertical lift for equi
 set rePhiEqMin to 15.    // [deg] minimum steering authority even when lift is short
 set reSteerTau to 1.0.    // [s]         target filter (new)
 set reRemSLast to 360.
-set reKVRet to 0.6.
+set reKVRet to 0.64.
 set reTerm     to false.
 set reNoPursuit to true. 
 set reAoACmd   to 0.
