@@ -1774,14 +1774,14 @@ set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 3/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 6.      // [s]       settling time near the target
-set rsKw     to 0.16.   // [1/(deg/s)] rate loop pitch/yaw
+set rsKw     to 0.2.   // [1/(deg/s)] rate loop pitch/yaw
 set rsKwR    to 0.05.   // [1/(deg/s)] rate loop roll
-set rsKi     to 0.005.  // [1/(deg·s)] trim integrator
+set rsKi     to 0.0075.  // [1/(deg·s)] trim integrator
 set rsTsB     to 5.   // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
 set rsWMaxB   to 6/Scale.     // [deg/s]   max rate in the bellyflop
 set rsKqMax   to 2.   // [-]       max gain increase at low dynamic pressure
-set rsIRange to 12.     // [deg]     integrator only below this error
+set rsIRange to 24.     // [deg]     integrator only below this error
 set rsIMax   to 0.8.    // [-]       max trim input
 set rsSlew  to 2.       // [1/s]    max change of the control input per second
 set rsTauU  to 0.24.     // [s]      output smoothing
