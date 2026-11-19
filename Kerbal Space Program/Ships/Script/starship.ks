@@ -1866,13 +1866,13 @@ set reKA        to 1.0.     // [-]    Δα [deg] = K·ε·57.3   (ε = 5 % too l
 set reDAoAMax   to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb     to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau    to 24.      // [s]    averaging time of the bank for the range correction
-set reDobMarginDeg to 1.  // [deg]  deorbit aims this far past the target
+set reDobMarginDeg to 2.  // [deg]  deorbit aims this far past the target
 set reVHac      to 1200.    // [m/s] expected speed during the final turn
 set reTauC      to 12.    // [s]   cross-track time constant in the bellyflop
 set reDTerm     to 2000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT   to 74.
 set reAoAMaxT   to 87.
-set reGamMinT   to 60.    // [deg] shallowest allowed descent angle
+set reGamMinT   to 58.    // [deg] shallowest allowed descent angle
 set reVhFloor   to 40.    // [m/s] never goes below this
 set reKpV       to 0.5.    // [deg/(m/s)] speed feedback
 set reKiV       to 0.05.   // [deg/m]     trim learning
