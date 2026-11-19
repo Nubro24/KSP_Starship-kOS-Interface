@@ -1821,7 +1821,7 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP  to 38.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxP  to 42.      // [deg]  max bank in PURSUIT (lead-in, away from target)
 set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
 set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
 set reFinHdg  to 5.        // [deg]  FINAL latches when the remaining heading change is below this
@@ -1832,7 +1832,7 @@ set reKf       to 0.4.     // [-]    straight final = k·R_t
 set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
 set reKE       to 0.8.     // [-]    energy-bank gain
 set reKRev     to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
-set rePhiEMax  to 38.      // [deg]  max energy bank
+set rePhiEMax  to 32.      // [deg]  max energy bank
 set reAwayMar  to 0.05.    // [-]    radial margin: inside the circle below rB·(1+mar)
 set reTrigLead to 4.       // [s]    extra lead for steering lag (attitude has to follow the bank)
 set reEpsOs    to 0.1.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
@@ -1858,7 +1858,7 @@ set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
 set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
+set reDobMarginDeg to 4.  // [deg]  deorbit aims this far past the target
 set reVHac     to 1200.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
@@ -13314,7 +13314,7 @@ function ReEntrySteering {
         if defined reDbgDQ and defined reDbgRB and  defined reDbgPy print "AWAY dQ " + round(reDbgDQ/1000,1) + " km  r_ret " + round(reDbgRB/1000,1) + " km  side " + reSigA + "  py " + round(reDbgPy/1000,1).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
-        print "yEnd " + round(reDbgYEnd/1000,1) + " km".
+        print "yEnd " + round(reDbgYEnd/1000,1) + " km |  dh " + round(reDbgDh) + " m".
         if defined reDbgTrig print "Return Mode Trigger: " + reDbgTrig.
         print " ".
         if DynamicBanking and DBactive print "Tower Rotation: " + TowerHeading.
@@ -14066,6 +14066,7 @@ function ReGuidUpdate {
         local aV   is (gMag - reVh^2/(body:radius + altitude)) + (vzDes - verticalspeed)/reTauH.
         set reDescPhi to arccos(max(0, min(1, aV/max(reLift, 0.1)))).
         set reDbgDh to dhNeed.
+        set reAoADnLim to -reDAoAMax*(1 - max(0, min(1, dhNeed/hSc))).
 
         local dxR is px - reRetCx.
         local dyR is py - reRetCy.
@@ -14259,7 +14260,9 @@ function ReGuidUpdate {
         set fbDA to reKFb*57.3*(fbDr - fbDm)/(3*fbDm*max(fbCot, 0.05)).
         set fbDA to min(reDAoAFbMax, max(-reDAoAFbMax, fbDA)).
     }
+    set reAoADnLim to -reDAoAMax.
     local fbTotal is min(reDAoAMax, max(-reDAoAMax, reDAoASol + fbDA)).
+    set fbTotal to max(reAoADnLim, fbTotal).
     if reAoACmd = 0 set reAoACmd to vang(facing:forevector, vel).
     set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, (aoa + fbTotal) - reAoACmd)).
     set reAoACmd to min(reAoACmd, 90 - (90 - reAoARetMax)*sin(min(abs(reYawCmd), rePhiMaxH))/sin(rePhiMaxH)).
