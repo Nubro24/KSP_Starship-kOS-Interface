@@ -1847,6 +1847,11 @@ set reKTurnT   to 0.9.    // [-] turn may use at most this fraction of the predi
 set reKDesc    to 1.3.     // [-] allowed start-of-turn radius relative to the mean planned radius
 set reTauH     to 20.      // [s] sink-rate time constant
 set reTauEta   to 5.     // [s] filter of the lateral efficiency
+set reTauAtt   to reTrigLead.  // [s]     attitude lag (same value the turn test uses)
+set reTauKPhi  to 15.          // [s]     kPhi learning time constant (slow compared to τ_att)
+set reKPhiRate to 1.5.         // [deg/s] only learn while the yaw command changes slower than this
+set reKPhiMin  to 0.5.
+set reKPhiMax  to 1.2.
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1867,7 +1872,7 @@ set reVHac     to 1200.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
-set reDTerm to 2000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
+set reDTerm to 6000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT to 74.
 set reAoAMaxT to 87.
 set reGamMinT to 69.    // [deg] shallowest allowed descent angle
@@ -1892,6 +1897,8 @@ set reAoACmd   to 0.
 set reGActive  to false.
 set reYawCmd   to 0.
 set reRangeErr to 0.
+set reYawLagF to 0.  
+set reYawCmdLast to 0.
 set reLLETime to 0.
 set reMode     to "-".
 
@@ -14210,10 +14217,14 @@ function ReGuidUpdate {
     local L0d   is vxcl(vel, upV):normalized.
     local sideD is vcrs(vel, L0d):normalized.                      // same direction as rightV
     local phiMeas is arctan2(vdot(LvM, sideD), vdot(LvM, L0d)).   // [deg] effective bank, signed
-    if abs(reYawCmd) > 8 and LvM:mag > 0.5 {
-        local kNew is phiMeas/(reYawSign*reYawCmd).
-        if kNew > 0.2 and kNew < 1.5 set reKPhi to reKPhi + (kNew - reKPhi)*min(1, dt/(reTauEta + dt)).
+    set reYawLagF to reYawLagF + (reYawSign*reYawCmd - reYawLagF)*min(1, dt/(reTauAtt + dt)).   // command delayed like the attitude
+    local yawRateC is abs(reYawCmd - reYawCmdLast)/max(dt, 0.01).                            // [deg/s]
+    set reYawCmdLast to reYawCmd.
+    if abs(reYawLagF) > 10 and yawRateC < reKPhiRate and LvM:mag > 0.5 {
+        local kNew is phiMeas/reYawLagF.
+        if kNew > 0.3 and kNew < 1.5 set reKPhi to reKPhi + (kNew - reKPhi)*min(1, dt/(reTauKPhi + dt)).
     }
+    set reKPhi to max(reKPhiMin, min(reKPhiMax, reKPhi)).
     set reDbgPhiM to phiMeas.
     set rePhiF to rePhiF + (abs(phiMeas) - rePhiF)*min(1, dt/(rePhiTau + dt)).
     local sArc is 0.
