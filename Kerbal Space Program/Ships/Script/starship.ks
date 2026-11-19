@@ -1759,6 +1759,7 @@ function rePredStart {
     set reQPrevS to -1.
     set reSPrevQ to 0.
     set reLamS   to 1e9.
+    set rePT to 0.
     set rePRun to reP0KD > 1e-12.
     set reDProfNew to list().
     if not rePRun set rePS to 0.
@@ -1772,7 +1773,7 @@ set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (brak
 set rsTs     to 6.      // [s]       settling time near the target
 set rsKw     to 0.18.   // [1/(deg/s)] rate loop pitch/yaw
 set rsKwR    to 0.05.   // [1/(deg/s)] rate loop roll
-set rsKi     to 0.004.  // [1/(deg·s)] trim integrator
+set rsKi     to 0.006.  // [1/(deg·s)] trim integrator
 set rsTsB     to 5.   // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
 set rsWMaxB   to 6/Scale.     // [deg/s]   max rate in the bellyflop
@@ -1831,10 +1832,11 @@ set reKRev     to 0.25.    // [-]    fraction of the remaining time per half S-t
 set rePhiEMax  to 38.      // [deg]  max energy bank
 set reAwayMar  to 0.05.    // [-]    radial margin: inside the circle below rB·(1+mar)
 set reTrigLead to 2.       // [s]    extra lead for steering lag (attitude has to follow the bank)
-set reEpsOs    to 0.1.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
-set reTauRB    to 6.       // [s]    filter of the return radius (fixed-point iteration via predictor)
-set reKRetM    to 0.95.     // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
-set reSolEvery to 2.       // [-]    solve check every n-th predictor step (1 = most precise)
+set reEpsOs    to 0.05.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
+set reTauRB    to 5.       // [s]    filter of the return radius (fixed-point iteration via predictor)
+set reKRetM    to 0.98.    // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
+set reSolEvery to 1.5.       // [-]    solve check every n-th predictor step (1 = most precise)
+set reKTurnT   to 0.8.    // [-] turn may use at most this fraction of the predicted remaining flight time
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1851,7 +1853,7 @@ set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
 set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
 set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
 set reDobMarginDeg to 2.5.  // [deg]  deorbit aims this far past the target
-set reVHac     to 1200*Scale^0.65.    // [m/s] expected speed during the final turn
+set reVHac     to 1200.    // [m/s] expected speed during the final turn
 set reEMargin to 0.1.    // [-] range reserve the circle is sized for
 set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
 set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
@@ -1924,6 +1926,8 @@ function ReGuidInit {
     set reP0Sin to 1.
     set reRSol to -1.  
     set reRSolNew to -1.  
+    set reTRem to -1. 
+    set rePT to 0.
     set reLastPhiRet to rePhiPlan.
     set reHACLatch to false.
     set reAwayWasPos to false.
@@ -13673,6 +13677,7 @@ function rePredStep {
         set rePG to max(-89, min(89, rePG + 0.5*(psGdotA + psGdotB)*psStep)).
         set rePH to rePH + 0.5*(psHdotA + psHdotB)*psStep.
         set rePS to rePS + 0.5*(psSdotA + psSdotB)*psStep.
+        set rePT to rePT + psStep.
         set rePN to rePN + 1.
         set psCount to psCount + 1.
     }
@@ -14045,9 +14050,23 @@ function ReGuidUpdate {
 
         if sA*py > 0 set reAwayWasPos to true.
         local crossed is reAwayWasPos and sA*py <= 0.
+        local dPsi  is abs(arctan2(vy, vx)).                                         // [deg] remaining turn
+        local tTurn is (dPsi/57.3)*reVh/(max(reLift, 0.1)*sin(rePhiMaxH)).           // [s]
+        local lateT is reTRem > 0 and tTurn >= reKTurnT*max(1, reTRem - (now - reLastPred)).
         if goRet or crossed or airspeed < reVHac {
             set reHACLatch to true.
-            set reRetR to rB.
+            if goRet set reRetR to rB.
+            else {
+                // forced start: circle through the ship, ending eps*r past the line
+                local fHx is vx/reVh.
+                local fHy is vy/reVh.
+                local fDen is 1 - reEpsOs - fHx.
+                local rF is rB.
+                if fDen > 0.001 and sA*py > 0 set rF to max(sA*py/fDen, reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH))).
+                set reRetR  to rF.
+                set reRetCx to px + rF*(-sA*fHy).
+                set reRetCy to py + rF*( sA*fHx).
+            }
         }
         set reDbgRB to rB.
         set reDbgPy to py.
@@ -14105,6 +14124,7 @@ function ReGuidUpdate {
             if reVArcNew > 0 and reLArcNew > 0.1 { set reVArc to reVArcNew. set reLArc to reLArcNew. }
             set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
             set reS1 to rePS.
+            set reTRem to rePT.
             if reRSolNew > 0 set reRSol to reRSolNew.
             set reSlopeN to reSlopeN + 1.
             set reHHand to rePH.
@@ -16668,6 +16688,7 @@ function RenameShip {
 
 
 function LandingZoneFinder {
+    local ipuOld is config:ipu.
     set config:ipu to 2000.
     set AvailableLandingSpots to list(true, landingzone, 1, 1, 0).
     for var in LaunchSites:keys {
@@ -16718,7 +16739,7 @@ function LandingZoneFinder {
             }
         }
     }
-    set config:ipu to CPUSPEED.
+    set config:ipu to max(ipuOld, CPUSPEED).
 }
 
 
