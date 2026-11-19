@@ -1821,10 +1821,10 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP  to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set rePhiMaxP  to 38.      // [deg]  max bank in PURSUIT (lead-in, away from target)
 set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 69.      // [deg]  bank the turn circle is sized for
-set reFinHdg  to 5.        // [deg] FINAL latches when the remaining heading change is below this
+set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
+set reFinHdg  to 5.        // [deg]  FINAL latches when the remaining heading change is below this
 set reAoARetMax to 60.     // [deg]  max AoA at full bank 
 set reBankRate to 5.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
 set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
@@ -1839,7 +1839,7 @@ set reEpsOs    to 0.05.     // [-]    intended overshoot past the final line as 
 set reTauRB    to 5.       // [s]    filter of the return radius (fixed-point iteration via predictor)
 set reKRetM    to 0.98.    // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
 set reSolEvery to 1.5.       // [-]    solve check every n-th predictor step (1 = most precise)
-set reKTurnT   to 0.8.    // [-] turn may use at most this fraction of the predicted remaining flight time
+set reKTurnT   to 0.9.    // [-] turn may use at most this fraction of the predicted remaining flight time
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1863,7 +1863,7 @@ set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
 set reDTerm to 2000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT to 74.
 set reAoAMaxT to 87.
-set reGamMinT to 50.    // [deg] shallowest allowed descent angle
+set reGamMinT to 69.    // [deg] shallowest allowed descent angle
 set reVhFloor to 40.    // [m/s] never goes below this
 set reKpV      to 0.5.    // [deg/(m/s)] speed feedback
 set reKiV      to 0.05.   // [deg/m]     trim learning
@@ -1876,6 +1876,7 @@ set reKEq      to 1.0.   // [-]   1 = keep exactly enough vertical lift for equi
 set rePhiEqMin to 15.    // [deg] minimum steering authority even when lift is short
 set reSteerTau to 1.0.    // [s]         target filter (new)
 set reRemSLast to 360.
+set reKVRet to 0.6.
 set reTerm     to false.
 set reNoPursuit to true. 
 set reAoACmd   to 0.
@@ -13304,6 +13305,7 @@ function ReEntrySteering {
         if defined reDbgDQ and defined reDbgRB and  defined reDbgPy print "AWAY dQ " + round(reDbgDQ/1000,1) + " km  r_ret " + round(reDbgRB/1000,1) + " km  side " + reSigA + "  py " + round(reDbgPy/1000,1).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
+        if defined reDbgTrig print "Return Mode Trigger: " + reDbgTrig.
         print " ".
         if DynamicBanking and DBactive print "Tower Rotation: " + TowerHeading.
 
@@ -14028,6 +14030,14 @@ function ReGuidUpdate {
         local dR  is max(1, sqrt(dxR^2 + dyR^2)).
 
         local goRet is false.
+        local hxA  is vx/reVh.
+        local hyA  is vy/reVh.
+        local pyLA is py + vy*reTLead.
+        local denA is 1 - reEpsOs - hxA.
+        if reRSol > 0 and sA*hyA < 0 {
+            if sA*pyLA <= 0 set goRet to true.                                   // lead point already past the line
+            else if denA > 0.001 and sA*pyLA/denA <= rB set goRet to true.       // needed radius reached the planned one
+        }
         if dR > rB*(1 + reAwayMar) {
             // outside: tangent point with turn sense sA, fly straight onto it
             local beta is arccos(rB/dR).
@@ -14047,8 +14057,11 @@ function ReGuidUpdate {
             if reRSol > 0 and dQ <= reVh*reTLead set goRet to true.
             local thQ2 is arctan2(tqy - reRetCy, tqx - reRetCx).
             set reAwSCur to dQ.
-            set reAwSArc to rB*reWrap360(sA*(arctan2(-sA, 0) - thQ2))*constant:pi/180.
-            set sTg to dQ + rB*reWrap360(sA*(arctan2(-sA, 0) - thQ2))*constant:pi/180 + reKf*rB.
+            local angQ is reWrap360(sA*(arctan2(-sA, 0) - thQ2)).
+            if angQ > 330 set angQ to 0.                                         // Q just past the end -> no arc
+            set reAwSCur to dQ.
+            set reAwSArc to rB*angQ*constant:pi/180.
+            set sTg to dQ + rB*angQ*constant:pi/180 + reKf*rB.
         }
         else {
             // inside: lead-out, fly away from the centre until there is room
@@ -14069,9 +14082,14 @@ function ReGuidUpdate {
         if sA*py > 0 set reAwayWasPos to true.
         local crossed is reAwayWasPos and sA*py <= 0.
         local dPsi  is abs(arctan2(vy, vx)).                                         // [deg] remaining turn
-        local tTurn is (dPsi/57.3)*reVh/(max(reLift, 0.1)*sin(rePhiMaxH)).           // [s]
-        local lateT is reTRem > 0 and tTurn >= reKTurnT*max(1, reTRem - (now - reLastPred)).
-        if goRet or crossed or airspeed < reVHac {
+        local tTurn is rB*(dPsi/57.3)/reVh.                                           // [s] time on the planned circle
+        local lateT is reRSol > 0 and reTRem > 0 and tTurn >= reKTurnT*max(1, reTRem - (now - reLastPred)).
+        local vGateOK is reVh < reKVRet*sqrt(body:mu/(body:radius + altitude)).
+        if vGateOK and (goRet or crossed or lateT or airspeed < reVHac) {
+            if goRet set reDbgTrig to "goRet".
+            else if lateT set reDbgTrig to "lateT".
+            else if crossed set reDbgTrig to "crossed".
+            else set reDbgTrig to "vHac".
             set reHACLatch to true.
             if goRet set reRetR to rB.
             else {
@@ -14100,13 +14118,15 @@ function ReGuidUpdate {
             set rReq to sig*py/rDen.                                   // [m] radius that ends eps*r past the line
             set aGeo to reVh^2/rReq.
         }
+        local rDist is rReq.
+        if aGeo >= 1e6 set rDist to reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH)).    // no tangent solution: tightest turn
         local tLeft is max(1, reTRem - (now - reLastPred)).
         local aTime is reVh*(dPsiR/57.3)/(reKTurnT*tLeft).
         set reRetALat to sig*max(aGeo, aTime).
         if dPsiR < reFinHdg set reFinal to true.
-        local xEnd is px - sig*rReq*rHy.                               // where the turn ends along the line
-        set sTg to rReq*dPsiR/57.3 + max(0, -xEnd).
-        set reRetSArc to rReq*dPsiR/57.3.                                            // [m] remaining turn arc
+        local xEnd is px - sig*rDist*rHy.                               // where the turn ends along the line
+        set sTg to rDist*dPsiR/57.3 + max(0, -xEnd).
+        set reRetSArc to rDist*dPsiR/57.3.                                            // [m] remaining turn arc
         set reRetPhi  to arcsin(min(sin(rePhiMaxH), abs(reRetALat)/max(reLift, 0.1))). // [deg] commanded bank
         set rx to px + rHx*L1.  set ry to py + rHy*L1.                 // dummy (aLat is set directly)
     }
