@@ -1825,84 +1825,77 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP  to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
-set reDAoADesc to 3.    // [deg] AoA always allowed below plan, even while descending
-set reYawMaxB  to 60.    // [deg] max yaw command (the inverse mapping may exceed φ)
-set rePhiMaxH  to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
-set rePhiPlan  to 70.      // [deg]  bank the turn circle is sized for
-set reFinHdg   to 5.        // [deg]  FINAL latches when the remaining heading change is below this
-set reAoARetMax to 60.     // [deg]  max AoA at full bank 
-set reBankRate to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
-set reKL1      to 0.9.     // [-]    L1 = k·R_t   (larger = smoother, slower)
-set reKf       to 0.4.     // [-]    straight final = k·R_t
-set reRCap     to 0.8.     // [-]    R_t ≤ reRCap · distance to target
-set reKE       to 0.8.     // [-]    energy-bank gain
-set reKRev     to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
-set rePhiEMax  to 32.      // [deg]  max energy bank
-set reAwayMar  to 0.05.    // [-]    radial margin: inside the circle below rB·(1+mar)
-set reTrigLead to 4.       // [s]    extra lead for steering lag (attitude has to follow the bank)
-set reEpsOs    to 0.2.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
-set reTauRB    to 5.       // [s]    filter of the return radius (fixed-point iteration via predictor)
-set reKRetM    to 0.9.    // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
-set reSolEvery to 1.5.       // [-]    solve check every n-th predictor step (1 = most precise)
-set reKTurnT   to 0.9.    // [-] turn may use at most this fraction of the predicted remaining flight time
-set reKDesc    to 1.3.     // [-] allowed start-of-turn radius relative to the mean planned radius
-set reTauH     to 20.      // [s] sink-rate time constant
-set reTauEta   to 5.     // [s] filter of the lateral efficiency
-set reTauAtt   to reTrigLead.  // [s]     attitude lag (same value the turn test uses)
-set reTauKPhi  to 15.          // [s]     kPhi learning time constant (slow compared to τ_att)
-set reKPhiRate to 1.5.         // [deg/s] only learn while the yaw command changes slower than this
-set reKPhiMin  to 0.5.
-set reKPhiMax  to 1.2.
-set reYawSign  to 1.
-set reApprSign to 1.
-set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
-set reVEnd     to 340.
-set reAltEnd   to 750.
-set reAccTau   to 1.0.     // [s]    aero accel filter
-set reRTau     to 8.0.     // [s]    turn radius filter
-set reVTerm    to 330.     // [m/s]  below: terminal glide-slope mode
-set reAoARate  to 4.       // [deg/s] AoA command rate limit
-set reKL1T     to 0.5.     // [-]    terminal L1 ≤ k·(distance to aim point)
-set reKA       to 1.0.     // [-]    Δα [deg] = K·ε·57.3   (ε = 5 % too long -> ≈ +3°)
-set reDAoAMax  to 12.      // [deg]  max deviation from the planned AoA profile
-set reRevDb    to 10.      // [deg]  heading deadband for energy bank reversals
-set rePhiTau   to 24.      // [s]    averaging time of the bank for the range correction
-set reBankExp  to 0.8.     // [-]    exponent on cos(φ̄), calibration knob
-set reDobMarginDeg to 0.8.  // [deg]  deorbit aims this far past the target
-set reVHac     to 1200.    // [m/s] expected speed during the final turn
-set reEMargin to 0.1.    // [-] range reserve the circle is sized for
-set reKHacSw to 0.1.    // [-] HAC starts when |PQ| < k·L1 (1 = old behaviour, smaller = later/farther downrange)
-set reTauC    to 12.    // [s]   cross-track time constant in the bellyflop
-set reDTerm to 6000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
-set reAoAMinT to 74.
-set reAoAMaxT to 87.
-set reGamMinT to 69.    // [deg] shallowest allowed descent angle
-set reVhFloor to 40.    // [m/s] never goes below this
-set reKpV      to 0.5.    // [deg/(m/s)] speed feedback
-set reKiV      to 0.05.   // [deg/m]     trim learning
-set reAoARateT to 2.      // [deg/s] AoA rate in the bellyflop
-set reRollMaxT to 5.    // [deg] max belly roll in the bellyflop
-set reRollRate to 2.     // [deg/s] roll command rate
-set reRollSign to 1.     // [-]  flip if the ship rolls AWAY from the aim point
-set reKVFinal to 0.5.    // [-] FINAL may only latch below this fraction of orbital speed
-set reKEq      to 1.0.   // [-]   1 = keep exactly enough vertical lift for equilibrium glide
-set rePhiEqMin to 15.    // [deg] minimum steering authority even when lift is short
-set reSteerTau to 1.0.    // [s]         target filter (new)
-set reTsDt     to 1.      // [s] step of the turn-now test
-set reTsPeriod to 0.5.    // [s] test interval
-set reRemSLast to 360.
-set reKVRet to 0.64.
-set reTerm     to false.
-set reNoPursuit to true. 
-set reAoACmd   to 0.
-set reGActive  to false.
-set reYawCmd   to 0.
-set reRangeErr to 0.
-set reYawLagF to 0.  
+set rePhiMaxP   to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
+set reDAoADesc  to 3.    // [deg] AoA always allowed below plan, even while descending
+set reYawMaxB   to 70.    // [deg] max yaw command (the inverse mapping may exceed φ)
+set rePhiMaxH   to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
+set rePhiPlan   to 70.      // [deg]  bank the turn circle is sized for
+set reFinHdg    to 5.        // [deg]  FINAL latches when the remaining heading change is below this
+set reAoARetMax to 66.     // [deg]  max AoA at full bank 
+set reBankRate  to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
+set reKf        to 0.4.     // [-]    straight final = k·R_t
+set reKE        to 0.8.     // [-]    energy-bank gain
+set reKRev      to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
+set rePhiEMax   to 32.      // [deg]  max energy bank
+set reAwayMar   to 0.05.    // [-]    radial margin: inside the circle below rB·(1+mar)
+set reTrigLead  to 4.       // [s]    extra lead for steering lag (attitude has to follow the bank)
+set reEpsOs     to 0.2.     // [-]    intended overshoot past the final line as a fraction of the return radius (~ expected radius error)
+set reTauRB     to 5.       // [s]    filter of the return radius (fixed-point iteration via predictor)
+set reKRetM     to 0.9.    // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
+set reSolEvery  to 1.5.       // [-]    solve check every n-th predictor step (1 = most precise)
+set reKTurnT    to 0.9.    // [-] turn may use at most this fraction of the predicted remaining flight time
+set reKDesc     to 1.3.     // [-] allowed start-of-turn radius relative to the mean planned radius
+set reTauH      to 20.      // [s] sink-rate time constant
+set reTauEta    to 5.     // [s] filter of the lateral efficiency
+set reTauAtt    to reTrigLead.  // [s]     attitude lag (same value the turn test uses)
+set reTauKPhi   to 15.          // [s]     kPhi learning time constant (slow compared to τ_att)
+set reKPhiRate  to 1.5.         // [deg/s] only learn while the yaw command changes slower than this
+set reTL1       to 12.    // [s] L1 = V·T  (smaller = sharper steering in AWAY/FINAL)
+set reKPhiMin   to 0.5.
+set reKPhiMax   to 1.2.
+set reYawSign   to 1.
+set reApprSign  to 1.
+set reLMin      to 1.       // [m/s²] min lift to run (above the atmosphere: off)
+set reVEnd      to 340.
+set reAltEnd    to 750.
+set reAccTau    to 1.0.     // [s]    aero accel filter
+set reVTerm     to 330.     // [m/s]  below: terminal glide-slope mode
+set reAoARate   to 4.       // [deg/s] AoA command rate limit
+set reKL1T      to 0.5.     // [-]    terminal L1 ≤ k·(distance to aim point)
+set reKA        to 1.0.     // [-]    Δα [deg] = K·ε·57.3   (ε = 5 % too long -> ≈ +3°)
+set reDAoAMax   to 12.      // [deg]  max deviation from the planned AoA profile
+set reRevDb     to 10.      // [deg]  heading deadband for energy bank reversals
+set rePhiTau    to 24.      // [s]    averaging time of the bank for the range correction
+set reDobMarginDeg to 1.  // [deg]  deorbit aims this far past the target
+set reVHac      to 1200.    // [m/s] expected speed during the final turn
+set reTauC      to 12.    // [s]   cross-track time constant in the bellyflop
+set reDTerm     to 2000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
+set reAoAMinT   to 74.
+set reAoAMaxT   to 87.
+set reGamMinT   to 60.    // [deg] shallowest allowed descent angle
+set reVhFloor   to 40.    // [m/s] never goes below this
+set reKpV       to 0.5.    // [deg/(m/s)] speed feedback
+set reKiV       to 0.05.   // [deg/m]     trim learning
+set reAoARateT  to 2.      // [deg/s] AoA rate in the bellyflop
+set reRollMaxT  to 5.    // [deg] max belly roll in the bellyflop
+set reRollRate  to 2.     // [deg/s] roll command rate
+set reRollSign  to 1.     // [-]  flip if the ship rolls AWAY from the aim point
+set reKVFinal   to 0.5.    // [-] FINAL may only latch below this fraction of orbital speed
+set reKEq       to 1.0.   // [-]   1 = keep exactly enough vertical lift for equilibrium glide
+set rePhiEqMin  to 15.    // [deg] minimum steering authority even when lift is short
+set reSteerTau  to 1.0.    // [s]         target filter (new)
+set reTsDt      to 1.      // [s] step of the turn-now test
+set reTsPeriod  to 0.5.    // [s] test interval
+set reKVRet     to 0.64.
+set reTerm      to false.
+set reAoACmd    to 0.
+set reGActive   to false.
+set reYawCmd    to 0.
+set reRangeErr  to 0.
+set reYawLagF   to 0.  
 set reYawCmdLast to 0.
-set reLLETime to 0.
-set reMode     to "-".
+set reLLETime   to 0.
+set reMode      to "-".
 
 
 function reWrap360 { parameter a. return a - 360*floor(a/360). }
@@ -13900,7 +13893,7 @@ function ReGuidUpdate {
     if reHACLatch and reRetR > 0 set reRt2 to reRetR.
     set reRt to reRt2.                                            // print only
     local Df  is reKf*reRt2.
-    local L1  is reKL1*reRt2.
+    local L1  is reVh*reTL1.
     local sig is reSigA.
 
     // --- mode + reference point (L1) ---
