@@ -1840,6 +1840,9 @@ set reTauRB    to 5.       // [s]    filter of the return radius (fixed-point it
 set reKRetM    to 0.9.    // [-]    radius reserve: plan where the predicted turn needs ≤ x % of r
 set reSolEvery to 1.5.       // [-]    solve check every n-th predictor step (1 = most precise)
 set reKTurnT   to 0.9.    // [-] turn may use at most this fraction of the predicted remaining flight time
+set reKDesc    to 1.3.     // [-] allowed start-of-turn radius relative to the mean planned radius
+set reTauH     to 20.      // [s] sink-rate time constant
+set reTauEta   to 5.     // [s] filter of the lateral efficiency
 set reYawSign  to 1.
 set reApprSign to 1.
 set reLMin     to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1875,6 +1878,8 @@ set reKVFinal to 0.5.    // [-] FINAL may only latch below this fraction of orbi
 set reKEq      to 1.0.   // [-]   1 = keep exactly enough vertical lift for equilibrium glide
 set rePhiEqMin to 15.    // [deg] minimum steering authority even when lift is short
 set reSteerTau to 1.0.    // [s]         target filter (new)
+set reTsDt     to 1.      // [s] step of the turn-now test
+set reTsPeriod to 0.5.    // [s] test interval
 set reRemSLast to 360.
 set reKVRet to 0.64.
 set reTerm     to false.
@@ -1919,11 +1924,9 @@ function ReGuidInit {
     set reRetCx to 0.  
     set reRetCy to 0.
     set reSigA to 0.
-    set reLastPhiEq to 90.
     set reRBF to 0. 
     set reAwSCur to 0. 
     set reAwSArc to 0.
-    set reTLead to 0.
     set reP0Sg to 0.  
     set reP0Px to 0.  
     set reP0Py to 0.  
@@ -1935,6 +1938,11 @@ function ReGuidInit {
     set reRetALat to 0.
     set reRetSArc to 0. 
     set reRetPhi to 0.
+    set reLamSol to 1e9.  
+    set reTsLast to 0.  
+    set reDescPhi to 0.  
+    set reEtaLat to 1.
+    set reDbgDh to 0.
     set reLastPhiRet to rePhiPlan.
     set reHACLatch to false.
     set reAwayWasPos to false.
@@ -1966,6 +1974,7 @@ set slTauHMin  to 12.      // [s]   horizontal stiffness
 set slKvH      to 1.4.    // [-]   horizontal damping
 set slTermTauV to 2.2.
 set slThrRate  to 4.    // [1/s] max throttle change per second
+set reDbgYEnd to 0.
 set slGActive    to false.
 set slTowerRef  to false.
 set slPhase     to "FLIP".
@@ -2474,13 +2483,13 @@ if ship:partsnamedpattern("VS.25.BL2"):length > 1 {
     set ShipSubType to "Block2".
     set TRJCorrection to TRJCorrection*0.6.
 }
-if ShipType:contains("Block1") {
+if ShipType:contains("Block1") or ShipType:contains("Block3") {
     if RSS {
         set VentRate to VentRate * 1.3.
     }
     else set VentRate to VentRate * 1.5.
 }
-if ShipType:contains("Block1") {
+if ShipType:contains("Block2") {
     if RSS {
         set VentRate to VentRate * 0.7.
     }
@@ -13305,6 +13314,7 @@ function ReEntrySteering {
         if defined reDbgDQ and defined reDbgRB and  defined reDbgPy print "AWAY dQ " + round(reDbgDQ/1000,1) + " km  r_ret " + round(reDbgRB/1000,1) + " km  side " + reSigA + "  py " + round(reDbgPy/1000,1).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
+        print "yEnd " + round(reDbgYEnd/1000,1) + " km".
         if defined reDbgTrig print "Return Mode Trigger: " + reDbgTrig.
         print " ".
         if DynamicBanking and DBactive print "Tower Rotation: " + TowerHeading.
@@ -13697,6 +13707,25 @@ function rePredStep {
     return false.
 }
 
+function reTurnSim {     // turn-now test: lateral position [m] when the heading reaches the final heading
+    parameter tsX, tsY, tsTh, tsSig, tsV, tsL, tsAD, tsLam, tsPhi0.
+    local tsQ0 is tsV^2/max(tsL, 0.1).
+    local tsS is 0.  local tsT is 0.  local tsN is 0.
+    until tsSig*tsTh >= 0 or tsN >= 80 {
+        local tsPhi is min(rePhiMaxH, tsPhi0 + reBankRate*max(0, tsT - reTrigLead)).
+        local tsVn  is max(50, tsV - tsAD*tsT).
+        local tsK   is sin(tsPhi)*constant:e^(min(5, tsS/max(tsLam, 1)))/tsQ0.     // [1/m]
+        set tsTh to tsTh + tsSig*57.3*tsK*tsVn*reTsDt.
+        set tsX  to tsX + tsVn*cos(tsTh)*reTsDt.
+        set tsY  to tsY + tsVn*sin(tsTh)*reTsDt.
+        set tsS  to tsS + tsVn*reTsDt.
+        set tsT  to tsT + reTsDt.
+        set tsN  to tsN + 1.
+    }
+    if tsN >= 80 return tsSig*1e9.         // turn cannot complete yet (thin air) -> no trigger
+    return tsY.
+}
+
 function reQAt { 
     parameter qPx, qPy, qS, qR.
     local qCx is -reKf*qR.
@@ -14025,18 +14054,30 @@ function ReGuidUpdate {
         set reRetCy to sA*reRBF*(1 - reEpsOs).
         set reTLead to phiRet/(2*max(reBankRate, 0.1)) + reTrigLead.
         local rB  is reRBF.
+
+        // altitude goal
+        local pA0  is max(1e-9, body:atm:altitudepressure(altitude)).
+        local pA1  is max(1e-12, body:atm:altitudepressure(altitude + 1000)).
+        local hSc  is 1000/max(0.01, ln(pA0/pA1)). 
+        local rCap is reVh^2/(max(reLift, 0.1)*reEtaLat*sin(rePhiMaxH)). 
+        local dhNeed is max(0, hSc*ln(max(1, rCap/(reKDesc*max(rB, 1))))). 
+        local tQ   is max(5, reAwSCur/reVh).  
+        local vzDes is -dhNeed/tQ. 
+        local aV   is (gMag - reVh^2/(body:radius + altitude)) + (vzDes - verticalspeed)/reTauH.
+        set reDescPhi to arccos(max(0, min(1, aV/max(reLift, 0.1)))).
+        set reDbgDh to dhNeed.
+
         local dxR is px - reRetCx.
         local dyR is py - reRetCy.
         local dR  is max(1, sqrt(dxR^2 + dyR^2)).
 
         local goRet is false.
-        local hxA  is vx/reVh.
-        local hyA  is vy/reVh.
-        local pyLA is py + vy*reTLead.
-        local denA is 1 - reEpsOs - hxA.
-        if reRSol > 0 and sA*hyA < 0 {
-            if sA*pyLA <= 0 set goRet to true.                                   // lead point already past the line
-            else if denA > 0.001 and sA*pyLA/denA <= rB set goRet to true.       // needed radius reached the planned one
+        if reRSol > 0 and sA*vy < 0 and now > reTsLast + reTsPeriod {
+            set reTsLast to now.
+            local aDrag is max(0, -vdot(reAeroV, velocity:surface:normalized)).
+            local yEnd  is reTurnSim(px, py, arctan2(vy, vx), sA, reVh, reLift, aDrag, reLamSol, abs(reYawCmd)).
+            set reDbgYEnd to yEnd.
+            if sA*yEnd <= -reEpsOs*reRBF set goRet to true.
         }
         if dR > rB*(1 + reAwayMar) {
             // outside: tangent point with turn sense sA, fly straight onto it
@@ -14054,7 +14095,6 @@ function ReGuidUpdate {
             if reRSol > 0 { set rx to tqx.  set ry to tqy. }
             else { set rx to px + vx/reVh*L1.  set ry to py + vy/reVh*L1. }
             set reDbgDQ to dQ.
-            if reRSol > 0 and dQ <= reVh*reTLead set goRet to true.
             local thQ2 is arctan2(tqy - reRetCy, tqx - reRetCx).
             set reAwSCur to dQ.
             local angQ is reWrap360(sA*(arctan2(-sA, 0) - thQ2)).
@@ -14139,6 +14179,11 @@ function ReGuidUpdate {
     local aLat is 2*reVh^2/max(L1, dRef)*sinEta. 
     if reMode = "RETURN" set aLat to reRetALat.
     local aVec is (e1*(-vy) + e2*vx):normalized * aLat.  
+    if rePhiF > 15 and abs(aLat) > 0.1 {
+        local aMeasL is vdot(reAeroV, aVec:normalized).
+        local etaNew is aMeasL/max(0.1, reLift*sin(rePhiF)).
+        if etaNew > 0.2 and etaNew < 1.5 set reEtaLat to reEtaLat + (etaNew - reEtaLat)*min(1, dt/(reTauEta + dt)).
+    }
 
     // --- downrange / energy (onboard predictor) ---
     reLearnAero(reAeroV).
@@ -14180,6 +14225,7 @@ function ReGuidUpdate {
             set reS1 to rePS.
             set reTRem to rePT.
             if reRSolNew > 0 set reRSol to reRSolNew.
+            if reRSolNew > 0 set reLamSol to reLamS.
             set reSlopeN to reSlopeN + 1.
             set reHHand to rePH.
             if reSlopeN >= 3 or reSlope = 0 {
@@ -14220,7 +14266,8 @@ function ReGuidUpdate {
 
     // --- bank command ---
     local phiE is min(rePhiEMax, max(0, reKE*reResid/max(sTg, reRt2)*57.3)).
-    if reMode = "AWAY" or reMode = "RETURN" set phiE to 0. 
+    if reMode = "AWAY"   set phiE to min(rePhiMaxP, reDescPhi).
+    if reMode = "RETURN" set phiE to 0.
     local rightV is vcrs(vel, upV):normalized.
     local sgn is 1.
     if vdot(aVec, rightV) < 0 set sgn to -1.

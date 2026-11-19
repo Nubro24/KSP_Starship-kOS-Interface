@@ -3114,7 +3114,7 @@ function Boostback {
                             set steeringManager:rolltorquefactor to 2.2.
                             when RadarAlt < 0.5*BoosterHeight then {
                                 when RadarAlt < 0.12*BoosterHeight then {
-                                    when RadarAlt < 0.04*BoosterHeight then {
+                                    when RadarAlt < 0.02*BoosterHeight then {
                                         sendMessage(Vessel(TargetOLM), ("MechazillaArms," + round(BoosterRot, 1) + "," + ArmSpeed + ",24,false")).
                                         sendMessage(Vessel(TargetOLM), ("CloseArms")).
                                     }
@@ -3129,7 +3129,7 @@ function Boostback {
                         }
                     }
                     set SentTime to time:seconds.
-                    when RadarAlt < 5 * BoosterHeight and RadarAlt > 0.05*BoosterHeight then {
+                    when RadarAlt < 5 * BoosterHeight and RadarAlt > 0.03*BoosterHeight then {
                         if not BoosterLanded {
                             set ArmAngle to ClosingAngle().
                             set ArmSpeed to ClosingSpeed().
@@ -3141,7 +3141,7 @@ function Boostback {
                             }
                         }
                         wait 0.
-                        if not BoosterLanded and RadarAlt > 0.05*BoosterHeight return true.
+                        if not BoosterLanded and RadarAlt > 0.03*BoosterHeight return true.
                         else return false.
                     }
                 }
