@@ -670,7 +670,7 @@ set MZHeight to 60*Scale.
 set SNStart to 30.  // Defines the first Serial Number when multiple ships are found and renaming is necessary.
 set MaxTilt to 3.5.  // Defines maximum allowed slope for the Landing Zone Search Function
 set maxstabengage to 0.  // Defines max closing of the stabilizers after landing.
-set CPUSPEED to 800.  // Defines cpu speed in lines per second.
+set CPUSPEED to 2000.  // Defines cpu speed in lines per second.
 set FWDFlapDefault to 67.
 set AFTFlapDefault to 75.
 when partsfound then {
@@ -856,6 +856,7 @@ set LFShipCap to 0.
 set PlotAoAset to false.
 set yawctrl to 0.
 set PadB to false.
+set rAlt to 243000.
 
 
 //---------------Finding Parts-----------------//
@@ -1795,8 +1796,9 @@ set reKYawA     to 0.5.   // [-]   lateral accel per sin(yaw), in g  (smaller = 
 set reYawMaxT   to 42.    // [deg] max yaw in the bellyflop
 set rsAlphaFrac to 0.4.    // [-] use half the measured authority for braking (margin)
 set rsAlphaMin  to 0.1.    // [deg/s²]
-set rsAlphaMaxL to 5.      // [deg/s²]
+set rsAlphaMaxL to 5.      // [deg/s²]x
 set reFrameBlend to 8.
+set rsPeriod to 0.04.   // [s] raw steering update interval (25 Hz)
 set rsSgnP  to 1.
 set rsSgnY  to 1.
 set rsSgnR  to 1.
@@ -4173,9 +4175,9 @@ set quicksetting1:ontoggle to {
 set quicksetting2:ontoggle to {
     parameter pressed.
     if pressed {
-        SaveToSettings("CPU_SPD", "800").
+        SaveToSettings("CPU_SPD", "1600").
         set quicksetting2:text to "<b>  KX800</b>".
-        set CPUSPEED to 800.
+        set CPUSPEED to 1600.
         set config:ipu to CPUSPEED.
     }
     if not pressed {
@@ -12858,6 +12860,7 @@ function LandwithoutAtmoLabels {
 
 function ReEntryAndLand {
     if addons:tr:hasimpact {
+        set rAlt to RadarAlt.
         SteeringManager:RESETTODEFAULT().
         set ProgramStartTime to time:seconds.
         if ShipSubType:contains("Block2") or ShipType:contains("Block2") or ShipType:contains("Block3") {set aoa to aoa.}
@@ -12867,7 +12870,7 @@ function ReEntryAndLand {
         IgnitionChancesOpen:hide().
         set FindNewTarget to false.
         set LZsettoOLM to false.
-        set tt to time:seconds.
+        set tt to time:seconds + 20.
         set config:ipu to 2000.
         set LandSomewhereElse to false.
         set DistanceToTarget to 5000.
@@ -13232,6 +13235,7 @@ function ReEntryAndLand {
 
 function ReEntrySteering {
     if not SteeringIsRunning {
+        set rAlt to RadarAlt.
         set SteeringIsRunning to true.
         if aoa:typename = "String" {set aoa to (aoa):toscalar.}
         local rcsErr is 0.
@@ -13244,7 +13248,7 @@ function ReEntrySteering {
         }
         set currentAoA to round(vAng(facing:forevector, velocity:surface),1).
 
-        if RadarAlt > FlipAltitude + 100 {
+        if rAlt > FlipAltitude + 100 {
             lock throttle to 0.
         }
 
@@ -13283,29 +13287,29 @@ function ReEntrySteering {
 
         set GuidVec to SRFPRGD * R(-DesiredAoA , 0, 0).
         set GuidVec to angleaxis(yawctrl, srfprograde:vector) * GuidVec.
-
-        //SteeringCompensation (unchanged)
-        set steeringOffset to vAng(vxcl(facing:starvector, GuidVec:vector),facing:forevector).
+        
         set yawOffset to vAng(vxcl(facing:topvector, GuidVec:vector),facing:forevector).
         if currentAoA > 77 set yawIncrease to min((max((yawOffset - 0.2) / 2, 0.05))^1.4, 1).
         else set yawIncrease to 0.
-        set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.4, 1).
-        set stabalizeDamp to min((max((0.25/max(0.1,steeringOffset)), 0.8))^1.2, 5).
-
-        if abs(yawctrl) > 8 {
-            if currentAoA > 89 set stableDamp to -(currentAoA-89)/40.
-            else if currentAoA < 55 {set stableDamp to (55-currentAoA)/40.}
-            else set stableDamp to 0.
-        } else {
-            if currentAoA > 80 set stableDamp to -(currentAoA-80)/40.
-            else if currentAoA < 50 {set stableDamp to (50-currentAoA)/40.}
-            else set stableDamp to 0.
-        }
 
         if rsActive {
             set resultVec to GuidVec:vector:normalized + vxcl(up:vector, vxcl(facing:forevector, GuidVec:vector:normalized))*yawIncrease.
         }
         else {
+            //SteeringCompensation
+            set steeringOffset to vAng(vxcl(facing:starvector, GuidVec:vector),facing:forevector).
+            set steeringDamp to min((max((steeringOffset - 0.2) / 4, 0.05))^1.4, 1).
+            set stabalizeDamp to min((max((0.25/max(0.1,steeringOffset)), 0.8))^1.2, 5).
+    
+            if abs(yawctrl) > 8 {
+                if currentAoA > 89 set stableDamp to -(currentAoA-89)/40.
+                else if currentAoA < 55 {set stableDamp to (55-currentAoA)/40.}
+                else set stableDamp to 0.
+            } else {
+                if currentAoA > 80 set stableDamp to -(currentAoA-80)/40.
+                else if currentAoA < 50 {set stableDamp to (50-currentAoA)/40.}
+                else set stableDamp to 0.
+            }
             set resultVec to GuidVec:vector:normalized + vxcl(up:vector, vxcl(facing:forevector, GuidVec:vector:normalized))*yawIncrease + facing:forevector:normalized * steeringDamp * stabalizeDamp + facing:topvector * stableDamp.
         }
 
@@ -13357,14 +13361,14 @@ function ReEntrySteering {
 
 
 function ReEntryData {
-    if time:seconds > logAndUpdateTimer + 1 {
+    if time:seconds > logAndUpdateTimer + 3 {
         BackGroundUpdate().
         LogToFile("Re-Entry Telemetry").
         set logAndUpdateTimer to time:seconds.
     }
 
     if airspeed < 450 and kuniverse:timewarp:warp > 1 {set kuniverse:timewarp:warp to 1.}
-    if RadarAlt < 1500 and kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
+    if rAlt < 1500 and kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
     if ship:body:atm:sealevelpressure < 0.5 {
         if vxcl(up:vector, ship:position - landingzone:position):mag < CancelDist + 10000 and kuniverse:timewarp:warp > 0 {set kuniverse:timewarp:warp to 0.}
     }
@@ -13373,7 +13377,7 @@ function ReEntryData {
         set runningprogram to "De-orbit & Landing".
         set status1:style:textcolor to green.
     }
-    else if RadarAlt > 8000 {
+    else if rAlt > 8000 {
         set runningprogram to "Final Approach".
         set status1:style:textcolor to green.
     }
@@ -13401,7 +13405,7 @@ function ReEntryData {
     if result = V(0,0,0) {
         set result to lookdirup(facing:forevector, facing:topvector).
     }
-    if time:seconds > tt + 24 and not AFTONLY {
+    if time:seconds > tt + 4 and not AFTONLY {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") 
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 9).
@@ -13424,8 +13428,9 @@ function ReEntryData {
                 sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 2).
             }
         }
+        set tt to time:seconds.
     }
-    else if time:seconds > tt + 24 {
+    else if time:seconds > tt + 4 {
         if altitude < 45000*Scale and not KSRSS or altitude < 55000 and KSRSS {
             if ShipType:contains("Block1") and not ShipType:contains("EXP") 
                 HeaderTank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 24).
@@ -13448,93 +13453,9 @@ function ReEntryData {
                 sCH4Tank:getmodule("ModuleRCSFX"):SetField("thrust limiter", 5).
             }
         }
+        set tt to time:seconds.
     }
 
-    if CoGFuelBalancing and 1=2 {
-        if altitude < ship:body:ATM:height - 10000 and RadarAlt > FlipAltitude + 100 {
-            if (not (RebalanceCoGox:status = "Transferring") or (RebalanceCoGlf:status = "Transferring")) and time:seconds > lastFuelBalanc + 1 {
-                set PitchInput to SLEngines[0]:gimbal:pitchangle.
-                set lastFuelBalanc to time:seconds.
-                if PitchInput > 0.3 and PitchInput < 1.05 {
-                    for res in HeaderTank:resources {
-                        if res:name = "Oxidizer" {
-                            if res:amount < abs(FuelBalanceSpeed * PitchInput) {}
-                            for res in Tank:resources {
-                                if res:name = "Oxidizer" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) and res:amount < res:capacity*0.1 {}
-                                    else {
-                                        set RebalanceCoGox to TRANSFER("Oxidizer", HeaderTank, Tank, abs(FuelBalanceSpeed * 0.7*PitchInput)).
-                                    }
-                                }
-                            }
-                        }
-                        else if res:name = "LiquidFuel" {
-                            if res:amount < abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
-                            for res in Tank:resources {
-                                if res:name = "LiquidFuel" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) and res:amount < res:capacity*0.1 {}
-                                    else {
-                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", HeaderTank, Tank, abs(FuelBalanceSpeed/(11/9) * 0.7*PitchInput)).
-                                    }
-                                }
-                            }
-                        }
-                        else if res:name = "LqdMethane" {
-                            if res:amount < abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
-                            for res in Tank:resources {
-                                if res:name = "LqdMethane" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) and res:amount < res:capacity*0.1 {}
-                                    else {
-                                        set RebalanceCoGlf to TRANSFER("LqdMethane", HeaderTank, Tank, abs(FuelBalanceSpeed/(1/3) * 0.7*PitchInput)).
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else if PitchInput < -0.005 and PitchInput > -1.05 {
-                    for res in Tank:resources {
-                        if res:name = "Oxidizer" {
-                            if res:amount < abs(FuelBalanceSpeed * PitchInput) {}
-                            for res in HeaderTank:resources {
-                                if res:name = "Oxidizer" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed * PitchInput) {}
-                                    else {
-                                        set RebalanceCoGox to TRANSFER("Oxidizer", Tank, HeaderTank, abs(FuelBalanceSpeed * 0.85*PitchInput)).
-                                    }
-                                }
-                            }
-                        }
-                        else if res:name = "LiquidFuel" {
-                            if res:amount < abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
-                            for res in HeaderTank:resources {
-                                if res:name = "LiquidFuel" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(11/9) * PitchInput) {}
-                                    else {
-                                        set RebalanceCoGlf to TRANSFER("LiquidFuel", Tank, HeaderTank, abs(FuelBalanceSpeed/(11/9) * 0.85*PitchInput)).
-                                    }
-                                }
-                            }
-                        }
-                        else if res:name = "LqdMethane" {
-                            if res:amount < abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
-                            for res in HeaderTank:resources {
-                                if res:name = "LqdMethane" {
-                                    if res:amount > res:capacity - abs(FuelBalanceSpeed/(1/3) * PitchInput) {}
-                                    else {
-                                        set RebalanceCoGlf to TRANSFER("LqdMethane", Tank, HeaderTank, abs(FuelBalanceSpeed/(1/3) * 0.85*PitchInput)).
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                set RebalanceCoGox:ACTIVE to true.
-                set RebalanceCoGlf:ACTIVE to true.
-            }
-        }
-    } 
-    
     set LngDistanceToTarget to 0.
     SetPlanetData().
     if (TgtLandingzone:lng - ship:geoposition:lng) < -180 {
@@ -13592,8 +13513,8 @@ function ReEntryData {
         }
     }
 
-    if RadarAlt < 15000 and not ClosingIsRunning {
-        if altitude < RadarAlt {
+    if rAlt < 15000 and not ClosingIsRunning {
+        if altitude < rAlt {
             SetRadarAltitude().
         }
         if ship:body:atm:sealevelpressure > 0.5 {
@@ -13613,7 +13534,7 @@ function ReEntryData {
             }
         }
     }
-    if RadarAlt < 2500 {
+    if rAlt < 2500 {
         if abs(LngLatErrorList[0]) > 10 and ship:body:atm:sealevelpressure > 0.5 or abs(LngLatErrorList[1]) > 5 or abs(LngLatErrorList[0]) > 500 and ship:body:atm:sealevelpressure < 0.5 {
             if not ClosingIsRunning {
                 set message3:style:textcolor to yellow.
@@ -13779,7 +13700,7 @@ function ReRawSteer {
     parameter tgt.
     local now is time:seconds.
     local dt is now - rsLastT.
-    if dt < 0.001 return.
+    if dt < rsPeriod return.
     set rsLastT to now.
 
     // --- measured body rates [deg/s] from the change of facing ---
@@ -13876,7 +13797,7 @@ function ReTermUpdate {
 
     // --- along-track: horizontal speed command toward the aim point ---
     local sAim is LngLatOffset - px.                              // [m]  + = aim point ahead
-    local tGo  is max(5, RadarAlt/max(5, -verticalspeed)).        // [s]
+    local tGo  is max(5, rAlt/max(5, -verticalspeed)).        // [s]
     local vhMax is max(reVhFloor, abs(verticalspeed)/tan(reGamMinT)).   // [m/s]
     local vDes  is max(-vhMax, min(vhMax, sAim/tGo)).                   // [m/s] capped
     local vAl  is vdot(vh, e1).
@@ -13931,7 +13852,7 @@ function ReGuidUpdate {
     local reLift    is vxcl(vel, reAeroV):mag. 
 
     // --- terminal window (independent of Dynamic Banking) ---
-    set reTerm to ship:body:atm:sealevelpressure > 0.5 and airspeed < reVTerm and RadarAlt > reAltEnd.
+    set reTerm to ship:body:atm:sealevelpressure > 0.5 and airspeed < reVTerm and rAlt > reAltEnd.
     if reTerm {
         if reGActive { set reGActive to false. set landingzone to TgtLandingzone. }
         ReTermUpdate(dt, reLift).
@@ -13939,7 +13860,7 @@ function ReGuidUpdate {
     }
 
     // --- path window (any atmosphere, tower optional) ---
-    local mustEnd is airspeed < reVEnd or RadarAlt < reAltEnd or not ship:body:atm:exists.
+    local mustEnd is airspeed < reVEnd or rAlt < reAltEnd or not ship:body:atm:exists.
     local canStart is reLift > reLMin.
     local active is not mustEnd and (reGActive or canStart).
     if not active {
@@ -13971,83 +13892,24 @@ function ReGuidUpdate {
     local reVh   is max(1, vh:mag).
     local dTgt  is reArc(ship:position, reT).
 
-    // --- turn radius (filtered, capped) ---
+    // --- turn radius: planned return circle (AWAY/RETURN), Rhac as fallback ---
     local Rhac is reVHac^2/(gMag*tan(rePhiPlan)).
     if reVArc > 0 set Rhac to reVArc^2/(reLArc*sin(rePhiPlan)).
-    local capA is 1 + reKf^2.
-    local capQ is capA - 1 - reKL1^2.            // quadratic: capQ·c² − 2·√capA·c + 1 = 0
-    local capMax is 0.4.
-    if abs(capQ) > 1e-6 set capMax to (sqrt(capA) - sqrt(max(0, capA - capQ)))/capQ.
-    local capUse is min(reRCap, 0.8*capMax).
-    local capAbs is capUse*dTgt.
-    if reRCapAbs > 0 set capAbs to reRCapAbs.
-    local Rraw is min(min(reVh^2/(reLift*sin(rePhiPlan)), Rhac), capAbs).
-    if reSPred > 0 {
-        local Rmin is reVh^2/(max(reLift, 0.1)*sin(rePhiMaxH)).
-        local cC   is max(0.2, cos(rePhiF)^reBankExp).
-        local cA   is max(0.2, cos(min(rePhiMaxH, arctan(reVHac^2/(gMag*max(reRt,1)))))^reBankExp).
-        local Ren is ((reSTgtL + reRangeErr)*(1 - reEMargin) - reSCurL/cC) / (reThRemL/cA + reKf).
-        set Rraw to min(Rraw, max(Rmin, Ren)).
-    }
-    if reRt <= 0 set reRt to Rraw.
-    set reRt to reRt + (Rraw - reRt)*min(1, dt/(reRTau + dt)).
-    local reRt2  is max(reRt, 1).
-    local Df is reKf*reRt2.
-    local L1 is reKL1*reRt2.
-
-    // side: frozen on first activation
-    if useHAC and reSide = 0 { 
-        if py >= 0 set reSide to 1. 
-        else set reSide to -1.
-        set reRCapAbs to capUse*dTgt.
-    }
-    local cx is -Df.
-    local cy is reSide*reRt2.
-    local sig is reSide. 
-    local thE is arctan2(-reSide*reRt2, 0).
-
-    // frozen return circle (RETURN phase)
-    if reHACLatch and reRetR > 0 {
-        set sig to reSigA.
-        set cx to reRetCx.  set cy to reRetCy.
-        set reRt2 to reRetR.
-        set Df to -reRetCx.
-        set L1 to reKL1*reRetR.
-        set thE to arctan2(-reSigA*reRetR, 0).
-    }
-
-    // --- tangent point from the ship onto the circle ---
-    local dxc is px - cx.
-    local dyc is py - cy.
-    local dC  is sqrt(dxc^2 + dyc^2).
-    local qx is cx. local qy is cy + reRt2.  local arcQ is 0.
-    if dC > reRt2 {
-        local beta is arccos(reRt2/dC).
-        local thP  is arctan2(dyc, dxc).
-        local best is -1e9.
-        for th in list(thP + beta, thP - beta) {
-            local tx is cx + reRt2*cos(th).
-            local ty is cy + reRt2*sin(th).
-            local tvx is -sig*sin(th).
-            local tvy is  sig*cos(th).
-            local score is (tx - px)*tvx + (ty - py)*tvy.
-            if score > best { set best to score. set qx to tx. set qy to ty. }
-        }
-    }
-    local thQ is arctan2(qy - cy, qx - cx).
-    set arcQ to reRt2*reWrap360((thE - thQ)*sig)*constant:pi/180.
+    local reRt2 is max(1, Rhac).
+    if reRBF > 0 set reRt2 to reRBF.
+    if reHACLatch and reRetR > 0 set reRt2 to reRetR.
+    set reRt to reRt2.                                            // print only
+    local Df  is reKf*reRt2.
+    local L1  is reKL1*reRt2.
+    local sig is reSigA.
 
     // --- mode + reference point (L1) ---
-    local thS  is arctan2(dyc, dxc).
-    local remS is reWrap360((thE - thS)*sig).
     local straight is not useHAC.
     local finalOK is reVh < reKVFinal*sqrt(body:mu/(body:radius + altitude)).
     if straight or reFinal set L1 to min(L1, reKL1T*max(dTgt, 1)).
-    if not straight and not reFinal and reHACLatch and finalOK and (dC < reRt2 + L1) and (remS < 5 or (reRemSLast < 30 and remS > 300)) set reFinal to true.
-    if reHACLatch set reRemSLast to remS.
     if not straight and not reFinal and reHACLatch and finalOK and abs(py) < 0.1*reRt2 and vang(vh, e1) < 15 and px < 0 set reFinal to true.
 
-    local rx is qx. local ry is qy.
+    local rx is px + vx/reVh*L1.  local ry is py + vy/reVh*L1.
     local sTg is 0.
     if reFinal or straight {
         if straight set reMode to "STRAIGHT".
@@ -14056,9 +13918,6 @@ function ReGuidUpdate {
         set rx to px + max(ahead, 0.2*L1).
         set ry to 0.
         set sTg to max(0, -px).
-    } else if not reNoPursuit and not reHACLatch and not reAwayLatch and dC > reRt2 and sqrt((qx - px)^2 + (qy - py)^2) > reKHacSw*L1 {
-        set reMode to "PURSUIT".
-        set sTg to sqrt((qx - px)^2 + (qy - py)^2) + arcQ + Df.
     } else if not reHACLatch {
         // AWAY: straight line onto the tangent of a return circle frozen at AWAY entry
         set reAwayLatch to true.
@@ -14228,9 +14087,7 @@ function ReGuidUpdate {
     set reDbgPhiM to phiMeas.
     set rePhiF to rePhiF + (abs(phiMeas) - rePhiF)*min(1, dt/(rePhiTau + dt)).
     local sArc is 0.
-    if reMode = "PURSUIT" set sArc to arcQ.
-    else if reMode = "AWAY" or reMode = "RETURN" set sArc to reRt2*remS*constant:pi/180.
-    local sCur is max(0, sTg - sArc - Df).
+    local sCur is max(0, sTg - Df).
     if reMode = "AWAY" { set sArc to reAwSArc. set sCur to reAwSCur. }
     if reMode = "RETURN" { set sArc to reRetSArc. set sCur to 0. }
     set reSCurL  to sCur.
@@ -14341,8 +14198,6 @@ function ReGuidUpdate {
     //set reDrawR to vecDraw(v(0,0,0), (reT + e1*rx + e2*ry) - ship:position, green, "ref " + reMode, 1, true, 0.5).
 }
 
-
-    
 //-----------------------Landing---------------------------///
 
 
