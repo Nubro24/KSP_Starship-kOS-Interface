@@ -10032,10 +10032,10 @@ Function LaunchSteering {
             }
             else {
                 if ShipType = "Depot" {
-                    set targetpitch to 90 - (9.05 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
+                    set targetpitch to 90 - (8.15 * SQRT(max((altitude - 250 - LaunchElev), 0)/1200)).
                 }
                 else {
-                    set targetpitch to 90 - (9.2 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, (30000/max(30000,CargoMass))^0.6).
+                    set targetpitch to 90 - (8.4 * SQRT(max((altitude - 250 - LaunchElev), 0)/1100))*min(1, (40000/max(40000,CargoMass))^0.6).
                 }
             }
         }
