@@ -1778,9 +1778,9 @@ set rsKw     to 0.18.           // [1/(deg/s)] rate loop pitch/yaw
 set rsKwR    to 0.08.         // [1/(deg/s)] rate loop roll
 set rsKi     to 0.006.        // [1/(deg·s)] trim integrator
 set rsKiR    to 0.004.        // [1/(deg·s)] roll trim integrator
-set rsKd   to 0.08.    // [1/(deg/s²)] rate-error derivative pitch/yaw
-set rsKdR  to 0.018.   // [1/(deg/s²)] roll
-set rsTauD to 0.16.    // [s] filter on the derivative
+set rsTauLag to 0.5.   // [s] total delay from input to effect (one knob)
+set rsTauA   to 0.1.    // [s] filter on the angular acceleration
+set rsPeriod to 0.04.   // [s] multiple of the physics tick
 set rsTsB     to 5.           // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
 set rsWMaxB   to 6/Scale.     // [deg/s]   max rate in the bellyflop
@@ -1802,7 +1802,7 @@ set rsAlphaFrac to 0.4.    // [-] use half the measured authority for braking (m
 set rsAlphaMin  to 0.1.    // [deg/s²]
 set rsAlphaMaxL to 5.      // [deg/s²]x
 set reFrameBlend to 8.
-set rsPeriod to 0.03.   // [s] raw steering update interval (25 Hz)
+set rsPeriod to 0.04.   // [s] raw steering update interval (25 Hz)
 set rsSgnP  to 1.
 set rsSgnY  to 1.
 set rsSgnR  to 1.
@@ -1824,6 +1824,7 @@ function ReRawSteerInit {
     set rsAlphaEstR to 0.
     set rsEWLast to v(0,0,0).
     set rsDEW    to v(0,0,0).
+    set rsAccF to v(0,0,0).
     set rsActive to true.
     unlock steering.
 }
@@ -13628,6 +13629,7 @@ function ReRawSteer {
     // --- measured control authority: angular accel per unit input [deg/s² per 1.0] ---
     local rawAcc is (rsW - rsWLast)/dt.
     set rsWLast to rsW.
+    set rsAccF to rsAccF + (rawAcc - rsAccF)*min(1, dt/(rsTauA + dt)).
     local rawUm is max(abs(rsU:x), abs(rsU:y)).
     if rawUm > 0.3 {
         local rawAN is max(abs(rawAcc:x), abs(rawAcc:y))/rawUm.
@@ -13644,6 +13646,8 @@ function ReRawSteer {
     local rawe is v(arctan2(vdot(rawtF, rawTp), vdot(rawtF, rawFw)),
                     arctan2(vdot(rawtF, rawSt), vdot(rawtF, rawFw)),
                     arctan2(vdot(rawtT, rawSt), vdot(rawtT, rawTp))).
+    local rawWh is rsW + rsAccF*rsTauLag.
+    local rawEh is rawe - rsW*rsTauLag - rsAccF*(0.5*rsTauLag^2).
     local angErr is vang(rawtF, rawFw).
     local wR is max(0, min(1, (rsRollRange - angErr)/(0.5*rsRollRange))).
 
@@ -13659,15 +13663,13 @@ function ReRawSteer {
     if rsAlphaEst > 0 set rawKq to max(rsKqMin, min(rsKqMax, rsAlphaTune/rsAlphaEst)).
 
     // outer loop: angle error -> target rate (braking curve)
-    local rawWr is v(rsWRef(rawe:x, rawWM, rawTs, rawAB), rsWRef(rawe:y, rawWM, rawTs, rawAB), wR*rsWRef(rawe:z, rsWMaxR, rawTs, rawABR)).
-    local rawEW  is rawWr - rsW.                                                // [deg/s] rate error
-    set rsDEW to rsDEW + ((rawEW - rsEWLast)/max(dt, 0.01) - rsDEW)*min(1, dt/(rsTauD + dt)).
-    set rsEWLast to rawEW.
+    local rawWr is v(rsWRef(rawEh:x, rawWM, rawTs, rawAB), rsWRef(rawEh:y, rawWM, rawTs, rawAB), wR*rsWRef(rawEh:z, rsWMaxR, rawTs, rawABR)).
+    local rawEW is rawWr - rawWh.
 
     // inner loop: rate error -> input, plus protected integrator (trim)
-    local rawUp is v(rawKq*rsKw*rawEW:x + rawKq*rsKd*rsDEW:x + rawKth*rawe:x,
-                     rawKq*rsKw*rawEW:y + rawKq*rsKd*rsDEW:y + rawKth*rawe:y,
-                     rsKwR*rawEW:z + rsKdR*rsDEW:z) + rsI.
+    local rawUp is v(rawKq*rsKw*rawEW:x + rawKth*rawEh:x,
+                     rawKq*rsKw*rawEW:y + rawKth*rawEh:y,
+                     rsKwR*rawEW:z) + rsI.
     if abs(rawe:x) < rsIRange and abs(rawUp:x) < 1 set rsI:x to max(-rsIMax, min(rsIMax, rsI:x + rawKi*rawe:x*dt)).
     if abs(rawe:y) < rsIRange and abs(rawUp:y) < 1 set rsI:y to max(-rsIMax, min(rsIMax, rsI:y + rawKi*rawe:y*dt)).
     if wR >= 1 and abs(rawe:z) < rsIRange and abs(rawUp:z) < 1 set rsI:z to max(-rsIMax, min(rsIMax, rsI:z + rsKiR*rawe:z*dt)).
