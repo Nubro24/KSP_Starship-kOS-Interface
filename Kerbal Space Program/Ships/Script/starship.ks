@@ -1771,7 +1771,8 @@ function rePredStart {
 set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 2.4/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
-set rsTs     to 8.             // [s]       settling time near the target
+set rsKth to 0.05.    // [1/deg] direct angle stiffness outside the bellyflop
+set rsTs  to 6.       // [s]       settling time near the target
 set rsAlphaTune to 1.0.   // [deg/s² per full input] authority at which rsKw was tuned
 set rsKqMin     to 0.6.   // [-] lowest gain scaling at high q
 set rsKw     to 0.18.           // [1/(deg/s)] rate loop pitch/yaw
@@ -13656,7 +13657,7 @@ function ReRawSteer {
     local rawABR is rawAB.
     if rsAlphaEst  > 0 set rawAB  to max(rsAlphaMin, min(rsAlphaMaxL, rsAlphaFrac*rsAlphaEst)).
     if rsAlphaEstR > 0 set rawABR to max(rsAlphaMin, min(rsAlphaMaxL, rsAlphaFrac*rsAlphaEstR)).
-    local rawKth is 0.  local rawKi is rsKi.
+    local rawKth is rsKth.  local rawKi is rsKi.
     if Bellyflop { set rawKth to rsKthB. set rawKi to rsKiB. }
     if rsQRef <= 0 and ship:q > 0 set rsQRef to ship:q.            // reference q at controller start
     local rawKq is 1.
@@ -13667,8 +13668,8 @@ function ReRawSteer {
     local rawEW is rawWr - rawWh.
 
     // inner loop: rate error -> input, plus protected integrator (trim)
-    local rawUp is v(rawKq*rsKw*rawEW:x + rawKth*rawEh:x,
-                     rawKq*rsKw*rawEW:y + rawKth*rawEh:y,
+    local rawUp is v(rawKq*(rsKw*rawEW:x + rawKth*rawEh:x),
+                     rawKq*(rsKw*rawEW:y + rawKth*rawEh:y),
                      rsKwR*rawEW:z) + rsI.
     if abs(rawe:x) < rsIRange and abs(rawUp:x) < 1 set rsI:x to max(-rsIMax, min(rsIMax, rsI:x + rawKi*rawe:x*dt)).
     if abs(rawe:y) < rsIRange and abs(rawUp:y) < 1 set rsI:y to max(-rsIMax, min(rsIMax, rsI:y + rawKi*rawe:y*dt)).
