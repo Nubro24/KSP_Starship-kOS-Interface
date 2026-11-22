@@ -677,6 +677,12 @@ when partsfound then {
     if FNBship {
         set FWDFlapDefault to 57.
         set AFTFlapDefault to 65.
+    } else if ShipType:contains("Block1")  {
+        set FWDFlapDefault to 60.
+        set AFTFlapDefault to 70.
+    } else if ShipType:contains("Block2") {
+        set FWDFlapDefault to 60.
+        set AFTFlapDefault to 70.
     }
 }
 set rcsRaptorBoundary to 80.  // Defines the custom burn boundary velocity where the ship will burn either RCS/Single Raptor below it or VAC Raptors above it.
@@ -1680,10 +1686,9 @@ set reVAoASw       to 600*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
 set reStepsPerCall to 12.          // [-]   integration steps per guidance call (IPU knob)
-set reKDLow        to 1.0.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
+set reKDLow        to 1.25.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
 set reDTermMin     to 1000*Scale.       // [m] lower bound
-set reKDLow        to 1.25.
 
 function rePredInit {
     set reKD     to 0.
@@ -1719,12 +1724,14 @@ function reLearnAero {
         local ldNew is pL/pD.
         if reKD <= 0 set reKD to kNew.
         if pV < reVAoASw {
-            local kRat is kNew*reP0S3/max(1e-12, reKD*sin(a0)^3). 
+            local kRat is kNew*reP0S3/max(1e-12, reKD*sin(a0)^3).
             if kRat > 0.5 and kRat < 3 set reKDLow to reKDLow + (kRat - reKDLow)*0.05.
         }
-        else if kNew > 0.5*reKD and kNew < 2*reKD set reKD to reKD + (kNew - reKD)*0.1.
-        if abs(ldNew - reLD0) < 0.5*reLD0 + 0.2 set reLD0 to reLD0 + (ldNew - reLD0)*0.1.
-        set reA0  to reA0  + (a0    - reA0) *0.1.
+        else {
+            if kNew > 0.5*reKD and kNew < 2*reKD set reKD to reKD + (kNew - reKD)*0.1.
+            if abs(ldNew - reLD0) < 0.5*reLD0 + 0.2 set reLD0 to reLD0 + (ldNew - reLD0)*0.1.
+            set reA0 to reA0 + (a0 - reA0)*0.1.
+        }
     }
 }
 
@@ -1812,9 +1819,9 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP   to 30.      // [deg]  max bank in PURSUIT (lead-in, away from target)
-set reYawMaxB   to 70.    // [deg] max yaw command (the inverse mapping may exceed φ)
-set rePhiMaxH   to 75.      // [deg]  max bank in HAC/FINAL (turn back to the tower)
+set rePhiMaxP   to 24.      // [deg]  max bank in HOLD
+set reYawMaxB   to 70.      // [deg] max yaw command
+set rePhiMaxH   to 75.      // [deg]  max bank in TURN/FINAL
 set reFinHdg    to 5.        // [deg]  FINAL latches when the remaining heading change is below this
 set reAoARetMax to 66.     // [deg]  max AoA at full bank 
 set reBankRate  to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
@@ -1830,7 +1837,6 @@ set reStepTurn  to 2.     // [s]   predictor step during the turn
 set reKT        to 0.8.   // [-]   Newton damping for the turn time
 set reTTStepMax to 60.    // [s]   max change of the turn time per prediction
 set reTTTol     to 3.     // [s]   turn time counts as converged below this change
-set reTauHold   to 20.    // [s]   heading filter in HOLD (energy S-turns average out)
 set reAoAMinP   to 50.    // [deg] lowest AoA the ship can hold on the path (vehicle limit)
 set reAoAMaxP   to 80.    // [deg] highest AoA on the path
 set reTTPert    to 20.     // [s] perturbation of the turn time for the measured slope
@@ -13773,7 +13779,16 @@ function ReGuidUpdate {
     local vy  is vdot(vh, e2).
     local reVh   is max(1, vh:mag).
     local dTgt   is reArc(ship:position, reT).
-    local psiNow is arctan2(vy, vx).                              // [deg] heading vs final heading (0 = aligned)
+    local upT2  is (reT - body:position):normalized.
+    local e1T   is vxcl(upT2, e1):normalized.
+    local e2T   is vcrs(upT2, e1T):normalized.
+    if vdot(e2T, e2) < 0 set e2T to -e2T.
+    local relT  is vxcl(upT2, ship:position - reT).
+    local bT    is arctan2(vdot(relT, e2T), -vdot(relT, e1T)). 
+    local tgtL  is vxcl(upV, reT - ship:position).
+    local zeta  is reWrap360(arctan2(vy, vx) - arctan2(vdot(tgtL, e2), vdot(tgtL, e1)) + 180) - 180.
+    local psiNow  is reWrap360(zeta - bT + 180) - 180.
+    local psiOff  is reWrap360(arctan2(vy, vx) - psiNow + 180) - 180. 
     local straight is not useHAC.
 
     // --- mode: HOLD until the solved turn time, TURN at max bank, then FINAL ---
@@ -13783,10 +13798,13 @@ function ReGuidUpdate {
         if not reTurnOn and reTTOk and abs(reHoldPsi) < reFinHdg set reFinal to true.     // aligned: no turn needed
     }
     if not reHoldSet { set reHoldPsi to psiNow. set reHoldSet to true. }
-    if not reTurnOn and not reFinal set reHoldPsi to reHoldPsi + (reWrap360(psiNow - reHoldPsi + 180) - 180)*min(1, dt/(reTauHold + dt)).
+    if not reTurnOn and not reFinal {
+        local zeH is reHoldPsi + bT.
+        set reHoldPsi to reHoldPsi - reVh*sin(zeH)*tan(dTgt/body:radius*28.6479)/body:radius*57.2958*dt.
+    }
     local L1 is reVh*reTL1.
-    local rx is px + L1*cos(reHoldPsi).                           // HOLD: slowly filtered heading
-    local ry is py + L1*sin(reHoldPsi).
+    local rx is px + L1*cos(reHoldPsi + psiOff).
+    local ry is py + L1*sin(reHoldPsi + psiOff).
     local sTg is dTgt.
     local useOv is false.
     if straight or reFinal {
@@ -13845,6 +13863,7 @@ function ReGuidUpdate {
         local b0 is arctan2(py, -px).
         set reP0X to -dTgt*cos(b0).
         set reP0Y to  dTgt*sin(b0).
+        set reP0Psi to psiNow.
         set reP0Vg   to reVh.
         set reP0T    to now.
         set reP0Free to not reTurnOn.
@@ -13873,8 +13892,8 @@ function ReGuidUpdate {
             set reJob to 9.
             if reP0Sig <> 0 and reP0Free {
                 if reTTBoot {                                         // first run without a turn: start value
-                    if rePTCross > 0 set reTT to reP0T + 0.5*rePTCross.
-                    else set reTT to reP0T + 0.5*rePT.
+                    if rePTCross > 0 set reTT to reP0T + rePTCross.  
+                    else set reTT to reP0T + rePT.
                     set reTTBoot to false.
                 }
                 else {
@@ -13886,8 +13905,8 @@ function ReGuidUpdate {
             local jSl is (jEY - reEY1)/reTTPert.                       // [m/s] measured d(e_y)/dT_T
             local jDT is 0.
             if abs(jSl) > 1 set jDT to max(-reTTStepMax, min(reTTStepMax, -reKT*reEY1/jSl)).
+            if reSigP*reEY1 > 0 set jDT to max(0, jDT).
             local jTT is reP0T + reTTBase + jDT.
-            set reS1 to reS1 + (jES - reS1Raw)/reTTPert*jDT.            // range coupling, measured too
             if jTT < now set reTTLate to reTTLate + 1.
             else set reTTLate to 0.
             set reTTOk to abs(jDT) < reTTTol or reTTLate >= 3.
@@ -13907,7 +13926,7 @@ function ReGuidUpdate {
         }
         if reJob = 3 {
             set reRangeErr to reS1.
-            if reTTOk or reP0Sig = 0 {
+            if not reTTBoot or reP0Sig = 0 {
                 local dNew is reDAoASol.
                 if abs(reSlope) > 1 set dNew to reDAoASol - reS1/reSlope.
                 local dClamp is min(reAoAMaxP - aoa, max(reAoAMinP - aoa, dNew)).
