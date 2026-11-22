@@ -1689,6 +1689,7 @@ set reStepsPerCall to 12.          // [-]   integration steps per guidance call 
 set reKDLow        to 1.25.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
 set reDTermMin     to 1000*Scale.       // [m] lower bound
+set reQLearn       to 0.02.       // [atm] above this, RCS thrust is negligible against aero (≈ 2 kPa)
 
 function rePredInit {
     set reKD     to 0.
@@ -1710,15 +1711,15 @@ function rePredInit {
     set rePRun   to false.
 }
 
-// learn the aero coefficients from the measured aero acceleration (call every guidance tick)
+// learn the aero coefficients from the measured aero acceleration (every guidance tick)
 function reLearnAero {
     parameter aeroV.
     local vel is velocity:surface.
     local pV  is vel:mag.
-    local pP  is body:atm:altitudepressure(altitude).
+    local pP  is body:atm:altitudepressure(altitude)/max(1, body:atm:altitudetemperature(altitude)).
     local pD  is -vdot(aeroV, vel:normalized).
     local pL  is vxcl(vel, aeroV):mag.
-    if pP > 1e-6 and pD > 0.2 and not rcs {
+    if pP > 1e-6 and pD > 0.2 and (not rcs or ship:q > reQLearn) {
         local a0 is max(20, vang(facing:forevector, vel)).
         local kNew  is pD/(pP*pV^2).
         local ldNew is pL/pD.
@@ -1759,6 +1760,7 @@ function rePredStart {
     set rePS    to 0.  set rePN to 0.  set rePT to 0.
     set rePRun  to reP0KD > 1e-12.
     set rePTCross to -1.
+    set rePRbf to -1.
     set reDProfNew to list().
 }
 
@@ -1819,7 +1821,7 @@ function ReRawSteerInit {
 
 //-------------  Reentry Guidance ---------------------
 
-set rePhiMaxP   to 24.      // [deg]  max bank in HOLD
+set rePhiMaxP   to 26.      // [deg]  max bank in HOLD
 set reYawMaxB   to 70.      // [deg] max yaw command
 set rePhiMaxH   to 75.      // [deg]  max bank in TURN/FINAL
 set reFinHdg    to 5.        // [deg]  FINAL latches when the remaining heading change is below this
@@ -13278,6 +13280,7 @@ function ReEntrySteering {
         print "Turn in: " + round(min(9999, max(0, reTT - time:seconds))) + " s  ok " + reTTOk + "  side " + reSigP + "  psiEnd " + round(rePsiEnd).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
+        print "kDlow " + round(reKDLow,2).
         print "phiCmd " + round(reYawCmd) + "  phiEff " + round(reDbgPhiM) + "  kPhi " + round(reKPhi,2) + "  eta " + round(reEtaLat,2).
         print " ".
         if DynamicBanking and DBactive print "Tower Rotation: " + TowerHeading.
@@ -13524,7 +13527,7 @@ function rePredStep {
         // derivatives at A
         local psRadA  is psR0 + rePH.
         local psGravA is psMu/psRadA^2.
-        local psDragA is psKDrag*body:atm:altitudepressure(rePH)*rePV^2.
+        local psDragA is psKDrag*body:atm:altitudepressure(rePH)/max(1, body:atm:altitudetemperature(rePH))*rePV^2.
         local psVInA  is rePV*cos(rePG) + reP0Rot.
         local psVdA   is -psDragA - psGravA*sin(rePG).
         local psGdA   is (psLoD*psDragA*cos(psBank) - (psGravA - psVInA^2/psRadA)*cos(rePG))/rePV*57.2958.
@@ -13550,7 +13553,7 @@ function rePredStep {
         // derivatives at B
         local psRadB  is psR0 + psHB.
         local psGravB is psMu/psRadB^2.
-        local psDragB is psKDrag*body:atm:altitudepressure(max(psHB,0))*psVB^2.
+        local psDragB is psKDrag*body:atm:altitudepressure(max(psHB,0))/max(1, body:atm:altitudetemperature(max(psHB,0)))*psVB^2.
         local psVInB  is psVB*cos(psGB) + reP0Rot.
         local psVdB   is -psDragB - psGravB*sin(psGB).
         local psGdB   is (psLoD*psDragB*cos(psBank) - (psGravB - psVInB^2/psRadB)*cos(psGB))/psVB*57.2958.
@@ -13570,6 +13573,7 @@ function rePredStep {
         set rePY    to rePY + 0.5*(psYdA + psYdB)*psStep.
         set rePPsi  to rePPsi + 0.5*(psPdA + psPdB)*psStep.
         if rePTCross < 0 and rePY*reP0Y <= 0 set rePTCross to rePT.
+        if rePRbf < 0 and rePV < reVAoASw set rePRbf to rePV^2/max(0.1, reEtaLat*psLoD*psDragA*sin(rePhiMaxH)).
         set rePS    to rePS + 0.5*(psVgA + psVgB)*psStep.
         set rePT    to rePT + psStep.
         set rePN    to rePN + 1.
@@ -13666,6 +13670,7 @@ function ReTermUpdate {
     local upV is up:vector.
     local vel is velocity:surface.
     local vh  is vxcl(upV, vel).
+    reLearnAero(reAeroV).
 
     // final approach direction: tower heading if known, else frozen velocity heading
     if reE1Term:mag < 0.5 {
@@ -13860,7 +13865,7 @@ function ReGuidUpdate {
     if reJob = 0 and now > reLastPred + rePredPeriod {
         set reLastPred to now.
         rePredSnap().
-        local b0 is arctan2(py, -px).
+        local b0 is bT.
         set reP0X to -dTgt*cos(b0).
         set reP0Y to  dTgt*sin(b0).
         set reP0Psi to psiNow.
@@ -13882,7 +13887,9 @@ function ReGuidUpdate {
     }
     if reJob > 0 and rePredStep(reStepsPerCall) {
         local jES   is rePX - (LngLatOffset - reDTermL).
-        local jEY   is rePY + reDTermL*sin(rePPsi).
+        local jRbf  is max(0, rePRbf).
+        local jInc  is max(0, -reP0Sig*rePPsi).
+        local jEY   is rePY + reDTermL*sin(rePPsi) - reP0Sig*jRbf*(1 - cos(jInc)).
         if reJob = 1 {
             set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
             set reHHand to rePH.
