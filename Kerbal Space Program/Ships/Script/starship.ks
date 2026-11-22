@@ -1686,10 +1686,11 @@ set reVAoASw       to 600*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
 set reStepsPerCall to 12.          // [-]   integration steps per guidance call (IPU knob)
-set reKDLow        to 1.25.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
+set reKDLow        to 1.1.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
 set reDTermMin     to 1000*Scale.       // [m] lower bound
 set reQLearn       to 0.02.       // [atm] above this, RCS thrust is negligible against aero (≈ 2 kPa)
+set rePRbf         to -1.
 
 function rePredInit {
     set reKD     to 0.
@@ -1724,7 +1725,7 @@ function reLearnAero {
         local kNew  is pD/(pP*pV^2).
         local ldNew is pL/pD.
         if reKD <= 0 set reKD to kNew.
-        if pV < reVAoASw {
+        if pV < reVAoASw and pV > reVTerm {
             local kRat is kNew*reP0S3/max(1e-12, reKD*sin(a0)^3).
             if kRat > 0.5 and kRat < 3 set reKDLow to reKDLow + (kRat - reKDLow)*0.05.
         }
@@ -1760,7 +1761,6 @@ function rePredStart {
     set rePS    to 0.  set rePN to 0.  set rePT to 0.
     set rePRun  to reP0KD > 1e-12.
     set rePTCross to -1.
-    set rePRbf to -1.
     set reDProfNew to list().
 }
 
@@ -1769,17 +1769,17 @@ function rePredStart {
 set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 2.4/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
-set rsTs     to 6.             // [s]       settling time near the target
+set rsTs     to 8.             // [s]       settling time near the target
 set rsKw     to 0.2.           // [1/(deg/s)] rate loop pitch/yaw
 set rsKwR    to 0.06.         // [1/(deg/s)] rate loop roll
 set rsKi     to 0.008.        // [1/(deg·s)] trim integrator
 set rsTsB     to 5.           // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
 set rsWMaxB   to 6/Scale.     // [deg/s]   max rate in the bellyflop
-set rsKqMax   to 2.   // [-]       max gain increase at low dynamic pressure
+set rsKqMax   to 1.8.   // [-]       max gain increase at low dynamic pressure
 set rsIRange  to 12.     // [deg]     integrator only below this error
 set rsIMax    to 0.8.    // [-]       max trim input
-set rsSlew  to 2.       // [1/s]    max change of the control input per second
+set rsSlew  to 2.4.       // [1/s]    max change of the control input per second
 set rsTauU  to 0.24.     // [s]      output smoothing
 set rsRollRange to 42.  // [deg] roll position control only below this pointing error
 set rsTauW to 0.1.      // [s]   body-rate filter
@@ -13277,6 +13277,7 @@ function ReEntrySteering {
         print "AoA - Desired: " + round(DesiredAoA, 1) + "  (plan " + round(aoa,1) + ", Δ " + round(pitchctrl,1) + ")".
         print " |    Current: " + round(currentAoA,1).
         print "Bank (yawctrl): " + round(yawctrl, 1).
+        print "rBf " + round(rePRbf/1000,1) + " km".
         print "Turn in: " + round(min(9999, max(0, reTT - time:seconds))) + " s  ok " + reTTOk + "  side " + reSigP + "  psiEnd " + round(rePsiEnd).
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
@@ -13573,7 +13574,10 @@ function rePredStep {
         set rePY    to rePY + 0.5*(psYdA + psYdB)*psStep.
         set rePPsi  to rePPsi + 0.5*(psPdA + psPdB)*psStep.
         if rePTCross < 0 and rePY*reP0Y <= 0 set rePTCross to rePT.
-        if rePRbf < 0 and rePV < reVAoASw set rePRbf to rePV^2/max(0.1, reEtaLat*psLoD*psDragA*sin(rePhiMaxH)).
+        if rePRbf < 0 and rePV < reVAoASw {
+            local psLoDP is reP0LD*(cos(rePA)/max(sin(rePA),0.01))/reP0Ct.
+            set rePRbf to rePV^2/max(0.1, reEtaLat*psLoDP*psDragA*sin(rePhiMaxH)).
+        }
         set rePS    to rePS + 0.5*(psVgA + psVgB)*psStep.
         set rePT    to rePT + psStep.
         set rePN    to rePN + 1.
@@ -13898,8 +13902,8 @@ function ReGuidUpdate {
             set reTTBase to rePTT.
             set reJob to 9.
             if reP0Sig <> 0 and reP0Free {
-                if reTTBoot {                                         // first run without a turn: start value
-                    if rePTCross > 0 set reTT to reP0T + rePTCross.  
+                if reTTBoot {                                         // Boot Block
+                    if rePTCross > reTTPert set reTT to reP0T + rePTCross.
                     else set reTT to reP0T + rePT.
                     set reTTBoot to false.
                 }
@@ -13916,7 +13920,7 @@ function ReGuidUpdate {
             local jTT is reP0T + reTTBase + jDT.
             if jTT < now set reTTLate to reTTLate + 1.
             else set reTTLate to 0.
-            set reTTOk to abs(jDT) < reTTTol or reTTLate >= 3.
+            set reTTOk to (abs(jSl) > 1 and abs(jDT) < reTTTol) or reTTLate >= 3.
             set reTT to max(now, jTT).
             set reJob to 9.
         } else if reJob = 2 {
