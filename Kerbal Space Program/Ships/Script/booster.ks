@@ -811,7 +811,7 @@ function CreateTelemetry {
     
     set bGUI:style:border:h to 10*TScale.
     set bGUI:style:border:v to 10*TScale.
-    set bGUI:y to -382*TScale.
+    set bGUI:y to -367*TScale.
     set bGUI:skin:button:border:v to 10*TScale.
     set bGUI:skin:button:border:h to 10*TScale.
 
@@ -849,7 +849,7 @@ function CreateTelemetry {
     set message0:style:fontsize to 21*TScale.
 
     set message1:style:margin:left to 10*TScale.
-    set message1:style:margin:top to 25*TScale.
+    set message1:style:margin:top to 15*TScale.
     set message1:style:width to 200*TScale.
     set message1:style:fontsize to 21*TScale.
 
@@ -869,7 +869,7 @@ function CreateTelemetry {
     set message4:style:fontsize to 16*TScale.
 
     set message3:style:margin:left to 10*TScale.
-    set message3:style:margin:top to 10*TScale.
+    set message3:style:margin:top to 5*TScale.
     set message3:style:width to 200*TScale.
     set message3:style:fontsize to 18*TScale.
 
@@ -1175,7 +1175,7 @@ else {
             set BoosterRaptorThrust3 to 660.
         }
         set Scale to 1.
-        set CorrFactor to 0.42.
+        set CorrFactor to 0.4.
         set PIDFactor to 8.
         set CatchVS to -0.5.
     }
@@ -1265,34 +1265,36 @@ else set cgThrLow   to 0.9.
 if Bl3LndProf set cgThrB      to 0.9 - Scale/10.
 else set cgThrB     to 0.9.
 set cgBrakeK        to 0.95.
-set cgThrRate       to 0.25.
+set cgThrRate       to 0.30.
 set cgThrMin        to 0.33.
 set cgPhaseDrop     to 0.6.
 set cgRetroUp       to 0.2.
-set cgRetroDev      to 8.
+set cgRetroDev      to 5.
 set cgCorrGainA     to 0.5.
 set cgGateDecel     to 24.
 set cgTgoMin        to 1.6.
-set cgLead          to 1.
+set cgLead          to 0.5.
 set cgDistTau       to 0.7.
 set cgDistGain      to 0.7.
 set cgTiltMax       to 36.
 set cgTiltMin       to 12.
 set cgEndHeight     to 2*Scale.
+set cgHLead         to 1.5.
+set cgHBrakeK       to 0.5.
 set cgFloor         to -1.
 if Bl3LndProf set cgVGateDes  to 124 * Scale^0.5.
-else set cgVGateDes  to 69 * (Scale*0.8 - 0.28).
-set cgMissK     to 4.
-set cgDistGainH to 0.04.
-set cgActive    to false.
-set cgTgo       to 0.
-set cgPhase     to "A".
-set cgIgnExtra  to 0.6.
-set cgV3        to 6.
-set cgThrReqIgn to 0.
-set cgHG        to 0.
-set cgLastThrot to 0.5.
-set cgGateFixed to false.
+else set cgVGateDes to 69 * (Scale*0.8 - 0.28).
+set cgMissK         to 1.
+set cgDistGainH     to 0.04.
+set cgActive        to false.
+set cgTgo           to 0.
+set cgPhase         to "A".
+set cgIgnExtra      to 0.6.
+set cgV3            to 6.
+set cgThrReqIgn     to 0.
+set cgHG            to 0.
+set cgLastThrot     to 0.5.
+set cgGateFixed     to false.
 
 //catchFuncs
 function cgToSurf {
@@ -1389,7 +1391,7 @@ function CatchIgnitionCheck {
 
 function CatchGuidanceInit {
     local aMax is ship:availablethrust / max(ship:mass, 0.001).
-    set cgAMax0      to max(aMax, 0.001).     // running max, updated in phase A
+    set cgAMax0      to max(aMax, 0.001). 
     if not cgGateFixed set cgVGate to cgVGateDes.
     set cgPhase      to "A".
     set cgBInit      to false.
@@ -1403,9 +1405,10 @@ function CatchGuidanceInit {
     set CatchThrot   to cgThrFloorA.
     set CatchSteer   to lookDirUp(-velocity:surface, RollVector).
     set cgH    to vxcl(up:vector, TheTowerHeadingVector):normalized.
-    set cgDE   to 0.6*BoosterHeight.     // entry distance in front of arms [m]
-    set cgVin  to 2*Scale^0.5.           // closing speed toward tower [m/s]
-    set cgHE   to cgDE.                  // moving horizontal target [m along cgH]
+    set cgVin  to 2*Scale^0.5.       
+    set cgDE to cgVin*(cgEndHeight - cgFloor)/abs(CatchVS). 
+    set cgHE   to cgDE.              
+    set cgHBrake to false.
     set cgActive     to true.
 }
 
@@ -3690,6 +3693,7 @@ function CatchGuidance {
     // --- state ---
     local pins is BoosterCore:position + BoosterHeight*0.4*facing:forevector.
     local tgt  is landingzone:position + TgtOffset.
+    //else local tgt  is landingzone:position + TgtOffset - TheTowerHeadingVector:normalized * 2*BoosterHeight.
     local rel  is vxcl(upV, pins - tgt) + upV*cgHeightAboveArms().
     local vel  is velocity:surface.
     local aLast is cgFromSurf(cgLastAtot).
@@ -3708,7 +3712,7 @@ function CatchGuidance {
     if cgTerminal {
         set cgHE to max(0, cgHE - cgVin*dt).
         set rT to rT + cgH*cgHE.
-        set vT to vT + (choose -cgH*cgVin if cgHE > 0 else v(0,0,0)).
+        set vT to vT - cgH*min(cgVin, cgHE/0.3).
     }
 
     local aThr is v(0,0,0).
@@ -3740,7 +3744,7 @@ function CatchGuidance {
         local base is (retro + upV*cgRetroUp):normalized.
         if vz >= 0 set base to upV.
         local aNom  is base*aMag.
-        local aHK   is -12*rH/tau^2 - 6*vH/tau - vxcl(upV, dVec).
+        local aHK   is -12*rH/tau^2 - 5*vH/tau - vxcl(upV, dVec).
         local aCorr is (aHK - vxcl(upV, aNom)) * cgCorrGainA.
         local dir   is cgLimitAngle(aNom + aCorr, base, cgRetroDev):normalized.
         set aThr to dir*aMag.
@@ -3755,16 +3759,24 @@ function CatchGuidance {
         local tau is max(cgTgo, cgTgoMin).
 
         local aCmd is v(0,0,0).
+        local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(2*BoosterHeight))).
         if cgTerminal set aCmd to -12*(rel - rT)/tau^2 - 6*(vel - vT)/tau.
         else {
             local aZnet is choose aReq if aReq >= cgBrakeK*aDes else (cgThrMin*aMax - gMag).
-            local miss  is rH + vH*(tau/2).
-            local aH    is -vH/tau - cgMissK*miss/(tau^2).
+            local D    is rH:mag.
+            local vc   is -vdot(vH, rH:normalized).
+            local aHAv is (aZnet + gMag)*tan(tiltLim).
+            if not cgHBrake and dz < BoosterHeight and vc > 0 and vc^2/(2*max(D,0.1)) >= cgHBrakeK*aHAv
+                set cgHBrake to true.
+
+            local tauH is max(cgTgoMin, tau - cgHLead).
+            if cgHBrake set tauH to max(cgTgoMin, min(tauH, 2*D/max(vc, 0.1))).
+            local miss is rH + vH*(tauH/2).
+            local aH   is -vH/tauH - cgMissK*miss/(tauH^2).
             set aCmd to upV*aZnet + aH.
         }
         set aThr to aCmd + upV*gMag - dVec.
 
-        local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(2*BoosterHeight))).
         local aZ  is min(max(vdot(aThr, upV), cgThrMin*aMax), aMax).
         local aH2 is vxcl(upV, aThr).
         local hMax is min(aZ*tan(tiltLim), sqrt(max(0, aMax^2 - aZ^2))).
