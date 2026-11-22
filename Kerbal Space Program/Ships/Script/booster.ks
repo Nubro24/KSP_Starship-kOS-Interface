@@ -1265,26 +1265,28 @@ else set cgThrLow   to 0.9.
 if Bl3LndProf set cgThrB      to 0.9 - Scale/10.
 else set cgThrB     to 0.9.
 set cgBrakeK        to 0.95.
-set cgThrRate       to 0.30.
+set cgThrRate       to 0.32.
 set cgThrMin        to 0.33.
 set cgPhaseDrop     to 0.6.
 set cgRetroUp       to 0.2.
-set cgRetroDev      to 5.
-set cgCorrGainA     to 0.5.
+set cgRetroDev      to 4.
+set cgCorrGainA     to 0.2.
 set cgGateDecel     to 24.
-set cgTgoMin        to 1.6.
-set cgLead          to 0.5.
+set cgTgoMin        to 4.
+set cgLead          to 0.6.
+set cgTauV          to 4.      
+set cgDHold         to 0.5*Scale.
+set cgDzHold        to 0.5*Scale.
+set cgHBrakeK       to 0.6.      
 set cgDistTau       to 0.7.
 set cgDistGain      to 0.7.
-set cgTiltMax       to 36.
-set cgTiltMin       to 12.
+set cgTiltMax       to 38.
+set cgTiltMin       to 32.
 set cgEndHeight     to 2*Scale.
 set cgHLead         to 1.5.
-set cgHBrakeK       to 0.5.
 set cgFloor         to -1.
 if Bl3LndProf set cgVGateDes  to 124 * Scale^0.5.
 else set cgVGateDes to 69 * (Scale*0.8 - 0.28).
-set cgMissK         to 1.
 set cgDistGainH     to 0.04.
 set cgActive        to false.
 set cgTgo           to 0.
@@ -1295,6 +1297,7 @@ set cgThrReqIgn     to 0.
 set cgHG            to 0.
 set cgLastThrot     to 0.5.
 set cgGateFixed     to false.
+set cgBraking       to false.
 
 //catchFuncs
 function cgToSurf {
@@ -1405,10 +1408,8 @@ function CatchGuidanceInit {
     set CatchThrot   to cgThrFloorA.
     set CatchSteer   to lookDirUp(-velocity:surface, RollVector).
     set cgH    to vxcl(up:vector, TheTowerHeadingVector):normalized.
-    set cgVin  to 2*Scale^0.5.       
-    set cgDE to cgVin*(cgEndHeight - cgFloor)/abs(CatchVS). 
-    set cgHE   to cgDE.              
-    set cgHBrake to false.
+    set cgVin  to 24*Scale^0.5.       
+    set cgDE to cgVin*(cgEndHeight - cgFloor)/abs(CatchVS).
     set cgActive     to true.
 }
 
@@ -3155,7 +3156,7 @@ function Boostback {
         }
     }
 
-    when airspeed < MidShutdownSpeed + 5*Scale then { 
+    when airspeed < MidShutdownSpeed + 6 then { 
         set MiddleEnginesShutdown to true.
         set MidShutSpeed to airspeed.
         set ShutdownTime to time:seconds.
@@ -3691,7 +3692,7 @@ function CatchGuidance {
     local dVec is upV*vdot(dRaw, upV)*cgDistGain + vxcl(upV, dRaw)*cgDistGainH.
 
     // --- state ---
-    local pins is BoosterCore:position + BoosterHeight*0.4*facing:forevector.
+    local pins is BoosterCore:position + BoosterHeight*0.4*upV.
     local tgt  is landingzone:position + TgtOffset.
     //else local tgt  is landingzone:position + TgtOffset - TheTowerHeadingVector:normalized * 2*BoosterHeight.
     local rel  is vxcl(upV, pins - tgt) + upV*cgHeightAboveArms().
@@ -3700,7 +3701,6 @@ function CatchGuidance {
     set rel to rel + vel*cgLead + aLast*(0.5*cgLead^2).
     set vel to vel + aLast*cgLead.
 
-    if cgTerminal set cgHT to max(cgFloor, cgHT + CatchVS*dt).
     local dz  is vdot(rel, upV) - cgHT.
     local vz  is vdot(vel, upV).
     local vTz is CatchVS.
@@ -3709,11 +3709,6 @@ function CatchGuidance {
     local rT  is upV*cgHT.
     local vT  is upV*vTz.
 
-    if cgTerminal {
-        set cgHE to max(0, cgHE - cgVin*dt).
-        set rT to rT + cgH*cgHE.
-        set vT to vT - cgH*min(cgVin, cgHE/0.3).
-    }
 
     local aThr is v(0,0,0).
 
@@ -3749,36 +3744,42 @@ function CatchGuidance {
         local dir   is cgLimitAngle(aNom + aCorr, base, cgRetroDev):normalized.
         set aThr to dir*aMag.
     } else {
-        // ---------- PHASE B: Klumpp ----------
-        local cosT is max(0.2, vdot(-vel:normalized, upV)).
-        local S    is -(vz + vTz).
-        local aDes is cgThrB*aMax - gMag.
-        local aReq is (vz^2 - vTz^2)/(2*max(dz, 0.1)).
-        set cgTgo to 2*max(dz, 0)/max(S, 0.5).
-        if cgTgo < cgTgoMin set cgTerminal to true.
-        local tau is max(cgTgo, cgTgoMin).
-
-        local aCmd is v(0,0,0).
+        local S       is -(vz + vTz).
+        local aDes    is cgThrB*aMax - gMag.
+        local aCoast  is cgThrMin*aMax - gMag.
         local tiltLim is cgTiltMin + (cgTiltMax - cgTiltMin)*min(1, max(0, dz/(2*BoosterHeight))).
-        if cgTerminal set aCmd to -12*(rel - rT)/tau^2 - 6*(vel - vT)/tau.
-        else {
-            local aZnet is choose aReq if aReq >= cgBrakeK*aDes else (cgThrMin*aMax - gMag).
-            local rHE  is rH - cgH*cgDE. 
-            local vHE  is vH + cgH*cgVin.
-            local D    is rHE:mag.
-            local vc   is -vdot(vHE, rHE:normalized).
-            local aHAv is (aZnet + gMag)*tan(tiltLim).
-            if not cgHBrake and dz < BoosterHeight and vc > 0 and vc^2/(2*max(D,0.1)) >= cgHBrakeK*aHAv
-                set cgHBrake to true.
 
-            local tauH is max(cgTgoMin, tau - cgHLead).
-            if cgHBrake set tauH to max(cgTgoMin, min(tauH, 2*D/max(vc, 0.1))).
-            local miss is rHE + vHE*(tauH/2).
-            if miss:mag > 2 local aH   is -vHE/tauH - cgMissK*miss/(tauH^2).
-            else local aH   is -vHE/tauH - (miss:mag/2)*miss/(tauH^2).
-            set aCmd to upV*aZnet + aH.
+        // --- vertical: coast / latched brake / velocity hold ---
+        local aReq is 0.
+        if vz < vTz set aReq to (vz^2 - vTz^2)/(2*max(dz, 0.1)).
+        if not cgBraking and aReq >= cgBrakeK*aDes set cgBraking to true.
+        local aZnet is aCoast.
+        if dz <= cgDzHold {
+            set aZnet to (vTz - vz)/cgTauV.
+            set cgTerminal to true.                      // telemetry only
+        } else if cgBraking set aZnet to max(aReq, aCoast).
+
+        set cgTgo to 2*max(dz, 0)/max(S, 0.5).
+        local tauH is max(cgTgoMin, cgTgo - cgHLead).
+
+        // --- horizontal: closing-speed profile ---
+        local D   is rH:mag.
+        local aHb is cgHBrakeK*gMag*tan(cgTiltMin).
+        local aH  is v(0,0,0).
+        if D > cgDHold {
+            local eT   is -rH/D.        
+            local vc   is vdot(vH, eT). 
+            local vPer is vH - eT*vc.   
+            local vBrk is sqrt(2*aHb*D).
+            local vTim is 2*D/tauH.
+            local vDes is min(vBrk, vTim).
+            local aFF  is choose -aHb if vBrk <= vTim else -vDes/tauH.
+            set aH to eT*(aFF + (vDes - vc)/cgTauV) - vPer/cgTauV.
+        } else {
+            set aH to -rH/cgTauV^2 - 2*vH/cgTauV.
         }
-        set aThr to aCmd + upV*gMag - dVec.
+
+        set aThr to upV*aZnet + aH + upV*gMag - dVec.
 
         local aZ  is min(max(vdot(aThr, upV), cgThrMin*aMax), aMax).
         local aH2 is vxcl(upV, aThr).
