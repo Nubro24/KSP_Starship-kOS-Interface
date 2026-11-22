@@ -1761,6 +1761,8 @@ function rePredStart {
     set rePS    to 0.  set rePN to 0.  set rePT to 0.
     set rePRun  to reP0KD > 1e-12.
     set rePTCross to -1.
+    set rePHc to -1.
+    set rePValid to false.
     set reDProfNew to list().
 }
 
@@ -1770,17 +1772,23 @@ set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 2.4/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
 set rsTs     to 8.             // [s]       settling time near the target
-set rsKw     to 0.2.           // [1/(deg/s)] rate loop pitch/yaw
-set rsKwR    to 0.06.         // [1/(deg/s)] rate loop roll
-set rsKi     to 0.008.        // [1/(deg·s)] trim integrator
+set rsAlphaTune to 1.0.   // [deg/s² per full input] authority at which rsKw was tuned
+set rsKqMin     to 0.6.   // [-] lowest gain scaling at high q
+set rsKw     to 0.18.           // [1/(deg/s)] rate loop pitch/yaw
+set rsKwR    to 0.08.         // [1/(deg/s)] rate loop roll
+set rsKi     to 0.006.        // [1/(deg·s)] trim integrator
+set rsKiR    to 0.004.        // [1/(deg·s)] roll trim integrator
+set rsKd   to 0.08.    // [1/(deg/s²)] rate-error derivative pitch/yaw
+set rsKdR  to 0.018.   // [1/(deg/s²)] roll
+set rsTauD to 0.16.    // [s] filter on the derivative
 set rsTsB     to 5.           // [s]       settling time in the bellyflop 
 set rsAlphaBB to 1.2/Scale^2.   // [deg/s²]  braking acceleration in the bellyflop
 set rsWMaxB   to 6/Scale.     // [deg/s]   max rate in the bellyflop
-set rsKqMax   to 1.8.   // [-]       max gain increase at low dynamic pressure
+set rsKqMax   to 1.   // [-]       max gain increase at low dynamic pressure
 set rsIRange  to 12.     // [deg]     integrator only below this error
 set rsIMax    to 0.8.    // [-]       max trim input
 set rsSlew  to 2.4.       // [1/s]    max change of the control input per second
-set rsTauU  to 0.24.     // [s]      output smoothing
+set rsTauU  to 0.2.     // [s]      output smoothing
 set rsRollRange to 42.  // [deg] roll position control only below this pointing error
 set rsTauW to 0.1.      // [s]   body-rate filter
 set reKFb       to 0.5.   // [-]   drag feedback gain
@@ -1794,7 +1802,7 @@ set rsAlphaFrac to 0.4.    // [-] use half the measured authority for braking (m
 set rsAlphaMin  to 0.1.    // [deg/s²]
 set rsAlphaMaxL to 5.      // [deg/s²]x
 set reFrameBlend to 8.
-set rsPeriod to 0.04.   // [s] raw steering update interval (25 Hz)
+set rsPeriod to 0.03.   // [s] raw steering update interval (25 Hz)
 set rsSgnP  to 1.
 set rsSgnY  to 1.
 set rsSgnR  to 1.
@@ -1814,6 +1822,8 @@ function ReRawSteerInit {
     set rsWLast     to v(0,0,0).
     set rsAlphaEst  to 0.
     set rsAlphaEstR to 0.
+    set rsEWLast to v(0,0,0).
+    set rsDEW    to v(0,0,0).
     set rsActive to true.
     unlock steering.
 }
@@ -1823,7 +1833,7 @@ function ReRawSteerInit {
 
 set rePhiMaxP   to 26.      // [deg]  max bank in HOLD
 set reYawMaxB   to 70.      // [deg] max yaw command
-set rePhiMaxH   to 75.      // [deg]  max bank in TURN/FINAL
+set rePhiMaxH   to 70.      // [deg]  max bank in TURN/FINAL
 set reFinHdg    to 5.        // [deg]  FINAL latches when the remaining heading change is below this
 set reAoARetMax to 66.     // [deg]  max AoA at full bank 
 set reBankRate  to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
@@ -1835,7 +1845,8 @@ set reTauKPhi   to 15.          // [s]     kPhi learning time constant (slow com
 set reKPhiRate  to 1.5.         // [deg/s] only learn while the yaw command changes slower than this
 set reTL1       to 12.    // [s] L1 = V·T  (smaller = sharper steering in AWAY/FINAL)
 set reTauAtt    to 4.     // [s]   attitude lag (bank ramp in the predictor, kPhi learning)
-set reStepTurn  to 2.     // [s]   predictor step during the turn
+set reDPsiStep  to 3.     // [deg] max heading change per predictor step in the turn
+set reNMax      to 600.   // [-]   max predictor steps (above: prediction discarded)
 set reKT        to 0.8.   // [-]   Newton damping for the turn time
 set reTTStepMax to 60.    // [s]   max change of the turn time per prediction
 set reTTTol     to 3.     // [s]   turn time counts as converged below this change
@@ -1844,6 +1855,8 @@ set reAoAMaxP   to 80.    // [deg] highest AoA on the path
 set reTTPert    to 20.     // [s] perturbation of the turn time for the measured slope
 set reKPhiMin   to 0.5.
 set reKPhiMax   to 1.2.
+set reTCal to 60.      // [s] calibration horizon
+set reKCal to 0.5.     // [-] calibration gain (≤ 1: half the measured error per comparison)
 set reYawSign   to 1.
 set reApprSign  to 1.
 set reLMin      to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1906,6 +1919,7 @@ function ReGuidInit {
     set reEtaLat   to 1.
     set reKPhi     to 1.
     set reDbgPhiM  to 0.
+    set reKLv to 1.  set reCalT to -1.  set reCalH to 0.  set reDbgCal to 0.
     set reTT to 0.  set reTTOk to false.  set reTurnOn to false.  set reSigT to 0.  set reSigP to 0.
     set reHoldPsi to 0.  set reEY to 0.  set rePsiEnd to 0.  set reDTermL to reDTerm.  set reS1Raw to 0.
     set reP0Sig to 0.  set reP0X to 0. set reP0Y to 0.  set reP0Psi to 0.
@@ -13279,6 +13293,7 @@ function ReEntrySteering {
         print "Bank (yawctrl): " + round(yawctrl, 1).
         print "rBf " + round(rePRbf/1000,1) + " km".
         print "Turn in: " + round(min(9999, max(0, reTT - time:seconds))) + " s  ok " + reTTOk + "  side " + reSigP + "  psiEnd " + round(rePsiEnd).
+        print "kLv " + round(reKLv,2) + "  dh(60s) " + round(reDbgCal) + " m".
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
         print "kDlow " + round(reKDLow,2).
@@ -13509,7 +13524,8 @@ function rePredStep {
     local psMu is body:mu.
     local psCount is 0.
     until psCount >= psMaxSteps {
-        if rePH <= reP0HEnd or rePV < reVTerm or rePN > 400 { set rePRun to false. return true. }
+        if rePH <= reP0HEnd or rePV < reVTerm { set rePRun to false. set rePValid to true. return true. }
+        if rePN > reNMax { set rePRun to false. set rePValid to false. return true. }
 
         // bank: hold (energy bank, no heading change) -> turn (ramp to max) -> aligned
         local psPsi  is rePPsi.
@@ -13531,7 +13547,7 @@ function rePredStep {
         local psDragA is psKDrag*body:atm:altitudepressure(rePH)/max(1, body:atm:altitudetemperature(rePH))*rePV^2.
         local psVInA  is rePV*cos(rePG) + reP0Rot.
         local psVdA   is -psDragA - psGravA*sin(rePG).
-        local psGdA   is (psLoD*psDragA*cos(psBank) - (psGravA - psVInA^2/psRadA)*cos(rePG))/rePV*57.2958.
+        local psGdA   is (reKLv*psLoD*psDragA*cos(psBank) - (psGravA - psVInA^2/psRadA)*cos(rePG))/rePV*57.2958.
         local psHdA   is rePV*sin(rePG).
         local psVgA   is rePV*cos(rePG)*psR0/psRadA.
         local psRhA  is sqrt(rePX^2 + rePY^2)/psR0.   
@@ -13540,7 +13556,7 @@ function rePredStep {
         local psYdA  is psVgA*sin(rePPsi).
         local psPdA  is (-psVgA*sin(psZeA)*tan(psRhA*28.6479)/psR0 + psTr*psLoD*psDragA/max(rePV*cos(rePG), 1))*57.2958.
         local psStep  is min(reStepMax, max(1, 0.12*rePV/max(psDragA, 0.1))).
-        if psTurn set psStep to min(psStep, reStepTurn).
+        if psTurn set psStep to min(psStep, max(0.5, reDPsiStep/max(0.01, abs(psPdA)))).
         if reJob = 1 reDProfNew:add(list(rePV, psDragA)).
 
         // Euler predictor
@@ -13557,7 +13573,7 @@ function rePredStep {
         local psDragB is psKDrag*body:atm:altitudepressure(max(psHB,0))/max(1, body:atm:altitudetemperature(max(psHB,0)))*psVB^2.
         local psVInB  is psVB*cos(psGB) + reP0Rot.
         local psVdB   is -psDragB - psGravB*sin(psGB).
-        local psGdB   is (psLoD*psDragB*cos(psBank) - (psGravB - psVInB^2/psRadB)*cos(psGB))/psVB*57.2958.
+        local psGdB   is (reKLv*psLoD*psDragB*cos(psBank) - (psGravB - psVInB^2/psRadB)*cos(psGB))/psVB*57.2958.
         local psHdB   is psVB*sin(psGB).
         local psVgB   is psVB*cos(psGB)*psR0/psRadB.
         local psRhB  is sqrt(psXB^2 + psYB^2)/psR0.
@@ -13580,6 +13596,7 @@ function rePredStep {
         }
         set rePS    to rePS + 0.5*(psVgA + psVgB)*psStep.
         set rePT    to rePT + psStep.
+        if rePHc < 0 and rePT >= reTCal set rePHc to rePH.                   // [m] predicted altitude at T_c
         set rePN    to rePN + 1.
         set psCount to psCount + 1.
     }
@@ -13638,16 +13655,22 @@ function ReRawSteer {
     local rawKth is 0.  local rawKi is rsKi.
     if Bellyflop { set rawKth to rsKthB. set rawKi to rsKiB. }
     if rsQRef <= 0 and ship:q > 0 set rsQRef to ship:q.            // reference q at controller start
-    local rawKq is min(rsKqMax, max(1, rsQRef/max(ship:q, 1e-6))).
+    local rawKq is 1.
+    if rsAlphaEst > 0 set rawKq to max(rsKqMin, min(rsKqMax, rsAlphaTune/rsAlphaEst)).
 
     // outer loop: angle error -> target rate (braking curve)
     local rawWr is v(rsWRef(rawe:x, rawWM, rawTs, rawAB), rsWRef(rawe:y, rawWM, rawTs, rawAB), wR*rsWRef(rawe:z, rsWMaxR, rawTs, rawABR)).
+    local rawEW  is rawWr - rsW.                                                // [deg/s] rate error
+    set rsDEW to rsDEW + ((rawEW - rsEWLast)/max(dt, 0.01) - rsDEW)*min(1, dt/(rsTauD + dt)).
+    set rsEWLast to rawEW.
 
     // inner loop: rate error -> input, plus protected integrator (trim)
-    local rawUp is v(rawKq*rsKw*(rawWr:x - rsW:x) + rawKth*rawe:x, rawKq*rsKw*(rawWr:y - rsW:y) + rawKth*rawe:y, rsKwR*(rawWr:z - rsW:z)) + rsI.
+    local rawUp is v(rawKq*rsKw*rawEW:x + rawKq*rsKd*rsDEW:x + rawKth*rawe:x,
+                     rawKq*rsKw*rawEW:y + rawKq*rsKd*rsDEW:y + rawKth*rawe:y,
+                     rsKwR*rawEW:z + rsKdR*rsDEW:z) + rsI.
     if abs(rawe:x) < rsIRange and abs(rawUp:x) < 1 set rsI:x to max(-rsIMax, min(rsIMax, rsI:x + rawKi*rawe:x*dt)).
     if abs(rawe:y) < rsIRange and abs(rawUp:y) < 1 set rsI:y to max(-rsIMax, min(rsIMax, rsI:y + rawKi*rawe:y*dt)).
-    if wR >= 1 and abs(rawe:z) < rsIRange and abs(rawUp:z) < 1 set rsI:z to max(-rsIMax, min(rsIMax, rsI:z + rawKi*rawe:z*dt)).
+    if wR >= 1 and abs(rawe:z) < rsIRange and abs(rawUp:z) < 1 set rsI:z to max(-rsIMax, min(rsIMax, rsI:z + rsKiR*rawe:z*dt)).
 
     local uStar is v(rsSgnP*rawUp:x, rsSgnY*rawUp:y, rsSgnR*rawUp:z).
     set uStar to v(min(1,max(-1,uStar:x)), min(1,max(-1,uStar:y)), min(1,max(-1,uStar:z))).
@@ -13747,6 +13770,12 @@ function ReGuidUpdate {
     set reAeroV to reAeroV + (aM - reAeroV)*min(1, dt/(reAccTau + dt)).
     local vel  is velocity:surface.
     local reLift    is vxcl(vel, reAeroV):mag. 
+    if reCalT > 0 and now >= reCalT {
+        local cDh is altitude - reCalH. 
+        set reKLv to max(0.5, min(2, reKLv*(1 + reKCal*2*cDh/(max(reLift, 0.5)*reTCal^2)))).
+        set reCalT to -1.
+        set reDbgCal to cDh.
+    }
 
     // --- terminal window (independent of Dynamic Banking) ---
     set reTerm to ship:body:atm:sealevelpressure > 0.5 and airspeed < reVTerm and rAlt > reAltEnd.
@@ -13802,7 +13831,7 @@ function ReGuidUpdate {
 
     // --- mode: HOLD until the solved turn time, TURN at max bank, then FINAL ---
     if not straight and not reFinal {
-        if not reTurnOn and reTTOk and now >= reTT { set reTurnOn to true. set reSigT to reSigP. }
+        if not reTurnOn and reTTOk and rePRbf > 0 and now >= reTT { set reTurnOn to true. set reSigT to reSigP. }
         if reTurnOn and reSigT*psiNow >= -reFinHdg set reFinal to true.
         if not reTurnOn and reTTOk and abs(reHoldPsi) < reFinHdg set reFinal to true.     // aligned: no turn needed
     }
@@ -13890,61 +13919,65 @@ function ReGuidUpdate {
         set reJob to 1.
     }
     if reJob > 0 and rePredStep(reStepsPerCall) {
-        local jES   is rePX - (LngLatOffset - reDTermL).
-        local jRbf  is max(0, rePRbf).
-        local jInc  is max(0, -reP0Sig*rePPsi).
-        local jEY   is rePY + reDTermL*sin(rePPsi) - reP0Sig*jRbf*(1 - cos(jInc)).
-        if reJob = 1 {
-            set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
-            set reHHand to rePH.
-            set reS1Raw to jES.  set reS1 to jES.
-            set reEY to jEY.  set reEY1 to jEY.  set rePsiEnd to rePPsi.
-            set reTTBase to rePTT.
-            set reJob to 9.
-            if reP0Sig <> 0 and reP0Free {
-                if reTTBoot {                                         // Boot Block
-                    if rePTCross > reTTPert set reTT to reP0T + rePTCross.
-                    else set reTT to reP0T + rePT.
-                    set reTTBoot to false.
+        if not rePValid { set reJob to 0. set reTTOk to false. } 
+        else {
+            local jES   is rePX - (LngLatOffset - reDTermL).
+            local jRbf  is max(0, rePRbf).
+            local jInc  is max(0, -reP0Sig*rePPsi).
+            local jEY   is rePY + reDTermL*sin(rePPsi) - reP0Sig*jRbf*(1 - cos(jInc)).
+            if reJob = 1 {
+                set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
+                set reHHand to rePH.
+                set reS1Raw to jES.  set reS1 to jES.
+                set reEY to jEY.  set reEY1 to jEY.  set rePsiEnd to rePPsi.
+                set reTTBase to rePTT.
+                set reJob to 9.
+                if reP0Sig <> 0 and reP0Free {
+                    if reTTBoot {                                         // Boot Block
+                        if rePTCross > reTTPert set reTT to reP0T + rePTCross.
+                        else set reTT to reP0T + rePT.
+                        set reTTBoot to false.
+                    }
+                    else {
+                        rePredStart(rePA, rePPc, reTTBase + reTTPert).
+                        set reJob to 4.
+                    }
                 }
-                else {
-                    rePredStart(rePA, rePPc, reTTBase + reTTPert).
-                    set reJob to 4.
+                if rePHc > 0 and reCalT < 0 { set reCalT to reP0T + reTCal. set reCalH to rePHc. }
+            } else if reJob = 4 {
+                local jSl is (jEY - reEY1)/reTTPert.                       // [m/s] measured d(e_y)/dT_T
+                local jDT is 0.
+                if abs(jSl) > 1 set jDT to max(-reTTStepMax, min(reTTStepMax, -reKT*reEY1/jSl)).
+                if reSigP*reEY1 > 0 set jDT to max(0, jDT).
+                local jTT is reP0T + reTTBase + jDT.
+                if jTT < now set reTTLate to reTTLate + 1.
+                else set reTTLate to 0.
+                set reTTOk to (abs(jSl) > 1 and abs(jDT) < reTTTol) or reTTLate >= 3.
+                set reTT to max(now, jTT).
+                set reJob to 9.
+            } else if reJob = 2 {
+                set reSlope to (jES - reS1Raw)/3.
+                set reJob to 3.
+            }
+            if reJob = 9 {
+                set reSlopeN to reSlopeN + 1.
+                if reSlopeN >= 3 or reSlope = 0 {
+                    set reSlopeN to 0.
+                    rePredStart(rePA + 3, rePPc, reTTBase).
+                    set reJob to 2.
+                } else set reJob to 3.
+            }
+            if reJob = 3 {
+                set reRangeErr to reS1.
+                if not reTTBoot or reP0Sig = 0 {
+                    local dNew is reDAoASol.
+                    if abs(reSlope) > 1 set dNew to reDAoASol - reS1/reSlope.
+                    local dClamp is min(reAoAMaxP - aoa, max(reAoAMinP - aoa, dNew)).
+                    set reResid to reS1 + reSlope*(dClamp - reDAoASol).
+                    set reDAoASol to reDAoASol + (dClamp - reDAoASol)*reKA.
                 }
+                set reJob to 0.
             }
-        } else if reJob = 4 {
-            local jSl is (jEY - reEY1)/reTTPert.                       // [m/s] measured d(e_y)/dT_T
-            local jDT is 0.
-            if abs(jSl) > 1 set jDT to max(-reTTStepMax, min(reTTStepMax, -reKT*reEY1/jSl)).
-            if reSigP*reEY1 > 0 set jDT to max(0, jDT).
-            local jTT is reP0T + reTTBase + jDT.
-            if jTT < now set reTTLate to reTTLate + 1.
-            else set reTTLate to 0.
-            set reTTOk to (abs(jSl) > 1 and abs(jDT) < reTTTol) or reTTLate >= 3.
-            set reTT to max(now, jTT).
-            set reJob to 9.
-        } else if reJob = 2 {
-            set reSlope to (jES - reS1Raw)/3.
-            set reJob to 3.
-        }
-        if reJob = 9 {
-            set reSlopeN to reSlopeN + 1.
-            if reSlopeN >= 3 or reSlope = 0 {
-                set reSlopeN to 0.
-                rePredStart(rePA + 3, rePPc, reTTBase).
-                set reJob to 2.
-            } else set reJob to 3.
-        }
-        if reJob = 3 {
-            set reRangeErr to reS1.
-            if not reTTBoot or reP0Sig = 0 {
-                local dNew is reDAoASol.
-                if abs(reSlope) > 1 set dNew to reDAoASol - reS1/reSlope.
-                local dClamp is min(reAoAMaxP - aoa, max(reAoAMinP - aoa, dNew)).
-                set reResid to reS1 + reSlope*(dClamp - reDAoASol).
-                set reDAoASol to reDAoASol + (dClamp - reDAoASol)*reKA.
-            }
-            set reJob to 0.
         }
     }
 
