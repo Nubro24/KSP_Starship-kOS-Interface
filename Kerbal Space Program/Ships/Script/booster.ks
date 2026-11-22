@@ -1274,8 +1274,9 @@ set cgCorrGainA     to 0.2.
 set cgGateDecel     to 24.
 set cgTgoMin        to 4.
 set cgLead          to 0.6.
-set cgTauV          to 4.      
-set cgDHold         to 0.5*Scale.
+set cgTauVz         to 1.2.
+set cgTauVh         to 2.
+set cgTauP          to 2*cgTauVh.
 set cgDzHold        to 0.5*Scale.
 set cgHBrakeK       to 0.6.      
 set cgDistTau       to 0.7.
@@ -3755,7 +3756,7 @@ function CatchGuidance {
         if not cgBraking and aReq >= cgBrakeK*aDes set cgBraking to true.
         local aZnet is aCoast.
         if dz <= cgDzHold {
-            set aZnet to (vTz - vz)/cgTauV.
+            set aZnet to (vTz - vz)/cgTauVz.
             set cgTerminal to true.                      // telemetry only
         } else if cgBraking set aZnet to max(aReq, aCoast).
 
@@ -3766,17 +3767,20 @@ function CatchGuidance {
         local D   is rH:mag.
         local aHb is cgHBrakeK*gMag*tan(cgTiltMin).
         local aH  is v(0,0,0).
-        if D > cgDHold {
-            local eT   is -rH/D.        
-            local vc   is vdot(vH, eT). 
-            local vPer is vH - eT*vc.   
+        if D > 0.05 {
+            local eT   is -rH/D.
+            local vc   is vdot(vH, eT).
+            local vPer is vH - eT*vc.
             local vBrk is sqrt(2*aHb*D).
             local vTim is 2*D/tauH.
-            local vDes is min(vBrk, vTim).
-            local aFF  is choose -aHb if vBrk <= vTim else -vDes/tauH.
-            set aH to eT*(aFF + (vDes - vc)/cgTauV) - vPer/cgTauV.
+            local vLin is D/cgTauP.
+            local vDes is min(vBrk, min(vTim, vLin)).
+            local aFF  is -vDes/cgTauP.
+            if vDes = vBrk set aFF to -aHb.
+            else if vDes = vTim set aFF to -vDes/tauH.
+            set aH to eT*(aFF + (vDes - vc)/cgTauVh) - vPer/cgTauVh.
         } else {
-            set aH to -rH/cgTauV^2 - 2*vH/cgTauV.
+            set aH to -vH/cgTauVh.
         }
 
         set aThr to upV*aZnet + aH + upV*gMag - dVec.
