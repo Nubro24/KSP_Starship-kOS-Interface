@@ -13005,7 +13005,7 @@ function ReEntryAndLand {
                         local upT0 is (TgtLandingzone:position - body:position):normalized.
                         local nT0  is vxcl(upT0, latlng(90,0):position - TgtLandingzone:position):normalized.
                         set reApprHdg to arctan2(vdot(TowerHeadingVector, vcrs(upT0, nT0)), vdot(TowerHeadingVector, nT0)).
-                        if Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount"):length > 0 or Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount 2"):length > 0 {
+                        if (Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount"):length > 0 or Vessel(TargetedOLM):partstitled("Starship Orbital Launch Mount 2"):length > 0) and (landingzone:position - Vessel(TargetedOLM):position):mag < 5000 {
                             hudtext("Landingzone set on OLM",10,2,18,green,true).
                             if RSS {
                                 set landingzone to latlng(round(body:geopositionof(Vessel(TargetedOLM):position):lat, 7), round(body:geopositionof(Vessel(TargetedOLM):position):lng, 7)).

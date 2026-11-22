@@ -1052,6 +1052,7 @@ if bodyexists("Earth") {
         }
         set BoosterGlideDistance to 2800. //2400 
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.07.
+        if BoosterType:contains("Block3") set BoosterGlideDistance to 3200.
         set BoosterGlideFactor to 1.05.
         set VelCancelFactor to 1.
         set LngCtrlPID:setpoint to 20. //24
@@ -1068,7 +1069,6 @@ if bodyexists("Earth") {
         set CorrFactor to 0.7.
         set PIDFactor to 24.
         set CatchVS to -0.5.
-        set FinalDeceleration to 9.
     }
     else {
         set KSRSS to true.
@@ -1077,7 +1077,7 @@ if bodyexists("Earth") {
         set offshoreSite to latlng(28.50895,-80.4).
         set BoosterHeight to 42.2.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2100. //3000
+        set LFBoosterFuelCutOff to 2600. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -1086,6 +1086,7 @@ if bodyexists("Earth") {
         }
         set BoosterGlideDistance to 1450.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
+        if BoosterType:contains("Block3") set BoosterGlideDistance to 1650.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
         set LngCtrlPID:setpoint to 32. //75
@@ -1099,10 +1100,9 @@ if bodyexists("Earth") {
             set BoosterRaptorThrust3 to 660.
         }
         set Scale to 1.
-        set CorrFactor to 0.8.
+        set CorrFactor to 0.6.
         set PIDFactor to 8.
         set CatchVS to -0.4.
-        set FinalDeceleration to 4.
     }
 }
 else {
@@ -1118,7 +1118,7 @@ else {
         }
         set BoosterHeight to 42.2.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2100. //3000
+        set LFBoosterFuelCutOff to 2600. //3000
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.3, 0.25, -10, 10).
         }
@@ -1127,6 +1127,7 @@ else {
         }
         set BoosterGlideDistance to 1400.
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.24.
+        if BoosterType:contains("Block3") set BoosterGlideDistance to 1600.
         set BoosterGlideFactor to 1.25.
         set VelCancelFactor to 0.4.
         set LngCtrlPID:setpoint to 32. //75
@@ -1140,10 +1141,9 @@ else {
             set BoosterRaptorThrust3 to 660.
         }
         set Scale to 1.
-        set CorrFactor to 0.8.
+        set CorrFactor to 0.6.
         set PIDFactor to 8.
         set CatchVS to -0.4.
-        set FinalDeceleration to 4.
     }
     else {
         set STOCK to true.
@@ -1152,15 +1152,16 @@ else {
         set offshoreSite to latlng(-0.097,-73).
         set BoosterHeight to 42.2.
         set LiftingPointToGridFinDist to 0.3.
-        set LFBoosterFuelCutOff to 2900.
+        set LFBoosterFuelCutOff to 2950.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
         else {
             set LngCtrlPID to PIDLOOP(0.35, 0.28, 0.36, -10, 10).
         }
-        set BoosterGlideDistance to 1260. //1100
+        set BoosterGlideDistance to 1600. //1100
         if BoosterSingleEngines set BoosterGlideDistance to BoosterGlideDistance * 1.2.
+        if BoosterType:contains("Block3") set BoosterGlideDistance to 1400.
         set BoosterGlideFactor to 1.15.
         set VelCancelFactor to 0.3.
         set LngCtrlPID:setpoint to 50. //50
@@ -1174,10 +1175,9 @@ else {
             set BoosterRaptorThrust3 to 660.
         }
         set Scale to 1.
-        set CorrFactor to 0.95.
+        set CorrFactor to 0.42.
         set PIDFactor to 8.
         set CatchVS to -0.5.
-        set FinalDeceleration to 6.5.
     }
 }
 
@@ -1191,17 +1191,15 @@ set v2 to up:vector.
 set t2 to 0.
 set DragDecel to 0.
 set maxAoA to 12.
+set OldCorrFactor to CorrFactor.
 
 if BoosterSingleEngines set LFBoosterFuelCutOff to LFBoosterFuelCutOff * 1.2.
 
 if BoosterType:contains("Block3") {
     set LFBoosterFuelCutOff to LFBoosterFuelCutOff * Scale.
     set BoosterHeight to 45.4*Scale.
-    if FNBBooster set LngCtrlPID:setpoint to LngCtrlPID:setpoint*0.55.
-    else set LngCtrlPID:setpoint to LngCtrlPID:setpoint*1.15*Scale.
     set maxAoA to 16.
-    set BoosterGlideDistance to BoosterGlideDistance * 1.1.
-    set Block3PollTime to 10.
+    set Block3PollTime to 20.
     set BoosterGlideFactor to BoosterGlideFactor * 0.85.
 } else 
     set Block3PollTime to 0.
@@ -1261,34 +1259,34 @@ if exists("0:/BoosterFlightData.csv") {
 
 
 //catchVarIni
-set cgThrFloorA to 0.95/Scale^1.2.
+set cgThrFloorA to 0.9/Scale^1.1.
 if Bl3LndProf set cgThrLow    to 0.85.
-else set cgThrLow    to 0.92.
+else set cgThrLow    to 0.84.
 if Bl3LndProf set cgThrB      to 0.9 - Scale/10.
 else set cgThrB      to 0.9.
-set cgThrMargin to 0.05.
+set cgThrMargin to 0.06.
 set cgThrMin    to 0.33.
 set cgPhaseDrop to 0.6.
 set cgRetroUp   to 0.2.
-set cgRetroDev  to 8.
+set cgRetroDev  to 10.
 set cgCorrGainA to 0.6.
 set cgGateDecel to 24.
 set cgTgoMin    to 1.6.
-set cgLead      to 0.5.
+set cgLead      to 1.
 set cgDistTau   to 0.7.
-set cgDistGain  to 0.9.
-set cgTiltMax   to 32.
-set cgTiltMin   to 10.
+set cgDistGain  to 0.8.
+set cgTiltMax   to 36.
+set cgTiltMin   to 28.
 set cgEndHeight to 2*Scale.
 set cgFloor     to -1.
 if Bl3LndProf set cgVGateDes  to 124 * Scale^0.5.
-else set cgVGateDes  to 69.
-set cgTauM      to 3.
+else set cgVGateDes  to 69 * (Scale*0.8 - 0.28).
+set cgMissK     to 12.
 set cgDistGainH to 0.04.
 set cgActive    to false.
 set cgTgo       to 0.
 set cgPhase     to "A".
-set cgIgnExtra  to 0.3.
+set cgIgnExtra  to 0.6.
 set cgV3        to 6.
 set cgThrReqIgn to 0.
 set cgHG        to 0.
@@ -1399,6 +1397,10 @@ function CatchGuidanceInit {
     set cgLastAtot   to v(0,0,0).
     set CatchThrot   to cgThrFloorA.
     set CatchSteer   to lookDirUp(-velocity:surface, RollVector).
+    set cgH    to vxcl(up:vector, TheTowerHeadingVector):normalized.
+    set cgDE   to 0.6*BoosterHeight.     // entry distance in front of arms [m]
+    set cgVin  to 2*Scale^0.5.           // closing speed toward tower [m/s]
+    set cgHE   to cgDE.                  // moving horizontal target [m along cgH]
     set cgActive     to true.
 }
 
@@ -1821,8 +1823,6 @@ function Boostback {
 
     if RandomFlip set targetAp to ship:apoapsis - 200*Scale.
     else set targetAp to ship:apoapsis + 800*(Scale^1.5).
-
-    if STOCK and not Bl3LndProf set BoosterGlideDistance to BoosterGlideDistance * 0.94.
 
 
     setLandingZone().
@@ -2258,8 +2258,6 @@ function Boostback {
         }
         set steeringManager:rolltorquefactor to 4.
         if HSRType:contains("Block3") set HSRJet to false.
-
-        if HSRJet set BoosterGlideDistance to BoosterGlideDistance * 0.93.
 
         until (LngError + 50 > -BoosterGlideDistance and LFBooster < LFBoosterFuelCutOff * 2) or (LngError + 50 > -BoosterGlideDistance*1.04) or verticalspeed < -280 or BoostBackComplete {
             if not GfC = lastCheck {
@@ -3597,6 +3595,7 @@ FUNCTION SteeringCorrections {
             else if LandingBurnStarted set LngCtrlPID:setpoint to 0.
             if dbactive and not LandingBurnStarted {
                 set LatCtrlPID:setpoint to (vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90).
+                set CorrFactor to OldCorrFactor - (vAng(TheTowerHeadingVector,vCrs(up:vector,ApproachVector)) - 90)/90.
             }
             else if LandingBurnStarted set LatCtrlPID:setpoint to 0.
         } 
@@ -3614,7 +3613,8 @@ FUNCTION SteeringCorrections {
             print " ".
             print "IgnThr: " + round(cgThrReqIgn,2) + "  hG: " + round(cgHG) + " m".
             if defined CatchThrot print "Phase: " + cgPhase + "  Thr: " + round(CatchThrot,2) + "  tgo: " + round(cgTgo,1).
-            print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s   | ".
+            if defined miss print "Error: " + round(miss).
+            if defined cgTerminal print "MidShutdown: " + round(MidShutdownSpeed,1) + " m/s   |  Terminal Guid: " + cgTerminal.
             if EC and defined missingCount print "Eng: - missing: "+missingCount+" - inactive: "+inactiveCount.
             print " ".
             print "Max Decel: " + round(maxDecel, 2).
@@ -3700,6 +3700,12 @@ function CatchGuidance {
     local rT  is upV*cgHT.
     local vT  is upV*vTz.
 
+    if cgTerminal {
+        set cgHE to max(0, cgHE - cgVin*dt).
+        set rT to rT + cgH*cgHE.
+        set vT to vT + (choose -cgH*cgVin if cgHE > 0 else v(0,0,0)).
+    }
+
     local aThr is v(0,0,0).
 
     if cgPhase = "A" {
@@ -3748,7 +3754,7 @@ function CatchGuidance {
         if cgTerminal set aCmd to -12*(rel - rT)/tau^2 - 6*(vel - vT)/tau.
         else {
             local miss is rH + vH*(tau/2).
-            local aH   is -vH/tau - 2*miss/(tau*cgTauM).
+            local aH   is -vH/tau - cgMissK*miss/(tau^2).
             set aCmd to upV*vdot(12*(rT - rel)/tau^2 - 6*(vel + vT)/tau, upV) + aH.
         }
         set aThr to aCmd + upV*gMag - dVec.
