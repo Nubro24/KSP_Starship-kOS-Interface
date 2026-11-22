@@ -1175,7 +1175,7 @@ else {
             set BoosterRaptorThrust3 to 660.
         }
         set Scale to 1.
-        set CorrFactor to 0.4.
+        set CorrFactor to 0.3.
         set PIDFactor to 8.
         set CatchVS to -0.5.
     }
@@ -3744,7 +3744,7 @@ function CatchGuidance {
         local base is (retro + upV*cgRetroUp):normalized.
         if vz >= 0 set base to upV.
         local aNom  is base*aMag.
-        local aHK   is -12*rH/tau^2 - 5*vH/tau - vxcl(upV, dVec).
+        local aHK   is -12*(rH - cgH*cgDE)/tau^2 - 5*vH/tau - vxcl(upV, dVec).
         local aCorr is (aHK - vxcl(upV, aNom)) * cgCorrGainA.
         local dir   is cgLimitAngle(aNom + aCorr, base, cgRetroDev):normalized.
         set aThr to dir*aMag.
@@ -3763,16 +3763,19 @@ function CatchGuidance {
         if cgTerminal set aCmd to -12*(rel - rT)/tau^2 - 6*(vel - vT)/tau.
         else {
             local aZnet is choose aReq if aReq >= cgBrakeK*aDes else (cgThrMin*aMax - gMag).
-            local D    is rH:mag.
-            local vc   is -vdot(vH, rH:normalized).
+            local rHE  is rH - cgH*cgDE. 
+            local vHE  is vH + cgH*cgVin.
+            local D    is rHE:mag.
+            local vc   is -vdot(vHE, rHE:normalized).
             local aHAv is (aZnet + gMag)*tan(tiltLim).
             if not cgHBrake and dz < BoosterHeight and vc > 0 and vc^2/(2*max(D,0.1)) >= cgHBrakeK*aHAv
                 set cgHBrake to true.
 
             local tauH is max(cgTgoMin, tau - cgHLead).
             if cgHBrake set tauH to max(cgTgoMin, min(tauH, 2*D/max(vc, 0.1))).
-            local miss is rH + vH*(tauH/2).
-            local aH   is -vH/tauH - cgMissK*miss/(tauH^2).
+            local miss is rHE + vHE*(tauH/2).
+            if miss:mag > 2 local aH   is -vHE/tauH - cgMissK*miss/(tauH^2).
+            else local aH   is -vHE/tauH - (miss:mag/2)*miss/(tauH^2).
             set aCmd to upV*aZnet + aH.
         }
         set aThr to aCmd + upV*gMag - dVec.
