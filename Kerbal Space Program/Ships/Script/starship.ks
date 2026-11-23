@@ -1682,7 +1682,7 @@ function FindParts {
 
 //-------------  Reentry Trajectory Prediction ---------------------
 
-set reVAoASw       to 600*Scale.  // [m/s] below: predictor uses LandingAoA
+set reVAoASw       to 360*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
 set reStepsPerCall to 20.          // [-]   integration steps per guidance call (IPU knob)
@@ -1691,7 +1691,7 @@ set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide r
 set reDTermMin     to 1000*Scale.       // [m] lower bound
 set reQLearn       to 0.02.       // [atm] above this, RCS thrust is negligible against aero (≈ 2 kPa)
 set reStepMin      to 4.           // [s] smallest predictor step
-set reNMax         to 300.         // [-] max predictor steps
+set reNMax         to 500.         // [-] max predictor steps
 set rePRbf         to -1.
 
 function rePredInit {
@@ -13054,7 +13054,7 @@ function ReEntryAndLand {
                 when airspeed < 1000*Scale then {
                     set PlotAoA to (currentAoA + PlotAoA + aoa)/3.
                 }
-                when airspeed < 700*Scale then {
+                when airspeed < reVAoASw then {
                     set aoa to LandingAoA.
                     set DescentAngles to list(aoa, aoa, aoa, aoa).
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
@@ -13547,7 +13547,8 @@ function rePredStep {
         local psBank is rePPc*constant:e^(-rePT/rePhiTau).
         if psTurn set psBank to min(rePhiMaxH, max(rePPc, rePPc + reBankRate*reKPhi*(rePT - rePTT - reTauAtt))).
         local psAoA is rePA.
-        if rePV < reVAoASw set psAoA to LandingAoA.
+        local psTurnDone is reP0Sig = 0 or (rePT >= rePTT and reP0Sig*psPsi >= -reFinHdg).
+        if rePV < reVAoASw and psTurnDone set psAoA to LandingAoA.
         set psAoA to min(psAoA, 90 - (90 - reAoARetMax)*sin(min(psBank, rePhiMaxH))/sin(rePhiMaxH)).
         local psKDrag is reKDv*reP0KD*sin(psAoA)^3/reP0S3.
         local psLoD   is reP0LD*(cos(psAoA)/max(sin(psAoA),0.01))/reP0Ct.
@@ -13604,7 +13605,7 @@ function rePredStep {
         set rePY    to rePY + 0.5*(psYdA + psYdB)*psStep.
         set rePPsi  to rePPsi + 0.5*(psPdA + psPdB)*psStep.
         if rePTCross < 0 and rePY*reP0Y <= 0 set rePTCross to rePT.
-        if rePRbf < 0 and rePV < reVAoASw {
+        if rePV < reVAoASw {
             local psLoDP is reP0LD*(cos(rePA)/max(sin(rePA),0.01))/reP0Ct.
             set rePRbf to rePV^2/max(0.1, reEtaLat*reKLv*psLoDP*psDragA*sin(rePhiMaxH)).
         }
@@ -13962,8 +13963,9 @@ function ReGuidUpdate {
         else {
             local jRbf  is max(0, rePRbf).
             local jInc  is max(0, -reP0Sig*rePPsi).
-            local jES   is rePX + jRbf*sin(jInc) - (LngLatOffset - reDTermL).
-            local jEY   is rePY + reDTermL*sin(rePPsi) - reP0Sig*jRbf*(1 - cos(jInc)).
+            local jES   is rePX - (LngLatOffset - reDTermL).
+            local jEY   is rePY + reDTermL*sin(rePPsi).
+            if jInc > reFinHdg set jEY to jEY - reP0Sig*(abs(jEY) + jRbf*(1 - cos(jInc)) + jRbf*sin(jInc)).
             if reJob = 1 {
                 set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
                 set reHHand to rePH.
