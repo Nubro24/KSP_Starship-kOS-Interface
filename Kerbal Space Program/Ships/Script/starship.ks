@@ -671,17 +671,17 @@ set SNStart to 41.  // Defines the first Serial Number when multiple ships are f
 set MaxTilt to 3.5.  // Defines maximum allowed slope for the Landing Zone Search Function
 set maxstabengage to 0.  // Defines max closing of the stabilizers after landing.
 set CPUSPEED to 1600.  // Defines cpu speed in lines per second.
-set FWDFlapDefault to 50.
+set FWDFlapDefault to 55.
 set AFTFlapDefault to 66.
 when partsfound then {
     if FNBship {
-        set FWDFlapDefault to 50.
+        set FWDFlapDefault to 55.
         set AFTFlapDefault to 65.
     } else if ShipType:contains("Block1")  {
-        set FWDFlapDefault to 52.
+        set FWDFlapDefault to 55.
         set AFTFlapDefault to 66.
     } else if ShipType:contains("Block2") {
-        set FWDFlapDefault to 52.
+        set FWDFlapDefault to 55.
         set AFTFlapDefault to 66.
     }
 }
@@ -1690,7 +1690,7 @@ set reDTermMin     to 1000*Scale.
 set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 2.4/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
-set rsKth to 0.06*Scale^0.6.    // [1/deg] direct angle stiffness outside the bellyflop
+set rsKth to 0.06*Scale^0.3.    // [1/deg] direct angle stiffness outside the bellyflop
 set rsTs  to 6.       // [s]       settling time near the target
 set rsAlphaTune to 1.0.   // [deg/s² per full input] authority at which rsKw was tuned
 set rsKqMin     to 0.6.   // [-] lowest gain scaling at high q
@@ -1756,7 +1756,6 @@ set rePhiMaxH   to 72.      // [deg]  max bank in TURN/FINAL
 set reFinHdg    to 5.        // [deg]  FINAL latches when the remaining heading change is below this
 set reAoARetMax to 62.     // [deg]  max AoA at full bank 
 set reBankRate  to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
-set reKE        to 0.8.     // [-]    energy-bank gain
 set reKRev      to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
 set rePhiEMax   to 32.      // [deg]  max energy bank
 set reTauEta    to 5.     // [s] filter of the lateral efficiency
@@ -1784,8 +1783,8 @@ set reTauC      to 12.      // [s]   cross-track time constant in the bellyflop
 set reDTerm     to 2000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT   to 74.
 set reAoAMaxT   to 87.
-set reGamMinT   to 58.      // [deg] shallowest allowed descent angle
-set reVhFloor   to 40.      // [m/s] never goes below this
+set reGamMinT   to 55.      // [deg] shallowest allowed descent angle
+set reVhFloor   to 40.      // [m/s] max never goes below this
 set reKpV       to 0.5.     // [deg/(m/s)] speed feedback
 set reKiV       to 0.05.    // [deg/m]     trim learning
 set reAoARateT  to 2.       // [deg/s] AoA rate in the bellyflop
@@ -1805,6 +1804,11 @@ set reZeta      to 0.7.     // [-]   phugoid damping ratio (via sink rate)
 set reTauAero   to 5.       // [s]   filter of the axial/normal force ratio
 set reTNear     to 30.      // [s]   start the "turn now?" check this long before the planned turn start
 set reSpPeriod  to 1.       // [s]   plan / turn-check interval
+set reTauY     to 3.      // [s]     filter of the room closing rate
+set reTEMin    to 10.     // [s]     shortest time used to close the remaining room
+set reChiMax   to 60.     // [deg]   steepest heading toward the line
+set reChiAway  to 10.     // [deg]   steepest heading away from the line
+set reChiRate  to 2.      // [deg/s] heading change rate of the room control
 set reYawCmd    to 0.
 set reRangeErr  to 0.
 set reYawLagF   to 0.  
@@ -1836,11 +1840,12 @@ function ReGuidInit {
     set reEtaLat   to 1.
     set reKPhi     to 1.
     set reDbgPhiM  to 0.
+    set reYRateF to 0.  set reTE to 0.  set reNearL to false.
     set reTurnOn to false.  set reSigT to 1.  set reSigP to 1.
     set reQSet to false.  set reQOk to false.  set reQN to 0.  set reQPsi to 0.  set reQX to 0.  set reQY to 0.
     set reVs to 0.  set reHs to 0.  set reFits to true.  set reSTurn to 0.  set reSpLast to 0.  set reNeed to 0.
     set reTsX to 0.  set reTsY to 0.  set reTsS to 0.  set reTsV to 0.  set reVe to 400.  set reKVs to 1.
-    set reYEnd to 0.  set reYPrev to 1e12.  set reLFin to 0. set reLdF to 0.  set reClF to 0.
+    set reYEnd to 0.  set reYPrev to 1e12.  set reLFin to 0. 
     set reEps to 0.  set reFNow to 1.  set reELast to 0.  set reDTermL to reDTerm.
     set reEqG to 9.81.  set reEqR to body:radius.  set reEqRot to 0.  set reEqCN to 1.  set reEqRho to 1.
     set reEqH to 0.  set reEqHs to 5000.  set reEqV to 1.  set reEqPhi to 60.
@@ -12877,24 +12882,6 @@ function ReEntryAndLand {
             setflaps(FWDFlapDefault, AFTFlapDefault, 1, 35).
         }
         if AFTONLY set AFTFlapDefault to 65.
-        if altitude > 30000 {
-            for res in tank:resources {
-                if res:name = "Oxidizer" {
-                    set RepositionOxidizer to TRANSFERALL("Oxidizer", Tank, HeaderTank).
-                    set RepositionOxidizer:ACTIVE to TRUE.
-                }
-                if res:name = "LiquidFuel" {
-                    set RepositionLF to TRANSFERALL("LiquidFuel", Tank, HeaderTank).
-                    set RepositionLF:ACTIVE to TRUE.
-                }
-                if res:name = "LqdMethane" {
-                    set RepositionLM to TRANSFERALL("LqdMethane", Tank, HeaderTank).
-                    set RepositionLM:ACTIVE to TRUE.
-                }
-            }
-        }
-            set RebalanceCoGox to TRANSFER("OXIDIZER", HeaderTank, Tank, 0).
-            set RebalanceCoGlf to TRANSFER("LiquidFuel", HeaderTank, Tank, 0).
         
         sas off.
         rcs off.
@@ -13265,7 +13252,7 @@ function ReEntrySteering {
         print "Range Err: " + round(reRangeErr/1000,1) + " km   LDv req/meas: " + round(reLdvReq,2) + " / " + round(reLdvM,2) + "   eps " + round(reEps,3).
         print "D ref/meas: " + round(reDbgDReq,1) + " / " + round(reDbgDMeas,1) + "   AoA des/now: " + round(DesiredAoA,1) + " / " + round(currentAoA,1).
         print "Bank (yawctrl): " + round(yawctrl, 1) + "  side " + reSigP + "  " + reMode.
-        print "Turn: need " + round(reNeed) + "  Vs " + round(reVs) + "  dQ " + round(reDbgDQ/1000,1) + " km  arc " + round(reSTurn/1000) + " km  fits " + reFits + "  yEnd " + round(reYEnd/1000,1) + " km".
+        print "Turn: need " + round(reNeed) + " Vs " + round(reVs) + " dQ " + round(reDbgDQ/1000,1) + " arc " + round(reSTurn/1000) + " yEnd " + round(reYEnd/1000,1) + " tE " + round(reTE) + " " + reTrig.
         print "SteeringOffset: " + round(steeringOffsetFinal,1) + "   Bellyflop: " + Bellyflop.
         print "phiCmd " + round(reYawCmd) + "  phiEff " + round(reDbgPhiM) + "  kPhi " + round(reKPhi,2) + "  eta " + round(reEtaLat,2) + "  trig " + reTrig.
         print " ".
@@ -13738,7 +13725,8 @@ function ReGuidUpdate {
 
     // --- plan / turn check (every reSpPeriod) ---
     local dQ is sqrt((reQX - xT)^2 + (reQY - yT)^2).
-    local nearQ is reQN >= 3 and dQ < reSTurn + reVh*reTNear.
+    local nearQ is reNearL or (reQN >= 3 and dQ < reSTurn + reVh*reTNear).
+    if nearQ set reNearL to true.
     if now > reSpLast + reSpPeriod {
         set reSpLast to now.
         set reVe to reVTerm*reKVe.
@@ -13776,11 +13764,19 @@ function ReGuidUpdate {
             local phi0 is min(reEqPhi, reYawCmd*reYawSign*reKPhi).
             if vdot((e1*(-vy) + e2*vx)*reSigP, vcrs(vel, upV)) < 0 set phi0 to max(-reEqPhi, -reYawCmd*reYawSign*reKPhi).
             local tsOk is reTurnSim(vMag, altitude, 90 - vang(upV, vel), max(0, -reSigP*psiNow), reSigP, phi0).
-            set reYEnd to reSigP*(yT + reTsY).
-            local yRate is 0.
-            if reYPrev < 1e11 set yRate to max(0, min(reVh, (reYPrev - reYEnd)/reSpPeriod)).
+            set reYEnd to reSigP*(yT + reTsY).                                  // [m] + = room left
+            local yRaw is 0.
+            if reYPrev < 1e11 set yRaw to max(-reVh, min(reVh, (reYPrev - reYEnd)/reSpPeriod)).
             set reYPrev to reYEnd.
-            if tsOk and reYEnd <= 0.5*yRate*reSpPeriod set reTrig to "geo".
+            set reYRateF to reYRateF + (yRaw - reYRateF)*min(1, reSpPeriod/(reTauY + reSpPeriod)).
+            // time until the planned turn energy at the current drag power
+            set reTE to (eNow - 0.5*reVs^2 - gMag*reHs)/max(1, dMeas*vMag).    // [s]
+            // lateral room control: use the room up exactly when E reaches E_s
+            local cNow is -reSigP*reVh*sin(psiNow).                             // [m/s] closing speed toward the line
+            local cDes is cNow + reYEnd/max(reTEMin, reTE) - reYRateF.          // [m/s]
+            local chiD is arcsin(max(-sin(reChiAway), min(sin(reChiMax), cDes/reVh))).
+            set reQPsi to reQPsi + max(-reChiRate*reSpPeriod, min(reChiRate*reSpPeriod, -reSigP*chiD - reQPsi)).
+            if tsOk and reYEnd <= 0.5*max(0, reYRateF)*reSpPeriod set reTrig to "geo".
             else if not tsOk and reTsV < 0.9*reVTerm + 1 set reTrig to "crit".
             else if vMag < 0.85*reVs set reTrig to "slow".
             if reTrig <> "" { set reTurnOn to true. set reSigT to reSigP. }
@@ -16568,6 +16564,20 @@ function PerformBurn {
     if BurnType = "DeOrbit" {
         set SingleEngineDeOrbitBurn to true.
         set UseRCSforBurn to false.
+        for res in tank:resources {
+            if res:name = "Oxidizer" {
+                set RepositionOxidizer to TRANSFERALL("Oxidizer", Tank, HeaderTank).
+                set RepositionOxidizer:ACTIVE to TRUE.
+            }
+            if res:name = "LiquidFuel" {
+                set RepositionLF to TRANSFERALL("LiquidFuel", Tank, HeaderTank).
+                set RepositionLF:ACTIVE to TRUE.
+            }
+            if res:name = "LqdMethane" {
+                set RepositionLM to TRANSFERALL("LqdMethane", Tank, HeaderTank).
+                set RepositionLM:ACTIVE to TRUE.
+            }
+        }
         lock MaxAccel to SLEngines[DeOrbitEngNr]:possiblethrust / ship:mass.
     }
     lock BurnAccel to min(19.62, MaxAccel).
