@@ -1682,7 +1682,8 @@ function FindParts {
 
 //-------------  Reentry Trajectory Prediction ---------------------
 
-set reVAoASw       to 420*Scale.  // [m/s] below: predictor uses LandingAoA
+set reVAoASw       to 280*Scale.   // [m/s] below: predictor uses LandingAoA
+set reVDLow        to 600*Scale.    // [m/s] below this: transonic drag factor reKDLow applies (Mach effect, independent of the AoA switch)
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
 set reStepsPerCall to 24.          // [-]   integration steps per guidance call (IPU knob)
@@ -1725,7 +1726,7 @@ function reLearnAero {
         local kNew  is pD/(pP*pV^2).
         local ldNew is pL/pD.
         if reKD <= 0 set reKD to kNew.
-        if pV < reVAoASw and pV > reVTerm {
+        if pV < reVDLow and pV > reVTerm {
             local kRat is kNew*reP0S3/max(1e-12, reKD*sin(a0)^3).
             if kRat > 0.5 and kRat < 3 set reKDLow to reKDLow + (kRat - reKDLow)*0.05.
         }
@@ -1932,7 +1933,7 @@ function ReGuidInit {
     set reTTBoot to true. set reTTLate to 0. set reEY1 to 0. set reTTBase to 0. set rePTCross to -1.
     set reKDv to 1. set reDbgCalV to 0. set rePVc to -1.
     set reTTN4 to 0. set reJSl to 0. set reQSet to false. set reQX to 0. set reQY to 0.
-    set reCalQ to list(). set reCalLastT to 0.
+    set reCalQ to list(). set reCalLastT to 0. set reDbgDQ to -1.
     set reHoldSet to false.
     rePredInit().
     set reInit to true.
@@ -13537,11 +13538,11 @@ function rePredStep {
         if rePN > reNMax { set rePRun to false. set rePValid to false. return true. }
 
         // bank: hold (energy bank, no heading change) -> turn (ramp to max) -> aligned
-        local psPsi  is rePPsi.
+        local psPsi  is reWrap360(rePPsi + 180) - 180.
         local psTurn is reP0Sig <> 0 and rePT >= rePTT and reP0Sig*psPsi < 0.
         if psTurn and rePTs0 < 0 { set rePTs0 to rePS. set rePTp0 to rePPsi. set rePXs to rePX. set rePYs to rePY. }
         if rePTs0 >= 0 and rePRt < 0 and not psTurn and rePT > rePTT {
-            local psDp is abs(rePPsi - rePTp0).
+            local psDp is abs(reWrap360(rePPsi - rePTp0 + 180) - 180).
             if psDp > 5 { 
                 set rePRt to (rePS - rePTs0)/(psDp/57.2958). 
                 set rePXe to rePX. set rePYe to rePY. set rePTurnOk to true. 
@@ -13555,7 +13556,7 @@ function rePredStep {
         set psAoA to min(psAoA, 90 - (90 - reAoARetMax)*sin(min(psBank, rePhiMaxH))/sin(rePhiMaxH)).
         local psKDrag is reKDv*reP0KD*sin(psAoA)^3/reP0S3.
         local psLoD   is reP0LD*(cos(psAoA)/max(sin(psAoA),0.01))/reP0Ct.
-        if rePV < reVAoASw set psKDrag to psKDrag*reKDLow.
+        if rePV < reVDLow set psKDrag to psKDrag*reKDLow.
         local psTr is 0.
         if psTurn set psTr to reP0Sig*reEtaLat*sin(psBank).
 
@@ -13858,9 +13859,10 @@ function ReGuidUpdate {
 
     // --- mode: HOLD until the solved turn time, TURN at max bank, then FINAL ---
     if not straight and not reFinal {
-        if not reTurnOn and reTTOk and reRbfL > 0 and now >= reTT { set reTurnOn to true. set reSigT to reSigP. }
+        local atQ is reQSet and reDbgDQ >= 0 and reDbgDQ <= reVh*reTauAtt.
+        if not reTurnOn and ((atQ and reRbfL > 0) or (not reQSet and reTTOk and now >= reTT)) { set reTurnOn to true. set reSigT to reSigP. }
         if reTurnOn and reSigT*psiNow >= -reFinHdg set reFinal to true.
-        if not reTurnOn and reTTOk and abs(reHoldPsi) < reFinHdg and abs(rePsiEnd) < reFinHdg set reFinal to true.
+        if not reTurnOn and reTTOk and abs(psiNow) < reFinHdg and abs(rePsiEnd) < reFinHdg set reFinal to true.
     }
     if not reHoldSet { set reHoldPsi to psiNow. set reHoldSet to true. }
     if not reTurnOn and not reFinal and reQSet {
@@ -13938,11 +13940,18 @@ function ReGuidUpdate {
         if straight or reFinal set reP0Sig to 0.
         else if reTurnOn set reP0Sig to reSigT.
         else {
-            if reP0Y >= 0 set reP0Sig to 1.
-            else set reP0Sig to -1.
+            if abs(psiNow) <= 90 {
+                if psiNow < 0 set reP0Sig to 1.
+                else set reP0Sig to -1.
+            }
+            else {
+                if reP0Y >= 0 set reP0Sig to 1.
+                else set reP0Sig to -1.
+            }
             set reSigP to reP0Sig.
-            set tT to max(0, reTT - now).
-            if reTTBoot set tT to 1e6.
+            if reQSet set tT to reDbgDQ/max(reVh, 1). 
+            else if reTTBoot set tT to 1e6.
+            else set tT to max(0, reTT - now).
         }
         rePredStart(aoa + reDAoASol, rePhiF, tT, 0).
         set reJob to 1.
@@ -13951,16 +13960,17 @@ function ReGuidUpdate {
         if not rePValid { set reJob to 0. set reTTOk to false. } 
         else {
             local jRbf  is max(0, rePRbf).
-            local jInc  is max(0, -reP0Sig*rePPsi).
             local jES   is rePX - (LngLatOffset - reDTermL).
-            local jEY   is rePY + reDTermL*sin(rePPsi).
+            local jPsiW is reWrap360(rePPsi + 180) - 180.
+            local jInc  is max(0, -reP0Sig*jPsiW).
+            local jEY   is rePY + reDTermL*sin(jPsiW).
             if jInc > reFinHdg set jEY to jEY - reP0Sig*(abs(jEY) + jRbf*(1 - cos(jInc)) + jRbf*sin(jInc)).
             if reJob = 1 {
                 set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
                 set reHHand to rePH.
                 set reS1Raw to jES.  set reS1 to jES.
-                set reEY to jEY.  set reEY1 to jEY.  set rePsiEnd to rePPsi.
-                set rePsiE1 to rePPsi.
+                set reEY to jEY.  set reEY1 to jEY.  set rePsiEnd to jPsiW.
+                set rePsiE1 to jPsiW.
                 set reRbfL to rePRbf.
                 if rePTurnOk {
                     local qXn is -reDTermL - reDExt - (rePXe - rePXs).
@@ -13970,7 +13980,7 @@ function ReGuidUpdate {
                 }
                 set reTTBase to rePTT.
                 set reJob to 9.
-                if reP0Sig <> 0 and reP0Free {
+                if reP0Sig <> 0 and reP0Free and not reQSet {
                     if reTTBoot {                                         // Boot Block
                         if rePTCross > reTTPert set reTT to reP0T + rePTCross.
                         else set reTT to reP0T + rePT.
