@@ -13553,7 +13553,7 @@ function rePredStep {
         local psLoD   is reP0LD*(cos(psAoA)/max(sin(psAoA),0.01))/reP0Ct.
         if rePV < reVAoASw set psKDrag to psKDrag*reKDLow.
         local psTr is 0.
-        if psTurn set psTr to reP0Sig*reEtaLat*sin(psBank).        // lateral fraction of lift
+        if psTurn set psTr to reP0Sig*reEtaLat*reKLv*sin(psBank).
 
         // derivatives at A
         local psRadA  is psR0 + rePH.
@@ -13606,7 +13606,7 @@ function rePredStep {
         if rePTCross < 0 and rePY*reP0Y <= 0 set rePTCross to rePT.
         if rePRbf < 0 and rePV < reVAoASw {
             local psLoDP is reP0LD*(cos(rePA)/max(sin(rePA),0.01))/reP0Ct.
-            set rePRbf to rePV^2/max(0.1, reEtaLat*psLoDP*psDragA*sin(rePhiMaxH)).
+            set rePRbf to rePV^2/max(0.1, reEtaLat*reKLv*psLoDP*psDragA*sin(rePhiMaxH)).
         }
         set rePS    to rePS + 0.5*(psVgA + psVgB)*psStep.
         set rePT    to rePT + psStep.
@@ -13960,9 +13960,9 @@ function ReGuidUpdate {
     if reJob > 0 and rePredStep(reStepsPerCall) {
         if not rePValid { set reJob to 0. set reTTOk to false. } 
         else {
-            local jES   is rePX - (LngLatOffset - reDTermL).
             local jRbf  is max(0, rePRbf).
             local jInc  is max(0, -reP0Sig*rePPsi).
+            local jES   is rePX + jRbf*sin(jInc) - (LngLatOffset - reDTermL).
             local jEY   is rePY + reDTermL*sin(rePPsi) - reP0Sig*jRbf*(1 - cos(jInc)).
             if reJob = 1 {
                 set reDProf to reDProfNew.  set reDProfA to rePA.  set reDIdx to 0.
