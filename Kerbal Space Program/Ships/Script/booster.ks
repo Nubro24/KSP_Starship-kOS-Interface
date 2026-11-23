@@ -2823,19 +2823,8 @@ function Boostback {
     unlock SteerVec2.
 
     when RadarAlt < 24000 then {
-        if Bl3LndProf set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 24*Scale.
-        else set LngCtrlPID:setpoint to LngCtrlPID:setpoint - 16*Scale.
         set steeringManager:rolltorquefactor to 1.
         when RadarAlt < 8600*(Scale^0.75) then {
-            if Bl3LndProf {
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 8*Scale.
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position)*0.69.
-            }
-            else {
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + 24/Scale.
-                set LngCtrlPID:setpoint to LngCtrlPID:setpoint + vAng(up:vector, ship:position-landingzone:position) * (1.6/Scale)^0.4 * (airspeed/600).
-            }
-            if LngCtrlPID:setpoint <= 0 set LngCtrlPID:setpoint to 10.
             
             if not (TargetOLM = "false") {
                 if PadB {
