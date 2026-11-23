@@ -1750,7 +1750,7 @@ function ReRawSteerInit {
 set rePhiMaxP   to 26.      // [deg]  max bank before the turn (path shaping only, no energy banks)
 set reYawMaxB   to 72.      // [deg]  max yaw (bank) command
 set rePhiMaxH   to 72.      // [deg]  max effective bank in TURN/FINAL
-set reAoARetMax to 62.      // [deg]  AoA flown in the turn (= max AoA at full bank)
+set reAoARetMax to 66.      // [deg]  AoA flown in the turn (= max AoA at full bank)
 set reAoAMinP   to 50.      // [deg]  lowest AoA on the path
 set reAoAMaxP   to 80.      // [deg]  highest AoA on the path
 set reAoARate   to 4.       // [deg/s] AoA command rate limit
@@ -1767,10 +1767,10 @@ set rePhiEqMin  to 15.      // [deg]  minimum lateral authority even when lift i
 set reTL1       to 12.      // [s]    L1 = V·T
 set reKL1T      to 0.5.     // [-]    final-line L1 ≤ k·(distance to target)
 // --- turn ---
-set reKTrig     to 0.85.    // [-]    turn planned/triggered at sin(φ) = k·sin(φ_max)  (rest = reserve)
+set reKTrig     to 0.95.    // [-]    turn planned/triggered at sin(φ) = k·sin(φ_max)  (rest = reserve)
 set reFinHdg    to 5.       // [deg]  TURN ends (FINAL) below this remaining heading change
 set reKVe       to 1.15.    // [-]    turn should end at k·reVTerm
-set reYBias     to 700*Scale^0.7.    // [m] turn rolls out this far short of the final line (bellyflop corrects forward)
+set reYBias     to 1200*Scale^0.7.    // [m] turn rolls out this far short of the final line (bellyflop corrects forward)
 set reLngOver   to 1800*Scale^0.7.   // [m] allowed along-track overshoot at a 90° turn
 set reLngUnder  to 1500*Scale^0.7.   // [m] undershoot with no turn (tower aligned with the entry track)
 set reSideDb    to 5000.    // [m]    lateral deadband for choosing the turn side
@@ -1796,6 +1796,10 @@ set reTauC      to 12.      // [s]    cross-track time constant in the bellyflop
 set reDTerm     to 2000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT   to 74.
 set reAoAMaxT   to 87.
+set reGamMinT   to 40.      // [deg] shallowest allowed descent angle
+set reVhFloor   to 40.      // [m/s] max hV never goes below this
+set reKpV       to 0.5.     // [deg/(m/s)] speed feedback
+set reKiV       to 0.05.    // [deg/m]     trim learning
 set reAoARateT  to 2.       // [deg/s] AoA rate in the bellyflop
 set reRollMaxT  to 5.       // [deg] max belly roll in the bellyflop
 set reRollRate  to 2.       // [deg/s] roll command rate
