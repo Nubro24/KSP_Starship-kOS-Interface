@@ -1746,72 +1746,67 @@ function ReRawSteerInit {
 
 
 //-------------  Reentry Guidance ---------------------
-
-set rePhiMaxP   to 26.      // [deg]  max bank in HOLD
-set reYawMaxB   to 72.      // [deg] max yaw command
-set rePhiMaxH   to 72.      // [deg]  max bank in TURN/FINAL
-set reFinHdg    to 5.        // [deg]  FINAL latches when the remaining heading change is below this
-set reAoARetMax to 62.     // [deg]  max AoA at full bank 
-set reBankRate  to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
-set reKRev      to 0.25.    // [-]    fraction of the remaining time per half S-turn (smaller = more, smaller cycles)
-set rePhiEMax   to 32.      // [deg]  max energy bank
-set reTauEta    to 5.     // [s] filter of the lateral efficiency
-set reTauKPhi   to 15.          // [s]     kPhi learning time constant (slow compared to τ_att)
-set reKPhiRate  to 1.5.         // [deg/s] only learn while the yaw command changes slower than this
-set reTL1       to 12.    // [s] L1 = V·T  (smaller = sharper steering in AWAY/FINAL)
-set reTauAtt    to 4.     // [s]   attitude lag (bank ramp in the predictor, kPhi learning)
-set reAoAMinP   to 50.    // [deg] lowest AoA the ship can hold on the path (vehicle limit)
-set reAoAMaxP   to 80.    // [deg] highest AoA on the path
+// --- limits / vehicle ---
+set rePhiMaxP   to 26.      // [deg]  max bank before the turn (path shaping only, no energy banks)
+set reYawMaxB   to 72.      // [deg]  max yaw (bank) command
+set rePhiMaxH   to 72.      // [deg]  max effective bank in TURN/FINAL
+set reAoARetMax to 62.      // [deg]  AoA flown in the turn (= max AoA at full bank)
+set reAoAMinP   to 50.      // [deg]  lowest AoA on the path
+set reAoAMaxP   to 80.      // [deg]  highest AoA on the path
+set reAoARate   to 4.       // [deg/s] AoA command rate limit
+set reBankRate  to 6.       // [deg/s] bank (yaw) command rate limit
+set reTauAtt    to 4.       // [s]    attitude lag (turn lead, kPhi learning)
+set reTauKPhi   to 15.      // [s]    kPhi learning time constant
+set reKPhiRate  to 1.5.     // [deg/s] learn kPhi only while the yaw command changes slower than this
 set reKPhiMin   to 0.5.
 set reKPhiMax   to 1.2.
 set reYawSign   to 1.
 set reApprSign  to 1.
-set reLMin      to 1.       // [m/s²] min lift to run (above the atmosphere: off)
+set reKEq       to 1.0.     // [-]    keep enough vertical lift for equilibrium glide before the turn
+set rePhiEqMin  to 15.      // [deg]  minimum lateral authority even when lift is short
+set reTL1       to 12.      // [s]    L1 = V·T
+set reKL1T      to 0.5.     // [-]    final-line L1 ≤ k·(distance to target)
+// --- turn ---
+set reKTrig     to 0.85.    // [-]    turn planned/triggered at sin(φ) = k·sin(φ_max)  (rest = reserve)
+set reFinHdg    to 5.       // [deg]  TURN ends (FINAL) below this remaining heading change
+set reKVe       to 1.15.    // [-]    turn should end at k·reVTerm
+set reYBias     to 700*Scale^0.7.    // [m] turn rolls out this far short of the final line (bellyflop corrects forward)
+set reLngOver   to 1800*Scale^0.7.   // [m] allowed along-track overshoot at a 90° turn
+set reLngUnder  to 1500*Scale^0.7.   // [m] undershoot with no turn (tower aligned with the entry track)
+set reSideDb    to 5000.    // [m]    lateral deadband for choosing the turn side
+set reNeedRate  to 1.       // [deg/s] how fast the planned turn angle may follow the geometry
+set reKGate     to 1.3.     // [-]    turn checks start below k·(planned turn start speed)
+set reTNear     to 30.      // [s]    ... or this long before the planned turn start
+set reTPre      to 0.       // [-]    1 = fly the turn AoA during the last approach to the turn (costs energy accuracy)
+// --- energy ---
+set reGFl       to 0.2.     // [-]    floor of (g − u²/R) as fraction of g
+set reKM        to 2.       // [-]    drag-loop stiffness relative to the natural phugoid
+set reZeta      to 0.7.     // [-]    phugoid damping ratio (via sink rate)
+set reKClamp    to 0.3.     // [-]    max share of the required L/D the damping terms may change
+set reTauAero   to 5.       // [s]    filter of the axial/normal force ratio
+set reSpPeriod  to 1.       // [s]    plan / turn-check interval
+// --- windows / terminal (unchanged) ---
+set reLMin      to 1.       // [m/s²] min lift to run
 set reVEnd      to 340.
 set reAltEnd    to 750.
 set reAccTau    to 1.0.     // [s]    aero accel filter
-set reVTerm     to 330.     // [m/s]  below: terminal glide-slope mode
-set reAoARate   to 4.       // [deg/s] AoA command rate limit
-set reKL1T      to 0.5.     // [-]    terminal L1 ≤ k·(distance to aim point)
-set reRevDb     to 10.      // [deg]  heading deadband for energy bank reversals
-set rePhiTau    to 24.      // [s]    averaging time of the bank for the range correction
+set reVTerm     to 330.     // [m/s]  below: terminal (bellyflop) mode
 set reDobMarginDeg to 2.    // [deg]  deorbit aims this far past the target
-set reTauC      to 12.      // [s]   cross-track time constant in the bellyflop
+set reTauC      to 12.      // [s]    cross-track time constant in the bellyflop
 set reDTerm     to 2000*Scale^0.7.    // [m] desired remaining distance at the bellyflop start
 set reAoAMinT   to 74.
 set reAoAMaxT   to 87.
-set reGamMinT   to 40.      // [deg] shallowest allowed descent angle
-set reVhFloor   to 40.      // [m/s] max hV never goes below this
-set reKpV       to 0.5.     // [deg/(m/s)] speed feedback
-set reKiV       to 0.05.    // [deg/m]     trim learning
 set reAoARateT  to 2.       // [deg/s] AoA rate in the bellyflop
 set reRollMaxT  to 5.       // [deg] max belly roll in the bellyflop
 set reRollRate  to 2.       // [deg/s] roll command rate
 set reRollSign  to 1.       // [-]  flip if the ship rolls AWAY from the aim point
-set reKEq       to 1.0.     // [-]   1 = keep exactly enough vertical lift for equilibrium glide
-set rePhiEqMin  to 15.      // [deg] minimum steering authority even when lift is short
-set reSteerTau  to 1.0.     // [s]         target filter (new)
+set reSteerTau  to 1.0.     // [s]  target filter
 set reTerm      to false.
 set reAoACmd    to 0.
 set reGActive   to false.
-set reKVe       to 1.15.    // [-]   turn end speed = k·reVTerm (short straight final before the handover)
-set reGFl       to 0.2.     // [-]   floor of (g − u²/R) as fraction of g (near orbital speed there is no equilibrium glide)
-set reKM        to 2.       // [-]   drag-loop stiffness relative to the natural phugoid (1 = no drag feedback)
-set reZeta      to 0.7.     // [-]   phugoid damping ratio (via sink rate)
-set reTauAero   to 5.       // [s]   filter of the axial/normal force ratio
-set reTNear     to 30.      // [s]   start the "turn now?" check this long before the planned turn start
-set reSpPeriod  to 1.       // [s]   plan / turn-check interval
-set reTauY     to 3.      // [s]     filter of the room closing rate
-set reTEMin    to 12.     // [s]     shortest time used to close the remaining room
-set reChiMax   to 40.     // [deg]   steepest heading toward the line
-set reChiAway  to 40.     // [deg]   steepest heading away from the line
-set reChiRate  to 2.      // [deg/s] heading change rate of the room control
-set reKTurn    to 0.95.   // [-] share of the max side force used to plan the turn (rest is reserve; lower = earlier, wider)
-set reKRoom    to 0.5.    // [-] min lateral room at turn start as share of the turn arc (0 = model room only)
-set reSideDb   to 5000.   // [m] lateral deadband for choosing the turn side
 set reYawCmd    to 0.
 set reRangeErr  to 0.
-set reYawLagF   to 0.  
+set reYawLagF   to 0.
 set reYawCmdLast to 0.
 set reLLETime   to 0.
 set reMode      to "-".
@@ -1826,31 +1821,33 @@ function reArc {                                    // great-circle distance [m]
 
 function ReGuidInit {
     set reLastT    to time:seconds.
-    set rePhiSign  to 1.
     set reFinal    to false.
     set reE1Term   to v(0,0,0).
     set reE1Path   to v(0,0,0).
     set reLastVelO to velocity:orbit.
     set reAeroV    to v(0,0,0).
     if not (defined reApprHdg) set reApprHdg to 0.
-    set rePhiF     to 0.
     set reAoATrim  to -1.
     set reRollCmd  to 0.
     set reFrameT0  to -1.
-    set reEtaLat   to 1.
     set reKPhi     to 1.
     set reDbgPhiM  to 0.
-    set reYRateF to 0.  set reTE to 0.  set reNearL to false.
-    set reTurnOn to false.  set reSigT to 1.  set reSigP to 1.
-    set reQSet to false.  set reQOk to false.  set reQN to 0.  set reQPsi to 0.  set reQX to 0.  set reQY to 0.
-    set reVs to 0.  set reHs to 0.  set reFits to true.  set reSTurn to 0.  set reSpLast to 0.  set reNeed to 0.
-    set reTsX to 0.  set reTsY to 0.  set reTsS to 0.  set reTsV to 0.  set reVe to 400.  set reKVs to 1.
-    set reYEnd to 0.  set reYPrev to 1e12.  set reLFin to 0.  set reTurnPhi to 60.  set reSimPhi to 45.
-    set reEps to 0.  set reFNow to 1.  set reELast to 0.  set reDTermL to reDTerm.
+    set reEps      to 0.
+    set reFNow     to 1.
+    set reELast    to 0.
+    set reDTermL   to reDTerm.
+    set reSpLast   to 0.
+    set reSigP to 1.  set reSigT to 1.
+    set reTurnOn to false.  set reNear to false.  set reTrig to "".
+    set reQSet to false.  set reQN to 0.  set reQPsi to 0.  set reQX to 0.  set reQY to 0.
+    set reNeed to -1.  set reTurnNeed to 0.  set reVs to 0.  set reHs to 0.  set reKVs to 0.3.  set reKVsChg to 1.
+    set reSTurn to 0.  set reLFin to 0.  set reVe to 400.
+    set reTsX to 0.  set reTsY to 0.  set reTsS to 0.  set reTsV to 0.
+    set reYEnd to 0.  set reYPrev to 1e12.  set reTurnPhi to 45.  set reSimPhi to 45.  set reEqPhi to 60.
     set reEqG to 9.81.  set reEqR to body:radius.  set reEqRot to 0.  set reEqCN to 1.  set reEqRho to 1.
-    set reEqH to 0.  set reEqHs to 5000.  set reEqV to 1.  set reEqPhi to 60.
-    set reLdvReq to 0.  set reLdvM to 0. set reTrig to "".  set reLdHold to 0.
-    set reDbgDReq to 0.  set reDbgDMeas to 0.  set reDbgDQ to 0.
+    set reEqH to 0.  set reEqHs to 5000.  set reEqV to 1.
+    set reLdvReq to 0.  set reLdvM to 0.  set reDbgDQ to 0.
+    set rePred to list(0, 0, 0).  set reAct to list(0, 0, 0).
     set reInit to true.
 }
 
@@ -1892,7 +1889,7 @@ function reFInt {         // F = ∫ dE/(g − u²/R) [m] along the wings-level 
     return fF.
 }
 
-function reTurnSim {      // forward point-mass turn at reAoARetMax, bank ramping to reEqPhi, until tsNeed [deg] is turned
+function reTurnSim {      // forward point-mass turn at reAoARetMax, bank ramping from tsPhi to reSimPhi, until tsNeed [deg] is turned
     parameter tsV, tsH, tsG, tsNeed, tsSig, tsPhi.
     local tsSa is sin(reAoARetMax).
     local tsCL is reEqCN*max(0.01, tsSa*tsSa*cos(reAoARetMax) - reEps*tsSa).        // lift per (p/T)·V²
@@ -13265,14 +13262,15 @@ function ReEntrySteering {
         set steeringOffsetFinal to vang(result:forevector, facing:forevector).
 
         clearscreen.
-        print "Mode: " + reMode.
+        print "Mode: " + reMode + "   side " + reSigP + "   trig " + reTrig.
         print "IPU left: " + OPCODESLEFT  + "/" + config:ipu.
         print "Range Err: " + round(reRangeErr/1000,1) + " km   LDv req/meas: " + round(reLdvReq,2) + " / " + round(reLdvM,2) + "   eps " + round(reEps,3).
-        print "D ref/meas: " + round(reDbgDReq,1) + " / " + round(reDbgDMeas,1) + "   AoA des/now: " + round(DesiredAoA,1) + " / " + round(currentAoA,1).
-        print "Bank (yawctrl): " + round(yawctrl, 1) + "  side " + reSigP + "  " + reMode.
-        print "Turn: need " + round(reNeed) + " Vs " + round(reVs) + " dQ " + round(reDbgDQ/1000,1) + " arc " + round(reSTurn/1000) + " yEnd " + round(reYEnd/1000,1) + " tE " + round(reTE) + " " + reTrig.
+        print "AoA des/now: " + round(DesiredAoA,1) + " / " + round(currentAoA,1) + "   Bank: " + round(yawctrl,1) + "  (eff " + round(reDbgPhiM) + ", kPhi " + round(reKPhi,2) + ")".
+        print "Turn: need " + round(max(0, reNeed)) + "  Vs " + round(reVs) + "  dQ " + round(reDbgDQ/1000,1) + " km  arc " + round(reSTurn/1000) + " km  yEnd " + round(reYEnd/1000,1) + " km".
+        print "Turn bank plan/now/max: " + round(reSimPhi) + " / " + round(reTurnPhi) + " / " + round(reEqPhi).
+        print "Roll-out pred x/y/V: " + round(rePred[0]/1000,1) + " / " + round(rePred[1]/1000,1) + " km / " + round(rePred[2]) + " m/s".
+        print "Roll-out act  x/y/V: " + round(reAct[0]/1000,1) + " / " + round(reAct[1]/1000,1) + " km / " + round(reAct[2]) + " m/s".
         print "SteeringOffset: " + round(steeringOffsetFinal,1) + "   Bellyflop: " + Bellyflop.
-        print "phiCmd " + round(reYawCmd) + "  phiEff " + round(reDbgPhiM) + "  kPhi " + round(reKPhi,2) + "  eta " + round(reEtaLat,2) + "  trig " + reTrig.
         print " ".
         if DynamicBanking and DBactive print "Tower Rotation: " + TowerHeading.
 
@@ -13629,8 +13627,6 @@ function ReTermUpdate {
     set reMode to "TERM".
 }
 
-
-// call every ReEntrySteering cycle (replaces the DynamicBanking block)
 function ReGuidUpdate {
     if not (defined reInit) ReGuidInit().
     local now is time:seconds.
@@ -13672,7 +13668,7 @@ function ReGuidUpdate {
     }
     local useHAC is DynamicBanking and dbactive.
 
-    // --- frames: local (L1) and target-centred (planning) ---
+    // --- frames: local (L1) and target-centred (planning); final line = +x through the target ---
     local reT is TgtLandingzone:position.
     local e1  is reE1Path.
     if useHAC {
@@ -13701,7 +13697,6 @@ function ReGuidUpdate {
     local psiOff is reWrap360(arctan2(vy, vx) - psiNow + 180) - 180.
     local xT is -dTgt*cos(bT).                                            // [m] target-centred position
     local yT is  dTgt*sin(bT).
-    local straight is not useHAC.
 
     // --- measured state ---
     local vMag  is max(1, vel:mag).
@@ -13710,7 +13705,9 @@ function ReGuidUpdate {
     local dMeas is max(0.05, -vdot(reAeroV, vel:normalized)).            // [m/s²] drag
     local LvM   is vxcl(vel, reAeroV).
     local L0d   is vxcl(vel, upV):normalized.
+    local sideD is vcrs(vel, L0d):normalized.
     local ldvM  is vdot(LvM, L0d)/dMeas.                                  // [-] measured vertical L/D
+    local phiMeas is arctan2(vdot(LvM, sideD), vdot(LvM, L0d)).           // [deg] measured effective bank
     local sA    is max(0.3, sin(aNow)).
     local aNo   is vxcl(foreV, reAeroV):mag.                              // [m/s²] force normal to the body axis
     if aNo > 3*reLMin set reEps to reEps + (max(-0.3, min(0.5, -vdot(reAeroV, foreV)*sA^2/aNo)) - reEps)*min(1, dt/(2*reTauAero + dt)).
@@ -13723,134 +13720,9 @@ function ReGuidUpdate {
     set reEqCN  to max(1e-12, aNo/(sA^2*reEqRho*vMag^2)).                 // normal force per sin²α per (p/T)·V²
     set reEqH   to altitude.
     set reEqV   to vMag.
-    set reEqPhi to min(rePhiMaxH, reYawMaxB*reKPhi).                      // [deg] reachable effective bank
-    set reSimPhi to arcsin(reKTurn*sin(reEqPhi)).                        // [deg] bank the turn is planned with
     set reEqRot to vdot(velocity:orbit - velocity:surface, vh:normalized).
-    local den  is max(gMag*reGFl, gMag - (vMag + reEqRot)^2/reEqR).        // [m/s²] weight not carried by the orbit speed
-    local eNow is 0.5*vMag^2 + gMag*altitude.                             // [J/kg]
-    if reELast > 0 set reFNow to reFNow - (reELast - eNow)/den.           // F = ∫dE/(g - u²/R), flown part removed
-    set reELast to eNow.
-    local aMid is 0.5*(reAoAMinP + reAoAMaxP).
 
-    // --- turn sense (until TURN starts) ---
-    if not reQSet { set reQPsi to psiNow. set reQSet to true. }
-    if not straight and not reFinal and not reTurnOn and not reNearL {
-        if yT > reSideDb set reSigP to 1.
-        else if yT < -reSideDb set reSigP to -1.
-    }
-
-    // --- plan / turn check (every reSpPeriod) ---
-    local dQ is sqrt((reQX - xT)^2 + (reQY - yT)^2).
-    local nearQ is reNearL or (reQN >= 3 and dQ < reSTurn + reVh*reTNear).
-    if nearQ set reNearL to true.
-    if now > reSpLast + reSpPeriod {
-        set reSpLast to now.
-        set reVe to reVTerm*reKVe.
-        set reDTermL to max(reDTermMin, reKTerm*max(0, reHeq(reVTerm, 1, aMid) - (altitude - rAlt) - FlipAltitude)*min(1/tan(reGamMinT), reLDa(reAoAMinT))).
-        local eEq is 0.5*vMag^2 + gMag*reHeq(vMag, 1, aMid).
-        if straight or reFinal {
-            set reFNow to reFInt(reVTerm, vMag, 10, aMid) + (eNow - eEq)/den.
-        }
-        else if not reTurnOn and not nearQ {
-            // turn start speed from dψ = η·(L/D)·sinφ·dE/V², turn geometry from the forward turn model
-            local spHd is reWrap360(reQPsi + 180) - 180.
-            local need is 0.
-            if reSigP*spHd < 0 set need to abs(spHd).
-            set reNeed to need.
-            local kT is max(0.1, reLDa(reAoARetMax))*sin(reSimPhi).
-            set reVs to min(vMag, reVe*constant:e^min(20, need/(57.2958*max(0.05, kT)))*reKVs).
-            set reHs to reHeq(reVs, 1, aNow).
-            local denS is max(gMag*reGFl, gMag - (reVs + reEqRot)^2/reEqR).
-            local gS is arcsin(max(-0.3, -(denS/max(0.1, reLDa(aMid)))*reEqHs*(2*(reVs + reEqRot)/(reEqR*denS) + 2/reVs)/reVs)).
-            local tOk is reTurnSim(reVs, reHs, gS, need, reSigP, 0).
-            set reFits to tOk and reVs < 0.97*vMag.
-            if tOk or reTsV < reVe set reKVs to max(0.3, min(3, reKVs*sqrt(reVe/max(1, reTsV)))).
-            set reSTurn to reTsS.
-            set reLFin to reLDa(aMid)*reFInt(reVTerm, max(reVTerm, reTsV), 4, aMid).
-            set reQX to -reDTermL - reLFin - reTsX - cos(spHd)*reVs*reTauAtt.
-            local qOff is min(max(abs(reTsY), reKRoom*reTsS), max(0, 0.8*reSigP*yT)).   // [m] never outside the ship's own offset
-            set reQY to reSigP*qOff - sin(spHd)*reVs*reTauAtt.
-            set reQPsi to arctan2(reQY - yT, reQX - xT).
-            set reQOk to true.
-            set reQN to reQN + 1.
-            set reYPrev to 1e12.
-            set reFNow to reFInt(reVs, vMag, 8, aMid) + (eNow - eEq)/den.
-        }
-        else if not reTurnOn {
-            // near Q: would a turn started now roll out on the line?
-            local phi0 is min(reEqPhi, reYawCmd*reYawSign*reKPhi).
-            if vdot((e1*(-vy) + e2*vx)*reSigP, vcrs(vel, upV)) < 0 set phi0 to max(-reEqPhi, -reYawCmd*reYawSign*reKPhi).
-            local tsOk is reTurnSim(vMag, altitude, 90 - vang(upV, vel), max(0, -reSigP*psiNow), reSigP, phi0).
-            local yTrue is reSigP*(yT + reTsY).                                // [m] real room left (+ = would roll out short)
-            set reYEnd to yTrue - max(0, reKRoom*reTsS - (-reSigP*reTsY)).    // [m] room left above the margin
-            local yRaw is 0.
-            if reYPrev < 1e11 set yRaw to max(-reVh, min(reVh, (reYPrev - reYEnd)/reSpPeriod)).
-            set reYPrev to reYEnd.
-            set reYRateF to reYRateF + (yRaw - reYRateF)*min(1, reSpPeriod/(reTauY + reSpPeriod)).
-            // time until the planned turn energy at the current drag power
-            set reTE to (eNow - 0.5*reVs^2 - gMag*reHs)/max(1, dMeas*vMag).    // [s]
-            // lateral room control: use the room up exactly when E reaches E_s
-            local cNow is -reSigP*reVh*sin(psiNow).                             // [m/s] closing speed toward the line
-            local cDes is cNow + reYEnd/max(reTEMin, reTE) - reYRateF.          // [m/s]
-            local chiD is arcsin(max(-sin(reChiAway), min(sin(reChiMax), cDes/reVh))).
-            set reQPsi to reQPsi + max(-reChiRate*reSpPeriod, min(reChiRate*reSpPeriod, -reSigP*chiD - reQPsi)).
-            if tsOk and (yTrue <= 0.5*max(0, reYRateF)*reSpPeriod or (reYEnd <= 0 and reTE <= reTEMin)) set reTrig to "geo".
-            else if not tsOk and reTsV < 0.9*reVTerm + 1 set reTrig to "crit".
-            else if vMag < 0.85*reVs set reTrig to "slow".
-            if reTrig <> "" { set reTurnOn to true. set reSigT to reSigP. set reTurnPhi to reSimPhi. }
-        }
-        else {
-            // TURN: bank so the turn rolls out on the line; reserve = full bank − planned bank
-            local tsOk is reTurnSim(vMag, altitude, 90 - vang(upV, vel), max(0, -reSigT*psiNow), reSigT, min(reSimPhi, abs(reYawCmd)*reKPhi)).
-            set reYEnd to reSigT*(yT + reTsY).                                  // [m] + = would roll out short of the line
-            local rNeed is -reSigT*reTsY.                                       // [m] room this turn uses at φ_plan
-            if not tsOk set reTurnPhi to reEqPhi.
-            else if rNeed > 1000 set reTurnPhi to arcsin(max(sin(10), min(sin(reEqPhi), sin(reSimPhi)*rNeed/max(1000, rNeed + reYEnd)))).
-        }
-    }
-    if not straight and not reFinal and reTurnOn and reSigT*psiNow >= -reFinHdg { set reFinal to true. set reSpLast to 0. }
-
-    // --- reference, path length, required vertical L/D ---
-    local L1 is reVh*reTL1.
-    local rx is px + L1*cos(reQPsi + psiOff).
-    local ry is py + L1*sin(reQPsi + psiOff).
-    local sTg is max(1000, (reQX - xT)*cos(reQPsi) + (reQY - yT)*sin(reQPsi)).   // [m] along-track to Q
-    local isTurn is false.
-    if straight or reFinal {
-        if straight { set reMode to "STRAIGHT". set sTg to max(1000, dTgt - reDTermL). }
-        else { set reMode to "FINAL". set sTg to max(1000, -px - reDTermL). }
-        set L1 to max(L1, 2*reVh^2/(max(reLift, 0.1)*sin(rePhiMaxP))).
-        set L1 to min(L1, reKL1T*max(dTgt, 1)).
-        local ahead is sqrt(max(0, L1^2 - py^2)).
-        set rx to px + max(ahead, 0.2*L1).
-        set ry to 0.
-    }
-    else if reTurnOn { set reMode to "TURN". set isTurn to true. }
-    else set reMode to "HOLD".
-    local fUse  is max(1, reFNow).
-    local ldReq is sTg/fUse.                                             // [-]    vertical L/D that lands the energy
-    if reMode = "HOLD" {
-        if nearQ and reLdHold > 0 set ldReq to reLdHold.
-        else set reLdHold to ldReq.
-    }
-    local dRq   is den/ldReq.                                            // [m/s²] equilibrium drag at that L/D
-    set reRangeErr to ldvM*fUse - sTg.                                   // [m] + = long at the current vertical L/D
-    if isTurn set reRangeErr to 0.
-    set reLdvReq to ldReq.  set reLdvM to ldvM.
-    set reDbgDReq to dRq.   set reDbgDMeas to dMeas.  set reDbgDQ to dQ.
-
-    // --- lateral acceleration (L1; TURN: full bank as planned) ---
-    local dx is rx - px.
-    local dy is ry - py.
-    local dRL is max(1, sqrt(dx^2 + dy^2)).
-    local sinEta is (vx*dy - vy*dx)/(reVh*dRL).
-    local aLat is 2*reVh^2/max(L1, dRL)*sinEta.
-    if isTurn set aLat to reSigT*max(reLift, 0.1)*sin(reTurnPhi).
-    local aVec is (e1*(-vy) + e2*vx):normalized * aLat.
-
-    // --- learning: effective bank (kPhi), lateral efficiency (eta) ---
-    local sideD is vcrs(vel, L0d):normalized.
-    local phiMeas is arctan2(vdot(LvM, sideD), vdot(LvM, L0d)).
+    // --- effective bank per yaw command (kPhi) ---
     set reYawLagF to reYawLagF + (reYawSign*reYawCmd - reYawLagF)*min(1, dt/(reTauAtt + dt)).
     local yawRateC is abs(reYawCmd - reYawCmdLast)/max(dt, 0.01).
     set reYawCmdLast to reYawCmd.
@@ -13860,22 +13732,152 @@ function ReGuidUpdate {
     }
     set reKPhi to max(reKPhiMin, min(reKPhiMax, reKPhi)).
     set reDbgPhiM to phiMeas.
-    set rePhiF to rePhiF + (abs(phiMeas) - rePhiF)*min(1, dt/(rePhiTau + dt)).
-    if rePhiF > 15 and abs(aLat) > 0.1 {
-        local aMeasL is vdot(reAeroV, aVec:normalized).
-        local etaNew is aMeasL/max(0.1, reLift*sin(rePhiF)).
-        if etaNew > 0.2 and etaNew < 1.5 set reEtaLat to reEtaLat + (etaNew - reEtaLat)*min(1, dt/(reTauEta + dt)).
+    set reEqPhi  to min(rePhiMaxH, reYawMaxB*reKPhi).                     // [deg] max effective bank
+    set reSimPhi to arcsin(reKTrig*sin(reEqPhi)).                         // [deg] bank the turn is planned with
+
+    // --- energy bookkeeping ---
+    local den  is max(gMag*reGFl, gMag - (vMag + reEqRot)^2/reEqR).        // [m/s²] weight not carried by the orbit speed
+    local eNow is 0.5*vMag^2 + gMag*altitude.                             // [J/kg]
+    if reELast > 0 set reFNow to reFNow - (reELast - eNow)/den.           // F = ∫dE/(g - u²/R), flown part removed
+    set reELast to eNow.
+    local aMid is 0.5*(reAoAMinP + reAoAMaxP).
+
+    // --- turn side: the side of the final line the ship is on (latched near the turn) ---
+    if not reQSet { set reQPsi to psiNow. set reQSet to true. }
+    if useHAC and not reTurnOn and not reNear {
+        if yT > reSideDb set reSigP to 1.
+        else if yT < -reSideDb set reSigP to -1.
+    }
+    local uTurn is (e1*(-vy) + e2*vx):normalized*reSigP.                  // lateral direction of the turn
+    local phi0 is phiMeas.                                                // [deg] current bank toward the turn side
+    if vdot(sideD, uTurn) < 0 set phi0 to -phiMeas.
+    set phi0 to max(0, min(reSimPhi, phi0)).
+
+    // --- along-track aim: overshoot allowed with the turn angle (tower rotation), undershoot without ---
+    local tnA is reTurnNeed.
+    if not reTurnOn set tnA to max(0, reNeed).
+    set tnA to min(90, tnA).
+    local xH is -reDTermL + reLngOver*sin(tnA) - reLngUnder*cos(tnA).    // [m] handover point on the final line
+
+    // --- near-turn zone (plan frozen, turn checks run) ---
+    local dQ is sqrt((reQX - xT)^2 + (reQY - yT)^2).
+    if useHAC and not reTurnOn and not reNear and not reFinal and reQN >= 5 and ((reKVsChg < 0.05 and vMag <= reKGate*reVs) or dQ < reSTurn + reVh*reTNear) set reNear to true.
+
+    // --- plan / turn checks (every reSpPeriod) ---
+    if now > reSpLast + reSpPeriod {
+        set reSpLast to now.
+        set reVe to reVTerm*reKVe.
+        set reDTermL to max(reDTermMin, reKTerm*max(0, reHeq(reVTerm, 1, aMid) - (altitude - rAlt) - FlipAltitude)*min(1/tan(reGamMinT), reLDa(reAoAMinT))).
+        local eEq is 0.5*vMag^2 + gMag*reHeq(vMag, 1, aMid).
+        if not useHAC or reFinal {
+            set reFNow to reFInt(reVTerm, vMag, 10, aMid) + (eNow - eEq)/den.
+        }
+        else if not reTurnOn and not reNear {
+            // PLAN: turn angle from the approach geometry, turn start speed so the turn ends at reVe,
+            //       turn start point Q = roll-out point minus the simulated turn
+            if reNeed < 0 set reNeed to max(0, -reSigP*arctan2(-yT, -xT)).
+            else if reQN > 0 {
+                local bQ is arctan2(reQY - yT, reQX - xT).
+                if reSigP*bQ < 0 set reNeed to reNeed + max(-reNeedRate*reSpPeriod, min(reNeedRate*reSpPeriod, -reSigP*bQ - reNeed)).
+            }
+            local need is min(150, max(0, reNeed)).
+            local kT is max(0.05, reLDa(reAoARetMax)*sin(reSimPhi)).
+            local nIt is 1.
+            if reQN = 0 set nIt to 4.
+            local iIt is 0.
+            until iIt >= nIt {
+                set reVs to min(vMag, max(1.05*reVe, reVe*constant:e^min(20, need/(57.2958*kT))*reKVs)).
+                set reHs to reHeq(reVs, 1, reAoARetMax).
+                local denS is max(gMag*reGFl, gMag - (reVs + reEqRot)^2/reEqR).
+                local gS is arcsin(max(-0.3, -(denS/max(0.1, reLDa(aMid)))*reEqHs*(2*(reVs + reEqRot)/(reEqR*denS) + 2/reVs)/reVs)).
+                local tOk is reTurnSim(reVs, reHs, gS, need, reSigP, 0).
+                local k0 is reKVs.
+                if tOk or reTsV < reVe set reKVs to max(0.02, min(3, reKVs*sqrt(reVe/max(1, reTsV)))).
+                set reKVsChg to abs(ln(reKVs/k0)).
+                set iIt to iIt + 1.
+            }
+            set reSTurn to reTsS.
+            set reLFin to reLDa(aMid)*reFInt(reVTerm, max(reVTerm, reTsV), 4, aMid).
+            set reQX to xH - reLFin - reTsX - cos(-reSigP*need)*reVs*reTauAtt.
+            set reQY to reSigP*reYBias - reTsY - sin(-reSigP*need)*reVs*reTauAtt.
+            set reQPsi to arctan2(reQY - yT, reQX - xT).
+            set reQN to reQN + 1.
+            set reFNow to reFInt(reVs, vMag, 8, aMid) + (eNow - eEq)/den.
+        }
+        else if not reTurnOn {
+            // CHECK: would a turn started now (at the planned bank) roll out on the bias line?
+            local need is max(0, -reSigP*psiNow).
+            local tsOk is reTurnSim(vMag, altitude, 90 - vang(upV, vel), need, reSigP, phi0).
+            set reYEnd to reSigP*(yT + reTsY) - reYBias.                     // [m] + = room left
+            local yRate is 0.
+            if reYPrev < 1e11 set yRate to max(0, min(reVh, (reYPrev - reYEnd)/reSpPeriod)).
+            set reYPrev to reYEnd.
+            if tsOk and reYEnd <= 0.5*yRate*reSpPeriod set reTrig to "geo".
+            else if not tsOk and reTsV < 0.9*reVTerm + 1 set reTrig to "crit".
+            if reTrig <> "" {
+                set reTurnOn to true.
+                set reSigT to reSigP.
+                set reTurnPhi to reSimPhi.
+                set reTurnNeed to need.
+                set rePred to list(xT + reTsX, reYEnd, reTsV).
+            }
+        }
+        else {
+            // TURN: bank so the turn rolls out on the bias line (reserve = max bank − planned bank)
+            local need is max(0, -reSigT*psiNow).
+            local tsOk is reTurnSim(vMag, altitude, 90 - vang(upV, vel), need, reSigT, phi0).
+            set reYEnd to reSigT*(yT + reTsY) - reYBias.
+            local rNeed is -reSigT*reTsY.                                    // [m] room this turn uses at the planned bank
+            if not tsOk set reTurnPhi to reEqPhi.
+            else if rNeed > 1000 set reTurnPhi to arcsin(max(sin(10), min(sin(reEqPhi), sin(reSimPhi)*rNeed/max(1000, rNeed + reYEnd)))).
+        }
+    }
+    if useHAC and reTurnOn and not reFinal and reSigT*psiNow >= -reFinHdg {
+        set reFinal to true.
+        set reSpLast to 0.
+        set reAct to list(xT, reSigT*yT - reYBias, vMag).
     }
 
-    // --- AoA: vertical L/D for the energy + drag / sink-rate damping of the phugoid ---
-    local aCap  is 90 - (90 - reAoARetMax)*sin(min(abs(reYawCmd)*reKPhi, rePhiMaxH))/sin(rePhiMaxH).
-    local aMaxA is min(reAoAMaxP, aCap).
+    // --- mode, reference, path length to the handover ---
+    local L1 is reVh*reTL1.
+    local rx is px + L1*cos(reQPsi + psiOff).
+    local ry is py + L1*sin(reQPsi + psiOff).
+    local sTg is max(1000, (reQX - xT)*cos(reQPsi) + (reQY - yT)*sin(reQPsi)).   // [m] HOLD: along-track to Q
+    local isTurn is false.
+    if not useHAC or reFinal {
+        local yL is 0.
+        if not useHAC { set reMode to "STRAIGHT". set sTg to max(1000, dTgt + xH). }
+        else { set reMode to "FINAL". set sTg to max(1000, xH - px). set yL to reSigT*reYBias. }
+        set L1 to max(L1, 2*reVh^2/(max(reLift, 0.1)*sin(rePhiMaxP))).
+        set L1 to min(L1, reKL1T*max(dTgt, 1)).
+        local ahead is sqrt(max(0, L1^2 - (py - yL)^2)).
+        set rx to px + max(ahead, 0.2*L1).
+        set ry to yL.
+    }
+    else if reTurnOn { set reMode to "TURN". set isTurn to true. }
+    else set reMode to "HOLD".
+
+    // --- energy: vertical L/D that lands the energy at the handover, plus damping (AoA only) ---
+    local fUse  is max(1, reFNow).
+    local ldReq is sTg/fUse.                                             // [-]
+    local dRq   is den/ldReq.                                            // [m/s²] equilibrium drag at that L/D
+    set reRangeErr to ldvM*fUse - sTg.                                   // [m] + = long at the current vertical L/D
+    if isTurn set reRangeErr to 0.
+    set reLdvReq to ldReq.  set reLdvM to ldvM.  set reDbgDQ to dQ.
     local hdRef is -dRq*reEqHs*(2*(vMag + reEqRot)/(reEqR*den) + 2/vMag).  // [m/s]   equilibrium sink rate
     local w0    is sqrt(den/reEqHs).                                      // [rad/s] phugoid frequency
-    local ldCmd is ldReq*(1 + (reKM - 1)*(dMeas - dRq)/dRq) + 2*reZeta*sqrt(reKM)*w0/dRq*(hdRef - verticalspeed).
-    local cPhi  is cos(min(85, abs(reYawCmd)*reKPhi)).
+    local dTerm is max(-reKClamp, min(reKClamp, (reKM - 1)*(dMeas - dRq)/dRq)).
+    local hTerm is max(-reKClamp, min(reKClamp, 2*reZeta*sqrt(reKM)*w0/(dRq*ldReq)*(hdRef - verticalspeed))).
+    local ldCmd is ldReq*(1 + dTerm + hTerm).
+
+    // --- AoA ---
+    local phiAbs is min(85, abs(reYawCmd)*reKPhi).
+    local aCap  is 90 - (90 - reAoARetMax)*sin(min(phiAbs, rePhiMaxH))/sin(rePhiMaxH).
+    local aMaxA is min(reAoAMaxP, aCap).
     local aTgt  is aMaxA.
-    if not isTurn {
+    if isTurn or (reNear and reTPre > 0 and reMode = "HOLD") set aTgt to reAoARetMax.
+    else {
+        local cPhi is cos(phiAbs).
         local f0 is reLDa(aNow)*cPhi - ldCmd.
         local f1 is 0.5*(reLDa(aNow + 1) - reLDa(aNow - 1))*cPhi.        // [1/deg]
         if f1 < -0.0001 set aTgt to aNow - f0/f1.
@@ -13884,12 +13886,14 @@ function ReGuidUpdate {
     if reAoACmd = 0 set reAoACmd to aNow.
     set reAoACmd to reAoACmd + max(-reAoARate*dt, min(reAoARate*dt, aTgt - reAoACmd)).
 
-    // --- bank: lateral demand + energy S-turns when even the highest AoA leaves too much vertical L/D ---
-    local phiE is 0.
-    if not isTurn and not (nearQ and reMode = "HOLD") {
-        local ldMin is reLDa(aMaxA).
-        if ldCmd < ldMin set phiE to min(rePhiEMax, arccos(max(0, min(1, ldCmd/max(0.01, ldMin))))).
-    }
+    // --- bank: L1 path shaping before/after the turn, closed-loop turn bank in TURN ---
+    local dx is rx - px.
+    local dy is ry - py.
+    local dRL is max(1, sqrt(dx^2 + dy^2)).
+    local sinEta is (vx*dy - vy*dx)/(reVh*dRL).
+    local aLat is 2*reVh^2/max(L1, dRL)*sinEta.
+    if isTurn set aLat to reSigT*max(reLift, 0.1)*sin(reTurnPhi).
+    local aVec is (e1*(-vy) + e2*vx):normalized * aLat.
     local rightV is vcrs(vel, upV):normalized.
     local sgn is 1.
     if vdot(aVec, rightV) < 0 set sgn to -1.
@@ -13898,16 +13902,10 @@ function ReGuidUpdate {
     local phiEq is 90.
     if reLift > 0.1 set phiEq to arccos(max(-1, min(1, reKEq*gNet/reLift))).
     set phiEq to max(rePhiEqMin, phiEq).
-    local phiMaxM is max(min(rePhiMaxP, phiEq), phiE).
-    if isTurn or reMode = "FINAL" set phiMaxM to rePhiMaxH.
-    local phiLat is arcsin(min(abs(aLat)/max(reLift, 0.1), sin(phiMaxM))).
-    local etaDeg is arcsin(max(-1, min(1, sinEta))).
-    local psiRate is 57.3*reLift*sin(max(phiE, 1))/reVh.
-    local psiDb   is min(reRevDb, max(2, reKRev*(sTg/reVh)*psiRate/2)).
-    if phiLat >= phiE { if phiLat > 2 set rePhiSign to sgn. }
-    else if sgn <> rePhiSign and abs(etaDeg) > psiDb set rePhiSign to sgn.
-    local phi is min(phiMaxM, max(phiLat, phiE)).
-    local yawRaw is reYawSign * rePhiSign * min(reYawMaxB, phi/max(reKPhi, 0.3)).
+    local phiMaxM is min(rePhiMaxP, phiEq).
+    if isTurn or reFinal set phiMaxM to rePhiMaxH.
+    local phi is arcsin(min(abs(aLat)/max(reLift, 0.1), sin(phiMaxM))).
+    local yawRaw is reYawSign*sgn*min(reYawMaxB, phi/max(reKPhi, 0.3)).
     set reYawCmd to reYawCmd + max(-reBankRate*dt, min(reBankRate*dt, yawRaw - reYawCmd)).
 }
 
