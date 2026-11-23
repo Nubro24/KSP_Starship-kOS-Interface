@@ -1682,7 +1682,7 @@ function FindParts {
 
 //-------------  Reentry Trajectory Prediction ---------------------
 
-set reVAoASw       to 360*Scale.  // [m/s] below: predictor uses LandingAoA
+set reVAoASw       to 340*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
 set reStepsPerCall to 20.          // [-]   integration steps per guidance call (IPU knob)
@@ -1691,7 +1691,7 @@ set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide r
 set reDTermMin     to 1000*Scale.       // [m] lower bound
 set reQLearn       to 0.02.       // [atm] above this, RCS thrust is negligible against aero (≈ 2 kPa)
 set reStepMin      to 4.           // [s] smallest predictor step
-set reNMax         to 500.         // [-] max predictor steps
+set reNMax         to 243.         // [-] max predictor steps
 set rePRbf         to -1.
 
 function rePredInit {
@@ -1928,7 +1928,7 @@ function ReGuidInit {
     set reHoldPsi to 0.  set reEY to 0.  set rePsiEnd to 0.  set reDTermL to reDTerm.  set reS1Raw to 0.
     set reP0Sig to 0.  set reP0X to 0. set reP0Y to 0.  set reP0Psi to 0.
     set reP0Vg to 1.  set reP0T to 0.  set reP0Free to true.  set rePTT to 0.
-    set reRTurn to 0. set reRTurnF to 0. set reRbfL to -1. set reDExt to 0.
+    set reRTurnF to 0. set reRbfL to -1. set reDExt to 0.
     set reTTBoot to true. set reTTLate to 0. set reEY1 to 0. set reTTBase to 0. set rePTCross to -1.
     set reKDv to 1. set reDbgCalV to 0. set rePVc to -1.
     set reTTN4 to 0. set reJSl to 0.
@@ -13054,7 +13054,7 @@ function ReEntryAndLand {
                 when airspeed < 1000*Scale then {
                     set PlotAoA to (currentAoA + PlotAoA + aoa)/3.
                 }
-                when airspeed < reVAoASw then {
+                when airspeed < reVAoASw and (reFinal or reTerm or not (DynamicBanking and dbactive)) then {
                     set aoa to LandingAoA.
                     set DescentAngles to list(aoa, aoa, aoa, aoa).
                     set PlotAoA to (PlotAoA + LandingAoA)/2.
@@ -13973,9 +13973,8 @@ function ReGuidUpdate {
                 set reEY to jEY.  set reEY1 to jEY.  set rePsiEnd to rePPsi.
                 set rePsiE1 to rePPsi.
                 set reRbfL to rePRbf.
-                if rePRt > 0 set reRTurn to rePRt.
-                else if rePRbf > 0 set reRTurn to rePRbf.
-                if reRTurn > 0 set reRTurnF to reRTurnF + (reRTurn - reRTurnF)*0.3.
+                if rePRt > 0 set reRTurnF to reRTurnF + (rePRt - reRTurnF)*0.3.
+                else if reRTurnF <= 0 and rePRbf > 0 set reRTurnF to rePRbf.
                 set reTTBase to rePTT.
                 set reJob to 9.
                 if reP0Sig <> 0 and reP0Free {
