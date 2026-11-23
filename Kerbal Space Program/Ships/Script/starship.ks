@@ -1685,11 +1685,13 @@ function FindParts {
 set reVAoASw       to 600*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
-set reStepsPerCall to 24.          // [-]   integration steps per guidance call (IPU knob)
+set reStepsPerCall to 20.          // [-]   integration steps per guidance call (IPU knob)
 set reKDLow        to 1.1.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
 set reDTermMin     to 1000*Scale.       // [m] lower bound
 set reQLearn       to 0.02.       // [atm] above this, RCS thrust is negligible against aero (≈ 2 kPa)
+set reStepMin      to 4.           // [s] smallest predictor step
+set reNMax         to 300.         // [-] max predictor steps
 set rePRbf         to -1.
 
 function rePredInit {
@@ -1799,7 +1801,7 @@ set rsKthB to 0.09.    // [1/deg]     direct stiffness in the bellyflop
 set rsKiB  to 0.012.    // [1/(deg·s)] trim integrator in the bellyflop
 set reYawRollK0 to 1.2.   // [-]   coordination yaw per degree of roll (small)
 set reKYawA     to 0.5.   // [-]   lateral accel per sin(yaw), in g  (smaller = more yaw per demand)
-set reYawMaxT   to 42.    // [deg] max yaw in the bellyflop
+set reYawMaxT   to 60.    // [deg] max yaw in the bellyflop
 set rsAlphaFrac to 0.4.    // [-] use half the measured authority for braking (margin)
 set rsAlphaMin  to 0.1.    // [deg/s²]
 set rsAlphaMaxL to 5.      // [deg/s²]x
@@ -1833,8 +1835,8 @@ function ReRawSteerInit {
 //-------------  Reentry Guidance ---------------------
 
 set rePhiMaxP   to 26.      // [deg]  max bank in HOLD
-set reYawMaxB   to 70.      // [deg] max yaw command
-set rePhiMaxH   to 70.      // [deg]  max bank in TURN/FINAL
+set reYawMaxB   to 72.      // [deg] max yaw command
+set rePhiMaxH   to 72.      // [deg]  max bank in TURN/FINAL
 set reFinHdg    to 5.        // [deg]  FINAL latches when the remaining heading change is below this
 set reAoARetMax to 66.     // [deg]  max AoA at full bank 
 set reBankRate  to 6.       // [deg/s] bank rate limit (also smooths mode switches/reversals)
@@ -1847,7 +1849,6 @@ set reKPhiRate  to 1.5.         // [deg/s] only learn while the yaw command chan
 set reTL1       to 12.    // [s] L1 = V·T  (smaller = sharper steering in AWAY/FINAL)
 set reTauAtt    to 4.     // [s]   attitude lag (bank ramp in the predictor, kPhi learning)
 set reDPsiStep  to 3.     // [deg] max heading change per predictor step in the turn
-set reNMax      to 600.   // [-]   max predictor steps (above: prediction discarded)
 set reKT        to 0.8.   // [-]   Newton damping for the turn time
 set reTTStepMax to 60.    // [s]   max change of the turn time per prediction
 set reTTTol     to 3.     // [s]   turn time counts as converged below this change
@@ -1856,8 +1857,6 @@ set reAoAMaxP   to 80.    // [deg] highest AoA on the path
 set reTTPert    to 20.     // [s] perturbation of the turn time for the measured slope
 set reKPhiMin   to 0.5.
 set reKPhiMax   to 1.2.
-set reTCal to 60.      // [s] calibration horizon
-set reKCal to 0.5.     // [-] calibration gain (≤ 1: half the measured error per comparison)
 set reYawSign   to 1.
 set reApprSign  to 1.
 set reLMin      to 1.       // [m/s²] min lift to run (above the atmosphere: off)
@@ -1889,7 +1888,7 @@ set reSteerTau  to 1.0.    // [s]         target filter (new)
 set reKExt to 0.5.      // [-] fraction of the residual range error moved into the path length per solve
 set reTerm      to false.
 set reAoACmd    to 0.
-set reTCal to 40.      // [s] calibration horizon (shorter = faster tracking, smaller dh signal)
+set reTCal to 30.      // [s] calibration horizon (shorter = faster tracking, smaller dh signal)
 set reKCal to 0.5.     // [-] total correction per horizon
 set reCalStep to 0.05.   // [-] max relative change per comparison
 set reGActive   to false.
@@ -13570,8 +13569,8 @@ function rePredStep {
         local psXdA  is psVgA*cos(rePPsi).
         local psYdA  is psVgA*sin(rePPsi).
         local psPdA  is (-psVgA*sin(psZeA)*tan(psRhA*28.6479)/psR0 + psTr*psLoD*psDragA/max(rePV*cos(rePG), 1))*57.2958.
-        local psStep  is min(reStepMax, max(1, 0.12*rePV/max(psDragA, 0.1))).
-        if psTurn set psStep to min(psStep, max(0.5, reDPsiStep/max(0.01, abs(psPdA)))).
+        local psStep  is min(reStepMax, max(reStepMin, 0.12*rePV/max(psDragA, 0.1))).
+        if psTurn set psStep to min(psStep, max(reStepMin, reDPsiStep/max(0.01, abs(psPdA)))).
         if reJob = 1 reDProfNew:add(list(rePV, psDragA)).
 
         // Euler predictor
