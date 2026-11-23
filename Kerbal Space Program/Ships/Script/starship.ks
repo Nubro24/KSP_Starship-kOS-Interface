@@ -1685,7 +1685,7 @@ function FindParts {
 set reVAoASw       to 600*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
-set reStepsPerCall to 12.          // [-]   integration steps per guidance call (IPU knob)
+set reStepsPerCall to 24.          // [-]   integration steps per guidance call (IPU knob)
 set reKDLow        to 1.1.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
 set reDTermMin     to 1000*Scale.       // [m] lower bound
@@ -1705,8 +1705,6 @@ function rePredInit {
     set reS1     to 0.
     set reHHand to 0.
     set reP0Gnd to 0.
-    set reVArc to -1. 
-    set reLArc to 0. 
     set reDProf to list().  set reDProfNew to list().
     set reDProfA to 60.     set reDIdx to 0.
     set rePRun   to false.
@@ -1762,7 +1760,7 @@ function rePredStart {
     set rePRun  to reP0KD > 1e-12.
     set rePTCross to -1.
     set rePHc to -1.
-    set rePTs0 to -1. set rePRt to -1.
+    set rePTs0 to -1. set rePRt to -1. set rePRbf to -1.
     set rePValid to false.
     set reDProfNew to list().
 }
@@ -1772,7 +1770,7 @@ function rePredStart {
 set rsWMax   to 6/Scale.      // [deg/s]   max pitch/yaw rate
 set rsWMaxR  to 2.4/Scale^0.5.      // [deg/s]   max roll rate
 set rsAlphaB to 0.85/Scale^2.    // [deg/s²]  usable braking acceleration (braking curve)
-set rsKth to 0.07.    // [1/deg] direct angle stiffness outside the bellyflop
+set rsKth to 0.06.    // [1/deg] direct angle stiffness outside the bellyflop
 set rsTs  to 6.       // [s]       settling time near the target
 set rsAlphaTune to 1.0.   // [deg/s² per full input] authority at which rsKw was tuned
 set rsKqMin     to 0.6.   // [-] lowest gain scaling at high q
@@ -1826,8 +1824,6 @@ function ReRawSteerInit {
     set rsWLast     to v(0,0,0).
     set rsAlphaEst  to 0.
     set rsAlphaEstR to 0.
-    set rsEWLast to v(0,0,0).
-    set rsDEW    to v(0,0,0).
     set rsAccF to v(0,0,0).
     set rsActive to true.
     unlock steering.
@@ -1890,12 +1886,12 @@ set reRollSign  to 1.     // [-]  flip if the ship rolls AWAY from the aim point
 set reKEq       to 1.0.   // [-]   1 = keep exactly enough vertical lift for equilibrium glide
 set rePhiEqMin  to 15.    // [deg] minimum steering authority even when lift is short
 set reSteerTau  to 1.0.    // [s]         target filter (new)
-set reDPsiP       to 5.    // [deg] perturbation of the hold heading for the Jacobian
-set reDPsiStepMax to 10.   // [deg] max change of Δψ_H per solve
-set reDPsiHMax    to 45.   // [deg] max hold heading offset
-set reDPsiTol     to 1.    // [deg] Δψ_H counts as converged below this change
+set reKExt to 0.5.      // [-] fraction of the residual range error moved into the path length per solve
 set reTerm      to false.
 set reAoACmd    to 0.
+set reTCal to 40.      // [s] calibration horizon (shorter = faster tracking, smaller dh signal)
+set reKCal to 0.5.     // [-] total correction per horizon
+set reCalStep to 0.05.   // [-] max relative change per comparison
 set reGActive   to false.
 set reYawCmd    to 0.
 set reRangeErr  to 0.
@@ -1928,13 +1924,16 @@ function ReGuidInit {
     set reEtaLat   to 1.
     set reKPhi     to 1.
     set reDbgPhiM  to 0.
-    set reKLv to 1.  set reCalT to -1.  set reCalH to 0.  set reDbgCal to 0.
+    set reKLv to 1. set reDbgCal to 0.
     set reTT to 0.  set reTTOk to false.  set reTurnOn to false.  set reSigT to 0.  set reSigP to 0.
     set reHoldPsi to 0.  set reEY to 0.  set rePsiEnd to 0.  set reDTermL to reDTerm.  set reS1Raw to 0.
     set reP0Sig to 0.  set reP0X to 0. set reP0Y to 0.  set reP0Psi to 0.
     set reP0Vg to 1.  set reP0T to 0.  set reP0Free to true.  set rePTT to 0.
-    set reRTurn to 0. set reRTurnF to 0.
+    set reRTurn to 0. set reRTurnF to 0. set reRbfL to -1. set reDExt to 0.
     set reTTBoot to true. set reTTLate to 0. set reEY1 to 0. set reTTBase to 0. set rePTCross to -1.
+    set reKDv to 1. set reDbgCalV to 0. set rePVc to -1.
+    set reTTN4 to 0. set reJSl to 0.
+    set reCalQ to list(). set reCalLastT to 0.
     set reHoldSet to false.
     rePredInit().
     set reInit to true.
@@ -13297,13 +13296,14 @@ function ReEntrySteering {
 
         clearscreen.
         print "Mode: " + reMode.
+        print "IPU left: " + OPCODESLEFT  + "/" + config:ipu.
         print "Range Err: " + round(reRangeErr) + " m   |  Lat Err: " + round(reEY) + " m".
         print "AoA - Desired: " + round(DesiredAoA, 1) + "  (plan " + round(aoa,1) + ", Δ " + round(pitchctrl,1) + ")".
         print " |    Current: " + round(currentAoA,1).
         print "Bank (yawctrl): " + round(yawctrl, 1).
-        print "rBf " + round(rePRbf/1000,1) + " km".
+        print "rBf " + round(reRbfL/1000,1) + " km".
         print "Turn in: " + round(min(9999, max(0, reTT - time:seconds))) + " s  ok " + reTTOk + "  side " + reSigP + "  psiEnd " + round(rePsiEnd).
-        print "kLv " + round(reKLv,2) + "  dh(60s) " + round(reDbgCal) + " m".
+        print "kDv " + round(reKDv,2) + "  dv(60s) " + round(reDbgCalV) + " m/s   kLv " + round(reKLv,2) + "  dh " + round(reDbgCal) + " m".
         print "SteeringOffset: " + round(steeringOffsetFinal,1).
         print "Bellyflop: " + Bellyflop.
         print "kDlow " + round(reKDLow,2).
@@ -13550,7 +13550,7 @@ function rePredStep {
         local psAoA is rePA.
         if rePV < reVAoASw set psAoA to LandingAoA.
         set psAoA to min(psAoA, 90 - (90 - reAoARetMax)*sin(min(psBank, rePhiMaxH))/sin(rePhiMaxH)).
-        local psKDrag is reP0KD*sin(psAoA)^3/reP0S3.
+        local psKDrag is reKDv*reP0KD*sin(psAoA)^3/reP0S3.
         local psLoD   is reP0LD*(cos(psAoA)/max(sin(psAoA),0.01))/reP0Ct.
         if rePV < reVAoASw set psKDrag to psKDrag*reKDLow.
         local psTr is 0.
@@ -13611,7 +13611,7 @@ function rePredStep {
         }
         set rePS    to rePS + 0.5*(psVgA + psVgB)*psStep.
         set rePT    to rePT + psStep.
-        if rePHc < 0 and rePT >= reTCal set rePHc to rePH.                   // [m] predicted altitude at T_c
+        if rePHc < 0 and rePT >= reTCal { set rePHc to rePH. set rePVc to rePV. }
         set rePN    to rePN + 1.
         set psCount to psCount + 1.
     }
@@ -13787,11 +13787,18 @@ function ReGuidUpdate {
     set reAeroV to reAeroV + (aM - reAeroV)*min(1, dt/(reAccTau + dt)).
     local vel  is velocity:surface.
     local reLift    is vxcl(vel, reAeroV):mag. 
-    if reCalT > 0 and now >= reCalT {
-        local cDh is altitude - reCalH. 
-        set reKLv to max(0.5, min(2, reKLv*(1 + reKCal*2*cDh/(max(reLift, 0.5)*reTCal^2)))).
-        set reCalT to -1.
-        set reDbgCal to cDh.
+    if reCalLastT <= 0 set reCalLastT to now.
+    local cK is reKCal*min(reTCal, max(0.5, now - reCalLastT))/reTCal.
+    until reCalQ:length = 0 or reCalQ[0][0] > now {
+        local cE  is reCalQ[0].
+        reCalQ:remove(0).
+        local cDv is velocity:surface:mag - cE[2].                                  // [m/s] + = real faster
+        local cDr is max(0.2, -vdot(reAeroV, velocity:surface:normalized)).
+        set reKDv to max(0.5, min(2,   reKDv*(1 + max(-reCalStep, min(reCalStep, -cK*cDv/(cDr*reTCal)))))).
+        local cDh is altitude - cE[1].                                              // [m] + = real higher
+        set reKLv to max(0.5, min(2.5, reKLv*(1 + max(-reCalStep, min(reCalStep,  cK*2*cDh/(max(reLift, 0.5)*reTCal^2)))))).
+        set reDbgCal to cDh.  set reDbgCalV to cDv.
+        set reCalLastT to now.
     }
 
     // --- terminal window (independent of Dynamic Banking) ---
@@ -13848,14 +13855,14 @@ function ReGuidUpdate {
 
     // --- mode: HOLD until the solved turn time, TURN at max bank, then FINAL ---
     if not straight and not reFinal {
-        if not reTurnOn and reTTOk and rePRbf > 0 and now >= reTT { set reTurnOn to true. set reSigT to reSigP. }
+        if not reTurnOn and reTTOk and reRbfL > 0 and now >= reTT { set reTurnOn to true. set reSigT to reSigP. }
         if reTurnOn and reSigT*psiNow >= -reFinHdg set reFinal to true.
         if not reTurnOn and reTTOk and abs(reHoldPsi) < reFinHdg and abs(rePsiEnd) < reFinHdg set reFinal to true.
     }
     if not reHoldSet { set reHoldPsi to psiNow. set reHoldSet to true. }
     if not reTurnOn and not reFinal and reRTurnF > 0 and reSigP <> 0 {
         local xT is -dTgt*cos(bT).  local yT is dTgt*sin(bT).   
-        local cX is -reDTermL.      local cY is reSigP*reRTurnF.
+        local cX is -reDTermL - reDExt.      local cY is reSigP*reRTurnF.
         local dXc is xT - cX.       local dYc is yT - cY.
         local dC  is max(1, sqrt(dXc^2 + dYc^2)).
         if dC > reRTurnF*1.02 {
@@ -13964,6 +13971,7 @@ function ReGuidUpdate {
                 set reS1Raw to jES.  set reS1 to jES.
                 set reEY to jEY.  set reEY1 to jEY.  set rePsiEnd to rePPsi.
                 set rePsiE1 to rePPsi.
+                set reRbfL to rePRbf.
                 if rePRt > 0 set reRTurn to rePRt.
                 else if rePRbf > 0 set reRTurn to rePRbf.
                 if reRTurn > 0 set reRTurnF to reRTurnF + (reRTurn - reRTurnF)*0.3.
@@ -13975,14 +13983,24 @@ function ReGuidUpdate {
                         else set reTT to reP0T + rePT.
                         set reTTBoot to false.
                     }
-                    else {
+                    else if not reTTOk or reTTN4 >= 2 {
+                        set reTTN4 to 0.
                         rePredStart(rePA, rePPc, reTTBase + reTTPert, 0).
                         set reJob to 4.
                     }
+                    else {
+                        set reTTN4 to reTTN4 + 1.
+                        if abs(reJSl) > 1 {                                    // stored slope: Newton step without job 4
+                            local jDT is max(-reTTStepMax, min(reTTStepMax, -reKT*reEY1/reJSl)).
+                            if reSigP*reEY1 > 0 set jDT to max(0, jDT).
+                            set reTT to max(now, reP0T + reTTBase + jDT).
+                        }
+                    }
                 }
-                if rePHc > 0 and reCalT < 0 { set reCalT to reP0T + reTCal. set reCalH to rePHc. }
+                if rePHc > 0 reCalQ:add(list(reP0T + reTCal, rePHc, rePVc)).
             } else if reJob = 4 {
                 local jSl is (jEY - reEY1)/reTTPert.
+                set reJSl to jSl.
                 local jDT is 0.
                 if abs(jSl) > 1 set jDT to max(-reTTStepMax, min(reTTStepMax, -reKT*reEY1/jSl)).
                 if reSigP*reEY1 > 0 set jDT to max(0, jDT).
@@ -13998,7 +14016,7 @@ function ReGuidUpdate {
             }
             if reJob = 9 {
                 set reSlopeN to reSlopeN + 1.
-                if reSlopeN >= 3 or reSlope = 0 {
+                if reSlopeN >= 5 or reSlope = 0 {
                     set reSlopeN to 0.
                     rePredStart(rePA + 3, rePPc, reTTBase, 0).
                     set reJob to 2.
@@ -14011,6 +14029,7 @@ function ReGuidUpdate {
                     if abs(reSlope) > 1 set dNew to reDAoASol - reS1/reSlope.
                     local dClamp is min(reAoAMaxP - aoa, max(reAoAMinP - aoa, dNew)).
                     set reResid to reS1 + reSlope*(dClamp - reDAoASol).
+                    if not reTurnOn set reDExt to max(0, reDExt + reKExt*reResid).
                     set reDAoASol to reDAoASol + (dClamp - reDAoASol)*reKA.
                 }
                 set reJob to 0.
