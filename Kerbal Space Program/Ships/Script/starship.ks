@@ -1933,9 +1933,9 @@ function ReGuidInit {
     set reHoldPsi to 0.  set reEY to 0.  set rePsiEnd to 0.  set reDTermL to reDTerm.  set reS1Raw to 0.
     set reP0Sig to 0.  set reP0X to 0. set reP0Y to 0.  set reP0Psi to 0.
     set reP0Vg to 1.  set reP0T to 0.  set reP0Free to true.  set rePTT to 0.
+    set reRTurn to 0. set reRTurnF to 0.
     set reTTBoot to true. set reTTLate to 0. set reEY1 to 0. set reTTBase to 0. set rePTCross to -1.
     set reHoldSet to false.
-    set reDPsiH to 0.  set reJa to 0.  set reJc to 0.  set rePsiE1 to 0.
     rePredInit().
     set reInit to true.
 }
@@ -13853,13 +13853,28 @@ function ReGuidUpdate {
         if not reTurnOn and reTTOk and abs(reHoldPsi) < reFinHdg and abs(rePsiEnd) < reFinHdg set reFinal to true.
     }
     if not reHoldSet { set reHoldPsi to psiNow. set reHoldSet to true. }
-    if not reTurnOn and not reFinal {
-        local zeH is reHoldPsi + bT.
-        set reHoldPsi to reHoldPsi - reVh*sin(zeH)*tan(dTgt/body:radius*28.6479)/body:radius*57.2958*dt.
+    if not reTurnOn and not reFinal and reRTurnF > 0 and reSigP <> 0 {
+        local xT is -dTgt*cos(bT).  local yT is dTgt*sin(bT).   
+        local cX is -reDTermL.      local cY is reSigP*reRTurnF.
+        local dXc is xT - cX.       local dYc is yT - cY.
+        local dC  is max(1, sqrt(dXc^2 + dYc^2)).
+        if dC > reRTurnF*1.02 {
+            local bet is arccos(reRTurnF/dC).
+            local thP is arctan2(dYc, dXc).
+            local best is -1e9.  local qX is cX.  local qY is cY.
+            for th in list(thP + bet, thP - bet) {
+                local tx is cX + reRTurnF*cos(th).
+                local ty is cY + reRTurnF*sin(th).
+                local sc is (tx - xT)*(-reSigP*sin(th)) + (ty - yT)*(reSigP*cos(th)).
+                if sc > best { set best to sc. set qX to tx. set qY to ty. }
+            }
+            set reHoldPsi to arctan2(qY - yT, qX - xT).
+        }
+        else set reHoldPsi to arctan2(dYc, dXc).
     }
     local L1 is reVh*reTL1.
-    local rx is px + L1*cos(reHoldPsi + reDPsiH + psiOff).
-    local ry is py + L1*sin(reHoldPsi + reDPsiH + psiOff).
+    local rx is px + L1*cos(reHoldPsi + psiOff).
+    local ry is py + L1*sin(reHoldPsi + psiOff).
     local sTg is dTgt.
     local useOv is false.
     if straight or reFinal {
@@ -13919,7 +13934,7 @@ function ReGuidUpdate {
         set reP0X to -dTgt*cos(b0).
         set reP0Y to  dTgt*sin(b0).
         set reP0Psi to psiNow.
-        if not reTurnOn and not reFinal set reP0Psi to reHoldPsi + reDPsiH.
+        if not reTurnOn and not reFinal set reP0Psi to reHoldPsi.
         set reP0Vg   to reVh.
         set reP0T    to now.
         set reP0Free to not reTurnOn.
@@ -13927,7 +13942,7 @@ function ReGuidUpdate {
         if straight or reFinal set reP0Sig to 0.
         else if reTurnOn set reP0Sig to reSigT.
         else {
-            if psiNow < 0 set reP0Sig to 1.
+            if reP0Y >= 0 set reP0Sig to 1.
             else set reP0Sig to -1.
             set reSigP to reP0Sig.
             set tT to max(0, reTT - now).
@@ -13948,6 +13963,10 @@ function ReGuidUpdate {
                 set reHHand to rePH.
                 set reS1Raw to jES.  set reS1 to jES.
                 set reEY to jEY.  set reEY1 to jEY.  set rePsiEnd to rePPsi.
+                set rePsiE1 to rePPsi.
+                if rePRt > 0 set reRTurn to rePRt.
+                else if rePRbf > 0 set reRTurn to rePRbf.
+                if reRTurn > 0 set reRTurnF to reRTurnF + (reRTurn - reRTurnF)*0.3.
                 set reTTBase to rePTT.
                 set reJob to 9.
                 if reP0Sig <> 0 and reP0Free {
@@ -13963,31 +13982,15 @@ function ReGuidUpdate {
                 }
                 if rePHc > 0 and reCalT < 0 { set reCalT to reP0T + reTCal. set reCalH to rePHc. }
             } else if reJob = 4 {
-                set reJa to (jEY - reEY1)/reTTPert.                           // [m/s]   ∂e_y/∂T_T
-                set reJc to (rePPsi - rePsiE1)/reTTPert.                      // [deg/s] ∂ψ_e/∂T_T
-                rePredStart(rePA, rePPc, reTTBase, reDPsiP).
-                set reJob to 5.
-            } else if reJob = 5 {
-                local jb is (jEY - reEY1)/reDPsiP.                            // [m/deg] ∂e_y/∂Δψ_H
-                local jd is (rePPsi - rePsiE1)/reDPsiP.                       // [-]     ∂ψ_e/∂Δψ_H
-                local jFp is 0.
-                if reSigP*rePsiE1 < 0 set jFp to rePsiE1.                     // only an incomplete turn counts
-                local jDet is reJa*jd - jb*reJc.
-                local jDT is 0.  local jDP is 0.
-                if jFp <> 0 and abs(jDet) > 1e-3 {
-                    set jDT to -reKT*( jd*reEY1 - jb*jFp)/jDet.
-                    set jDP to -reKT*(-reJc*reEY1 + reJa*jFp)/jDet.
-                }
-                else if abs(reJa) > 1 set jDT to -reKT*reEY1/reJa.
-                set jDT to max(-reTTStepMax, min(reTTStepMax, jDT)).
-                set jDP to max(-reDPsiStepMax, min(reDPsiStepMax, jDP)).
+                local jSl is (jEY - reEY1)/reTTPert.
+                local jDT is 0.
+                if abs(jSl) > 1 set jDT to max(-reTTStepMax, min(reTTStepMax, -reKT*reEY1/jSl)).
                 if reSigP*reEY1 > 0 set jDT to max(0, jDT).
                 local jTT is reP0T + reTTBase + jDT.
                 if jTT < now set reTTLate to reTTLate + 1.
                 else set reTTLate to 0.
-                set reTTOk to (abs(reJa) > 1 and abs(jDT) < reTTTol and abs(jDP) < reDPsiTol) or reTTLate >= 3.
+                set reTTOk to (abs(jSl) > 1 and abs(jDT) < reTTTol) or reTTLate >= 3.
                 set reTT to max(now, jTT).
-                set reDPsiH to max(-reDPsiHMax, min(reDPsiHMax, reDPsiH + jDP)).
                 set reJob to 9.
             } else if reJob = 2 {
                 set reSlope to (jES - reS1Raw)/3.
