@@ -1682,16 +1682,16 @@ function FindParts {
 
 //-------------  Reentry Trajectory Prediction ---------------------
 
-set reVAoASw       to 340*Scale.  // [m/s] below: predictor uses LandingAoA
+set reVAoASw       to 420*Scale.  // [m/s] below: predictor uses LandingAoA
 set reStepMax      to 15.          // [s]   max predictor step
 set rePredPeriod   to 2.          // [s]   min time between prediction starts
-set reStepsPerCall to 20.          // [-]   integration steps per guidance call (IPU knob)
+set reStepsPerCall to 24.          // [-]   integration steps per guidance call (IPU knob)
 set reKDLow        to 1.1.        // [-]  drag multiplier below reVAoASw (transonic/subsonic)
 set reKTerm        to 0.5.        // [-] fraction of the bellyflop's max glide reach used for planning
 set reDTermMin     to 1000*Scale.       // [m] lower bound
 set reQLearn       to 0.02.       // [atm] above this, RCS thrust is negligible against aero (≈ 2 kPa)
 set reStepMin      to 4.           // [s] smallest predictor step
-set reNMax         to 243.         // [-] max predictor steps
+set reNMax         to 288.         // [-] max predictor steps
 set rePRbf         to -1.
 
 function rePredInit {
@@ -1761,7 +1761,7 @@ function rePredStart {
     set rePS    to 0.  set rePN to 0.  set rePT to 0.
     set rePRun  to reP0KD > 1e-12.
     set rePTCross to -1.
-    set rePHc to -1.
+    set rePHc to -1. set rePTurnOk to false.
     set rePTs0 to -1. set rePRt to -1. set rePRbf to -1.
     set rePValid to false.
     set reDProfNew to list().
@@ -1931,7 +1931,7 @@ function ReGuidInit {
     set reRTurnF to 0. set reRbfL to -1. set reDExt to 0.
     set reTTBoot to true. set reTTLate to 0. set reEY1 to 0. set reTTBase to 0. set rePTCross to -1.
     set reKDv to 1. set reDbgCalV to 0. set rePVc to -1.
-    set reTTN4 to 0. set reJSl to 0.
+    set reTTN4 to 0. set reJSl to 0. set reQSet to false. set reQX to 0. set reQY to 0.
     set reCalQ to list(). set reCalLastT to 0.
     set reHoldSet to false.
     rePredInit().
@@ -13539,10 +13539,13 @@ function rePredStep {
         // bank: hold (energy bank, no heading change) -> turn (ramp to max) -> aligned
         local psPsi  is rePPsi.
         local psTurn is reP0Sig <> 0 and rePT >= rePTT and reP0Sig*psPsi < 0.
-        if psTurn and rePTs0 < 0 { set rePTs0 to rePS. set rePTp0 to rePPsi. }
+        if psTurn and rePTs0 < 0 { set rePTs0 to rePS. set rePTp0 to rePPsi. set rePXs to rePX. set rePYs to rePY. }
         if rePTs0 >= 0 and rePRt < 0 and not psTurn and rePT > rePTT {
             local psDp is abs(rePPsi - rePTp0).
-            if psDp > 5 set rePRt to (rePS - rePTs0)/(psDp/57.2958).          // [m] mean radius of the predicted turn
+            if psDp > 5 { 
+                set rePRt to (rePS - rePTs0)/(psDp/57.2958). 
+                set rePXe to rePX. set rePYe to rePY. set rePTurnOk to true. 
+            }
         }
         local psBank is rePPc*constant:e^(-rePT/rePhiTau).
         if psTurn set psBank to min(rePhiMaxH, max(rePPc, rePPc + reBankRate*reKPhi*(rePT - rePTT - reTauAtt))).
@@ -13554,7 +13557,7 @@ function rePredStep {
         local psLoD   is reP0LD*(cos(psAoA)/max(sin(psAoA),0.01))/reP0Ct.
         if rePV < reVAoASw set psKDrag to psKDrag*reKDLow.
         local psTr is 0.
-        if psTurn set psTr to reP0Sig*reEtaLat*reKLv*sin(psBank).
+        if psTurn set psTr to reP0Sig*reEtaLat*sin(psBank).
 
         // derivatives at A
         local psRadA  is psR0 + rePH.
@@ -13607,7 +13610,7 @@ function rePredStep {
         if rePTCross < 0 and rePY*reP0Y <= 0 set rePTCross to rePT.
         if rePV < reVAoASw {
             local psLoDP is reP0LD*(cos(rePA)/max(sin(rePA),0.01))/reP0Ct.
-            set rePRbf to rePV^2/max(0.1, reEtaLat*reKLv*psLoDP*psDragA*sin(rePhiMaxH)).
+            set rePRbf to rePV^2/max(0.1, reEtaLat*psLoDP*psDragA*sin(rePhiMaxH)).
         }
         set rePS    to rePS + 0.5*(psVgA + psVgB)*psStep.
         set rePT    to rePT + psStep.
@@ -13860,24 +13863,10 @@ function ReGuidUpdate {
         if not reTurnOn and reTTOk and abs(reHoldPsi) < reFinHdg and abs(rePsiEnd) < reFinHdg set reFinal to true.
     }
     if not reHoldSet { set reHoldPsi to psiNow. set reHoldSet to true. }
-    if not reTurnOn and not reFinal and reRTurnF > 0 and reSigP <> 0 {
-        local xT is -dTgt*cos(bT).  local yT is dTgt*sin(bT).   
-        local cX is -reDTermL - reDExt.      local cY is reSigP*reRTurnF.
-        local dXc is xT - cX.       local dYc is yT - cY.
-        local dC  is max(1, sqrt(dXc^2 + dYc^2)).
-        if dC > reRTurnF*1.02 {
-            local bet is arccos(reRTurnF/dC).
-            local thP is arctan2(dYc, dXc).
-            local best is -1e9.  local qX is cX.  local qY is cY.
-            for th in list(thP + bet, thP - bet) {
-                local tx is cX + reRTurnF*cos(th).
-                local ty is cY + reRTurnF*sin(th).
-                local sc is (tx - xT)*(-reSigP*sin(th)) + (ty - yT)*(reSigP*cos(th)).
-                if sc > best { set best to sc. set qX to tx. set qY to ty. }
-            }
-            set reHoldPsi to arctan2(qY - yT, qX - xT).
-        }
-        else set reHoldPsi to arctan2(dYc, dXc).
+    if not reTurnOn and not reFinal and reQSet {
+        local xT is -dTgt*cos(bT).  local yT is dTgt*sin(bT).
+        set reHoldPsi to arctan2(reQY - yT, reQX - xT). 
+        set reDbgDQ to sqrt((reQX - xT)^2 + (reQY - yT)^2).
     }
     local L1 is reVh*reTL1.
     local rx is px + L1*cos(reHoldPsi + psiOff).
@@ -13973,8 +13962,12 @@ function ReGuidUpdate {
                 set reEY to jEY.  set reEY1 to jEY.  set rePsiEnd to rePPsi.
                 set rePsiE1 to rePPsi.
                 set reRbfL to rePRbf.
-                if rePRt > 0 set reRTurnF to reRTurnF + (rePRt - reRTurnF)*0.3.
-                else if reRTurnF <= 0 and rePRbf > 0 set reRTurnF to rePRbf.
+                if rePTurnOk {
+                    local qXn is -reDTermL - reDExt - (rePXe - rePXs).
+                    local qYn is -(rePYe - rePYs).
+                    if not reQSet { set reQX to qXn. set reQY to qYn. set reQSet to true. }
+                    else { set reQX to reQX + (qXn - reQX)*0.3. set reQY to reQY + (qYn - reQY)*0.3. }
+                }
                 set reTTBase to rePTT.
                 set reJob to 9.
                 if reP0Sig <> 0 and reP0Free {
