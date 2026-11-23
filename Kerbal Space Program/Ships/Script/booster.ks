@@ -1275,7 +1275,7 @@ set cgGateDecel     to 24.
 set cgTgoMin        to 4.
 set cgLead          to 0.6.
 set cgTauVz         to 1.2.
-set cgTauVh         to 2.4.
+set cgTauVh         to 2.2.
 set cgTauP          to 2*cgTauVh.
 set cgDzHold        to 0.5*Scale.
 set cgHBrakeK       to 0.6.      
