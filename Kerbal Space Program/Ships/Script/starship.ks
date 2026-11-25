@@ -1768,6 +1768,7 @@ set reTL1       to 12.      // [s]    L1 = V·T
 set reKL1T      to 0.5.     // [-]    final-line L1 ≤ k·(distance to target)
 // --- turn ---
 set reKTrig     to 0.95.    // [-]    turn planned/triggered at sin(φ) = k·sin(φ_max)  (rest = reserve)
+set reKTurnL    to 0.5.     // [-]    lift factor of the turn model (lower = wider turn planned = more lateral room)
 set reFinHdg    to 5.       // [deg]  TURN ends (FINAL) below this remaining heading change
 set reKVe       to 1.15.    // [-]    turn should end at k·reVTerm
 set reYBias     to 1200*Scale^0.7.    // [m] turn rolls out this far short of the final line (bellyflop corrects forward)
@@ -1896,7 +1897,7 @@ function reFInt {         // F = ∫ dE/(g − u²/R) [m] along the wings-level 
 function reTurnSim {      // forward point-mass turn at reAoARetMax, bank ramping from tsPhi to reSimPhi, until tsNeed [deg] is turned
     parameter tsV, tsH, tsG, tsNeed, tsSig, tsPhi.
     local tsSa is sin(reAoARetMax).
-    local tsCL is reEqCN*max(0.01, tsSa*tsSa*cos(reAoARetMax) - reEps*tsSa).        // lift per (p/T)·V²
+    local tsCL is reKTurnL*reEqCN*max(0.01, tsSa*tsSa*cos(reAoARetMax) - reEps*tsSa).   // lift per (p/T)·V², scaled
     local tsLD is max(0.1, reLDa(reAoARetMax)).
     local tsRate is max(0.5, reBankRate*reKPhi).                                     // [deg/s] effective bank build-up
     local tsP is -tsSig*tsNeed.
@@ -13943,6 +13944,7 @@ function ReGuidUpdate {
             set steeringManager:yawpid:ki to 0.27.
             set steeringManager:yawpid:kd to 0.64.
             set steeringManager:rollpid:kd to 0.55.
+            set LandingFlipStart to time:seconds.
 
             if abs(LngLatErrorList[0]) > 240*Scale or abs(LngLatErrorList[1]) > 80*Scale when addons:tr:hasimpact then {
                 set landingzone to ship:body:geopositionof(addons:tr:IMPACTPOS:position + facing:forevector:normalized*ShipHeight).
@@ -13982,8 +13984,11 @@ function ReGuidUpdate {
             addons:tr:settarget(landingzone).
             SetRadarAltitude().
             if airspeed > 130 set staggerDelay to 0.3. else set staggerDelay to 0.9.
-            
-            ActivateEngines(0).
+            if SLEngines[2]:hassuffix("activate") SLEngines[2]:activate.
+            when time:seconds > LandingFlipStart + staggerDelay/1.8 then {
+                if SLEngines[1]:hassuffix("activate") SLEngines[1]:activate.
+                when time:seconds > LandingFlipStart + staggerDelay then if SLEngines[0]:hassuffix("activate") SLEngines[0]:activate.
+            }
 
 
             if ship:body:atm:sealevelpressure > 0.5 {
@@ -14001,15 +14006,14 @@ function ReGuidUpdate {
                 wait 0.001.
                 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                 if random() < SLIgnCha/60 if SLEngines[2]:hassuffix("activate") SLEngines[2]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
-                set LandingFlipStart to time:seconds.
                 ShipLandInit().
                 when true then { ShipLandGuidance(). return slGActive. }
                 lock throttle to slThrot. 
                 setflaps(40, 50, 1, 0).
-                when time:seconds > LandingFlipStart + staggerDelay/1.8 then {
+                when time:seconds > LandingFlipStart + staggerDelay + staggerDelay/1.8 then {
                     if SLEngines[1]:hassuffix("activate") SLEngines[1]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                     if random() < SLIgnCha/60 if SLEngines[1]:hassuffix("activate")  SLEngines[1]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
-                    when time:seconds > LandingFlipStart + staggerDelay then {
+                    when time:seconds > LandingFlipStart + 2*staggerDelay then {
                         if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleGimbal"):SetField("gimbal limit", 100).
                         if random() < SLIgnCha/60 if SLEngines[0]:hassuffix("activate") SLEngines[0]:getmodule("ModuleEnginesFX"):SetField("thrust limiter", 100).
                         if not (TargetOLM = "False") {

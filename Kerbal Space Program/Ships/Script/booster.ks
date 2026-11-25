@@ -1042,7 +1042,7 @@ if bodyexists("Earth") {
         set offshoreSite to latlng(28.549,-80.5).
         set BoosterHeight to 70.6.
         set LiftingPointToGridFinDist to 4.5.
-        set LFBoosterFuelCutOff to 14000.
+        set LFBoosterFuelCutOff to 8000.
         if not BoosterSingleEngines set LFBoosterFuelCutOff to 15000.
         if FAR {
             set LngCtrlPID to PIDLOOP(0.35, 0.45, 0.27, -10, 10).
@@ -1832,6 +1832,7 @@ function Boostback {
 
 
     if RandomFlip set targetAp to ship:apoapsis - 200*Scale.
+    else if BoosterType:contains("Block3") set targetAp to ship:apoapsis + 2400*Scale^0.5.
     else set targetAp to ship:apoapsis + 800*(Scale^1.5).
 
 
