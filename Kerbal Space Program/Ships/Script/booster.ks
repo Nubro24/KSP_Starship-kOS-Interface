@@ -1273,12 +1273,12 @@ set cgRetroDev      to 4.
 set cgCorrGainA     to 0.2.
 set cgGateDecel     to 24.
 set cgTgoMin        to 4.
-set cgLead          to 0.7.
+set cgLead          to 0.6.
 set cgTauVz         to 1.2.
-set cgTauVh         to 2.2.
-set cgTauP          to 1.75*cgTauVh.
+set cgTauVh         to 2.3.
+set cgTauP          to 2*cgTauVh.
 set cgDzHold        to 0.5*Scale.
-set cgHBrakeK       to 0.7.      
+set cgHBrakeK       to 0.8.      
 set cgDistTau       to 0.7.
 set cgDistGain      to 0.7.
 set cgTiltMax       to 38.
@@ -3765,9 +3765,10 @@ function CatchGuidance {
             local vTim is 2*D/tauH.
             local vLin is D/cgTauP.
             local vDes is min(vBrk, min(vTim, vLin)).
-            local aFF  is -vDes/cgTauP.
-            if vDes = vBrk set aFF to -aHb.
-            else if vDes = vTim set aFF to -vDes/tauH.
+            local vcP  is max(vc, 0).
+            local aFF  is -vcP/cgTauP.
+            if vDes = vBrk set aFF to -aHb*vcP/max(vBrk, 0.1).
+            else if vDes = vTim set aFF to (vTim - 2*vcP)/tauH.
             set aH to eT*(aFF + (vDes - vc)/cgTauVh) - vPer/cgTauVh.
         } else {
             set aH to -vH/cgTauVh.
@@ -3801,7 +3802,7 @@ function CatchGuidance {
 
 function LandingThrottle {
     set minThrottle to 0.33.
-    set landingRatio to Planet1G*ship:mass/ship:availableThrust + (-verticalSpeed+CatchVS)/80.
+    set landingRatio to Planet1G*ship:mass/max(1,ship:availableThrust) + (-verticalSpeed+CatchVS)/80.
     set thro to max(0.33, landingRatio).
     if verticalSpeed > -5 set thro to minThrottle * min(min(3,landingRatio/0.33),verticalSpeed/(CatchVS*1.5)).
     if verticalSpeed > CatchVS*1.5 set thro to minThrottle.
