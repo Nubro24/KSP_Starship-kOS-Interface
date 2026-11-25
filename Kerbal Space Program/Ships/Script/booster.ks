@@ -1273,12 +1273,12 @@ set cgRetroDev      to 4.
 set cgCorrGainA     to 0.2.
 set cgGateDecel     to 24.
 set cgTgoMin        to 4.
-set cgLead          to 0.6.
+set cgLead          to 0.7.
 set cgTauVz         to 1.2.
 set cgTauVh         to 2.2.
-set cgTauP          to 2*cgTauVh.
+set cgTauP          to 1.75*cgTauVh.
 set cgDzHold        to 0.5*Scale.
-set cgHBrakeK       to 0.6.      
+set cgHBrakeK       to 0.7.      
 set cgDistTau       to 0.7.
 set cgDistGain      to 0.7.
 set cgTiltMax       to 38.
