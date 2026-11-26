@@ -58,6 +58,7 @@ User guide: [Wiki](https://github.com/Janus1992/KSP_Starship-kOS-Interface/wiki)
 - Atmospheric Autopilot
 - RSS Adapter
 - Persistent Thrust
+- KSP Retooled
 
 ## Installation:
 - **Download and install all requirements listed above.**
